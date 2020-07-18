@@ -293,7 +293,7 @@
 
 \newenvironment{dedication}
 {\begin{alwayssingle}
-  \pagestyle{empty}
+  \pagestyle{plain}%\pagestyle{empty}
   \begin{center}
   \vspace*{1.5cm}
   {\LARGE }
@@ -311,7 +311,7 @@
 % on its own page.
 
 \newenvironment{acknowledgements}
-{\pagestyle{empty}
+{\pagestyle{plain}%\pagestyle{empty}
 \begin{alwayssingle}
 \begin{center}
 \vspace*{1.5cm}
@@ -326,7 +326,7 @@
 % does not appears in a quote environment so you can get more in.
 
 \newenvironment{acknowledgementslong}
-{\pagestyle{empty}
+{\pagestyle{plain}%\pagestyle{empty}
 \begin{alwayssingle}
 \begin{center}
 \vspace*{1.5cm}
@@ -341,7 +341,7 @@
 %the top of the page. The abstract itself appears in a quote environment,
 %i.e. tabbed in at both sides, and on its own page.
 
-\newenvironment{abstracts} {\begin{alwayssingle} \pagestyle{empty}
+\newenvironment{abstracts} {\begin{alwayssingle} \pagestyle{plain}%\pagestyle{empty}
   \begin{center}
   \vspace*{1.5cm}
   {\Large \bfseries  Abstract}
@@ -354,7 +354,7 @@
 %the top of the page. The abstract itself does not appears in a quote
 %environment so you can get more in.
 
-\newenvironment{abstractslong} {\begin{alwayssingle} \pagestyle{empty}
+\newenvironment{abstractslong} {\begin{alwayssingle} \pagestyle{plain}%\pagestyle{empty}
   \begin{center}
   \vspace*{1.5cm}
   {\Large \bfseries  Abstract}
@@ -365,7 +365,7 @@
 %The abstractseparate environment is for running of a page with the abstract
 %on including title and author etc as required to be handed in separately
 
-\newenvironment{abstractseparate} {\begin{alwayssingle} \pagestyle{empty}
+\newenvironment{abstractseparate} {\begin{alwayssingle} \pagestyle{plain}%\pagestyle{empty}
   \vspace*{-1in}
  \begin{center}
     { \Large {\bfseries {\@title}} \par}
@@ -383,7 +383,7 @@
 
 %Statement of originality if required
 
-\newenvironment{declaration} {\begin{alwayssingle} \pagestyle{empty}
+\newenvironment{declaration} {\begin{alwayssingle} \pagestyle{plain}%\pagestyle{empty}
   \begin{center}
   \vspace*{1.5cm}
   {\Large \bfseries  Declaration}
