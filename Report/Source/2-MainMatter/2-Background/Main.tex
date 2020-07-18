@@ -1,11 +1,24 @@
 \chapter{Background}
-	This chapter outlines some of the research that is relevant to the topic of \gls{gpu} energy conservation.
+	This chapter outlines some of the research and other resources that are relevant to the topic of \gls{gpu} energy conservation.
 
-	\section{Measuring Energy Consumption}
-		TODO
+	\section{Energy Consumption}
+		This section outlines some of the work that has been done to measure and predict energy consumption.
 
-		\subsection{Statistical Analysis}
-			TODO
+		\subsection{Measuring}
+			Measuring live energy consumption is an important aspect of many power saving strategies.
+			There exist tools that can perform these types of measurement, the most important of which are outlined in this section.
+
+			\subsubsection{NVIDIA \acrlong{smi}}
+				NVIDIA's \gls{smi} tool is a command line utility that is able to query the \gls{gpu} device state \parencite{NVIDIA}.
+				Support is limited to NVIDIA \glspl{gpu}.
+				What makes this tool useful to this research is the fact that it can retrieve the current power consumption from the \gls{gpu} as it is running and that it can output this information to the console, which makes it possible to easily integrate the output programmatically.
+
+		\subsection{Statistical Analysis and Prediction}
+			\textcite{Ma2009} developed a method to statistically analyze and model the power consumption of a mainstream \gls{gpu}.
+			To achieve this they make use of the fact that there exists an innate coupling among the power consumption characteristics, runtime performance and dynamic workloads.
+			They found that their model is capable of robustly and accurately predicting the power consumption of a target \gls{gpu}.
+
+			\textcite{Chen2011} TODO
 
 	\section{Usage Patterns}
 		TODO

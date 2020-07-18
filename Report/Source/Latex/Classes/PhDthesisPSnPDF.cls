@@ -48,7 +48,7 @@
 \usepackage[english]{babel}
 \usepackage[usenames, dvipsnames]{color}
 \usepackage[perpage]{footmisc}
-\usepackage[round, sort, numbers]{natbib}
+% \usepackage[round, sort, numbers]{natbib}
 \usepackage{ifthen}
 \usepackage{multicol} % for pages with multiple text columns, e.g. References
 \setlength{\columnsep}{20pt} % space between columns; default 10pt quite narrow
@@ -114,7 +114,7 @@
                  bookmarksnumbered = true,
                  breaklinks = true,
                  linktocpage,
-                 pagebackref,
+                %  pagebackref,
                  colorlinks = false,  % was true
                  linkcolor = blue,
                  urlcolor  = blue,
@@ -136,7 +136,7 @@
                  bookmarksnumbered = true,
                  breaklinks = true,
                  linktocpage,
-                 pagebackref,
+                %  pagebackref,
                  colorlinks = true,
                  linkcolor = blue,
                  urlcolor  = blue,
