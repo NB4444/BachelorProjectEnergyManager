@@ -11,6 +11,7 @@
 % Glossaries
 \usepackage[acronym, toc]{glossaries}
 	\makeglossaries
+	\newacronym{cpu}{CPU}{Central Processing Unit}
 	\newacronym{dvfs}{DVFS}{Dynamic Voltage and Frequency Scaling}
 	\newacronym{gpu}{GPU}{Graphics Processing Unit}
 	\newacronym{smi}{SMI}{System Management Interface}
@@ -26,6 +27,10 @@
 
 % Tables
 \usepackage{array}
+
+% Lists
+\usepackage{enumitem}
+	\setlist[description]{font=$\bullet$\enskip\scshape\bfseries}
 
 % Appendices
 \usepackage[toc]{appendix}

@@ -66,6 +66,16 @@
   \end{figure}
 }
 
+% Better description lsit
+\newenvironment{aligneddescription}[1]{
+	\begin{list}{}%
+		{\renewcommand\makelabel[1]{~~\hfill\bfseries{##1:}}%
+		\settowidth\labelwidth{\makelabel{\bfseries{#1:}}}%
+		\setlength\leftmargin{\labelwidth}
+		\addtolength\leftmargin{\labelsep}}
+}{
+	\end{list}
+}
 
 %%% Local Variables: 
 %%% mode: latex
