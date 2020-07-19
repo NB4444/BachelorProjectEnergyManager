@@ -21,9 +21,6 @@
 		\subsection{Workload Analysis}
 			An important component in any energy saving strategy is to perform a workload analysis, since the decisions that are made often depend on the type of workload that is running \parencite{Chen2011}.
 
-			\textcite{Jiao2010} systematically characterized the energy efficiency of \gls{gpu} computing by investigating the correlation between power consumption and different computational patterns under various voltage and frequency levels.
-			They used three different applications with various degrees of compute and memory intensiveness and found that the \gls{gpu} application kernels' performance and power consumption are largely determined by the rate of issuing instructions and the ratio of global memory transactions to computation instructions.
-
 			\textcite{Ma2009} developed a method to statistically analyze and model the power consumption of a mainstream \gls{gpu}.
 			To achieve this they make use of the fact that there exists an innate coupling among the power consumption characteristics, runtime performance and dynamic workloads.
 			They found that their model is capable of robustly and accurately predicting the dynamic power consumption estimation of a target \gls{gpu} at runtime, especially for graphics applications.
@@ -31,12 +28,22 @@
 			\textcite{Ma2009} state that due to the relatively simpler cache hierarchy, higher level of parallelism, less complex control requirements, and more computation units, \gls{gpu} power modeling differs from general-purpose processing units.
 			Some limitations of their approach they state are that micro architectural knowledge of the \gls{gpu} is needed to provide more complex and accurate modeling approaches, and that quantitative analysis of \gls{gpu} workloads and statistical selection of the power consumption correlated workloads are necessary in the data preprocessing step.
 
+			\textcite{Hong2010} TODO
+
+			\textcite{Jiao2010} systematically characterized the energy efficiency of \gls{gpu} computing by investigating the correlation between power consumption and different computational patterns under various voltage and frequency levels.
+			They used three different applications with various degrees of compute and memory intensiveness and found that the \gls{gpu} application kernels' performance and power consumption are largely determined by the rate of issuing instructions and the ratio of global memory transactions to computation instructions.
+
+			\textcite{Nagasaka2010} TODO
+
 			\textcite{Chen2011} also developed a method to statistically analyze \gls{gpu} power consumption.
 			They designed a high-level \gls{gpu} power consumption model using sophisticated tree-based random forest methods which can correlate the power consumption with a set of independent performance variables.
 			Their model is able to accurately predict \gls{gpu} runtime power consumption and provides insights for understanding the dependence between the \gls{gpu} runtime power consumption and the individual performance metrics.
 			To gain detailed insights they used \emph{GPGPUSim} \parencite{Bakhoda2009} to simulate the kernels.
+			Their random forest model is able to identify the most influential variables in power prediction.
 
-			Furthermore, \textcite{Komoda2013} developed an empirical model of the performance and the maximum power consumption of a \gls{cpu}-\gls{gpu} heterogenous system to predict the execution time and total power consumption.
+			\textcite{Komoda2013} developed an empirical model of the performance and the maximum power consumption of a \gls{cpu}-\gls{gpu} heterogenous system to predict the execution time and total power consumption.
+
+			\textcite{Li2011} used \gls{gpu} performance and power models to make predictions for potential workload consolidation strategies that can optimize power usage.
 
 			\subsubsection{Usage Patterns}
 				% List some common usage patterns found in the workload analysis here
@@ -44,6 +51,11 @@
 
 	\section{Energy Saving}
 		TODO
+		
+		\subsection{Load Balancing}
+			\textcite{Li2011} developed a runtime framework that dynamically consolidates workloads from multiple user processes into a single \gls{gpu} workload.
+			By using performance and power models they predict potential workload consolidation strategies that optimize power usage.
+			They experimented on a variety of workloads that perform poorly on a \gls{gpu} compared to a well optimized multicore \gls{cpu} implementation and showed that their framework for \glspl{gpu} can provide $2-22 \times$ the energy benefit over a multicore \gls{cpu} implementation.
 
 		\subsection{\acrlong{dvfs}}
 			\gls{dvfs} is a technique that allows the voltage and frequency of the \gls{gpu} to be adjusted dynamically so as to reduce power usage.
