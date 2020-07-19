@@ -2,11 +2,11 @@
 	This chapter outlines some of the research and other resources that are relevant to the topic of \gls{gpu} energy conservation.
 
 	\section{Energy Consumption}
-		This section outlines some of the work that has been done to measure and predict energy consumption.
+		This section outlines some of the work that has been done to measure and predict energy consumption in \gls{cpu}-\gls{gpu} heterogenous computing.
 
 		\subsection{Measuring}
 			Measuring live energy consumption and other kernel characteristics is an important aspect of many power saving strategies.
-			There exist tools that can perform these types of measurement, the most important of which are outlined in this section.
+			There exist tools that can perform these types of measurements, the most important of which are outlined in this section.
 
 			\subsubsection{NVIDIA \acrlong{smi}}
 				NVIDIA's \gls{smi} tool is a command line utility that is able to query the \gls{gpu} device state \parencite{NVIDIA}.
@@ -29,12 +29,18 @@
 				\textcite{Ma2009} state that due to the relatively simpler cache hierarchy, higher level of parallelism, less complex control requirements, and more computation units, \gls{gpu} power modeling differs from general-purpose processing units.
 				Some limitations of their approach they state are that micro architectural knowledge of the \gls{gpu} is needed to provide more complex and accurate modeling approaches, and that quantitative analysis of \gls{gpu} workloads and statistical selection of the power consumption correlated workloads are necessary in the data preprocessing step.
 
-				\textcite{Hong2010} developed an \gls{ipp} prediction model that predicts application execution time and access rate.
+				\textcite{Hong2010} developed an \gls{ipp} prediction model that predicts application execution time and access rate and performance per watt.
+				The model is able to predict the power consumption and execution time with an average of $8.94 \%$ error.
 
 				\textcite{Jiao2010} systematically characterized the energy efficiency of \gls{gpu} computing by investigating the correlation between power consumption and different computational patterns under various voltage and frequency levels.
 				They used three different applications with various degrees of compute and memory intensiveness and found that the \gls{gpu} application kernels' performance and power consumption are largely determined by the rate of issuing instructions and the ratio of global memory transactions to computation instructions.
 
-				\textcite{Nagasaka2010} TODO
+				\textcite{Nagasaka2010} developed a statistical model to estimate the power consumption of \gls{gpu} kernels.
+				To achieve this they use the performance counters exposed for \gls{cuda} applications to train a linear regression model using them as independent variables and power consumption as dependent variable.
+				They found a linear correlation between the performance profiles and power consumptions.
+				Their regression model achieves highly accurate estimates with an average error ratio of $4.7 \%$ with the applications they tested.
+				A limitation of their model is that is does not handle kernels that perform texture reads well since there is a lack of performance counters to monitor texture access, resulting in an underestimation for those kernels.
+				They state that the recent enhancements to the \gls{cuda} profiler can potentially remedy this issue.
 
 				\textcite{Chen2011} also developed a method to statistically analyze \gls{gpu} power consumption.
 				They designed a high-level \gls{gpu} power consumption model using sophisticated tree-based random forest methods which can correlate the power consumption with a set of independent performance variables.
@@ -51,20 +57,24 @@
 				TODO
 
 	\section{Energy Saving}
-		TODO
+		This section goes into detail on the research that has been done in the domain of \gls{cpu}-\gls{gpu} heterogenous computing energy saving methods.
 
 		\subsection{Disabling Cores}
 			\textcite{Hong2010} developed an \gls{ipp} prediction model to predict the optimal number of active \gls{gpu} processors to achieve the highest performance per watt ratio for a given application.
 			They based their model on the intuition that when an application reaches the peak memory bandwidth, using more cores does not result in a performance improvement.
 			Their model is also able to determine the increases in power consumption that resulted from increases in temperature.
-		
-		\subsection{Load Balancing}
-			\textcite{Li2011} developed a runtime framework that dynamically consolidates workloads from multiple user processes into a single \gls{gpu} workload.
-			By using performance and power models they predict potential workload consolidation strategies that optimize power usage.
-			They experimented on a variety of workloads that perform poorly on a \gls{gpu} compared to a well optimized multicore \gls{cpu} implementation and showed that their framework for \glspl{gpu} can provide $2-22 \times$ the energy benefit over a multicore \gls{cpu} implementation.
+			Their approach requires modification to the programmer's code since they cannot change the hardware or the thread scheduler, so they limit the number of blocks inside an application to constrain the number of active cores.
+			By using \gls{ipp} they managed to save on average $10.99 \%$ of runtime energy consumption on applications that are limited by memory bandwidth by using fewer cores.
 
 		\subsection{\acrlong{dvfs}}
 			\gls{dvfs} is a technique that allows the voltage and frequency of the \gls{gpu} to be adjusted dynamically so as to reduce power usage.
 
 			\textcite{Komoda2013} developed a power capping technique through coordinating \gls{dvfs} and task mapping to prevent a load imbalance between the \gls{cpu} and \gls{gpu} in heterogenous systems.
 			Using their model to predict execution time and total power consumption based on a set of parameters, they managed to determine the optimal set of device frequencies and task mappings at the beginning of the execution, with the proposed power capping technique achieving more than $93 \%$ of performance compared to the ideal one in 24 out of 25 cases.
+
+			\textcite{}
+
+		\subsection{Load Balancing}
+			\textcite{Li2011} developed a runtime framework that dynamically consolidates workloads from multiple user processes into a single \gls{gpu} workload.
+			By using performance and power models they predict potential workload consolidation strategies that optimize power usage.
+			They experimented on a variety of workloads that perform poorly on a \gls{gpu} compared to a well optimized multicore \gls{cpu} implementation and showed that their framework for \glspl{gpu} can provide $2-22 \times$ the energy benefit over a multicore \gls{cpu} implementation.
