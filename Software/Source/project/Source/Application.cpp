@@ -7,86 +7,82 @@
 #include <thread>
 #include <utility>
 
-std::string Application::execute(const std::filesystem::path& path, const std::vector<std::string>& parameters, std::function<std::string(const std::string&)>& dataHandler) {
-	std::string result;
-
-	// Generate the execute command
-	std::string command = path.generic_string() + " " + std::accumulate(parameters.begin(), parameters.end(), std::string(), [](const std::string& left, const std::string& right) -> std::string {
-							  return left + (left.length() > 0 ? " " : "") + right;
-						  });
-
-	// Start and get a pointer to the running executable
-	std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
-
-	// Check if the executable was started
-	if(!pipe) {
-		throw std::runtime_error("Failed to start application");
-	}
-
-	// Retrieve the executable's output
-	std::array<char, 128> buffer {};
-	while(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-		result += dataHandler(buffer.data());
-	}
-
-	return result;
-}
-
 Application::Application(std::filesystem::path path)
 	: path_(std::move(path)) {
 }
 
-std::string Application::start(const std::vector<std::string>& parameters) const {
-	bool running = true;
+Application::Application(const Application& application)
+	: Application(application.path_) {
+}
+
+bool Application::isRunning() const {
+	return isRunning_;
+}
+
+std::string Application::getExecutableOutput() const {
+	return executableOutput_;
+}
+
+std::string Application::getCUDAEnergyMonitorOutput() const {
+	return cudaEnergyMonitorOutput_;
+}
+
+void Application::start(const std::vector<std::string>& parameters) {
+	if(isRunning_) {
+		throw std::runtime_error("Application is already running!");
+	}
+
+	isRunning_ = true;
+	executableOutput_ = "";
+	cudaEnergyMonitorOutput_ = "";
 
 	// Start the executable
-	std::string executableCommand = "\"" + path_.generic_string() + "\" " + std::accumulate(parameters.begin(), parameters.end(), std::string(), [](const std::string& left, const std::string& right) -> std::string {
-										return left + (left.length() > 0 ? " " : "") + right;
-									});
-	std::unique_ptr<FILE, decltype(&pclose)> executablePipe(popen(executableCommand.c_str(), "r"), pclose);
-	if(!executablePipe) {
-		throw std::runtime_error("Failed to start application");
-	}
-	std::string executableResult;
-	std::thread executableMonitor([&] {
+	executableMonitor_ = std::thread([&] {
 		std::cout << "[EXECUTABLE] Starting executable..." << std::endl;
 
+		std::string executableCommand = "LD_PRELOAD=\"" + std::string(CUDA_ENERGY_MONITOR_LIBRARY) + "\" \"" + path_.generic_string() + "\" " + std::accumulate(parameters.begin(), parameters.end(), std::string(), [](const std::string& left, const std::string& right) -> std::string {
+											return left + (left.length() > 0 ? " " : "") + right;
+										});
+		std::unique_ptr<FILE, decltype(&pclose)> executablePipe(popen(executableCommand.c_str(), "r"), pclose);
+		if(!executablePipe) {
+			throw std::runtime_error("Failed to start application");
+		}
+
 		// Retrieve the executable's output
-		std::array<char, 128> buffer {};
+		std::array<char, 256> buffer {};
 		while(fgets(buffer.data(), buffer.size(), executablePipe.get()) != nullptr) {
-			executableResult += buffer.data();
-			std::cout << "[EXECUTABLE] " << buffer.data() << std::endl;
+			executableOutput_ += buffer.data();
+			std::cout << "[EXECUTABLE] Processing buffer data: " << buffer.data() << std::endl;
 		}
 
 		std::cout << "[EXECUTABLE] Stopping executable..." << std::endl;
+
+		isRunning_ = false;
 	});
 
 	// Start the energy monitor
-	std::string energyMonitorCommand = "\"" + std::string(CUDA_ENERGY_MONITOR_EXECUTABLE) + "\"";
-	std::unique_ptr<FILE, decltype(&pclose)> cudaEnergyMonitorPipe(popen(energyMonitorCommand.c_str(), "r"), pclose);
-	if(!cudaEnergyMonitorPipe) {
-		throw std::runtime_error("Failed to start CUDA energy monitor");
-	}
-	std::string cudaEnergyMonitorResult;
-	std::thread cudaEnergyMonitorMonitor([&] {
+	cudaEnergyMonitorMonitor_ = std::thread([&] {
 		std::cout << "[CUDA ENERGY MONITOR] Starting CUDA energy monitory..." << std::endl;
 
+		std::string energyMonitorCommand = "\"" + std::string(CUDA_ENERGY_MONITOR_EXECUTABLE) + "\"";
+		std::unique_ptr<FILE, decltype(&pclose)> cudaEnergyMonitorPipe(popen(energyMonitorCommand.c_str(), "r"), pclose);
+		if(!cudaEnergyMonitorPipe) {
+			throw std::runtime_error("Failed to start CUDA energy monitor");
+		}
+
 		// Retrieve the executable's output
-		std::array<char, 128> buffer {};
-		while(running && fgets(buffer.data(), buffer.size(), cudaEnergyMonitorPipe.get()) != nullptr) {
-			cudaEnergyMonitorResult += buffer.data();
-			std::cout << "[CUDA ENERGY MONITOR] " << buffer.data() << std::endl;
+		std::array<char, 256> buffer {};
+		while(isRunning_ && fgets(buffer.data(), buffer.size(), cudaEnergyMonitorPipe.get()) != nullptr) {
+			cudaEnergyMonitorOutput_ += buffer.data();
+			std::cout << "[CUDA ENERGY MONITOR] Processing buffer data: " << buffer.data() << std::endl;
 		}
 
 		std::cout << "[CUDA ENERGY MONITOR] Stopping CUDA energy monitory..." << std::endl;
 	});
+}
 
-	// Wait for the process to finish
-	executableMonitor.join();
-
-	// Terminate the energy monitor
-	running = false;
-	cudaEnergyMonitorMonitor.join();
-
-	return executableResult;
+void Application::waitUntilDone() {
+	// Wait for the processes to finish
+	executableMonitor_.join();
+	cudaEnergyMonitorMonitor_.join();
 }
