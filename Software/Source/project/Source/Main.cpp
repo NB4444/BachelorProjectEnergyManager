@@ -1,14 +1,22 @@
 #include "Application.hpp"
-#include "Test.hpp"
-#include "TestResults.hpp"
+#include "Testing/Test.hpp"
+#include "Testing/TestResults.hpp"
+#include "Testing/TestRunner.hpp"
 
 int main() {
-	// Set up a database to handle Test results
-	TestResults testResults(TEST_RESULTS_DATABASE);
+	// Set up a new TestRunner
+	Testing::TestRunner testRunner;
 
-	// Run a Test and save the results
-	Test test(Application("/bin/ping"));
-	testResults.insert(test.execute({ "-c 4", "google.com" }, {}));
+	// Add some tests
+	testRunner.addTest(Testing::Test("Ping", Application("/bin/ping"), { "-c 4", "google.com" }, {
+																									 { "Packets Transmitted", "(\\d+) packets transmitted" },
+																									 { "Packets Received", "(\\d+) received" },
+																									 { "Packets Lost", "(\\d+)% packet loss" },
+																									 { "Time", "time (\\d+)" },
+																								 }));
+
+	// Run the tests
+	testRunner.run();
 
 	return 0;
 }

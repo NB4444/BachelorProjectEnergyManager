@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Persistence/Entity.hpp"
+
 #include <filesystem>
 #include <functional>
 #include <string>
@@ -9,7 +11,7 @@
 /**
  * An executable application.
  */
-class Application {
+class Application : public Persistence::Entity<Application> {
 	/**
 	 * The path to the Application's main executable.
 	 */
@@ -40,7 +42,11 @@ class Application {
 	 */
 	std::thread cudaEnergyMonitorMonitor_;
 
+	std::map<std::string, std::string> onSave() override;
+
 public:
+	Application(const std::map<std::string, std::string>& row);
+
 	/**
 	 * Creates a new Application.
 	 * @param path The path to the Application's main executable.

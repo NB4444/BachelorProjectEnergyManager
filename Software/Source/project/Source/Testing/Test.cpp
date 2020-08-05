@@ -1,11 +1,33 @@
-#include "Test.hpp"
+#include "./Test.hpp"
+
+#include "Testing/TestResults.hpp"
+#include "Utility/Serialization.hpp"
 
 #include <iostream>
+#include <regex>
 #include <utility>
 
 namespace Testing {
-	Test::Test(std::string name, const Application& application, std::vector<std::string> parameters, std::map<std::string, std::regex> results)
-		: name_(std::move(name))
+	std::map<std::string, std::string> Test::onSave() {
+		return {
+			{ "name", getName() },
+			{ "applicationID", Utility::Serialization::serialize(getApplication().getID()) },
+			{ "parameters", Utility::Serialization::serialize(getParameters()) },
+			{ "results", Utility::Serialization::serialize(getResults()) }
+		};
+	}
+
+	Test::Test(const std::map<std::string, std::string>& row)
+		: Test(
+			row.at("name"),
+			Entity<Application>::load(Utility::Serialization::deserializeToInt(row.at("applicationID"))),
+			Utility::Serialization::deserializeToVectorOfStrings(row.at("parameters")),
+			Utility::Serialization::deserializeToMapOfStringsToStrings(row.at("results"))) {
+	}
+
+	Test::Test(std::string name, const Application& application, std::vector<std::string> parameters, std::map<std::string, std::string> results)
+		: Persistence::Entity<Test>("Test")
+		, name_(std::move(name))
 		, application_(application)
 		, parameters_(std::move(parameters))
 		, results_(std::move(results)) {
@@ -23,22 +45,34 @@ namespace Testing {
 		return parameters_;
 	}
 
-	std::map<std::string, std::regex> Test::getResults() const {
+	std::map<std::string, std::string> Test::getResults() const {
 		return results_;
 	}
 
-	std::map<std::string, std::string> Test::run() {
+	TestResults Test::run() {
+		// Run the Application
 		application_.start(parameters_);
-
 		application_.waitUntilDone();
 
+		// Get output
+		std::string output = application_.getExecutableOutput();
+
 		std::cout << "[EXECUTABLE]\n"
-				  << application_.getExecutableOutput() << std::endl;
+				  << output << std::endl;
 		std::cout << "[CUDA ENERGY MONITOR]\n"
 				  << application_.getCUDAEnergyMonitorOutput() << std::endl;
 
-		// TODO: Parse and return results
+		// Parse results
+		std::map<std::string, std::string> results;
+		for(const auto& result : results_) {
+			std::smatch match;
+			std::regex regex(result.second);
+			if(std::regex_search(output, match, regex)) {
+				results[result.first] = match.str(1);
+				std::cout << "[RESULT] " << result.first << " = " << match.str(1) << std::endl;
+			}
+		}
 
-		return {};
+		return TestResults(*this, results);
 	}
 }

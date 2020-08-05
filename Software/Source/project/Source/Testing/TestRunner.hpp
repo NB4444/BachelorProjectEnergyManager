@@ -1,18 +1,16 @@
 #pragma once
 
 #include "Testing/Test.hpp"
-#include "Testing/TestResultsStorage.hpp"
+
+#include <vector>
 
 namespace Testing {
+	class TestResults;
+
 	/**
 	 * Used to run Tests and store their results.
 	 */
 	class TestRunner {
-		/**
-		 * The database containing Test results.
-		 */
-		TestResultsStorage testResults_;
-
 		/**
 		 * The Tests to execute.
 		 */
@@ -21,9 +19,8 @@ namespace Testing {
 	public:
 		/**
 		 * Creates a new TestRunner.
-		 * @param testResults The database containing Test results.
 		 */
-		TestRunner(TestResultsStorage testResults);
+		TestRunner() = default;
 
 		/**
 		 * Adds a Test to run.
@@ -34,6 +31,6 @@ namespace Testing {
 		/**
 		 * Runs the Tests.
 		 */
-		void run();
+		std::vector<TestResults> run();
 	};
 }

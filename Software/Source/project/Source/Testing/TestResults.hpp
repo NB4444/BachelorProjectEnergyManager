@@ -1,18 +1,48 @@
 #pragma once
 
+#include "Persistence/Entity.hpp"
 #include "Testing/Test.hpp"
+
+#include <map>
+#include <string>
 
 namespace Testing {
 	/**
 	 * Represents the results of a single Test.
 	 */
-	class TestResults {
+	class TestResults : public Persistence::Entity<TestResults> {
 		/**
-		 * The Test associated with the results.
+		 * The Test that generated the results.
 		 */
 		Test test_;
 
+		/**
+		 * The actual result values.
+		 */
+		std::map<std::string, std::string> results_;
+
+		std::map<std::string, std::string> onSave() override;
+
 	public:
-		TestResults();
+		TestResults(const std::map<std::string, std::string>& row);
+
+		/**
+		 * Creates a new TestResults set.
+		 * @param test The Test that generated the results.
+		 * @param results The actual result values.
+		 */
+		TestResults(Test test, std::map<std::string, std::string> results);
+
+		/**
+		 * Gets the Test that generated the results.
+		 * @return The Test.
+		 */
+		Test getTest() const;
+
+		/**
+		 * Gets the actual result values.
+		 * @return The result values.
+		 */
+		std::map<std::string, std::string> getResults() const;
 	};
 }

@@ -1,17 +1,19 @@
-#include "TestRunner.hpp"
+#include "./TestRunner.hpp"
+
+#include "Testing/TestResults.hpp"
 
 namespace Testing {
-	Testing::TestRunner::TestRunner(Testing::TestResultsStorage testResults)
-		: testResults_(testResults) {
-	}
-
 	void TestRunner::addTest(const Test& test) {
 		tests_.push_back(test);
 	}
 
-	void TestRunner::run() {
+	std::vector<TestResults> TestRunner::run() {
+		std::vector<TestResults> results;
+
 		for(auto& test : tests_) {
-			testResults_.insert(test.run());
+			results.push_back(test.run());
 		}
+
+		return results;
 	}
 }
