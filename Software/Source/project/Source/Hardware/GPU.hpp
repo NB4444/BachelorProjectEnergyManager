@@ -47,10 +47,17 @@ namespace Hardware {
 		static uint32_t powerLimit_;
 
 		/**
-		 * Handles the results of a call to the CUPTI library.
+		 * Handles the results of a call to an API.
+		 * @param call The call.
 		 * @param callResult The result of the call.
+		 * @param file The file.
+		 * @param line The line.
 		 */
-		static void handleCUPTICall(const CUptiResult& callResult);
+		static void handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line);
+
+		static void handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line);
+
+		static void handleAPICall(const std::string& call, const CUptiResult& callResult, const std::string& file, const int& line);
 
 		/**
 		 * Aligns the buffer with the configured parameters.

@@ -2,6 +2,9 @@
 
 #include "Utility/Logging.hpp"
 
+#define HANDLE_API_CALL(CALL) \
+	handleAPICall(#CALL, CALL, __FILE__, __LINE__)
+
 namespace Hardware {
 	const size_t GPU::bufferSize_;
 
@@ -17,11 +20,25 @@ namespace Hardware {
 
 	uint32_t GPU::powerLimit_;
 
-	void GPU::handleCUPTICall(const CUptiResult& callResult) {
+	void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
+		if(callResult != CUDA_SUCCESS) {
+			Utility::Logging::logError("Driver call %s failed: %s", file, line, call.c_str(), callResult);
+			//exit(-1);
+		}
+	}
+
+	void GPU::handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line) {
+		if(callResult != CUDA_SUCCESS) {
+			Utility::Logging::logError("Runtime driver call %s failed: %s", file, line, call.c_str(), cudaGetErrorString(callResult));
+			//exit(-1);
+		}
+	}
+
+	void GPU::handleAPICall(const std::string& call, const CUptiResult& callResult, const std::string& file, const int& line) {
 		if(callResult != CUPTI_SUCCESS) {
 			const char* errorMessage;
 			cuptiGetResultString(callResult, &errorMessage);
-			Utility::Logging::logError("CUPTI call failed: %s", __FILE__, __LINE__, errorMessage);
+			Utility::Logging::logError("CUPTI call %s failed: %s", file, line, call.c_str(), errorMessage);
 			//if(callResult == CUPTI_ERROR_LEGACY_PROFILER_NOT_SUPPORTED) {
 			//	exit(0);
 			//} else {
@@ -58,13 +75,13 @@ namespace Hardware {
 				} else if(status == CUPTI_ERROR_MAX_LIMIT_REACHED) {
 					break;
 				} else {
-					handleCUPTICall(status);
+					HANDLE_API_CALL(status);
 				}
 			} while(true);
 
 			// Report any records dropped from the queue
 			size_t dropped;
-			handleCUPTICall(cuptiActivityGetNumDroppedRecords(context, streamId, &dropped));
+			HANDLE_API_CALL(cuptiActivityGetNumDroppedRecords(context, streamId, &dropped));
 			if(dropped != 0) {
 				Utility::Logging::logInformation("Dropped %u activity records", static_cast<unsigned int>(dropped));
 			}
@@ -184,18 +201,44 @@ namespace Hardware {
 
 	void GPU::initializeTracing() {
 		// Initialize CUDA
-		cuInit(0);
+		HANDLE_API_CALL(cuInit(0));
 
 		// Get the device count to create a device context, which is necessary
-		int count = 0;
-		cudaGetDeviceCount(&count);
+		int deviceCount = 0;
+		HANDLE_API_CALL(cudaGetDeviceCount(&deviceCount));
 
 		// Enable collection of various types of parameters
-		handleCUPTICall(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
-		handleCUPTICall(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
+		HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
+		HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
 
 		// Register callbacks
-		handleCUPTICall(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
+		HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
+
+		// Print GPU information
+		CUdevice device;
+		char deviceName[32];
+		for(int deviceNumber = 0; deviceNumber < deviceCount; deviceNumber++) {
+			HANDLE_API_CALL(cuDeviceGet(&device, deviceNumber));
+			HANDLE_API_CALL(cuDeviceGetName(deviceName, 32, device));
+			printf("Device Name: %s\n", deviceName);
+
+			HANDLE_API_CALL(cudaSetDevice(deviceNumber));
+			// do pass default stream
+			//do_pass(0);
+
+			// do pass with user stream
+			cudaStream_t stream0;
+			HANDLE_API_CALL(cudaStreamCreate(&stream0));
+			//do_pass(stream0);
+
+			cudaDeviceSynchronize();
+
+			// Flush all remaining CUPTI buffers before resetting the device.
+			// This can also be called in the cudaDeviceReset callback.
+			cuptiActivityFlushAll(0);
+
+			cudaDeviceReset();
+		}
 	}
 
 	uint32_t GPU::getTemperature() const {
