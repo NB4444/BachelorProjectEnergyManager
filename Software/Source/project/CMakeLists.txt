@@ -30,11 +30,15 @@ set_target_properties(
 target_include_directories(
 	${PROJECT_NAME}
 	PUBLIC Source
+	PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 	PUBLIC ${SQLite3_INCLUDE_DIRS}
 )
 target_link_libraries(
 	${PROJECT_NAME}
 	"${PROJECT_SOURCE_DIR}/../cuda_monitor/src/libmonitor.so"
+	"${CMAKE_CUDA_RUNTIME_LIBRARY}"
+	/usr/local/cuda-10.1/lib64/libcudart.so
+	cupti
 	pthread
 	${SQLite3_LIBRARIES}
 )

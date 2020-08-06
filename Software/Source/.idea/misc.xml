@@ -8,6 +8,7 @@
       <file path="$PROJECT_DIR$/project/Source" />
     </sourceRoots>
     <libraryRoots>
+      <file path="$PROJECT_DIR$/cuda_monitor" />
       <file path="$PROJECT_DIR$/cuda_monitor/src" />
     </libraryRoots>
   </component>

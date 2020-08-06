@@ -69,7 +69,7 @@ namespace Persistence {
 		 * @param name The name of the Entity.
 		 * @param saveOnDestruct Whether to save the Entity when its destructor is called.
 		 */
-		Entity(std::string name, const bool& saveOnDestruct = true)
+		Entity(std::string name, const bool& saveOnDestruct = false)
 			: name_(std::move(name))
 			, saveOnDestruct_(saveOnDestruct) {
 			// Open a new database connection

@@ -1,4 +1,4 @@
-#include "GPU.hpp"
+#include "./CPU.hpp"
 
 namespace Hardware {
 }

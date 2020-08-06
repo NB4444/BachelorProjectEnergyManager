@@ -57,11 +57,6 @@ namespace Testing {
 		// Get output
 		std::string output = application_.getExecutableOutput();
 
-		std::cout << "[EXECUTABLE]\n"
-				  << output << std::endl;
-		std::cout << "[CUDA ENERGY MONITOR]\n"
-				  << application_.getCUDAEnergyMonitorOutput() << std::endl;
-
 		// Parse results
 		std::map<std::string, std::string> results;
 		for(const auto& result : results_) {
@@ -69,7 +64,6 @@ namespace Testing {
 			std::regex regex(result.second);
 			if(std::regex_search(output, match, regex)) {
 				results[result.first] = match.str(1);
-				std::cout << "[RESULT] " << result.first << " = " << match.str(1) << std::endl;
 			}
 		}
 

@@ -1,4 +1,4 @@
-#include "Device.hpp"
+#include "./Device.hpp"
 
 namespace Hardware {
 }

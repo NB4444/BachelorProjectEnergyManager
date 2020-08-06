@@ -27,20 +27,20 @@ class Application : public Persistence::Entity<Application> {
 	 */
 	std::string executableOutput_;
 
-	/**
-	 * The output from the energy monitor.
-	 */
-	std::string cudaEnergyMonitorOutput_;
+	///**
+	// * The output from the energy monitor.
+	// */
+	//std::string cudaEnergyMonitorOutput_;
 
 	/**
 	 * The thread that monitors the executable.
 	 */
 	std::thread executableMonitor_;
 
-	/**
-	 * The thread that monitors the CUDA energy monitor.
-	 */
-	std::thread cudaEnergyMonitorMonitor_;
+	///**
+	// * The thread that monitors the CUDA energy monitor.
+	// */
+	//std::thread cudaEnergyMonitorMonitor_;
 
 	std::map<std::string, std::string> onSave() override;
 
@@ -71,11 +71,11 @@ public:
 	 */
 	std::string getExecutableOutput() const;
 
-	/**
-	 * Gets the CUDA Energy Monitor's output.
-	 * @return The output.
-	 */
-	std::string getCUDAEnergyMonitorOutput() const;
+	///**
+	// * Gets the CUDA Energy Monitor's output.
+	// * @return The output.
+	// */
+	//std::string getCUDAEnergyMonitorOutput() const;
 
 	/**
 	 * Starts the Application.
