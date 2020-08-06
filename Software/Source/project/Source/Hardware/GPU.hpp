@@ -86,9 +86,14 @@ namespace Hardware {
 
 	public:
 		/**
+		 * Initializes tracing capabilities.
+		 */
+		static void initializeTracing();
+
+		/**
 		 * Creates a new GPU.
 		 */
-		GPU();
+		GPU() = default;
 
 		/**
 		 * Gets the GPU temperature in degrees C.

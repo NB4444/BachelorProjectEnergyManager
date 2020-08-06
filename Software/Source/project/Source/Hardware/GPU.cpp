@@ -182,12 +182,16 @@ namespace Hardware {
 		}
 	}
 
-	GPU::GPU() {
+	void GPU::initializeTracing() {
+		// Initialize CUDA
+		cuInit(0);
+
 		// Get the device count to create a device context, which is necessary
 		int count = 0;
 		cudaGetDeviceCount(&count);
 
 		// Enable collection of various types of parameters
+		handleCUPTICall(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
 		handleCUPTICall(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
 
 		// Register callbacks

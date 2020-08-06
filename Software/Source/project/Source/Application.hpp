@@ -2,7 +2,6 @@
 
 #include "Persistence/Entity.hpp"
 
-#include <filesystem>
 #include <functional>
 #include <string>
 #include <thread>
@@ -15,7 +14,7 @@ class Application : public Persistence::Entity<Application> {
 	/**
 	 * The path to the Application's main executable.
 	 */
-	std::filesystem::path path_;
+	std::string path_;
 
 	/**
 	 * Whether the Application is running.
@@ -51,7 +50,7 @@ public:
 	 * Creates a new Application.
 	 * @param path The path to the Application's main executable.
 	 */
-	Application(std::filesystem::path path);
+	Application(std::string path);
 
 	/**
 	 * Copies the Application.

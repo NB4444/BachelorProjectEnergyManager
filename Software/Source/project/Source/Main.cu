@@ -10,6 +10,9 @@
 
 int main() {
 	try {
+		// Initialize APIs
+		Hardware::GPU::initializeTracing();
+
 		// Set up a new TestRunner
 		Testing::TestRunner testRunner;
 
@@ -50,10 +53,6 @@ int main() {
 		running = false;
 		monitor.join();
 	} catch(const std::exception& exception) {
-		Utility::Logging::logError(exception.what(), __FILE__, __LINE__);
-
-		return 1;
-	} catch(const std::runtime_error& exception) {
 		Utility::Logging::logError(exception.what(), __FILE__, __LINE__);
 
 		return 1;

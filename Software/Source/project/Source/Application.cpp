@@ -19,7 +19,7 @@ Application::Application(const std::map<std::string, std::string>& row)
 	: Application(row.at("path")) {
 }
 
-Application::Application(std::filesystem::path path)
+Application::Application(std::string path)
 	: Persistence::Entity<Application>("Application")
 	, path_(std::move(path)) {
 }
@@ -53,7 +53,7 @@ void Application::start(const std::vector<std::string>& parameters) {
 	executableMonitor_ = std::thread([&] {
 		Utility::Logging::logInformation("Starting executable...");
 
-		std::string executableCommand = /*"LD_LIBRARY_PATH=\"" + std::string(CUDA_ENERGY_MONITOR_DIRECTORY) + "\" LD_PRELOAD=libmonitor.so "*/"\"" + path_.generic_string() + "\" " + Utility::Serialization::serialize(parameters, " ");
+		std::string executableCommand = /*"LD_LIBRARY_PATH=\"" + std::string(CUDA_ENERGY_MONITOR_DIRECTORY) + "\" LD_PRELOAD=libmonitor.so "*/"\"" + path_ + "\" " + Utility::Serialization::serialize(parameters, " ");
 		std::unique_ptr<FILE, decltype(&pclose)> executablePipe(popen(executableCommand.c_str(), "r"), pclose);
 		if(!executablePipe) {
 			throw std::runtime_error("Failed to start application");

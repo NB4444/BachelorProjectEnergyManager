@@ -1,10 +1,12 @@
 # Define the CUDA compiler to use
 set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+set(CMAKE_C_COMPILER /usr/bin/gcc-8)
+set(CMAKE_CXX_COMPILER /usr/bin/g++-8)
 
 # Set up the project
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 2.8.12.2)
 project(Project LANGUAGES CXX CUDA)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
@@ -37,6 +39,7 @@ target_link_libraries(
 	${PROJECT_NAME}
 	"${PROJECT_SOURCE_DIR}/../cuda_monitor/src/libmonitor.so"
 	"${CMAKE_CUDA_RUNTIME_LIBRARY}"
+	cuda
 	/usr/local/cuda-10.1/lib64/libcudart.so
 	cupti
 	pthread
