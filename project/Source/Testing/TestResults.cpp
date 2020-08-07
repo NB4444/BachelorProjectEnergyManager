@@ -14,17 +14,17 @@ namespace Testing {
 
 	TestResults::TestResults(const std::map<std::string, std::string>& row)
 		: TestResults(
-			Entity<Test>::load(Utility::Serialization::deserializeToInt(row.at("testID"))),
+			Entity<Tests::Test>::load(Utility::Serialization::deserializeToInt(row.at("testID"))),
 			Utility::Serialization::deserializeToMapOfStringsToStrings(row.at("results"))) {
 	}
 
-	TestResults::TestResults(Test test, std::map<std::string, std::string> results)
+	TestResults::TestResults(Tests::Test test, std::map<std::string, std::string> results)
 		: Persistence::Entity<TestResults>("TestResults")
 		, test_(std::move(test))
 		, results_(std::move(results)) {
 	}
 
-	Test TestResults::getTest() const {
+	Tests::Test TestResults::getTest() const {
 		return test_;
 	}
 

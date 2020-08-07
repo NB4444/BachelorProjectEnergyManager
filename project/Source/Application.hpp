@@ -10,7 +10,7 @@
 /**
  * An executable application.
  */
-class Application : public Persistence::Entity<Application> {
+class Application {
 	/**
 	 * The path to the Application's main executable.
 	 */
@@ -41,11 +41,7 @@ class Application : public Persistence::Entity<Application> {
 	// */
 	//std::thread cudaEnergyMonitorMonitor_;
 
-	std::map<std::string, std::string> onSave() override;
-
 public:
-	Application(const std::map<std::string, std::string>& row);
-
 	/**
 	 * Creates a new Application.
 	 * @param path The path to the Application's main executable.

@@ -1,6 +1,3 @@
-# Define the CUDA compiler to use
-set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
-
 # Set up the project
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_STANDARD 14)
@@ -19,7 +16,7 @@ file(GLOB_RECURSE SOURCE_FILES Source/*.cpp Source/*.cu)
 message(STATUS "Source files: ${SOURCE_FILES}")
 
 # Add and configure target
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} Source/Hardware/Device.cpp Source/Hardware/Device.hpp Source/Hardware/GPU.cpp Source/Hardware/GPU.hpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} Source/Hardware/Device.cpp Source/Hardware/Device.hpp Source/Hardware/GPU.cpp Source/Hardware/GPU.hpp Source/Testing/Tests/PingTest.cpp Source/Testing/Tests/PingTest.hpp Source/Testing/Tests/ApplicationTest.cpp Source/Testing/Tests/ApplicationTest.hpp)
 set_target_properties(
 	${PROJECT_NAME}
 	PROPERTIES
@@ -37,7 +34,7 @@ target_link_libraries(
 	${PROJECT_NAME}
 	cuda
 	${CMAKE_CUDA_RUNTIME_LIBRARY}
-	${CUDA_TOOLKIT_ROOT_DIR}/lib64/libcudart.so
+	/usr/local/cuda/lib64/libcudart.so
 	cupti
 	pthread
 	"${PROJECT_SOURCE_DIR}/sqlite/.libs/libsqlite3.so"

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Testing/Test.hpp"
+#include "Testing/Tests/Test.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace Testing {
@@ -14,7 +15,7 @@ namespace Testing {
 		/**
 		 * The Tests to execute.
 		 */
-		std::vector<Test> tests_;
+		std::vector<std::shared_ptr<Tests::Test>> tests_;
 
 	public:
 		/**
@@ -26,7 +27,7 @@ namespace Testing {
 		 * Adds a Test to run.
 		 * @param test The Test to add.
 		 */
-		void addTest(const Test& test);
+		void addTest(const std::shared_ptr<Tests::Test>& test);
 
 		/**
 		 * Runs the Tests.

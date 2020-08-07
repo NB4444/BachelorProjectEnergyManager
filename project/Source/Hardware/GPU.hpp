@@ -5,12 +5,16 @@
 #include <cuda.h>
 #include <cupti.h>
 #include <functional>
+#include <map>
 
 namespace Hardware {
 	/**
 	 * Represents a Graphics Processing Unit.
 	 */
 	class GPU : public Device {
+		template<typename Type>
+		using DeviceMap = std::map<uint32_t, Type>;
+
 		/**
 		 * The size of the buffer used to collect statistics.
 		 */
@@ -22,29 +26,34 @@ namespace Hardware {
 		static const size_t alignSize_ = 8;
 
 		/**
-		 * The GPU temperature in degrees C.
+		 * The fan speed as percentage of maximum.
 		 */
-		static uint32_t temperature_;
-
-		/**
-		 * The SM frequency in MHz.
-		 */
-		static uint32_t streamingMultiprocessorClock_;
+		static DeviceMap<uint32_t> fanSpeed_;
 
 		/**
 		 * The memory frequency in MHz.
 		 */
-		static uint32_t memoryClock_;
+		static DeviceMap<uint32_t> memoryClock_;
 
 		/**
 		 * The power in milliwatts consumed by GPU and associated circuitry.
 		 */
-		static uint32_t powerConsumption_;
+		static DeviceMap<uint32_t> powerConsumption_;
 
 		/**
 		 * The power in milliwatts that will trigger power management algorithm.
 		 */
-		static uint32_t powerLimit_;
+		static DeviceMap<uint32_t> powerLimit_;
+
+		/**
+		 * The SM frequency in MHz.
+		 */
+		static DeviceMap<uint32_t> streamingMultiprocessorClock_;
+
+		/**
+		 * The GPU temperature in degrees C.
+		 */
+		static DeviceMap<uint32_t> temperature_;
 
 		/**
 		 * Handles the results of a call to an API.
@@ -91,6 +100,11 @@ namespace Hardware {
 		 */
 		static void handleActivity(const CUpti_Activity* record);
 
+		/**
+		 * The ID of the device.
+		 */
+		uint32_t deviceID_;
+
 	public:
 		/**
 		 * Initializes tracing capabilities.
@@ -99,20 +113,15 @@ namespace Hardware {
 
 		/**
 		 * Creates a new GPU.
+		 * @param deviceID The ID of the device.
 		 */
-		GPU() = default;
+		GPU(const uint32_t& deviceID);
 
 		/**
-		 * Gets the GPU temperature in degrees C.
-		 * @return The temperature.
+		 * The fan speed as percentage of maximum.
+		 * @return The fan speed.
 		 */
-		uint32_t getTemperature() const;
-
-		/**
-		 * Gets the SM frequency in MHz.
-		 * @return The streaming multiprocessor clock.
-		 */
-		uint32_t getStreamingMultiprocessorClock() const;
+		uint32_t getFanSpeed() const;
 
 		/**
 		 * Gets the memory frequency in MHz.
@@ -131,5 +140,17 @@ namespace Hardware {
 		 * @return The power limit.
 		 */
 		uint32_t getPowerLimit() const;
+
+		/**
+		 * Gets the SM frequency in MHz.
+		 * @return The streaming multiprocessor clock.
+		 */
+		uint32_t getStreamingMultiprocessorClock() const;
+
+		/**
+		 * Gets the GPU temperature in degrees C.
+		 * @return The temperature.
+		 */
+		uint32_t getTemperature() const;
 	};
 }

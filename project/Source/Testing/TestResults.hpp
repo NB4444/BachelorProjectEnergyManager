@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Persistence/Entity.hpp"
-#include "Testing/Test.hpp"
+#include "Testing/Tests/Test.hpp"
 
 #include <map>
 #include <string>
@@ -14,7 +14,7 @@ namespace Testing {
 		/**
 		 * The Test that generated the results.
 		 */
-		Test test_;
+		Tests::Test test_;
 
 		/**
 		 * The actual result values.
@@ -31,13 +31,13 @@ namespace Testing {
 		 * @param test The Test that generated the results.
 		 * @param results The actual result values.
 		 */
-		TestResults(Test test, std::map<std::string, std::string> results);
+		TestResults(Tests::Test test, std::map<std::string, std::string> results);
 
 		/**
 		 * Gets the Test that generated the results.
 		 * @return The Test.
 		 */
-		Test getTest() const;
+		Tests::Test getTest() const;
 
 		/**
 		 * Gets the actual result values.

@@ -10,15 +10,17 @@ namespace Hardware {
 
 	const size_t GPU::alignSize_;
 
-	uint32_t GPU::temperature_;
+	GPU::DeviceMap<uint32_t> GPU::fanSpeed_;
 
-	uint32_t GPU::streamingMultiprocessorClock_;
+	GPU::DeviceMap<uint32_t> GPU::memoryClock_;
 
-	uint32_t GPU::memoryClock_;
+	GPU::DeviceMap<uint32_t> GPU::powerConsumption_;
 
-	uint32_t GPU::powerConsumption_;
+	GPU::DeviceMap<uint32_t> GPU::powerLimit_;
 
-	uint32_t GPU::powerLimit_;
+	GPU::DeviceMap<uint32_t> GPU::streamingMultiprocessorClock_;
+
+	GPU::DeviceMap<uint32_t> GPU::temperature_;
 
 	void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
 		if(callResult != CUDA_SUCCESS) {
@@ -97,6 +99,7 @@ namespace Hardware {
 			//	printf("CONTEXT %u, device %u, compute API %s, NULL stream %d\n", context->contextId, context->deviceId, getComputeApiKindString((CUpti_ActivityComputeApiKind) context->computeApiKind), (int) context->nullStreamId);
 			//	break;
 			//}
+			// TODO: Enable the below statement to gather device information
 			//case CUPTI_ACTIVITY_KIND_DEVICE: {
 			//	CUpti_ActivityDevice2* device = (CUpti_ActivityDevice2*) record;
 			//	printf(
@@ -126,16 +129,19 @@ namespace Hardware {
 				auto* environment = (CUpti_ActivityEnvironment*) record;
 
 				switch(environment->environmentKind) {
+					case CUPTI_ACTIVITY_ENVIRONMENT_COOLING:
+						fanSpeed_[environment->deviceId] = environment->data.cooling.fanSpeed;
+						break;
 					case CUPTI_ACTIVITY_ENVIRONMENT_POWER:
-						powerConsumption_ = environment->data.power.power;
-						powerLimit_ = environment->data.power.powerLimit;
+						powerConsumption_[environment->deviceId] = environment->data.power.power;
+						powerLimit_[environment->deviceId] = environment->data.power.powerLimit;
 						break;
 					case CUPTI_ACTIVITY_ENVIRONMENT_SPEED:
-						streamingMultiprocessorClock_ = environment->data.speed.smClock;
-						memoryClock_ = environment->data.speed.memoryClock;
+						streamingMultiprocessorClock_[environment->deviceId] = environment->data.speed.smClock;
+						memoryClock_[environment->deviceId] = environment->data.speed.memoryClock;
 						break;
 					case CUPTI_ACTIVITY_ENVIRONMENT_TEMPERATURE:
-						temperature_ = environment->data.temperature.gpuTemperature;
+						temperature_[environment->deviceId] = environment->data.temperature.gpuTemperature;
 						break;
 					default:
 						break;
@@ -209,7 +215,16 @@ namespace Hardware {
 
 		// Enable collection of various types of parameters
 		HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_CONTEXT));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DRIVER));
 		HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_KERNEL));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MARKER));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MEMCPY));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MEMSET));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_NAME));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_OVERHEAD));
+		//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_RUNTIME));
 
 		// Register callbacks
 		HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
@@ -241,23 +256,31 @@ namespace Hardware {
 		}
 	}
 
+	GPU::GPU(const uint32_t& deviceID)
+		: deviceID_(deviceID) {
+	}
+
+	uint32_t GPU::getFanSpeed() const {
+		return fanSpeed_[deviceID_];
+	}
+
 	uint32_t GPU::getTemperature() const {
-		return temperature_;
+		return temperature_[deviceID_];
 	}
 
 	uint32_t GPU::getStreamingMultiprocessorClock() const {
-		return streamingMultiprocessorClock_;
+		return streamingMultiprocessorClock_[deviceID_];
 	}
 
 	uint32_t GPU::getMemoryClock() const {
-		return memoryClock_;
+		return memoryClock_[deviceID_];
 	}
 
 	uint32_t GPU::getPowerConsumption() const {
-		return powerConsumption_;
+		return powerConsumption_[deviceID_];
 	}
 
 	uint32_t GPU::getPowerLimit() const {
-		return powerLimit_;
+		return powerLimit_[deviceID_];
 	}
 }
