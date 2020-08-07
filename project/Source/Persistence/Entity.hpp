@@ -86,7 +86,9 @@ namespace Persistence {
 		 * Used to store the object's fields.
 		 * @return The database row that should be saved.
 		 */
-		virtual std::map<std::string, std::string> onSave() = 0;
+		virtual std::map<std::string, std::string> onSave() {
+			return {};
+		}
 
 	public:
 		static Type load(const int& id) {

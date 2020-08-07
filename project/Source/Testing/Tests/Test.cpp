@@ -16,6 +16,7 @@ namespace Testing {
 		}
 
 		TestResults Test::onRun() {
+			return TestResults(*this, {});
 		}
 
 		Test::Test(const std::map<std::string, std::string>& row)
