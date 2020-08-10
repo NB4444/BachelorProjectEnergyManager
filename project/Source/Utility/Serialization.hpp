@@ -27,7 +27,7 @@ namespace Utility {
 			});
 
 			// Join the results
-			return Utility::Text::join(value, delimiter);
+			return Text::join(value, delimiter);
 		}
 
 		static std::string serialize(const std::map<std::string, std::string>& value, const std::string& interItemDelimiter = ",", const std::string& intraItemDelimiter = "=>", const std::string& stringEscape = "\\\"") {
@@ -38,7 +38,7 @@ namespace Utility {
 			}
 
 			// Join the results
-			return Utility::Text::join(mapItems, interItemDelimiter);
+			return Text::join(mapItems, interItemDelimiter);
 		}
 
 		static std::string deserializeToString(const std::string& value, const std::string& stringEscape = "\\\"") {
@@ -54,14 +54,10 @@ namespace Utility {
 		}
 
 		static std::vector<std::string> deserializeToVectorOfStrings(std::string value, const std::string& delimiter = ",", const std::string& stringEscape = "\\\"") {
-			std::vector<std::string> result;
-
-			size_t index = 0u;
-			while((index = value.find(delimiter)) != std::string::npos) {
-				std::string segment = value.substr(0, index);
-				result.push_back(deserializeToString(segment, stringEscape));
-				value.erase(0u, index + delimiter.length());
-			}
+			std::vector<std::string> result = Text::split(value, delimiter);
+			std::transform(result.begin(), result.end(), result.begin(), [&](const std::string& value) {
+				return deserializeToString(value, stringEscape);
+			});
 
 			return result;
 		}

@@ -190,8 +190,8 @@ namespace Hardware {
 		kernelStreamID_ = activity->streamId;
 	}
 
-	GPU::GPU(const uint32_t& deviceID)
-		: id_(deviceID) {
+	GPU::GPU(const uint32_t& id)
+		: id_(id) {
 	}
 
 	void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
@@ -247,13 +247,13 @@ namespace Hardware {
 		HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
 	}
 
-	std::shared_ptr<GPU> GPU::getGPU(const uint32_t& deviceID) {
-		auto iterator = gpus_.find(deviceID);
+	std::shared_ptr<GPU> GPU::getGPU(const uint32_t& id) {
+		auto iterator = gpus_.find(id);
 		if(iterator == gpus_.end()) {
-			gpus_[deviceID] = std::shared_ptr<GPU>(new GPU(deviceID));
+			gpus_[id] = std::shared_ptr<GPU>(new GPU(id));
 		}
 
-		return gpus_[deviceID];
+		return gpus_[id];
 	}
 
 	uint32_t GPU::getComputeCapabilityMajorVersion() const {

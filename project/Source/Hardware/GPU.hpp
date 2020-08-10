@@ -229,9 +229,9 @@ namespace Hardware {
 
 		/**
 		 * Creates a new GPU.
-		 * @param deviceID The ID of the device.
+		 * @param id The ID of the device.
 		 */
-		GPU(const uint32_t& deviceID);
+		GPU(const uint32_t& id);
 
 	public:
 		/**
@@ -254,10 +254,10 @@ namespace Hardware {
 
 		/**
 		 * Gets the GPU with the specified device ID.
-		 * @param deviceID The device ID.
+		 * @param id The device ID.
 		 * @return The GPU.
 		 */
-		static std::shared_ptr<GPU> getGPU(const uint32_t& deviceID);
+		static std::shared_ptr<GPU> getGPU(const uint32_t& id);
 
 		/**
 		 * @copydoc GPU::computeCapabilityMajorVersion_
