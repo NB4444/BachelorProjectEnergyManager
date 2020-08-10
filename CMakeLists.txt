@@ -5,4 +5,4 @@ set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 
 project(Project LANGUAGES CXX CUDA)
 
-add_subdirectory(project)
+add_subdirectory(EnergyManager)

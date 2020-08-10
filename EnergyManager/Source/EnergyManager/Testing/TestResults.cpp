@@ -1,0 +1,36 @@
+#include "./TestResults.hpp"
+
+#include "EnergyManager/Utility/Serialization.hpp"
+
+#include <utility>
+
+namespace EnergyManager {
+	namespace Testing {
+		std::map<std::string, std::string> TestResults::onSave() {
+			return {
+				{ "testID", Utility::Serialization::serialize(getTest().getID()) },
+				{ "results", Utility::Serialization::serialize(getResults()) }
+			};
+		}
+
+		TestResults::TestResults(const std::map<std::string, std::string>& row)
+			: TestResults(
+				Entity<Tests::Test>::load(Utility::Serialization::deserializeToInt(row.at("testID"))),
+				Utility::Serialization::deserializeToMapOfStringsToStrings(row.at("results"))) {
+		}
+
+		TestResults::TestResults(Tests::Test test, std::map<std::string, std::string> results)
+			: Persistence::Entity<TestResults>("TestResults")
+			, test_(std::move(test))
+			, results_(std::move(results)) {
+		}
+
+		Tests::Test TestResults::getTest() const {
+			return test_;
+		}
+
+		std::map<std::string, std::string> TestResults::getResults() const {
+			return results_;
+		}
+	}
+}
