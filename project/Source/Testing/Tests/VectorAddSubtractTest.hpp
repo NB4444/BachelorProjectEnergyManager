@@ -18,7 +18,7 @@ namespace Testing {
 			TestResults onRun() override;
 
 		public:
-			VectorAddSubtractTest(const int& computeCount = 50000);
+			VectorAddSubtractTest(const int& computeCount);
 		};
 	}
 }

@@ -16,7 +16,7 @@ file(GLOB_RECURSE SOURCE_FILES Source/*.cpp Source/*.cu)
 message(STATUS "Source files: ${SOURCE_FILES}")
 
 # Add and configure target
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} Source/Hardware/Device.cpp Source/Hardware/Device.hpp Source/Hardware/GPU.cpp Source/Hardware/GPU.hpp Source/Testing/Tests/PingTest.cpp Source/Testing/Tests/PingTest.hpp Source/Testing/Tests/ApplicationTest.cpp Source/Testing/Tests/ApplicationTest.hpp Source/Testing/Tests/VectorAddSubtractTest.cu Source/Testing/Tests/VectorAddSubtractTest.hpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_target_properties(
 	${PROJECT_NAME}
 	PROPERTIES
