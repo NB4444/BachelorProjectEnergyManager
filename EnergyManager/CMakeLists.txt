@@ -37,5 +37,6 @@ target_link_libraries(
 	/usr/local/cuda/lib64/libcudart.so
 	cupti
 	pthread
+	nvidia-ml
 	"${PROJECT_SOURCE_DIR}/sqlite/.libs/libsqlite3.so"
 )

@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <nvml.h>
 
 #define ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(CALL) \
 	EnergyManager::Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
@@ -177,7 +178,7 @@ namespace EnergyManager {
 			/**
 			 * The memory frequency in MHz.
 			 */
-			uint32_t memoryClock_;
+			uint32_t memoryClockRate_;
 
 			/**
 			 * Number of multiprocessors on the device.
@@ -189,6 +190,11 @@ namespace EnergyManager {
 			 * This name is shared across all activity records representing instances of the device, and so should not be modified.
 			 */
 			std::string name_;
+
+			/**
+			 * The GPU device.
+			 */
+			nvmlDevice_t device_;
 
 			/**
 			 * The power in milliwatts consumed by GPU and associated circuitry.
@@ -203,7 +209,7 @@ namespace EnergyManager {
 			/**
 			 * The SM frequency in MHz.
 			 */
-			uint32_t streamingMultiprocessorClock_;
+			uint32_t streamingMultiprocessorClockRate_;
 
 			/**
 			 * The GPU temperature in degrees C.
@@ -248,6 +254,8 @@ namespace EnergyManager {
 
 			static void handleAPICall(const std::string& call, const CUptiResult& callResult, const std::string& file, const int& line);
 
+			static void handleAPICall(const std::string& call, const nvmlReturn_t& callResult, const std::string& file, const int& line);
+
 			/**
 			 * Initializes tracing capabilities.
 			 */
@@ -277,6 +285,24 @@ namespace EnergyManager {
 			 * @return The core clock rate.
 			 */
 			uint32_t getCoreClockRate() const;
+
+			/**
+			 * @copydoc GPU::coreClockRate_
+			 * @param rate The core clock rate.
+			 */
+			void setCoreClockRate(unsigned int& rate);
+
+			/**
+			 * @copydoc GPU::coreClockRate_
+			 */
+			void resetCoreClockRate();
+
+			/**
+			 * Gets the GPU utilization rate.
+			 * Percent of time over the past sample period during which one or more kernels was executing on the GPU.
+			 * @return The GPU utilization rate.
+			 */
+			unsigned int getCoreUtilizationRate() const;
 
 			/**
 			 * @copydoc GPU::fanSpeed_
@@ -390,7 +416,25 @@ namespace EnergyManager {
 			 * @copydoc GPU::memoryClock_
 			 * @return The memory clock.
 			 */
-			uint32_t getMemoryClock() const;
+			uint32_t getMemoryClockRate() const;
+
+			/**
+			 * @copydoc GPU::memoryClock_
+			 * @param rate The rate.
+			 */
+			void setMemoryClockRate(unsigned int& rate);
+
+			/**
+			 * @copydoc GPU::memoryClock_
+			 */
+			void resetMemoryClockRate();
+
+			/**
+			 * Gets the memory utilization rate.
+			 * Percent of time over the past sample period during which global (device) memory was being read or written.
+			 * @return The memory utilization rate.
+			 */
+			unsigned int getMemoryUtilizationRate() const;
 
 			/**
 			 * @copydoc GPU::multiprocessorCount_
@@ -420,7 +464,7 @@ namespace EnergyManager {
 			 * @copydoc GPU::streamingMultiprocessorClock_
 			 * @return The streaming multiprocessor clock.
 			 */
-			uint32_t getStreamingMultiprocessorClock() const;
+			uint32_t getStreamingMultiprocessorClockRate() const;
 
 			/**
 			 * @copydoc GPU::temperature_

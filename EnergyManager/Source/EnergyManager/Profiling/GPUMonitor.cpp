@@ -9,8 +9,14 @@ namespace EnergyManager {
 
 		std::map<std::string, std::string> GPUMonitor::onPoll() {
 			return {
+				//{ "computeCapabilityMajorVersion", std::to_string(gpu_.getComputeCapabilityMajorVersion()) },
+				//{ "computeCapabilityMinorVersion", std::to_string(gpu_.getComputeCapabilityMinorVersion()) },
 				{ "coreClockRate", std::to_string(gpu_.getCoreClockRate()) },
+				{ "coreUtilizationRate", std::to_string(gpu_.getCoreUtilizationRate()) },
 				{ "fanSpeed", std::to_string(gpu_.getFanSpeed()) },
+				{ "globalMemoryBandwidth", std::to_string(gpu_.getGlobalMemoryBandwidth()) },
+				{ "globalMemorySize", std::to_string(gpu_.getGlobalMemorySize()) },
+				//{ "id", std::to_string(gpu_.getID()) },
 				{ "kernelBlockX", std::to_string(gpu_.getKernelBlockX()) },
 				{ "kernelBlockY", std::to_string(gpu_.getKernelBlockY()) },
 				{ "kernelBlockZ", std::to_string(gpu_.getKernelBlockZ()) },
@@ -25,10 +31,13 @@ namespace EnergyManager {
 				{ "kernelStartTimestamp", std::to_string(gpu_.getKernelStartTimestamp()) },
 				{ "kernelStaticSharedMemory", std::to_string(gpu_.getKernelStaticSharedMemory()) },
 				{ "kernelStreamID", std::to_string(gpu_.getKernelStreamID()) },
-				{ "memoryClock", std::to_string(gpu_.getMemoryClock()) },
+				{ "memoryClockRate", std::to_string(gpu_.getMemoryClockRate()) },
+				{ "memoryUtilizationRate", std::to_string(gpu_.getMemoryUtilizationRate()) },
+				{ "multiprocessorCount", std::to_string(gpu_.getMultiprocessorCount()) },
+				{ "name", gpu_.getName() },
 				{ "powerConsumption", std::to_string(gpu_.getPowerConsumption()) },
 				{ "powerLimit", std::to_string(gpu_.getPowerLimit()) },
-				{ "streamingMultiprocessorClock", std::to_string(gpu_.getStreamingMultiprocessorClock()) },
+				{ "streamingMultiprocessorClock", std::to_string(gpu_.getStreamingMultiprocessorClockRate()) },
 				{ "temperature", std::to_string(gpu_.getTemperature()) },
 			};
 		}

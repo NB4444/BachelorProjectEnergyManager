@@ -22,9 +22,10 @@ int main() {
 		EnergyManager::Testing::TestRunner testRunner;
 
 		// Add some tests
+		int multiplier = 50;
 		//testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::PingTest>("google.com", 4));
-		//testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(50000));
-		testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(*gpu, 3200, 3200, 3200, 3200));
+		//testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(*gpu, 50000));
+		testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(*gpu, 32 * multiplier, 32 * multiplier, 32 * multiplier, 32 * multiplier));
 
 		// Run the tests
 		testRunner.run();

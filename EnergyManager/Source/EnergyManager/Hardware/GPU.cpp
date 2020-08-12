@@ -163,8 +163,8 @@ namespace EnergyManager {
 					powerLimit_ = activity->data.power.powerLimit;
 					break;
 				case CUPTI_ACTIVITY_ENVIRONMENT_SPEED:
-					memoryClock_ = activity->data.speed.memoryClock;
-					streamingMultiprocessorClock_ = activity->data.speed.smClock;
+					memoryClockRate_ = activity->data.speed.memoryClock;
+					streamingMultiprocessorClockRate_ = activity->data.speed.smClock;
 					break;
 				case CUPTI_ACTIVITY_ENVIRONMENT_TEMPERATURE:
 					temperature_ = activity->data.temperature.gpuTemperature;
@@ -193,6 +193,7 @@ namespace EnergyManager {
 
 		GPU::GPU(const uint32_t& id)
 			: id_(id) {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
 		}
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
@@ -222,6 +223,12 @@ namespace EnergyManager {
 			}
 		}
 
+		void GPU::handleAPICall(const std::string& call, const nvmlReturn_t& callResult, const std::string& file, const int& line) {
+			if(callResult != NVML_SUCCESS) {
+				ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR("NVML call %s failed: %d", call.c_str(), callResult);
+			}
+		}
+
 		void GPU::initializeTracing() {
 			// Initialize CUDA
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuInit(0));
@@ -246,6 +253,9 @@ namespace EnergyManager {
 
 			// Register callbacks
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
+
+			// Initialize NVML
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlInit());
 		}
 
 		std::shared_ptr<GPU> GPU::getGPU(const uint32_t& id) {
@@ -266,7 +276,33 @@ namespace EnergyManager {
 		}
 
 		uint32_t GPU::getCoreClockRate() const {
+			//unsigned int coreClockRate;
+			//nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate);
 			return coreClockRate_;
+		}
+
+		void GPU::setCoreClockRate(unsigned int& rate) {
+			unsigned int memoryClockRate;
+			nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate);
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, memoryClockRate, rate));
+		}
+
+		void GPU::resetCoreClockRate() {
+			unsigned int memoryClockRate;
+			nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate);
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetApplicationsClocks(device_));
+
+			setMemoryClockRate(memoryClockRate);
+		}
+
+		unsigned int GPU::getCoreUtilizationRate() const {
+			// Retrieve the utilization rates
+			nvmlUtilization_t rates;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
+
+			return rates.gpu;
 		}
 
 		uint32_t GPU::getFanSpeed() const {
@@ -341,8 +377,34 @@ namespace EnergyManager {
 			return kernelStreamID_;
 		}
 
-		uint32_t GPU::getMemoryClock() const {
-			return memoryClock_;
+		uint32_t GPU::getMemoryClockRate() const {
+			//unsigned int memoryClockRate;
+			//nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate);
+			return memoryClockRate_;
+		}
+
+		void GPU::setMemoryClockRate(unsigned int& rate) {
+			unsigned int coreClockRate;
+			nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate);
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, rate, coreClockRate));
+		}
+
+		void GPU::resetMemoryClockRate() {
+			unsigned int coreClockRate;
+			nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate);
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetApplicationsClocks(device_));
+
+			setCoreClockRate(coreClockRate);
+		}
+
+		unsigned int GPU::getMemoryUtilizationRate() const {
+			// Retrieve the utilization rates
+			nvmlUtilization_t rates;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
+
+			return rates.memory;
 		}
 
 		uint32_t GPU::getMultiprocessorCount() const {
@@ -361,8 +423,8 @@ namespace EnergyManager {
 			return powerLimit_;
 		}
 
-		uint32_t GPU::getStreamingMultiprocessorClock() const {
-			return streamingMultiprocessorClock_;
+		uint32_t GPU::getStreamingMultiprocessorClockRate() const {
+			return streamingMultiprocessorClockRate_;
 		}
 
 		uint32_t GPU::getTemperature() const {
