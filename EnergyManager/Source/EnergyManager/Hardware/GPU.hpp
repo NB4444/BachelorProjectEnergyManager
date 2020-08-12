@@ -9,8 +9,8 @@
 #include <memory>
 #include <vector>
 
-#define HARDWARE_GPU_HANDLE_API_CALL(CALL) \
-	Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
+#define ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(CALL) \
+	EnergyManager::Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
 
 namespace EnergyManager {
 	namespace Hardware {

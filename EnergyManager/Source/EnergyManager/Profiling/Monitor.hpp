@@ -12,6 +12,16 @@ namespace EnergyManager {
 		 */
 		class Monitor {
 			/**
+			 * The name of the Monitor.
+			 */
+			std::string name_;
+
+			/**
+			 * Whether the Monitor is running.
+			 */
+			bool running_ = false;
+
+			/**
 			 * The variables at different points in time.
 			 */
 			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> variableValues_;
@@ -26,15 +36,39 @@ namespace EnergyManager {
 		public:
 			/**
 			 * Creates a new Monitor.
-			 * @param variableProducers
+			 * @param name The name of the Monitor.
 			 */
-			Monitor() = default;
+			Monitor(std::string name);
 
 			/**
-			 * Polls all variables and stores their current values.
+			 * Gets the name of the Monitor.
+			 * @return The name.
+			 */
+			std::string getName() const;
+
+			/**
+			 * Gets the variables at different points in time.
+			 * @return The variable values.
+			 */
+			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> getVariableValues() const;
+
+			/**
+			 * Polls all variables and potentially stores their current values.
+			 * @param save Whether to save the polled variables.
 			 * @return The variables at the current point in time.
 			 */
-			std::map<std::string, std::string> poll();
+			std::map<std::string, std::string> poll(const bool& save);
+
+			/**
+			 * Runs the Monitor using a specified polling interval.
+			 * @param interval The polling interval in seconds.
+			 */
+			void run(const std::chrono::seconds& interval);
+
+			/**
+			 * Stops the Monitor if it is running.
+			 */
+			void stop();
 		};
 	}
 }

@@ -19,7 +19,6 @@ namespace EnergyManager {
 				results.push_back(testResults);
 
 				// Save the Test and results to the database
-				test->save();
 				testResults.save();
 			}
 

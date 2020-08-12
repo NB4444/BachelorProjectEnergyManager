@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -9,9 +10,21 @@ namespace EnergyManager {
 	namespace Utility {
 		namespace Text {
 			static std::string join(const std::vector<std::string>& value, const std::string& delimiter) {
-				return std::accumulate(value.begin(), value.end(), std::string(), [&](const std::string& left, const std::string& right) -> std::string {
-					return left + (left.length() > 0 ? delimiter : "") + right;
-				});
+				std::string result;
+
+				for(size_t index = 0u; index < value.size(); ++index) {
+					if(index != 0u) {
+						result += delimiter;
+					}
+
+					result += value[index];
+				}
+
+				return result;
+			}
+
+			static std::string join(const std::set<std::string>& value, const std::string& delimiter) {
+				return join(std::vector<std::string>(value.begin(), value.end()), delimiter);
 			}
 
 			static std::vector<std::string> split(std::string value, const std::string& delimiter) {

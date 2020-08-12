@@ -6,6 +6,9 @@
 #include <stdarg.h>
 #include <string>
 
+#define ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR(FORMAT, ...) \
+	EnergyManager::Utility::Logging::logError(FORMAT, __FILE__, __LINE__, __VA_ARGS__)
+
 namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {

@@ -3,7 +3,8 @@
 namespace EnergyManager {
 	namespace Profiling {
 		GPUMonitor::GPUMonitor(const Hardware::GPU& gpu)
-			: gpu_(gpu) {
+			: Monitor("GPUMonitor")
+			, gpu_(gpu) {
 		}
 
 		std::map<std::string, std::string> GPUMonitor::onPoll() {

@@ -6,7 +6,7 @@
 namespace EnergyManager {
 	namespace Profiling {
 		class GPUMonitor : public Monitor {
-			Hardware::GPU gpu_;
+			const Hardware::GPU& gpu_;
 
 		public:
 			GPUMonitor(const Hardware::GPU& gpu);

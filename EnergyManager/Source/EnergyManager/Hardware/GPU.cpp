@@ -39,13 +39,13 @@ namespace EnergyManager {
 					} else if(status == CUPTI_ERROR_MAX_LIMIT_REACHED) {
 						break;
 					} else {
-						HARDWARE_GPU_HANDLE_API_CALL(status);
+						ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(status);
 					}
 				} while(true);
 
 				// Report any records dropped from the queue
 				size_t dropped;
-				HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityGetNumDroppedRecords(context, streamId, &dropped));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityGetNumDroppedRecords(context, streamId, &dropped));
 				if(dropped != 0) {
 					Utility::Logging::logInformation("Dropped %u activity records", static_cast<unsigned int>(dropped));
 				}
@@ -197,14 +197,14 @@ namespace EnergyManager {
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
 			if(callResult != CUDA_SUCCESS) {
-				Utility::Logging::logError("Driver call %s failed: %s", file, line, call.c_str(), callResult);
+				ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR("Driver call %s failed: %d", call.c_str(), callResult);
 				//exit(-1);
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line) {
 			if(callResult != CUDA_SUCCESS) {
-				Utility::Logging::logError("Runtime driver call %s failed: %s", file, line, call.c_str(), cudaGetErrorString(callResult));
+				ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR("Runtime driver call %s failed: %s", call.c_str(), cudaGetErrorString(callResult));
 				//exit(-1);
 			}
 		}
@@ -213,7 +213,7 @@ namespace EnergyManager {
 			if(callResult != CUPTI_SUCCESS) {
 				const char* errorMessage;
 				cuptiGetResultString(callResult, &errorMessage);
-				Utility::Logging::logError("CUPTI call %s failed: %s", file, line, call.c_str(), errorMessage);
+				ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR("CUPTI call %s failed: %s", call.c_str(), errorMessage);
 				//if(callResult == CUPTI_ERROR_LEGACY_PROFILER_NOT_SUPPORTED) {
 				//	exit(0);
 				//} else {
@@ -224,19 +224,19 @@ namespace EnergyManager {
 
 		void GPU::initializeTracing() {
 			// Initialize CUDA
-			HARDWARE_GPU_HANDLE_API_CALL(cuInit(0));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuInit(0));
 
 			// Get the device count to create a device context, which is necessary
 			int deviceCount = 0;
-			HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&deviceCount));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&deviceCount));
 
 			// Enable collection of various types of parameters
-			HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
-			HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL));
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_CONTEXT));
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DRIVER));
-			HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
-			HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_KERNEL));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_ENVIRONMENT));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_KERNEL));
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MARKER));
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MEMCPY));
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_MEMSET));
@@ -245,7 +245,7 @@ namespace EnergyManager {
 			//HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_RUNTIME));
 
 			// Register callbacks
-			HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityRegisterCallbacks(allocateBuffer, freeBuffer));
 		}
 
 		std::shared_ptr<GPU> GPU::getGPU(const uint32_t& id) {

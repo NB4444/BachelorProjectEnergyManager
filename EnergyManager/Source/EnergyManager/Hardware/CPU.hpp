@@ -17,14 +17,12 @@ namespace EnergyManager {
 			 */
 			static std::map<uint32_t, std::shared_ptr<CPU>> cpus_;
 
-		public:
 			/**
 			 * Gets the current values of all CPUs.
 			 * @return The current values.
 			 */
 			static std::map<unsigned int, std::map<std::string, std::string>> getProcCPUInfoValues();
 
-		private:
 			/**
 			 * The ID of the device.
 			 */

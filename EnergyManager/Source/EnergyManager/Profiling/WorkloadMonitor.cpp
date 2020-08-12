@@ -5,7 +5,8 @@
 namespace EnergyManager {
 	namespace Profiling {
 		WorkloadMonitor::WorkloadMonitor(const GPUMonitor& gpuMonitor)
-			: gpuMonitor_(gpuMonitor) {
+			: Monitor("WorkloadMonitor")
+			, gpuMonitor_(gpuMonitor) {
 		}
 
 		std::map<std::string, std::string> WorkloadMonitor::onPoll() {

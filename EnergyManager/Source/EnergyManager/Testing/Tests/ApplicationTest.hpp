@@ -23,7 +23,7 @@ namespace EnergyManager {
 				 */
 				std::map<std::string, std::string> results_;
 
-				TestResults onRun() override;
+				std::map<std::string, std::string> onRun() override;
 
 			public:
 				/**
@@ -32,8 +32,9 @@ namespace EnergyManager {
 				 * @param application The Application to test.
 				 * @param parameters The parameters to use to run the Application.
 				 * @param results The results to parse from the Application's output.
+				 * @param monitors The monitors to run during the Test and their associated polling intervals.
 				 */
-				ApplicationTest(const std::string& name, const Application& application, std::vector<std::string> parameters, std::map<std::string, std::string> results);
+				ApplicationTest(const std::string& name, const Application& application, std::vector<std::string> parameters, std::map<std::string, std::string> results, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors = {});
 			};
 		}
 	}

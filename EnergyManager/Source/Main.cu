@@ -1,38 +1,37 @@
-#include "EnergyManager/Application.hpp"
-#include "Hardware/CPU.hpp"
-#include "Hardware/GPU.hpp"
-#include "Testing/TestResults.hpp"
-#include "Testing/TestRunner.hpp"
-#include "Testing/Tests/PingTest.hpp"
-#include "Testing/Tests/VectorAddSubtractTest.hpp"
-#include "Utility/Logging.hpp"
+#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Testing/TestResults.hpp"
+#include "EnergyManager/Testing/TestRunner.hpp"
+#include "EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp"
+#include "EnergyManager/Testing/Tests/PingTest.hpp"
+#include "EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 
 #include <memory>
 
 int main() {
 	try {
 		// Initialize APIs
-		Hardware::GPU::initializeTracing();
+		EnergyManager::Hardware::GPU::initializeTracing();
 
 		// Get the relevant hardware
-		auto cpu = Hardware::CPU::getCPU(0);
-		auto gpu = Hardware::GPU::getGPU(0);
+		auto cpu = EnergyManager::Hardware::CPU::getCPU(0);
+		auto gpu = EnergyManager::Hardware::GPU::getGPU(0);
 
 		// Set up a new TestRunner
-		Testing::TestRunner testRunner;
+		EnergyManager::Testing::TestRunner testRunner;
 
 		// Add some tests
-		testRunner.addTest(std::make_shared<Testing::Tests::PingTest>("google.com", 4));
-		testRunner.addTest(std::make_shared<Testing::Tests::VectorAddSubtractTest>(50000));
+		//testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::PingTest>("google.com", 4));
+		//testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(50000));
+		testRunner.addTest(std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(*gpu, 3200, 3200, 3200, 3200));
 
 		// Run the tests
 		testRunner.run();
 
-		auto cpuValues = cpu->getProcCPUInfoValues();
-
 		return 0;
 	} catch(const std::exception& exception) {
-		Utility::Logging::logError(exception.what(), __FILE__, __LINE__);
+		EnergyManager::Utility::Logging::logError(exception.what(), __FILE__, __LINE__);
 
 		return 1;
 	}

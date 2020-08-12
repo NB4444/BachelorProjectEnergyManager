@@ -27,20 +27,10 @@ namespace EnergyManager {
 		 */
 		std::string executableOutput_;
 
-		///**
-		// * The output from the energy monitor.
-		// */
-		//std::string cudaEnergyMonitorOutput_;
-
 		/**
 		 * The thread that monitors the executable.
 		 */
 		std::thread executableMonitor_;
-
-		///**
-		// * The thread that monitors the CUDA energy monitor.
-		// */
-		//std::thread cudaEnergyMonitorMonitor_;
 
 	public:
 		/**
@@ -67,21 +57,10 @@ namespace EnergyManager {
 		 */
 		std::string getExecutableOutput() const;
 
-		///**
-		// * Gets the CUDA Energy Monitor's output.
-		// * @return The output.
-		// */
-		//std::string getCUDAEnergyMonitorOutput() const;
-
 		/**
 		 * Starts the Application.
 		 * @param parameters The parameters to provide to the executable.
 		 */
-		void start(const std::vector<std::string>& parameters);
-
-		/**
-		 * Waits until the Application has finished running.
-		 */
-		void waitUntilDone();
+		void run(const std::vector<std::string>& parameters);
 	};
 }

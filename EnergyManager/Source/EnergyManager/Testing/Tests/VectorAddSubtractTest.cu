@@ -1,6 +1,7 @@
 #include "./VectorAddSubtractTest.hpp"
 
 #include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Profiling/GPUMonitor.hpp"
 #include "EnergyManager/Testing/TestResults.hpp"
 
 namespace EnergyManager {
@@ -34,23 +35,23 @@ namespace EnergyManager {
 				int* deviceVectorC;
 
 				// Allocate vectors in device memory
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorA, size));
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorB, size));
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorC, size));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorA, size));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorB, size));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMalloc((void**) &deviceVectorC, size));
 
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(deviceVectorA, hostVectorA, size, cudaMemcpyHostToDevice, stream));
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(deviceVectorB, hostVectorB, size, cudaMemcpyHostToDevice, stream));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(deviceVectorA, hostVectorA, size, cudaMemcpyHostToDevice, stream));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(deviceVectorB, hostVectorB, size, cudaMemcpyHostToDevice, stream));
 
 				// Run the kernels
 				vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(deviceVectorA, deviceVectorB, deviceVectorC, computeCount_);
 				vectorSubtract<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(deviceVectorA, deviceVectorB, deviceVectorC, computeCount_);
 
-				HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(hostVectorC, deviceVectorC, size, cudaMemcpyDeviceToHost, stream));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaMemcpyAsync(hostVectorC, deviceVectorC, size, cudaMemcpyDeviceToHost, stream));
 
 				if(stream == 0) {
-					HARDWARE_GPU_HANDLE_API_CALL(cudaDeviceSynchronize());
+					ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaDeviceSynchronize());
 				} else {
-					HARDWARE_GPU_HANDLE_API_CALL(cudaStreamSynchronize(stream));
+					ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaStreamSynchronize(stream));
 				}
 
 				free(hostVectorA);
@@ -61,40 +62,40 @@ namespace EnergyManager {
 				cudaFree(deviceVectorC);
 			}
 
-			TestResults VectorAddSubtractTest::onRun() {
+			std::map<std::string, std::string> VectorAddSubtractTest::onRun() {
 				int devCount = 0;
-				HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&devCount));
-				for(int deviceNum = 0; deviceNum < devCount; deviceNum++) {
-					CUdevice device;
-					HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGet(&device, deviceNum));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&devCount));
 
-					char deviceName[32];
-					HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGetName(deviceName, 32, device));
-					printf("Device Name: %s\n", deviceName);
+				CUdevice device;
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGet(&device, gpu_.getID()));
 
-					HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(deviceNum));
-					// Do pass default stream
-					doPass(0);
+				char deviceName[32];
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGetName(deviceName, 32, device));
+				printf("Device Name: %s\n", deviceName);
 
-					// Do pass with user stream
-					cudaStream_t stream0;
-					HARDWARE_GPU_HANDLE_API_CALL(cudaStreamCreate(&stream0));
-					doPass(stream0);
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(gpu_.getID()));
+				// Do pass default stream
+				doPass(0);
 
-					cudaDeviceSynchronize();
+				// Do pass with user stream
+				cudaStream_t stream0;
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaStreamCreate(&stream0));
+				doPass(stream0);
 
-					// Flush all remaining CUPTI buffers before resetting the device.
-					// This can also be called in the cudaDeviceReset callback.
-					cuptiActivityFlushAll(0);
+				cudaDeviceSynchronize();
 
-					cudaDeviceReset();
-				}
+				// Flush all remaining CUPTI buffers before resetting the device.
+				// This can also be called in the cudaDeviceReset callback.
+				cuptiActivityFlushAll(0);
 
-				return TestResults(*this, {});
+				cudaDeviceReset();
+
+				return {};
 			}
 
-			VectorAddSubtractTest::VectorAddSubtractTest(const int& computeCount)
-				: Test("VectorAddSubtractTest")
+			VectorAddSubtractTest::VectorAddSubtractTest(const Hardware::GPU& gpu, const int& computeCount)
+				: Test("VectorAddSubtractTest", { { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) } })
+				, gpu_(gpu)
 				, computeCount_(computeCount) {
 			}
 		}
