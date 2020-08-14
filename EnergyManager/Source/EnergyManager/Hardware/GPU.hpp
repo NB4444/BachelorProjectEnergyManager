@@ -1,24 +1,23 @@
 #pragma once
 
-#include "Device.hpp"
+#include "EnergyManager/Hardware/Processor.hpp"
 
 #include <cuda.h>
 #include <cupti.h>
 #include <functional>
 #include <map>
 #include <memory>
-#include <vector>
 #include <nvml.h>
+#include <vector>
 
-#define ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(CALL) \
-	EnergyManager::Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
+#define ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(CALL) EnergyManager::Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
 
 namespace EnergyManager {
 	namespace Hardware {
 		/**
 		 * Represents a Graphics Processing Unit.
 		 */
-		class GPU : public Device {
+		class GPU : public Processor {
 			/**
 			 * The size of the buffer used to collect statistics.
 			 */
@@ -32,7 +31,7 @@ namespace EnergyManager {
 			/**
 			 * Keeps track of GPUs.
 			 */
-			static std::map<uint32_t, std::shared_ptr<GPU>> gpus_;
+			static std::map<unsigned int, std::shared_ptr<GPU>> gpus_;
 
 			/**
 			 * Aligns the buffer with the configured parameters.
@@ -58,7 +57,7 @@ namespace EnergyManager {
 			 * @param size The size of the buffer.
 			 * @param validSize ?
 			 */
-			static void CUPTIAPI freeBuffer(CUcontext context, uint32_t streamId, uint8_t* buffer, size_t size, size_t validSize);
+			static void CUPTIAPI freeBuffer(CUcontext context, unsigned int streamId, uint8_t* buffer, size_t size, size_t validSize);
 
 			/**
 			 * Forwards the activity to the corresponding GPU.
@@ -69,89 +68,89 @@ namespace EnergyManager {
 			/**
 			 * Compute capability for the device, major number.
 			 */
-			uint32_t computeCapabilityMajorVersion_;
+			unsigned int computeCapabilityMajorVersion_;
 
 			/**
 			 * Compute capability for the device, minor number.
 			 */
-			uint32_t computeCapabilityMinorVersion_;
+			unsigned int computeCapabilityMinorVersion_;
 
 			/**
 			 * The core clock rate of the device, in kHz.
 			 */
-			uint32_t coreClockRate_;
+			unsigned int coreClockRate_;
 
 			/**
 			 * The fan speed as percentage of maximum.
 			 */
-			uint32_t fanSpeed_;
+			unsigned int fanSpeed_;
 
 			/**
 			 * The global memory bandwidth available on the device, in kBytes/sec.
 			 */
-			uint64_t globalMemoryBandwidth_;
+			unsigned long globalMemoryBandwidth_;
 
 			/**
 			 * The amount of global memory on the device, in bytes.
 			 */
-			uint64_t globalMemorySize_;
+			unsigned long globalMemorySize_;
 
 			/**
 			 * The ID of the device.
 			 */
-			uint32_t id_;
+			unsigned int id_;
 
 			/**
 			 * The X-dimension block size for the kernel.
 			 */
-			int32_t kernelBlockX_;
+			int kernelBlockX_;
 
 			/**
 			 * The Y-dimension block size for the kernel.
 			 */
-			int32_t kernelBlockY_;
+			int kernelBlockY_;
 
 			/**
 			 * The Z-dimension block size for the kernel.
 			 */
-			int32_t kernelBlockZ_;
+			int kernelBlockZ_;
 
 			/**
 			 * The ID of the context where the kernel is executing.
 			 */
-			uint32_t kernelContextID_;
+			unsigned int kernelContextID_;
 
 			/**
 			 * The correlation ID of the kernel.
 			 * Each kernel execution is assigned a unique correlation ID that is identical to the correlation ID in the driver or runtime API activity record that launched the kernel.
 			 */
-			uint32_t kernelCorrelationID_;
+			unsigned int kernelCorrelationID_;
 
 			/**
 			 * The dynamic shared memory reserved for the kernel, in bytes.
 			 */
-			int32_t kernelDynamicSharedMemory_;
+			int kernelDynamicSharedMemory_;
 
 			/**
 			 * The end timestamp for the kernel execution, in ns.
 			 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
 			 */
-			uint64_t kernelEndTimestamp_;
+			unsigned long kernelEndTimestamp_;
 
 			/**
 			 * The X-dimension grid size for the kernel.
 			 */
-			int32_t kernelGridX_;
+			int kernelGridX_;
 
 			/**
 			 * The Y-dimension grid size for the kernel.
 			 */
-			int32_t kernelGridY_;
+			int kernelGridY_;
 
 			/**
 			 * The Z-dimension grid size for the kernel.
 			 */
-			int32_t kernelGridZ_;
+			int kernelGridZ_;
 
 			/**
 			 * The name of the kernel.
@@ -163,27 +162,27 @@ namespace EnergyManager {
 			 * The start timestamp for the kernel execution, in ns.
 			 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
 			 */
-			uint64_t kernelStartTimestamp_;
+			unsigned long kernelStartTimestamp_;
 
 			/**
 			 * The static shared memory allocated for the kernel, in bytes.
 			 */
-			int32_t kernelStaticSharedMemory_;
+			int kernelStaticSharedMemory_;
 
 			/**
 			 * The ID of the stream where the kernel is executing.
 			 */
-			uint32_t kernelStreamID_;
+			unsigned int kernelStreamID_;
 
 			/**
 			 * The memory frequency in MHz.
 			 */
-			uint32_t memoryClockRate_;
+			unsigned int memoryClockRate_;
 
 			/**
 			 * Number of multiprocessors on the device.
 			 */
-			uint32_t multiprocessorCount_;
+			unsigned int multiprocessorCount_;
 
 			/**
 			 * The device name.
@@ -199,22 +198,22 @@ namespace EnergyManager {
 			/**
 			 * The power in milliwatts consumed by GPU and associated circuitry.
 			 */
-			uint32_t powerConsumption_;
+			unsigned int powerConsumption_;
 
 			/**
 			 * The power in milliwatts that will trigger power management algorithm.
 			 */
-			uint32_t powerLimit_;
+			unsigned int powerLimit_;
 
 			/**
 			 * The SM frequency in MHz.
 			 */
-			uint32_t streamingMultiprocessorClockRate_;
+			unsigned int streamingMultiprocessorClockRate_;
 
 			/**
 			 * The GPU temperature in degrees C.
 			 */
-			uint32_t temperature_;
+			unsigned int temperature_;
 
 			/**
 			 * Handles a device activity.
@@ -238,7 +237,7 @@ namespace EnergyManager {
 			 * Creates a new GPU.
 			 * @param id The ID of the device.
 			 */
-			GPU(const uint32_t& id);
+			GPU(const unsigned int& id);
 
 		public:
 			/**
@@ -266,31 +265,64 @@ namespace EnergyManager {
 			 * @param id The device ID.
 			 * @return The GPU.
 			 */
-			static std::shared_ptr<GPU> getGPU(const uint32_t& id);
+			static std::shared_ptr<GPU> getGPU(const unsigned int& id);
+
+			unsigned long getCoreClockRate() const override;
+
+			unsigned long getMaximumCoreClockRate() const override;
+
+			/**
+			 * Gets the per Application clock rate.
+			 * @return The Application clock rate.
+			 */
+			unsigned long getApplicationCoreClockRate() const;
+
+			/**
+			 * Sets the per Application clock rate.
+			 * @param rate The Application clock rate.
+			 */
+			void setApplicationCoreClockRate(unsigned long& rate);
+
+			/**
+			 * Resets the per Application clock rate.
+			 */
+			void resetApplicationCoreClockRate();
+
+			/**
+			 * Gets the per Application memory clock rate.
+			 * @return The Application memory clock rate.
+			 */
+			unsigned long getApplicationMemoryClockRate() const;
+
+			/**
+			 * Sets the per Application memory clock rate.
+			 * @param rate The Application memory clock rate.
+			 */
+			void setApplicationMemoryClockRate(unsigned int& rate);
+
+			/**
+			 * Resets the per Application memory clock rate.
+			 */
+			void resetApplicationMemoryClockRate();
 
 			/**
 			 * @copydoc GPU::computeCapabilityMajorVersion_
 			 * @return The compute capability major version.
 			 */
-			uint32_t getComputeCapabilityMajorVersion() const;
+			unsigned int getComputeCapabilityMajorVersion() const;
 
 			/**
 			 * @copydoc GPU::computeCapabilityMinorVersion_
 			 * @return The compute capability minor version.
 			 */
-			uint32_t getComputeCapabilityMinorVersion() const;
+			unsigned int getComputeCapabilityMinorVersion() const;
 
 			/**
 			 * @copydoc GPU::coreClockRate_
-			 * @return The core clock rate.
+			 * @param minimumRate The minimum core clock rate.
+			 * @param maximumRate The maximum core clock rate.
 			 */
-			uint32_t getCoreClockRate() const;
-
-			/**
-			 * @copydoc GPU::coreClockRate_
-			 * @param rate The core clock rate.
-			 */
-			void setCoreClockRate(unsigned int& rate);
+			void setCoreClockRate(unsigned long& minimumRate, unsigned long& maximumRate);
 
 			/**
 			 * @copydoc GPU::coreClockRate_
@@ -308,85 +340,85 @@ namespace EnergyManager {
 			 * @copydoc GPU::fanSpeed_
 			 * @return The fan speed.
 			 */
-			uint32_t getFanSpeed() const;
+			unsigned int getFanSpeed() const;
 
 			/**
 			 * @copydoc GPU::globalMemoryBandwidth_
 			 * @return The global memory bandwidth.
 			 */
-			uint64_t getGlobalMemoryBandwidth() const;
+			unsigned long getGlobalMemoryBandwidth() const;
 
 			/**
 			 * @copydoc GPU::globalMemorySize_
 			 * @return The global memory size.
 			 */
-			uint64_t getGlobalMemorySize() const;
+			unsigned long getGlobalMemorySize() const;
 
 			/**
 			 * @copydoc GPU::id_
 			 * @return The ID.
 			 */
-			uint32_t getID() const;
+			unsigned int getID() const;
 
 			/**
 			 * @copydoc GPU::kernelBlockX_
 			 * @return The kernel block X coordinate.
 			 */
-			int32_t getKernelBlockX() const;
+			int getKernelBlockX() const;
 
 			/**
 			 * @copydoc GPU::kernelBlockY_
 			 * @return The kernel block Y coordinate.
 			 */
-			int32_t getKernelBlockY() const;
+			int getKernelBlockY() const;
 
 			/**
 			 * @copydoc GPU::kernelBlockZ_
 			 * @return The kernel block Z coordinate.
 			 */
-			int32_t getKernelBlockZ() const;
+			int getKernelBlockZ() const;
 
 			/**
 			 * @copydoc GPU::kernelContextID_
 			 * @return The kernel context ID.
 			 */
-			uint32_t getKernelContextID() const;
+			unsigned int getKernelContextID() const;
 
 			/**
 			 * @copydoc GPU::kernelCorrelationID_
 			 * @return The kernel correlation ID.
 			 */
-			uint32_t getKernelCorrelationID() const;
+			unsigned int getKernelCorrelationID() const;
 
 			/**
 			 * @copydoc GPU::kernelDynamicSharedMemory_
 			 * @return The kernel dynamic shared memory.
 			 */
-			int32_t getKernelDynamicSharedMemory() const;
+			unsigned int getKernelDynamicSharedMemory() const;
 
 			/**
 			 * @copydoc GPU::kernelEndTimestamp_
 			 * @return The kernel end timestamp.
 			 */
-			uint64_t getKernelEndTimestamp() const;
+			unsigned long getKernelEndTimestamp() const;
 
 			/**
 			 * @copydoc GPU::kernelGridX_
 			 * @return The kernel grid X coordinate.
 			 */
-			int32_t getKernelGridX() const;
+			int getKernelGridX() const;
 
 			/**
 			 * @copydoc GPU::kernelGridY_
 			 * @return The kernel grid Y coordinate.
 			 */
-			int32_t getKernelGridY() const;
+			int getKernelGridY() const;
 
 			/**
 			 * @copydoc GPU::kernelGridZ_
 			 * @return The kernel grid Z coordinate.
 			 */
-			int32_t getKernelGridZ() const;
+			int getKernelGridZ() const;
 
 			/**
 			 * @copydoc GPU::kernelName_
@@ -398,36 +430,31 @@ namespace EnergyManager {
 			 * @copydoc GPU::kernelStartTimestamp_
 			 * @return The kernel start timestamp.
 			 */
-			uint64_t getKernelStartTimestamp() const;
+			unsigned long getKernelStartTimestamp() const;
 
 			/**
 			 * @copydoc GPU::kernelStaticSharedMemory_
 			 * @return The kernel static shared memory.
 			 */
-			int32_t getKernelStaticSharedMemory() const;
+			unsigned int getKernelStaticSharedMemory() const;
 
 			/**
 			 * @copydoc GPU::kernelStreamID_
 			 * @return The kernel stream ID.
 			 */
-			uint32_t getKernelStreamID() const;
+			unsigned int getKernelStreamID() const;
+
+			/**
+			 * Retrieves the maximum clock speeds for the device.
+			 * @return The maximum memory clock rate.
+			 */
+			unsigned long getMaximumMemoryClockRate() const;
 
 			/**
 			 * @copydoc GPU::memoryClock_
 			 * @return The memory clock.
 			 */
-			uint32_t getMemoryClockRate() const;
-
-			/**
-			 * @copydoc GPU::memoryClock_
-			 * @param rate The rate.
-			 */
-			void setMemoryClockRate(unsigned int& rate);
-
-			/**
-			 * @copydoc GPU::memoryClock_
-			 */
-			void resetMemoryClockRate();
+			unsigned long getMemoryClockRate() const;
 
 			/**
 			 * Gets the memory utilization rate.
@@ -440,7 +467,7 @@ namespace EnergyManager {
 			 * @copydoc GPU::multiprocessorCount_
 			 * @return The multiprocessor count.
 			 */
-			uint32_t getMultiprocessorCount() const;
+			unsigned int getMultiprocessorCount() const;
 
 			/**
 			 * @copydoc GPU::name_
@@ -452,25 +479,25 @@ namespace EnergyManager {
 			 * @copydoc GPU::powerConsumption_
 			 * @return The power consumption.
 			 */
-			uint32_t getPowerConsumption() const;
+			float getPowerConsumption() const;
 
 			/**
 			 * @copydoc GPU::powerLimit_
 			 * @return The power limit.
 			 */
-			uint32_t getPowerLimit() const;
+			unsigned int getPowerLimit() const;
 
 			/**
 			 * @copydoc GPU::streamingMultiprocessorClock_
 			 * @return The streaming multiprocessor clock.
 			 */
-			uint32_t getStreamingMultiprocessorClockRate() const;
+			unsigned int getStreamingMultiprocessorClockRate() const;
 
 			/**
 			 * @copydoc GPU::temperature_
 			 * @return The temperature.
 			 */
-			uint32_t getTemperature() const;
+			unsigned int getTemperature() const;
 		};
 	}
 }

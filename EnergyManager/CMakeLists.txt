@@ -1,14 +1,20 @@
+cmake_minimum_required(VERSION 3.8)
+
+# Define the CUDA compiler to use
+set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+
+project(EnergyManager LANGUAGES CXX CUDA)
+
 # Set up the project
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-add_compile_definitions(TEST_RESULTS_DATABASE="${PROJECT_SOURCE_DIR}/TestResults.sqlite")
 
 # Set up the CUDA energy monitor
-include_directories("${PROJECT_SOURCE_DIR}/cuda_monitor/src")
-add_compile_definitions(CUDA_ENERGY_MONITOR_DIRECTORY="${PROJECT_SOURCE_DIR}/cuda_monitor/src")
+include_directories("${PROJECT_SOURCE_DIR}/../cuda_monitor/src")
+add_compile_definitions(CUDA_ENERGY_MONITOR_DIRECTORY="${PROJECT_SOURCE_DIR}/../cuda_monitor/src")
 #set(ENV{LD_PRELOAD} ${CUDA_ENERGY_MONITOR_LIBRARY})
 
 # Get sources
@@ -28,7 +34,7 @@ target_include_directories(
 	PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 	PUBLIC /usr/local/cuda/extras/CUPTI/include
 	PUBLIC /cm/shared/apps/cuda10.1/toolkit/10.1.243/extras/CUPTI/include
-	PUBLIC "${PROJECT_SOURCE_DIR}/sqlite"
+	PUBLIC "${PROJECT_SOURCE_DIR}/../sqlite"
 )
 target_link_libraries(
 	${PROJECT_NAME}
@@ -38,5 +44,5 @@ target_link_libraries(
 	cupti
 	pthread
 	nvidia-ml
-	"${PROJECT_SOURCE_DIR}/sqlite/.libs/libsqlite3.so"
+	"${PROJECT_SOURCE_DIR}/../sqlite/.libs/libsqlite3.so"
 )

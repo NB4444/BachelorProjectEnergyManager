@@ -3,9 +3,9 @@
 #include "EnergyManager/Persistence/Entity.hpp"
 #include "EnergyManager/Testing/Tests/Test.hpp"
 
+#include <chrono>
 #include <map>
 #include <string>
-#include <chrono>
 
 namespace EnergyManager {
 	namespace Testing {
@@ -28,16 +28,22 @@ namespace EnergyManager {
 			 */
 			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults_;
 
+		protected:
 			void onSave() override;
 
 		public:
 			/**
 			 * Creates a new TestResults set.
+			 * @param databaseFile The database file to use.
 			 * @param test The Test that generated the results.
 			 * @param results The actual result values.
 			 * @param monitorResults The results of the Monitors.
 			 */
-			TestResults(Tests::Test test, std::map<std::string, std::string> results = {}, std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults = {});
+			TestResults(
+				const std::string& databaseFile,
+				Tests::Test test,
+				std::map<std::string, std::string> results = {},
+				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults = {});
 
 			/**
 			 * Gets the Test that generated the results.

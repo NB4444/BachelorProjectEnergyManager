@@ -5,12 +5,10 @@
 namespace EnergyManager {
 	namespace Testing {
 		void TestResults::onSave() {
-			std::string testName = getTest().getName() + " (" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) + ")";
-
 			// Insert the Test results
 			std::vector<std::map<std::string, std::string>> testRows;
 			for(const auto& result : getResults()) {
-				testRows.push_back({ { "test", "\"" + testName + "\"" }, { "name", "\"" + result.first + "\"" }, { "value", "\"" + result.second + "\"" } });
+				testRows.push_back({ { "test", "\"" + getTest().getName() + "\"" }, { "name", "\"" + result.first + "\"" }, { "value", "\"" + result.second + "\"" } });
 			}
 			insert("TestResults", testRows);
 
@@ -26,15 +24,24 @@ namespace EnergyManager {
 						std::string name = variableValue.first;
 						std::string value = variableValue.second;
 
-						monitorRows.push_back({ { "test", "\"" + testName + "\"" }, { "monitor", "\"" + monitor + "\"" }, { "timestamp", timestamp }, { "name", "\"" + name + "\"" }, { "value", "\"" + value + "\"" } });
+						monitorRows.push_back({ { "test", "\"" + getTest().getName() + "\"" },
+												{ "monitor", "\"" + monitor + "\"" },
+												{ "timestamp", timestamp },
+												{ "name", "\"" + name + "\"" },
+												{ "value", "\"" + value + "\"" } });
 					}
 				}
 			}
 			insert("MonitorResults", monitorRows);
 		}
 
-		TestResults::TestResults(Tests::Test test, std::map<std::string, std::string> results, std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
-			: test_(std::move(test))
+		TestResults::TestResults(
+			const std::string& databaseFile,
+			Tests::Test test,
+			std::map<std::string, std::string> results,
+			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
+			: Persistence::Entity<TestResults>(databaseFile)
+			, test_(std::move(test))
 			, results_(std::move(results))
 			, monitorResults_(std::move(monitorResults)) {
 			// Create the tables if they do not exist yet
@@ -43,7 +50,14 @@ namespace EnergyManager {
 			} catch(const std::runtime_error& error) {
 			}
 			try {
-				createTable("MonitorResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "test", "TEXT NOT NULL" }, { "monitor", "TEXT NOT NULL" }, { "timestamp", "INTEGER NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });
+				createTable(
+					"MonitorResults",
+					{ { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" },
+					  { "test", "TEXT NOT NULL" },
+					  { "monitor", "TEXT NOT NULL" },
+					  { "timestamp", "INTEGER NOT NULL" },
+					  { "name", "TEXT NOT NULL" },
+					  { "value", "TEXT" } });
 			} catch(const std::runtime_error& error) {
 			}
 		}

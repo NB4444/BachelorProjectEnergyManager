@@ -1,6 +1,5 @@
 #include "./Device.hpp"
 
 namespace EnergyManager {
-	namespace Hardware {
-	}
+	namespace Hardware {}
 }

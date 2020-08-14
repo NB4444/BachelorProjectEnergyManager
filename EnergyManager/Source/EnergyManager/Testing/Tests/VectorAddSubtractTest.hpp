@@ -1,7 +1,9 @@
 #pragma once
 
-#include "EnergyManager/Testing/Tests/Test.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Testing/Tests/Test.hpp"
+
+#include <string>
 
 /**
  * The testing code was sampled from the `activity_trace_async` sample in CUDA 10.1's CUPTI library.
@@ -23,10 +25,11 @@ namespace EnergyManager {
 
 				void doPass(cudaStream_t stream) const;
 
+			protected:
 				std::map<std::string, std::string> onRun() override;
 
 			public:
-				VectorAddSubtractTest(const Hardware::GPU& gpu, const int& computeCount);
+				VectorAddSubtractTest(const std::string& name, const Hardware::GPU& gpu, const int& computeCount);
 			};
 		}
 	}

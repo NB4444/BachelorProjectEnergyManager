@@ -41,8 +41,7 @@ namespace EnergyManager {
 			return result;
 		}
 
-		CPU::CPU(const unsigned int& id)
-			: id_(id) {
+		CPU::CPU(const unsigned int& id) : id_(id) {
 		}
 
 		std::shared_ptr<CPU> CPU::getCPU(const unsigned int& id) {
@@ -52,6 +51,17 @@ namespace EnergyManager {
 			}
 
 			return cpus_[id];
+		}
+
+		unsigned long CPU::getCoreClockRate() const {
+			return std::stof(getProcCPUInfoValues()[id_]["cpu MHz"]) * 1000000l;
+		}
+
+		unsigned long CPU::getMaximumCoreClockRate() const {
+			std::ifstream inputStream("/sys/devices/system/cpu/cpu" + std::to_string(id_) + "/cpufreq/cpuinfo_max_freq");
+			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+			return std::stoi(cpuInfo) * 1000l;
 		}
 	}
 }

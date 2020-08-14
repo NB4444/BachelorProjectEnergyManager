@@ -19,8 +19,8 @@ namespace EnergyManager {
 				// Get output
 				std::string output = application_.getExecutableOutput();
 
-				// Add Application output
-				results["output"] = output;
+				//// Add Application output
+				//results["output"] = output;
 
 				// Parse and add results
 				for(const auto& result : results_) {
@@ -34,7 +34,12 @@ namespace EnergyManager {
 				return results;
 			}
 
-			ApplicationTest::ApplicationTest(const std::string& name, const Application& application, std::vector<std::string> parameters, std::map<std::string, std::string> results, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors)
+			ApplicationTest::ApplicationTest(
+				const std::string& name,
+				const Application& application,
+				std::vector<std::string> parameters,
+				std::map<std::string, std::string> results,
+				std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors)
 				: Test(name, monitors)
 				, application_(application)
 				, parameters_(std::move(parameters))

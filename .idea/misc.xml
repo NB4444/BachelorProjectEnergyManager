@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$/EnergyManager">
+    <contentRoot DIR="$PROJECT_DIR$" />
+  </component>
   <component name="CidrRootsConfiguration">
     <sourceRoots>
       <file path="$PROJECT_DIR$/EnergyManager/Source" />
+      <file path="$PROJECT_DIR$/Visualizer/Source" />
     </sourceRoots>
     <libraryRoots>
       <file path="$PROJECT_DIR$/cuda_monitor" />
       <file path="$PROJECT_DIR$/cuda_monitor/src" />
+      <file path="$PROJECT_DIR$/sqlite" />
     </libraryRoots>
   </component>
   <component name="JavaScriptSettings">

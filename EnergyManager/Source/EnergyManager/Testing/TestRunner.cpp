@@ -8,12 +8,12 @@ namespace EnergyManager {
 			tests_.push_back(test);
 		}
 
-		std::vector<TestResults> TestRunner::run() {
+		std::vector<TestResults> TestRunner::run(const std::string& databaseFile) {
 			std::vector<TestResults> results;
 
 			for(auto& test : tests_) {
 				// Execute the test and retrieve the results
-				TestResults testResults = test->run();
+				TestResults testResults = test->run(databaseFile);
 
 				// Store the results to return them
 				results.push_back(testResults);

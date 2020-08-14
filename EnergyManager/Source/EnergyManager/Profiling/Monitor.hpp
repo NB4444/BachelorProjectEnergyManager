@@ -22,6 +22,16 @@ namespace EnergyManager {
 			bool running_ = false;
 
 			/**
+			 * The start timestamp.
+			 */
+			std::chrono::system_clock::time_point startTimestamp_;
+
+			/**
+			 * The last polling timestamp.
+			 */
+			std::chrono::system_clock::time_point lastPollTimestamp_;
+
+			/**
 			 * The variables at different points in time.
 			 */
 			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> variableValues_;
@@ -51,6 +61,30 @@ namespace EnergyManager {
 			 * @return The variable values.
 			 */
 			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> getVariableValues() const;
+
+			/**
+			 * Gets the start timestamp.
+			 * @return The start timestamp.
+			 */
+			std::chrono::system_clock::time_point getStartTimestamp() const;
+
+			/**
+			 * Gets the total runtime.
+			 * @return The runtime.
+			 */
+			std::chrono::seconds getRuntime() const;
+
+			/**
+			 * Gets the timestamp of the last poll operation.
+			 * @return The last poll timestamp.
+			 */
+			std::chrono::system_clock::time_point getLastPollTimestamp() const;
+
+			/**
+			 * Gets the time since the last poll operation.
+			 * @return The time since the last poll operation.
+			 */
+			std::chrono::milliseconds getTimeSinceLastPoll() const;
 
 			/**
 			 * Polls all variables and potentially stores their current values.

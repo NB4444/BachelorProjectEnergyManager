@@ -43,17 +43,19 @@ namespace EnergyManager {
 
 			static std::string trim(std::string value) {
 				// Trim prefix whitespace
-				value.erase(
-					value.begin(),
-					std::find_if(value.begin(), value.end(), [](const int& character) {
-						return !std::isspace(character);
-					}));
+				value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](const int& character) {
+								return !std::isspace(character);
+							}));
 
 				// Trim postfix whitespace
 				value.erase(
-					std::find_if(value.rbegin(), value.rend(), [](const int& character) {
-						return !std::isspace(character);
-					}).base(),
+					std::find_if(
+						value.rbegin(),
+						value.rend(),
+						[](const int& character) {
+							return !std::isspace(character);
+						})
+						.base(),
 					value.end());
 
 				return value;

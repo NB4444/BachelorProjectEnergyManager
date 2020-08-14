@@ -5,7 +5,6 @@ namespace EnergyManager {
 		/**
 		 * Represents a hardware Device.
 		 */
-		class Device {
-		};
+		class Device {};
 	}
 }

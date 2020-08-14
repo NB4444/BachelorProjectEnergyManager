@@ -9,8 +9,7 @@ namespace EnergyManager {
 			return {};
 		}
 
-		Monitor::Monitor(std::string name)
-			: name_(std::move(name)) {
+		Monitor::Monitor(std::string name) : name_(std::move(name)) {
 		}
 
 		std::string Monitor::getName() const {
@@ -21,11 +20,32 @@ namespace EnergyManager {
 			return variableValues_;
 		}
 
+		std::chrono::system_clock::time_point Monitor::getStartTimestamp() const {
+			return startTimestamp_;
+		}
+
+		std::chrono::seconds Monitor::getRuntime() const {
+			return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - getStartTimestamp());
+		}
+
+		std::chrono::system_clock::time_point Monitor::getLastPollTimestamp() const {
+			return lastPollTimestamp_;
+		}
+
+		std::chrono::milliseconds Monitor::getTimeSinceLastPoll() const {
+			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - getLastPollTimestamp());
+		}
+
 		std::map<std::string, std::string> Monitor::poll(const bool& save) {
 			std::map<std::string, std::string> results = onPoll();
 
+			lastPollTimestamp_ = std::chrono::system_clock::now();
+
 			if(save) {
-				variableValues_[std::chrono::system_clock::now()] = results;
+				auto now = std::chrono::system_clock::now();
+
+				variableValues_[now] = results;
+				variableValues_[now]["runtime"] = std::to_string(getRuntime().count());
 			}
 
 			return results;
@@ -33,6 +53,8 @@ namespace EnergyManager {
 
 		void Monitor::run(const std::chrono::seconds& interval) {
 			running_ = true;
+			startTimestamp_ = std::chrono::system_clock::now();
+			lastPollTimestamp_ = startTimestamp_;
 
 			while(running_) {
 				poll(true);

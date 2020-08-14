@@ -27,11 +27,6 @@ namespace EnergyManager {
 		 */
 		std::string executableOutput_;
 
-		/**
-		 * The thread that monitors the executable.
-		 */
-		std::thread executableMonitor_;
-
 	public:
 		/**
 		 * Creates a new Application.

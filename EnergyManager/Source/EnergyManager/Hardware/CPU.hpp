@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Device.hpp"
+#include "EnergyManager/Hardware/Processor.hpp"
 
 #include <map>
 #include <memory>
@@ -11,7 +11,7 @@ namespace EnergyManager {
 		/**
 		 * Represents a Central Processing Unit.
 		 */
-		class CPU : public Device {
+		class CPU : public Processor {
 			/**
 			 * Keeps track of CPUs.
 			 */
@@ -41,6 +41,10 @@ namespace EnergyManager {
 			 * @return The CPU.
 			 */
 			static std::shared_ptr<CPU> getCPU(const unsigned int& id);
+
+			unsigned long getCoreClockRate() const override;
+
+			unsigned long getMaximumCoreClockRate() const override;
 		};
 	}
 }

@@ -1,17 +1,15 @@
 #pragma once
 
-#include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Profiling/Monitor.hpp"
 
 namespace EnergyManager {
 	namespace Profiling {
-		class GPUMonitor : public Monitor {
-			const Hardware::GPU& gpu_;
-
-			float totalPowerConsumption_ = 0;
+		class CPUMonitor : public Monitor {
+			const Hardware::CPU& cpu_;
 
 		public:
-			GPUMonitor(const Hardware::GPU& gpu);
+			CPUMonitor(const Hardware::CPU& cpu);
 
 		protected:
 			std::map<std::string, std::string> onPoll() override;

@@ -15,16 +15,14 @@ namespace EnergyManager {
 				return {};
 			}
 
-			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors)
-				: name_(std::move(name))
-				, monitors_(std::move(monitors)) {
+			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors) : name_(std::move(name)), monitors_(std::move(monitors)) {
 			}
 
 			std::string Test::getName() const {
 				return name_;
 			}
 
-			TestResults Test::run() {
+			TestResults Test::run(const std::string& databaseFile) {
 				// Start the Monitors
 				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults;
 				std::map<std::shared_ptr<Profiling::Monitor>, std::thread> monitors;
@@ -46,7 +44,7 @@ namespace EnergyManager {
 					monitor.second.join();
 				}
 
-				return TestResults(*this, results, monitorResults);
+				return TestResults(databaseFile, *this, results, monitorResults);
 			}
 		}
 	}
