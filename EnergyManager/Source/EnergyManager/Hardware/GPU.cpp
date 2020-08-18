@@ -5,6 +5,18 @@
 
 #include <algorithm>
 
+/**
+ * More performance variables to monitor can be found at these sources:
+ * | Tool  | Functionality        | URL                                                                   |
+ * | :---- | :------------------- | :-------------------------------------------------------------------- |
+ * | CUPTI | Information          | https://docs.nvidia.com/cuda/cupti/index.html                         |
+ * | CUPTI | Documentation        | https://docs.nvidia.com/cupti/Cupti/index.html                        |
+ * | NVML  | Information          | https://developer.nvidia.com/nvidia-management-library-nvml           |
+ * | NVML  | Device Queries       | https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceQueries.html |
+ * | CUDA  | Occupancy Calculator | https://docs.nvidia.com/cuda/cuda-occupancy-calculator/index.html     |
+ * | PAPI  | Information          | https://developer.nvidia.com/papi-cuda-component                      |
+ */
+
 namespace EnergyManager {
 	namespace Hardware {
 		const size_t GPU::bufferSize_;

@@ -6,6 +6,18 @@
 #include <string>
 #include <vector>
 
+/**
+ * More performance variables to monitor can be found at these sources:
+ * | Tool              | Functionality                      | URL                                                                                                         |
+ * | :---------------- | :--------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+ * | General           | Retrieving memory / CPU parameters | https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process |
+ * | Intel RAPL        | Information                        | https://developer.mozilla.org/en-US/docs/Mozilla/Performance/tools_power_rapl                               |
+ * | Intel RAPL        | General usage                      | http://web.eece.maine.edu/~vweaver/projects/rapl/                                                           |
+ * | Intel RAPL        | Model                              | https://blog.chih.me/read-cpu-power-with-RAPL.html                                                          |
+ * | LIKWID Powermeter | Information                        | https://github.com/RRZE-HPC/likwid/wiki/Likwid-Powermeter                                                   |
+ * | PAPI              |                                    |                                                                                                             |
+ */
+
 namespace EnergyManager {
 	namespace Hardware {
 		std::map<unsigned int, std::shared_ptr<CPU>> CPU::cpus_;
