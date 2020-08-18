@@ -8,7 +8,7 @@ namespace EnergyManager {
 		class GPUMonitor : public Monitor {
 			const Hardware::GPU& gpu_;
 
-			float totalPowerConsumption_ = 0;
+			float energyConsumption_ = 0;
 
 		public:
 			GPUMonitor(const Hardware::GPU& gpu);

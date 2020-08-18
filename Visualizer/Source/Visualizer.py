@@ -94,24 +94,40 @@ if __name__ == '__main__':
         def plot_core_clock_rates(test_results: TestResults):
             cpu_core_clock_rates: OrderedDict[int, int] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results["CPUMonitor"].items():
-                cpu_core_clock_rates[timestamp] = int(results["coreClockRate"]);
+                cpu_core_clock_rates[timestamp] = int(results["coreClockRate"])
 
             gpu_core_clock_rates: OrderedDict[int, int] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_core_clock_rates[timestamp] = int(results["coreClockRate"]);
+                gpu_core_clock_rates[timestamp] = int(results["coreClockRate"])
 
-            plot("Core Clock Rates", "Timestamp", "Core Clock Rate (Hz)", {
+            plot("Core Clock Rates (Hz)", "Timestamp", "Core Clock Rate (Hz)", {
                 "CPU": cpu_core_clock_rates,
                 "GPU": gpu_core_clock_rates
             })
 
 
+        def plot_energy_consumption(test_results: TestResults):
+            gpu_total_power_consumption_j: OrderedDict[int, float] = collections.OrderedDict()
+            gpu_total_power_consumption_kwh: OrderedDict[int, float] = collections.OrderedDict()
+            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
+                gpu_total_power_consumption_j[timestamp] = float(results["energyConsumption"])
+                gpu_total_power_consumption_kwh[timestamp] = gpu_total_power_consumption_j[timestamp] / 3.6e6
+
+            plot("Energy Consumption (J)", "Timestamp", "Energy Consumption (J)", {
+                "GPU": gpu_total_power_consumption_j
+            })
+
+            plot("Energy Consumption (kWh)", "Timestamp", "Energy Consumption (kWh)", {
+                "GPU": gpu_total_power_consumption_kwh
+            })
+
+
         def plot_power_consumption(test_results: TestResults):
-            gpu_power_consumption: OrderedDict[int, int] = collections.OrderedDict()
+            gpu_power_consumption: OrderedDict[int, float] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
                 gpu_power_consumption[timestamp] = float(results["powerConsumption"]);
 
-            plot("Power Consumption", "Timestamp", "Power Consumption (W)", {
+            plot("Power Consumption (W)", "Timestamp", "Power Consumption (W)", {
                 "GPU": gpu_power_consumption,
             })
 
@@ -119,20 +135,10 @@ if __name__ == '__main__':
         def plot_runtime(test_results: TestResults):
             gpu_runtime: OrderedDict[int, int] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results["CPUMonitor"].items():
-                gpu_runtime[timestamp] = int(results["runtime"]);
+                gpu_runtime[timestamp] = int(results["runtime"])
 
-            plot("Runtime", "Timestamp", "Runtime (s)", {
+            plot("Runtime (s)", "Timestamp", "Runtime (s)", {
                 "Runtime": gpu_runtime,
-            })
-
-
-        def plot_total_power_consumption(test_results: TestResults):
-            gpu_total_power_consumption: OrderedDict[int, float] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_total_power_consumption[timestamp] = float(results["totalPowerConsumption"]);
-
-            plot("Total Power Consumption", "Timestamp", "Total Power Consumption (J)", {
-                "GPU": gpu_total_power_consumption,
             })
 
 
@@ -140,10 +146,10 @@ if __name__ == '__main__':
             gpu_core_utilization_rate: OrderedDict[int, int] = collections.OrderedDict()
             gpu_memory_utilization_rate: OrderedDict[int, int] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_core_utilization_rate[timestamp] = int(results["coreUtilizationRate"]);
-                gpu_memory_utilization_rate[timestamp] = int(results["memoryUtilizationRate"]);
+                gpu_core_utilization_rate[timestamp] = int(results["coreUtilizationRate"])
+                gpu_memory_utilization_rate[timestamp] = int(results["memoryUtilizationRate"])
 
-            plot("Utilization Rates", "Timestamp", "Utilization Rate(%)", {
+            plot("Utilization Rates (%)", "Timestamp", "Utilization Rate (%)", {
                 "GPU Core": gpu_core_utilization_rate,
                 "GPU Memory": gpu_memory_utilization_rate
             }, True, True, True, True, None, (0, 100))
@@ -151,7 +157,7 @@ if __name__ == '__main__':
 
         # Plot some graphs
         plot_core_clock_rates(test_results)
+        plot_energy_consumption(test_results)
         plot_power_consumption(test_results)
         plot_runtime(test_results)
-        plot_total_power_consumption(test_results)
         plot_utilization_rates(test_results)

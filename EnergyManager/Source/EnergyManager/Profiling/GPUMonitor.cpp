@@ -10,7 +10,7 @@ namespace EnergyManager {
 		std::map<std::string, std::string> GPUMonitor::onPoll() {
 			// Calculate some properties
 			float powerConsumption = gpu_.getPowerConsumption();
-			totalPowerConsumption_ += (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(getTimeSinceLastPoll()).count()) / 1000) * powerConsumption;
+			energyConsumption_ += (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(getTimeSinceLastPoll()).count()) / 1000) * powerConsumption;
 
 			return { //{ "computeCapabilityMajorVersion", std::to_string(gpu_.getComputeCapabilityMajorVersion()) },
 					 //{ "computeCapabilityMinorVersion", std::to_string(gpu_.getComputeCapabilityMinorVersion()) },
@@ -44,7 +44,7 @@ namespace EnergyManager {
 					 { "powerLimit", std::to_string(gpu_.getPowerLimit()) },
 					 { "streamingMultiprocessorClock", std::to_string(gpu_.getStreamingMultiprocessorClockRate()) },
 					 { "temperature", std::to_string(gpu_.getTemperature()) },
-					 { "totalPowerConsumption", std::to_string(totalPowerConsumption_) }
+					 { "energyConsumption", std::to_string(energyConsumption_) }
 			};
 		}
 	}
