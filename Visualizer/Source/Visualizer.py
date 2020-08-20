@@ -50,7 +50,7 @@ if __name__ == '__main__':
         os.makedirs(output_directory)
 
 
-        def plot(title: str, x_label: str, y_label: str, plots: Dict[str, OrderedDict[int, Any]], legend: bool = True, grid: bool = True, format_x_as_date: bool = True, show_final_values: bool = True, x_range: Tuple[Any, Any] = None, y_range: Tuple[Any, Any] = None):
+        def plot(title: str, x_label: str, y_label: str, plots: Dict[Tuple[str, str], OrderedDict[int, Any]], legend: bool = True, grid: bool = True, format_x_as_date: bool = True, show_final_values: bool = True, x_range: Tuple[Any, Any] = None, y_range: Tuple[Any, Any] = None):
             # Set the ranges
             x_values = [x for x_values in [plots[plot].keys() for plot in plots] for x in x_values]
             y_values = [y for y_values in [plots[plot].values() for plot in plots] for y in y_values]
@@ -61,8 +61,8 @@ if __name__ == '__main__':
             figure, axes = pyplot.subplots()
 
             # Set the data
-            for plot_name, plot_values in plots.items():
-                axes.plot(plot_values.keys(), plot_values.values(), label=plot_name)
+            for (plot_name, plot_style), plot_values in plots.items():
+                axes.plot(plot_values.keys(), plot_values.values(), plot_style, label=plot_name)
 
                 if show_final_values:
                     final_value = list(plot_values.values())[-1]
@@ -91,67 +91,53 @@ if __name__ == '__main__':
             figure.savefig(f"{output_directory}/{title}.png")
 
 
+        def collect_values(test_results: TestResults, monitor: str, name: str, type, modifier=lambda value: value):
+            values: OrderedDict[int, type] = collections.OrderedDict()
+            for timestamp, results in test_results.monitor_results[monitor].items():
+                values[timestamp] = modifier(type(results[name]))
+
+            return values
+
+
         def plot_core_clock_rates(test_results: TestResults):
-            cpu_core_clock_rates: OrderedDict[int, int] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["CPUMonitor"].items():
-                cpu_core_clock_rates[timestamp] = int(results["coreClockRate"])
-
-            gpu_core_clock_rates: OrderedDict[int, int] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_core_clock_rates[timestamp] = int(results["coreClockRate"])
-
             plot("Core Clock Rates (Hz)", "Timestamp", "Core Clock Rate (Hz)", {
-                "CPU": cpu_core_clock_rates,
-                "GPU": gpu_core_clock_rates
+                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "coreClockRate", int),
+                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "coreClockRate", int)
             })
 
 
         def plot_energy_consumption(test_results: TestResults):
-            gpu_total_power_consumption_j: OrderedDict[int, float] = collections.OrderedDict()
-            gpu_total_power_consumption_kwh: OrderedDict[int, float] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_total_power_consumption_j[timestamp] = float(results["energyConsumption"])
-                gpu_total_power_consumption_kwh[timestamp] = gpu_total_power_consumption_j[timestamp] / 3.6e6
-
             plot("Energy Consumption (J)", "Timestamp", "Energy Consumption (J)", {
-                "GPU": gpu_total_power_consumption_j
+                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "energyConsumption", float),
+                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "energyConsumption", float),
+                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "energyConsumption", float)
             })
 
-            plot("Energy Consumption (kWh)", "Timestamp", "Energy Consumption (kWh)", {
-                "GPU": gpu_total_power_consumption_kwh
+            plot("Energy Consumption (Wh)", "Timestamp", "Energy Consumption (Wh)", {
+                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "energyConsumption", float, lambda value: value / 3600),
+                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "energyConsumption", float, lambda value: value / 3600),
+                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "energyConsumption", float, lambda value: value / 3600)
             })
 
 
         def plot_power_consumption(test_results: TestResults):
-            gpu_power_consumption: OrderedDict[int, float] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_power_consumption[timestamp] = float(results["powerConsumption"]);
-
             plot("Power Consumption (W)", "Timestamp", "Power Consumption (W)", {
-                "GPU": gpu_power_consumption,
+                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "powerConsumption", float),
+                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "powerConsumption", float),
+                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "powerConsumption", float)
             })
 
 
         def plot_runtime(test_results: TestResults):
-            gpu_runtime: OrderedDict[int, int] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["CPUMonitor"].items():
-                gpu_runtime[timestamp] = int(results["runtime"])
-
             plot("Runtime (s)", "Timestamp", "Runtime (s)", {
-                "Runtime": gpu_runtime,
+                ("Runtime", "b-x"): collect_values(test_results, "NodeMonitor", "runtime", float)
             })
 
 
         def plot_utilization_rates(test_results: TestResults):
-            gpu_core_utilization_rate: OrderedDict[int, int] = collections.OrderedDict()
-            gpu_memory_utilization_rate: OrderedDict[int, int] = collections.OrderedDict()
-            for timestamp, results in test_results.monitor_results["GPUMonitor"].items():
-                gpu_core_utilization_rate[timestamp] = int(results["coreUtilizationRate"])
-                gpu_memory_utilization_rate[timestamp] = int(results["memoryUtilizationRate"])
-
             plot("Utilization Rates (%)", "Timestamp", "Utilization Rate (%)", {
-                "GPU Core": gpu_core_utilization_rate,
-                "GPU Memory": gpu_memory_utilization_rate
+                ("GPU Core", "g-x"): collect_values(test_results, "GPUMonitor", "coreUtilizationRate", int),
+                ("GPU Memory", "g-o"): collect_values(test_results, "GPUMonitor", "memoryUtilizationRate", int)
             }, True, True, True, True, None, (0, 100))
 
 

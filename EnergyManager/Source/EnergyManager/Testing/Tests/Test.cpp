@@ -7,6 +7,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <mutex>
 
 namespace EnergyManager {
 	namespace Testing {
@@ -25,12 +26,14 @@ namespace EnergyManager {
 			TestResults Test::run(const std::string& databaseFile) {
 				// Start the Monitors
 				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults;
+				std::mutex monitorResultsMutex;
 				std::map<std::shared_ptr<Profiling::Monitor>, std::thread> monitors;
 				for(const auto& monitor : monitors_) {
 					monitors[monitor.first] = std::thread([&] {
 						monitor.first->run(monitor.second);
 
 						// Store the Monitor results
+						std::lock_guard<std::mutex> guard(monitorResultsMutex);
 						monitorResults[monitor.first] = monitor.first->getVariableValues();
 					});
 				}
@@ -38,9 +41,13 @@ namespace EnergyManager {
 				// Run the Test
 				std::map<std::string, std::string> results = onRun();
 
-				// Wait for monitors to exit
+				// Collect final results
 				for(auto& monitor : monitors) {
 					monitor.first->stop();
+				}
+
+				// Wait for monitors to exit
+				for(auto& monitor : monitors) {
 					monitor.second.join();
 				}
 

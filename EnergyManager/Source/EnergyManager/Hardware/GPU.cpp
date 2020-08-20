@@ -4,6 +4,7 @@
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <algorithm>
+#include <unistd.h>
 
 /**
  * More performance variables to monitor can be found at these sources:
@@ -204,7 +205,19 @@ namespace EnergyManager {
 			kernelStreamID_ = activity->streamId;
 		}
 
-		GPU::GPU(const unsigned int& id) : id_(id) {
+		GPU::GPU(const unsigned int& id)
+			: id_(id)
+			, monitorThread_([&] {
+				while(monitorThreadRunning_) {
+					energyConsumption_
+						+= (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1000)
+						   * getPowerConsumption();
+
+					lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
+
+					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(100)).count());
+				}
+			}) {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
 		}
 
@@ -282,6 +295,12 @@ namespace EnergyManager {
 			return gpus_[id];
 		}
 
+		GPU::~GPU() {
+			// Stop the monitor
+			monitorThreadRunning_ = false;
+			monitorThread_.join();
+		}
+
 		unsigned long GPU::getCoreClockRate() const {
 			try {
 				unsigned int coreClockRate;
@@ -293,12 +312,31 @@ namespace EnergyManager {
 			}
 		}
 
+		void GPU::setCoreClockRate(unsigned long& rate) {
+			setCoreClockRate(rate, rate);
+		}
+
+		float GPU::getEnergyConsumption() const {
+			return energyConsumption_;
+		}
+
 		unsigned long GPU::getMaximumCoreClockRate() const {
 			unsigned int maximumCoreClockRate;
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &maximumCoreClockRate));
 
 			return maximumCoreClockRate * 1000000l;
+		}
+
+		float GPU::getPowerConsumption() const {
+			try {
+				unsigned int powerConsumption = 0;
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
+
+				return static_cast<float>(powerConsumption) / 1000;
+			} catch(const std::exception& exception) {
+				return static_cast<float>(powerConsumption_) / 1000;
+			}
 		}
 
 		unsigned long GPU::getApplicationCoreClockRate() const {
@@ -474,17 +512,6 @@ namespace EnergyManager {
 
 		std::string GPU::getName() const {
 			return name_;
-		}
-
-		float GPU::getPowerConsumption() const {
-			try {
-				unsigned int powerConsumption;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
-
-				return static_cast<float>(powerConsumption) / 1000;
-			} catch(const std::exception& exception) {
-				return static_cast<float>(powerConsumption_) / 1000;
-			}
 		}
 
 		unsigned int GPU::getPowerLimit() const {

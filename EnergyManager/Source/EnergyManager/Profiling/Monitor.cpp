@@ -24,8 +24,8 @@ namespace EnergyManager {
 			return startTimestamp_;
 		}
 
-		std::chrono::seconds Monitor::getRuntime() const {
-			return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - getStartTimestamp());
+		std::chrono::milliseconds Monitor::getRuntime() const {
+			return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - getStartTimestamp());
 		}
 
 		std::chrono::system_clock::time_point Monitor::getLastPollTimestamp() const {
@@ -45,7 +45,7 @@ namespace EnergyManager {
 				auto now = std::chrono::system_clock::now();
 
 				variableValues_[now] = results;
-				variableValues_[now]["runtime"] = std::to_string(getRuntime().count());
+				variableValues_[now]["runtime"] = std::to_string(static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(getRuntime()).count()) / 1000);
 			}
 
 			return results;

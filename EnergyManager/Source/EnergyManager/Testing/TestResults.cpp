@@ -40,8 +40,7 @@ namespace EnergyManager {
 			Tests::Test test,
 			std::map<std::string, std::string> results,
 			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
-			: Persistence::Entity<TestResults>(databaseFile)
-			, test_(std::move(test))
+			: test_(std::move(test))
 			, results_(std::move(results))
 			, monitorResults_(std::move(monitorResults)) {
 			// Create the tables if they do not exist yet

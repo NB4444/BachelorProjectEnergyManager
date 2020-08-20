@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Profiling/CPUMonitor.hpp"
 #include "EnergyManager/Profiling/GPUMonitor.hpp"
+#include "EnergyManager/Profiling/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exception.hpp"
 
 #include <chrono>
@@ -34,7 +35,8 @@ namespace EnergyManager {
 						{ "workgroupSize", "WorkgroupSize= (.+?)\n" },
 					},
 					{ { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::CPUMonitor(cpu)), std::chrono::seconds(1) } }) {
+					  { std::shared_ptr<Profiling::Monitor>(new Profiling::CPUMonitor(cpu)), std::chrono::seconds(1) },
+					  { std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(cpu, gpu)), std::chrono::seconds(1) } }) {
 				if(matrixAWidth % 32 != 0 || matrixBWidth % 32 != 0 || matrixAHeight % 32 != 0 || matrixBHeight % 32 != 0) {
 					ENERGY_MANAGER_UTILITY_EXCEPTION("Matrix dimensions must be a multiple of 32");
 				}

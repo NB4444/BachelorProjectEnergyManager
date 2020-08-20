@@ -45,7 +45,6 @@ namespace EnergyManager {
 		std::array<char, 256> buffer {};
 		while(fgets(buffer.data(), buffer.size(), executablePipe.get()) != nullptr) {
 			executableOutput_ += buffer.data();
-			Utility::Logging::logInformation("Processing buffer data: %s", buffer.data());
 		}
 
 		Utility::Logging::logInformation("Stopping executable...");

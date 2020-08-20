@@ -2,12 +2,14 @@
 
 #include "EnergyManager/Hardware/Processor.hpp"
 
+#include <chrono>
 #include <cuda.h>
 #include <cupti.h>
 #include <functional>
 #include <map>
 #include <memory>
 #include <nvml.h>
+#include <thread>
 #include <vector>
 
 #define ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(CALL) EnergyManager::Hardware::GPU::handleAPICall(#CALL, CALL, __FILE__, __LINE__)
@@ -66,6 +68,16 @@ namespace EnergyManager {
 			static void forwardActivity(const CUpti_Activity* activity);
 
 			/**
+			 * The thread monitoring certain performance variables.
+			 */
+			std::thread monitorThread_;
+
+			/**
+			 * Whether the monitor thread should keep running.
+			 */
+			bool monitorThreadRunning_ = true;
+
+			/**
 			 * Compute capability for the device, major number.
 			 */
 			unsigned int computeCapabilityMajorVersion_;
@@ -79,6 +91,16 @@ namespace EnergyManager {
 			 * The core clock rate of the device, in kHz.
 			 */
 			unsigned int coreClockRate_;
+
+			/**
+			 * The energy consumption in Joules.
+			 */
+			float energyConsumption_ = 0;
+
+			/**
+			 * The last time at which the energy consumption was polled.
+			 */
+			std::chrono::system_clock::time_point lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
 
 			/**
 			 * The fan speed as percentage of maximum.
@@ -198,7 +220,7 @@ namespace EnergyManager {
 			/**
 			 * The power in milliwatts consumed by GPU and associated circuitry.
 			 */
-			unsigned int powerConsumption_;
+			unsigned int powerConsumption_ = 0;
 
 			/**
 			 * The power in milliwatts that will trigger power management algorithm.
@@ -267,9 +289,20 @@ namespace EnergyManager {
 			 */
 			static std::shared_ptr<GPU> getGPU(const unsigned int& id);
 
+			/**
+			 * Destructs the GPU.
+			 */
+			~GPU();
+
 			unsigned long getCoreClockRate() const override;
 
+			void setCoreClockRate(unsigned long& rate) override;
+
+			float getEnergyConsumption() const override;
+
 			unsigned long getMaximumCoreClockRate() const override;
+
+			float getPowerConsumption() const override;
 
 			/**
 			 * Gets the per Application clock rate.
@@ -317,11 +350,6 @@ namespace EnergyManager {
 			 */
 			unsigned int getComputeCapabilityMinorVersion() const;
 
-			/**
-			 * @copydoc GPU::coreClockRate_
-			 * @param minimumRate The minimum core clock rate.
-			 * @param maximumRate The maximum core clock rate.
-			 */
 			void setCoreClockRate(unsigned long& minimumRate, unsigned long& maximumRate);
 
 			/**
@@ -474,12 +502,6 @@ namespace EnergyManager {
 			 * @return The name.
 			 */
 			std::string getName() const;
-
-			/**
-			 * @copydoc GPU::powerConsumption_
-			 * @return The power consumption.
-			 */
-			float getPowerConsumption() const;
 
 			/**
 			 * @copydoc GPU::powerLimit_

@@ -62,6 +62,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	try {
 		// Initialize APIs
 		EnergyManager::Hardware::GPU::initializeTracing();
+		EnergyManager::Persistence::Entity::setDatabaseFile(arguments["database"]);
 
 		// Get the relevant hardware
 		auto cpu = EnergyManager::Hardware::CPU::getCPU(0);
@@ -77,7 +78,7 @@ int main(int argumentCount, char* argumentValues[]) {
 
 		//EnergyManager::Utility::Logging::logInformation("GPU frequency: %d", gpu->getCoreClockRate());
 
-		const int sizeMultiplier = 150;
+		const int sizeMultiplier = 50;
 		const size_t testSegments = 4;
 
 		double cpuClockRatePerSegment = static_cast<double>(cpu->getMaximumCoreClockRate()) / testSegments;
@@ -109,6 +110,8 @@ int main(int argumentCount, char* argumentValues[]) {
 
 		// Run the tests
 		testRunner.run(arguments["database"]);
+
+		// TODO: Pretty-print the test results to the console
 
 		return 0;
 	} catch(const EnergyManager::Utility::Exception& exception) {

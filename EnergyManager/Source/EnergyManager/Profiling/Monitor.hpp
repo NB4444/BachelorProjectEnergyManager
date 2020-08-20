@@ -72,7 +72,7 @@ namespace EnergyManager {
 			 * Gets the total runtime.
 			 * @return The runtime.
 			 */
-			std::chrono::seconds getRuntime() const;
+			std::chrono::milliseconds getRuntime() const;
 
 			/**
 			 * Gets the timestamp of the last poll operation.

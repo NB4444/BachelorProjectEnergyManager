@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 /**
@@ -53,7 +54,32 @@ namespace EnergyManager {
 			return result;
 		}
 
-		CPU::CPU(const unsigned int& id) : id_(id) {
+		CPU::CPU(const unsigned int& id)
+			: id_(id)
+			, monitorThread_([&] {
+				while(monitorThreadRunning_) {
+					// Measure starting energy consumption
+					if(!startEnergyConsumptionMeasured_) {
+						startEnergyConsumptionMeasured_ = true;
+
+						startEnergyConsumption_ = getEnergyConsumption();
+					}
+
+					// Get the current values
+					auto currentEnergyConsumption = getEnergyConsumption();
+					auto currentTimestamp = std::chrono::system_clock::now();
+					auto pollingTimespan = std::chrono::duration_cast<std::chrono::seconds>(currentTimestamp - lastEnergyConsumptionPollTimestamp_).count();
+
+					// Calculate the power consumption in Watts
+					powerConsumption_ = (currentEnergyConsumption - lastEnergyConsumption_) / (pollingTimespan == 0 ? 0.1 : pollingTimespan);
+
+					// Set the variables for the next poll cycle
+					lastEnergyConsumption_ = currentEnergyConsumption;
+					lastEnergyConsumptionPollTimestamp_ = currentTimestamp;
+
+					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds (100)).count());
+				}
+			}) {
 		}
 
 		std::shared_ptr<CPU> CPU::getCPU(const unsigned int& id) {
@@ -65,8 +91,29 @@ namespace EnergyManager {
 			return cpus_[id];
 		}
 
+		CPU::~CPU() {
+			// Stop the monitor
+			monitorThreadRunning_ = false;
+			monitorThread_.join();
+		}
+
 		unsigned long CPU::getCoreClockRate() const {
 			return std::stof(getProcCPUInfoValues()[id_]["cpu MHz"]) * 1000000l;
+		}
+
+		void CPU::setCoreClockRate(unsigned long& rate) {
+			// TODO
+		}
+
+		float CPU::getEnergyConsumption() const {
+			if(startEnergyConsumptionMeasured_) {
+				std::ifstream inputStream("/sys/class/powercap/intel-rapl/intel-rapl:" + std::to_string(id_) + "/energy_uj");
+				std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+				return (std::stol(cpuInfo) / 1e6l) - startEnergyConsumption_;
+			} else {
+				return 0;
+			}
 		}
 
 		unsigned long CPU::getMaximumCoreClockRate() const {
@@ -74,6 +121,10 @@ namespace EnergyManager {
 			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 
 			return std::stoi(cpuInfo) * 1000l;
+		}
+
+		float CPU::getPowerConsumption() const {
+			return powerConsumption_;
 		}
 	}
 }

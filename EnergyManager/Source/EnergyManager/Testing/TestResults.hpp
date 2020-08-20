@@ -12,7 +12,7 @@ namespace EnergyManager {
 		/**
 		 * Represents the results of a single Test.
 		 */
-		class TestResults : public Persistence::Entity<TestResults> {
+		class TestResults : public Persistence::Entity {
 			/**
 			 * The Test that generated the results.
 			 */
