@@ -36,7 +36,7 @@ This section describes the process required to compile EnergyManager locally.
 To compile EnergyManager locally, you will need to have a few dependencies installed on your system.
 These are as follows:
 
-- CMake 3.16.3
+- CMake 3.12.1
 - SQLite3
 - CUDA 10.1
 
