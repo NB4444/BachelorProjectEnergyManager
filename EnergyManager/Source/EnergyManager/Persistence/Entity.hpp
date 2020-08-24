@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnergyManager/Utility/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
@@ -39,7 +39,7 @@ namespace EnergyManager {
 				virtual void onSave();
 
 			public:
-				static void setDatabaseFile(const std::string& databaseFile);
+				static void initialize(const std::string& databaseFile);
 
 				/**
 				 * Executes the SQL statement.

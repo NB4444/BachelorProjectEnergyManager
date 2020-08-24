@@ -11,8 +11,8 @@ matrixAHeight=$((32 * $sizeMultiplier))
 matrixBWidth=$((32 * $sizeMultiplier))
 matrixBHeight=$((32 * $sizeMultiplier))
 
-executable="/home/qub1-creation/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/cmake-build-debug/EnergyManager"
-database="/home/qub1-creation/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/Resources/Test Results/database.sqlite"
+executable="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/cmake-build-debug/EnergyManager"
+database="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/Resources/Test Results/database.sqlite"
 
 cpuClockRatePerSegment=$(($cpuMaximumCoreClockRate / $testSegments))
 gpuClockRatePerSegment=$(($gpuMaximumCoreClockRate / $testSegments))

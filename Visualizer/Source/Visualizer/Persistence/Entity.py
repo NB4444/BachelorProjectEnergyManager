@@ -3,38 +3,13 @@ from typing import List, Dict
 
 
 class Entity(object):
-    database = None
-    database_file = ""
-
-    @classmethod
-    def __execute_sql(cls, statement: str):
-        if Entity.database is None:
-            Entity.database = sqlite3.connect(cls.database_file)
-
-        cursor = cls.database.cursor()
-        cursor.execute(statement)
-
-        return cursor.fetchall()
-
-    def _on_save(self):
-        pass
-
     def __init__(self, database_file):
-        Entity.database_file = database_file
+        self.database = sqlite3.connect(database_file)
 
-    @classmethod
-    def add_column(cls, table: str, column: str, attributes: str):
-        return cls.__execute_sql(f"ALTER TABLE {table} ADD {column} {attributes};")
+    def execute(self, statement: str):
+        self.database.cursor().execute(statement)
 
-    @classmethod
-    def create_table(cls, table: str, columns_with_attributes: Dict[str, str]):
-        return cls.__execute_sql(f"CREATE TABLE {table}({','.join([column_with_attributes + ' ' + columns_with_attributes[column_with_attributes] for column_with_attributes in columns_with_attributes])});")
-
-    @classmethod
-    def insert(cls, table: str, row_column_values):
-        if isinstance(row_column_values, Dict):
-            row_column_values: List[Dict[str, str]] = [row_column_values]
-
+    def insert(self, table: str, row_column_values: List[Dict[str, str]]):
         # Collect columns
         columns: List[str] = list()
         for column_values in row_column_values:
@@ -52,11 +27,16 @@ class Entity(object):
 
             row_values.append(insert_values)
 
-        return cls.__execute_sql(f"INSERT INTO {table}({','.join(columns)}) VALUES({'),('.join([','.join(row) for row in row_values])});")
+        self.execute(f"INSERT INTO {table}({','.join(columns)}) VALUES({'),('.join([','.join(row) for row in row_values])});")
 
-    @classmethod
-    def select(cls, table: str, columns: List[str], conditions: str = None, order: str = None):
-        return cls.__execute_sql(f"SELECT {','.join(columns)} FROM {table}" + (f" WHERE {conditions}" if conditions is not None else "") + (f" ORDER BY {order}" if order is not None else "") + ";")
+    def insert(self, table: str, column_values: Dict[str, str]):
+        self.insert(table, [column_values])
+
+    def create_table(self, table: str, columns_with_attributes: Dict[str, str]):
+        self.execute(f"CREATE TABLE {table}({','.join([column_with_attributes + ' ' + columns_with_attributes[column_with_attributes] for column_with_attributes in columns_with_attributes])});")
+
+    def add_column(self, table: str, column: str, attributes: str):
+        self.execute(f"ALTER TABLE {table} ADD {column} {attributes};")
 
     def save(self):
-        self._on_save()
+        self._

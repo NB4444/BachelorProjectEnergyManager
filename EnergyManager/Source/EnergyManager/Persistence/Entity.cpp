@@ -23,10 +23,10 @@ namespace EnergyManager {
 		void Entity::onSave() {
 		}
 
-		void Entity::setDatabaseFile(const std::string& databaseFile) {
+		void Entity::initialize(const std::string& databaseFile) {
 			// Open a new database connection
 			if(database_ == nullptr && sqlite3_open(databaseFile.c_str(), &database_)) {
-				ENERGY_MANAGER_UTILITY_EXCEPTION("Cannot open database: " + std::string(sqlite3_errmsg(database_)));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot open database: " + std::string(sqlite3_errmsg(database_)));
 			}
 		}
 
@@ -35,7 +35,7 @@ namespace EnergyManager {
 			char* errorMessage = nullptr;
 			int errorCode = sqlite3_exec(database_, statement.c_str(), callback, nullptr, &errorMessage);
 			if(errorCode) {
-				throw EnergyManager::Utility::Exception(
+				throw EnergyManager::Utility::Exceptions::Exception(
 					"Could not execute SQL statement " + statement + ": " + (errorMessage == nullptr
 						? std::to_string(errorCode)
 						: std::string(errorMessage)),

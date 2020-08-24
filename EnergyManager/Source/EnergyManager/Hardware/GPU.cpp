@@ -1,6 +1,6 @@
 #include "./GPU.hpp"
 
-#include "EnergyManager/Utility/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <algorithm>
@@ -37,7 +37,7 @@ namespace EnergyManager {
 		void CUPTIAPI GPU::allocateBuffer(uint8_t** buffer, size_t* size, size_t* maximumRecordCount) {
 			auto* unalignedBuffer = (uint8_t*) malloc(bufferSize_ + alignSize_);
 			if(unalignedBuffer == nullptr) {
-				ENERGY_MANAGER_UTILITY_EXCEPTION("Out of memory");
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Out of memory");
 			}
 
 			*size = bufferSize_;
@@ -231,13 +231,13 @@ namespace EnergyManager {
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
 			if(callResult != CUDA_SUCCESS) {
-				throw Utility::Exception("Driver call " + call + " failed: " + std::to_string(callResult), file, line);
+				throw Utility::Exceptions::Exception("Driver call " + call + " failed: " + std::to_string(callResult), file, line);
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line) {
 			if(callResult != static_cast<cudaError_t>(CUDA_SUCCESS)) {
-				throw Utility::Exception("Runtime driver call " + call + " failed: " + cudaGetErrorString(callResult), file, line);
+				throw Utility::Exceptions::Exception("Runtime driver call " + call + " failed: " + cudaGetErrorString(callResult), file, line);
 			}
 		}
 
@@ -246,17 +246,17 @@ namespace EnergyManager {
 				const char* errorMessage;
 				cuptiGetResultString(callResult, &errorMessage);
 
-				throw Utility::Exception("CUPTI call " + call + " failed: " + errorMessage, file, line);
+				throw Utility::Exceptions::Exception("CUPTI call " + call + " failed: " + errorMessage, file, line);
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const nvmlReturn_t& callResult, const std::string& file, const int& line) {
 			if(callResult != NVML_SUCCESS) {
-				throw Utility::Exception("NVML call " + call + " failed: " + std::to_string(callResult), file, line);
+				throw Utility::Exceptions::Exception("NVML call " + call + " failed: " + std::to_string(callResult), file, line);
 			}
 		}
 
-		void GPU::initializeTracing() {
+		void GPU::initialize() {
 			// Initialize CUDA
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuInit(0));
 

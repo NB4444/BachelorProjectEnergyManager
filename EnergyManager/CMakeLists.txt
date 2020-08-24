@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.12.1)
+cmake_minimum_required(VERSION 3.14)
 
 # Configure CUDA compiler
-set(CMAKE_CUDA_COMPILER nvcc)
-if(NOT EXISTS ${CMAKE_CUDA_COMPILER})
-	set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+if(EXISTS "/usr/local/cuda/bin/nvcc")
+	set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
+elseif(EXISTS "/hpc/eb/compilerwrappers/compilers/nvcc")
+	set(CMAKE_CUDA_COMPILER "/hpc/eb/compilerwrappers/compilers/nvcc")
+else()
+	set(CMAKE_CUDA_COMPILER "nvcc")
 endif()
 
 # Set up the project
@@ -32,7 +35,7 @@ message(STATUS "SQLite3 libraries: ${SQLite3_LIBRARIES}")
 ##set(ENV{LD_PRELOAD} ${CUDA_ENERGY_MONITOR_LIBRARY})
 
 # Get sources
-file(GLOB_RECURSE SOURCE_FILES Source/*.cpp Source/*.cu)
+file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIR}/Source/*.cpp" "${PROJECT_SOURCE_DIR}/Source/*.cu")
 message(STATUS "Source files: ${SOURCE_FILES}")
 
 # Add and configure target

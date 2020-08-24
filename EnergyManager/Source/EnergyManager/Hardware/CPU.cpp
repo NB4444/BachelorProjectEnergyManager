@@ -1,6 +1,6 @@
 #include "./CPU.hpp"
 
-#include "EnergyManager/Utility/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <fstream>
@@ -207,7 +207,7 @@ namespace EnergyManager {
 				}
 			}
 
-			ENERGY_MANAGER_UTILITY_EXCEPTION("Cannot find core");
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot find core");
 		}
 
 		double CPU::getProcStatTimespan(const unsigned int& core, const std::string& name) const {
@@ -254,7 +254,7 @@ namespace EnergyManager {
 
 		void CPU::setCoreClockRate(unsigned long& rate) {
 			// TODO
-			ENERGY_MANAGER_UTILITY_EXCEPTION("Not implemented");
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Not implemented");
 		}
 
 		float CPU::getCoreUtilizationRate() const {

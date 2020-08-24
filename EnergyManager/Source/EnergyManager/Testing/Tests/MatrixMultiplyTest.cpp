@@ -4,7 +4,7 @@
 #include "EnergyManager/Profiling/CPUMonitor.hpp"
 #include "EnergyManager/Profiling/GPUMonitor.hpp"
 #include "EnergyManager/Profiling/NodeMonitor.hpp"
-#include "EnergyManager/Utility/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 
 #include <chrono>
 #include <stdexcept>
@@ -42,7 +42,7 @@ namespace EnergyManager {
 					{ std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(cpu, gpu)), std::chrono::seconds(1) }
 				}) {
 				if(matrixAWidth % 32 != 0 || matrixBWidth % 32 != 0 || matrixAHeight % 32 != 0 || matrixBHeight % 32 != 0) {
-					ENERGY_MANAGER_UTILITY_EXCEPTION("Matrix dimensions must be a multiple of 32");
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Matrix dimensions must be a multiple of 32");
 				}
 			}
 		}

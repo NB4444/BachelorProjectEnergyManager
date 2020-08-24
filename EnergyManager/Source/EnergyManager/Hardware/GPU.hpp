@@ -284,7 +284,7 @@ namespace EnergyManager {
 				/**
 				 * Initializes tracing capabilities.
 				 */
-				static void initializeTracing();
+				static void initialize();
 
 				/**
 				 * Gets the GPU with the specified device ID.
