@@ -40,10 +40,7 @@ namespace EnergyManager {
 				std::vector<std::string> parameters,
 				std::map<std::string, std::string> results,
 				std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors)
-				: Test(name, monitors)
-				, application_(application)
-				, parameters_(std::move(parameters))
-				, results_(std::move(results)) {
+				: Test(name, monitors), application_(application), parameters_(std::move(parameters)), results_(std::move(results)) {
 			}
 		}
 	}

@@ -2,13 +2,33 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
+      <paths name="Cartesius (e1353d1d-b03a-4825-80bb-3f331f5f0763)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/scratch-local/bakker/tmp.OhdMql7MZM" local="$PROJECT_DIR$/EnergyManager" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
       <paths name="Showcees (2ab65507-bbf8-43cc-8992-68b5b87dfe0c)">
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/tmp.4quLjmDGZq" local="$PROJECT_DIR$/EnergyManager" />
           </mappings>
           <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
             <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
           </excludedPaths>
         </serverdata>
       </paths>

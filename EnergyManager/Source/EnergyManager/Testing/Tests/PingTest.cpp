@@ -5,15 +5,15 @@ namespace EnergyManager {
 		namespace Tests {
 			PingTest::PingTest(const std::string& name, const std::string& host, const int& times)
 				: ApplicationTest(
-					name,
-					Application("/bin/ping"),
-					{ "-c " + std::to_string(times), host },
-					{
-						{ "Packets Transmitted", "(\\d+) packets transmitted" },
-						{ "Packets Received", "(\\d+) received" },
-						{ "Packets Lost", "(\\d+)% packet loss" },
-						{ "Time", "time (\\d+)" },
-					}) {
+				name,
+				Application("/bin/ping"),
+				{ "-c " + std::to_string(times), host },
+				{
+					{ "Packets Transmitted", "(\\d+) packets transmitted" },
+					{ "Packets Received", "(\\d+) received" },
+					{ "Packets Lost", "(\\d+)% packet loss" },
+					{ "Time", "time (\\d+)" },
+				}) {
 			}
 		}
 	}

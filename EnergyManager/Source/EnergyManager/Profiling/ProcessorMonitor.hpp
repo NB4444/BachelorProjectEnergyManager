@@ -7,14 +7,15 @@
 
 namespace EnergyManager {
 	namespace Profiling {
-		class ProcessorMonitor : public DeviceMonitor {
-			const Hardware::Processor& processor_;
+		class ProcessorMonitor :
+			public DeviceMonitor {
+				std::shared_ptr<Hardware::Processor> processor_;
 
-		public:
-			ProcessorMonitor(const std::string& name, const Hardware::Processor& processor);
+			public:
+				ProcessorMonitor(const std::string& name, const std::shared_ptr<Hardware::Processor>& processor);
 
-		protected:
-			std::map<std::string, std::string> onPoll() override;
+			protected:
+				std::map<std::string, std::string> onPoll() override;
 		};
 	}
 }

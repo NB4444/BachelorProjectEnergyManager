@@ -36,7 +36,9 @@ namespace EnergyManager {
 			int errorCode = sqlite3_exec(database_, statement.c_str(), callback, nullptr, &errorMessage);
 			if(errorCode) {
 				throw EnergyManager::Utility::Exception(
-					"Could not execute SQL statement " + statement + ": " + (errorMessage == nullptr ? std::to_string(errorCode) : std::string(errorMessage)),
+					"Could not execute SQL statement " + statement + ": " + (errorMessage == nullptr
+						? std::to_string(errorCode)
+						: std::string(errorMessage)),
 					file,
 					line);
 			}

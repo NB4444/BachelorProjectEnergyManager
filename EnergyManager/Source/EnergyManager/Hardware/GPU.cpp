@@ -26,8 +26,12 @@ namespace EnergyManager {
 
 		std::map<unsigned int, std::shared_ptr<GPU>> GPU::gpus_;
 
+		std::mutex GPU::monitorThreadMutex_;
+
 		uint8_t* GPU::alignBuffer(uint8_t* buffer, const size_t& alignSize) {
-			return (((uintptr_t)(buffer) & ((alignSize) -1)) ? ((buffer) + (alignSize) - ((uintptr_t)(buffer) & ((alignSize) -1))) : (buffer));
+			return (((uintptr_t) (buffer) & ((alignSize) - 1))
+				? ((buffer) + (alignSize) - ((uintptr_t) (buffer) & ((alignSize) - 1)))
+				: (buffer));
 		}
 
 		void CUPTIAPI GPU::allocateBuffer(uint8_t** buffer, size_t* size, size_t* maximumRecordCount) {
@@ -205,20 +209,24 @@ namespace EnergyManager {
 			kernelStreamID_ = activity->streamId;
 		}
 
-		GPU::GPU(const unsigned int& id)
-			: id_(id)
-			, monitorThread_([&] {
-				while(monitorThreadRunning_) {
-					energyConsumption_
-						+= (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1000)
-						   * getPowerConsumption();
+		GPU::GPU(const unsigned int& id) : id_(id) {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
 
-					lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
+			monitorThread_ = std::thread([&] {
+				while(monitorThreadRunning_) {
+					{
+						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+
+						energyConsumption_
+							+= (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1000)
+							* getPowerConsumption();
+
+						lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
+					}
 
 					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(100)).count());
 				}
-			}) {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
+			});
 		}
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
@@ -316,7 +324,17 @@ namespace EnergyManager {
 			setCoreClockRate(rate, rate);
 		}
 
+		float GPU::getCoreUtilizationRate() const {
+			// Retrieve the utilization rates
+			nvmlUtilization_t rates;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
+
+			return rates.gpu;
+		}
+
 		float GPU::getEnergyConsumption() const {
+			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+
 			return energyConsumption_;
 		}
 
@@ -397,14 +415,6 @@ namespace EnergyManager {
 
 		void GPU::resetCoreClockRate() {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
-		}
-
-		unsigned int GPU::getCoreUtilizationRate() const {
-			// Retrieve the utilization rates
-			nvmlUtilization_t rates;
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
-
-			return rates.gpu;
 		}
 
 		unsigned int GPU::getFanSpeed() const {
@@ -511,7 +521,14 @@ namespace EnergyManager {
 		}
 
 		std::string GPU::getName() const {
-			return name_;
+			try {
+				char name[100] { '\0' };
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetName(device_, name, sizeof(name)));
+
+				return name;
+			} catch(const std::exception& exception) {
+				return name_;
+			}
 		}
 
 		unsigned int GPU::getPowerLimit() const {

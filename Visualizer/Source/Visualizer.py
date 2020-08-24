@@ -2,9 +2,9 @@ import argparse
 import collections
 import os
 import shutil
-from typing import Dict, OrderedDict, Any, Tuple
+from typing import OrderedDict, Any, Tuple
 
-from matplotlib import pyplot, dates
+from matplotlib import pyplot, dates, gridspec
 
 from Visualizer.Testing.TestResults import TestResults
 
@@ -50,47 +50,6 @@ if __name__ == '__main__':
         os.makedirs(output_directory)
 
 
-        def plot(title: str, x_label: str, y_label: str, plots: Dict[Tuple[str, str], OrderedDict[int, Any]], legend: bool = True, grid: bool = True, format_x_as_date: bool = True, show_final_values: bool = True, x_range: Tuple[Any, Any] = None, y_range: Tuple[Any, Any] = None):
-            # Set the ranges
-            x_values = [x for x_values in [plots[plot].keys() for plot in plots] for x in x_values]
-            y_values = [y for y_values in [plots[plot].values() for plot in plots] for y in y_values]
-            pyplot.xlim(min(x_values) if x_range is None else x_range[0], max(x_values) if x_range is None else x_range[1])
-            pyplot.ylim(min(y_values) if y_range is None else y_range[0], max(y_values) if y_range is None else y_range[1])
-
-            # Create the plot
-            figure, axes = pyplot.subplots()
-
-            # Set the data
-            for (plot_name, plot_style), plot_values in plots.items():
-                axes.plot(plot_values.keys(), plot_values.values(), plot_style, label=plot_name)
-
-                if show_final_values:
-                    final_value = list(plot_values.values())[-1]
-                    pyplot.annotate(f"{final_value:n}", xy=(1, final_value), xytext=(8, 0), xycoords=("axes fraction", "data"), textcoords="offset points")
-
-            # Set the labels
-            axes.set(xlabel=x_label, ylabel=y_label, title=title)
-
-            # Format dates
-            if format_x_as_date:
-                axes.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d %H:%M:%S"))
-                figure.autofmt_xdate()
-                # pyplot.xticks(rotation=45)
-
-            # Enable grid
-            if grid:
-                axes.grid()
-
-            # Enable legend
-            if legend:
-                pyplot.legend()
-
-            # Make everything fit
-            pyplot.tight_layout()
-
-            figure.savefig(f"{output_directory}/{title}.png")
-
-
         def collect_values(test_results: TestResults, monitor: str, name: str, type, modifier=lambda value: value):
             values: OrderedDict[int, type] = collections.OrderedDict()
             for timestamp, results in test_results.monitor_results[monitor].items():
@@ -99,51 +58,127 @@ if __name__ == '__main__':
             return values
 
 
-        def plot_core_clock_rates(test_results: TestResults):
-            plot("Core Clock Rates (Hz)", "Timestamp", "Core Clock Rate (Hz)", {
-                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "coreClockRate", int),
-                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "coreClockRate", int)
-            })
+        def plot(test_results: TestResults, size: Tuple[int, int]):
+            title = test_results.test
+            x_label = "Timestamp"
+            legend = True
+            grid = True
+            format_x_as_date = True
+            show_final_values = True
+            x_range: Tuple[Any, Any] = None
+            y_range: Tuple[Any, Any] = None
+            plots = {
+                "Clock Rate (Hz)": {
+                    ("CPU Core", ""): collect_values(test_results, "CPUMonitor", "coreClockRate", int),
+                    ("GPU Core", ""): collect_values(test_results, "GPUMonitor", "coreClockRate", int),
+                    ("GPU Memory", ""): collect_values(test_results, "GPUMonitor", "memoryClockRate", int),
+                    ("GPU SM", ""): collect_values(test_results, "GPUMonitor", "streamingMultiprocessorClockRate", int),
+                },
+                "Energy Consumption (J)": {
+                    ("CPU", ""): collect_values(test_results, "CPUMonitor", "energyConsumption", float),
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "energyConsumption", float),
+                    ("Node", ""): collect_values(test_results, "NodeMonitor", "energyConsumption", float),
+                },
+                "Energy Consumption (Wh)": {
+                    ("CPU", ""): collect_values(test_results, "CPUMonitor", "energyConsumption", float, lambda value: value / 3600),
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "energyConsumption", float, lambda value: value / 3600),
+                    ("Node", ""): collect_values(test_results, "NodeMonitor", "energyConsumption", float, lambda value: value / 3600),
+                },
+                "Fan Speed (RPM)": {
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "fanSpeed", int),
+                },
+                "Power Consumption (W)": {
+                    ("CPU", ""): collect_values(test_results, "CPUMonitor", "powerConsumption", float),
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "powerConsumption", float),
+                    ("Node", ""): collect_values(test_results, "NodeMonitor", "powerConsumption", float),
+                },
+                "Timespan (s)": {
+                    ("CPU Guest Nice", ""): collect_values(test_results, "CPUMonitor", "guestNiceTimespan", float),
+                    ("CPU Guest", ""): collect_values(test_results, "CPUMonitor", "guestTimespan", float),
+                    ("CPU IO Wait", ""): collect_values(test_results, "CPUMonitor", "ioWaitTimespan", float),
+                    ("CPU Idle", ""): collect_values(test_results, "CPUMonitor", "idleTimespan", float),
+                    ("CPU Interrupts", ""): collect_values(test_results, "CPUMonitor", "interruptsTimespan", float),
+                    ("CPU Nice", ""): collect_values(test_results, "CPUMonitor", "niceTimespan", float),
+                    ("CPU Soft Interrupts", ""): collect_values(test_results, "CPUMonitor", "softInterruptsTimespan", float),
+                    ("CPU Steal", ""): collect_values(test_results, "CPUMonitor", "stealTimespan", float),
+                    ("CPU System", ""): collect_values(test_results, "CPUMonitor", "systemTimespan", float),
+                    ("CPU User", ""): collect_values(test_results, "CPUMonitor", "userTimespan", float),
+                    ("Runtime", ""): collect_values(test_results, "NodeMonitor", "runtime", float),
+                },
+                "Temperature (C)": {
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "temperature", float),
+                },
+                "Utilization Rate (%)": {
+                    ("CPU Core", ""): collect_values(test_results, "CPUMonitor", "coreUtilizationRate", float),
+                    ("GPU Core", ""): collect_values(test_results, "GPUMonitor", "coreUtilizationRate", float),
+                    ("GPU Memory", ""): collect_values(test_results, "GPUMonitor", "memoryUtilizationRate", float),
+                }
+            }
 
+            # Create the figure
+            grid_spec = gridspec.GridSpec(len(plots) + 1, 1)
+            figure = pyplot.figure(figsize=size)
 
-        def plot_energy_consumption(test_results: TestResults):
-            plot("Energy Consumption (J)", "Timestamp", "Energy Consumption (J)", {
-                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "energyConsumption", float),
-                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "energyConsumption", float),
-                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "energyConsumption", float)
-            })
+            # Create the information summary
+            axes = figure.add_subplot(grid_spec[0])
+            axes.axis("off")
+            axes.invert_yaxis()
+            axes.text(0, 0, f"GPU Name = {list(collect_values(test_results, 'GPUMonitor', 'name', str).items())[0][1]}", verticalalignment="top")
 
-            plot("Energy Consumption (Wh)", "Timestamp", "Energy Consumption (Wh)", {
-                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "energyConsumption", float, lambda value: value / 3600),
-                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "energyConsumption", float, lambda value: value / 3600),
-                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "energyConsumption", float, lambda value: value / 3600)
-            })
+            # Create the plots
+            index = 1
+            previous_axes = None
+            for plot_name, plot_series in plots.items():
+                # Create the plot
+                axes = figure.add_subplot(grid_spec[index]) if previous_axes is None else figure.add_subplot(grid_spec[index], sharex=previous_axes)
+                index += 1
+                previous_axes = axes
 
+                # Collect the values
+                x_values = []
+                y_values = []
+                for _, series_values in plot_series.items():
+                    for timestamp, value in series_values.items():
+                        x_values.append(timestamp)
+                        y_values.append(value)
 
-        def plot_power_consumption(test_results: TestResults):
-            plot("Power Consumption (W)", "Timestamp", "Power Consumption (W)", {
-                ("Node", "r-o"): collect_values(test_results, "NodeMonitor", "powerConsumption", float),
-                ("CPU", "b-x"): collect_values(test_results, "CPUMonitor", "powerConsumption", float),
-                ("GPU", "g-+"): collect_values(test_results, "GPUMonitor", "powerConsumption", float)
-            })
+                # Set the ranges
+                axes.set_xlim(min(x_values) if x_range is None else x_range[0], max(x_values) if x_range is None else x_range[1])
+                y_min = min(y_values)
+                y_max = max(y_values)
+                axes.set_ylim(((y_min - abs(0.1 * y_min)) if y_min < 0 else 0) if y_range is None else y_range[0], (y_max + abs(0.1 * y_max)) if y_range is None else y_range[1])
 
+                # Set the data
+                for (series_name, series_style), series_values in plot_series.items():
+                    axes.plot(series_values.keys(), series_values.values(), series_style, label=series_name)
 
-        def plot_runtime(test_results: TestResults):
-            plot("Runtime (s)", "Timestamp", "Runtime (s)", {
-                ("Runtime", "b-x"): collect_values(test_results, "NodeMonitor", "runtime", float)
-            })
+                    if show_final_values:
+                        final_value = list(series_values.values())[-1]
+                        pyplot.annotate(f"{final_value:n}", xy=(1, final_value), xytext=(8, 0), xycoords=("axes fraction", "data"), textcoords="offset points")
 
+                # Set the labels
+                axes.set(xlabel=x_label, ylabel=plot_name, title=title)
 
-        def plot_utilization_rates(test_results: TestResults):
-            plot("Utilization Rates (%)", "Timestamp", "Utilization Rate (%)", {
-                ("GPU Core", "g-x"): collect_values(test_results, "GPUMonitor", "coreUtilizationRate", int),
-                ("GPU Memory", "g-o"): collect_values(test_results, "GPUMonitor", "memoryUtilizationRate", int)
-            }, True, True, True, True, None, (0, 100))
+                # Format dates
+                if format_x_as_date:
+                    axes.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d %H:%M:%S"))
+                    figure.autofmt_xdate()
+                    # pyplot.xticks(rotation=45)
+
+                # Enable grid
+                if grid:
+                    axes.grid()
+
+                # Enable legend
+                if legend:
+                    pyplot.legend()
+
+                # Make everything fit
+                pyplot.tight_layout()
+
+            figure.savefig(f"{output_directory}/{title}.png")
 
 
         # Plot some graphs
-        plot_core_clock_rates(test_results)
-        plot_energy_consumption(test_results)
-        plot_power_consumption(test_results)
-        plot_runtime(test_results)
-        plot_utilization_rates(test_results)
+        # TODO: Add per-core series
+        plot(test_results, (10, 30))

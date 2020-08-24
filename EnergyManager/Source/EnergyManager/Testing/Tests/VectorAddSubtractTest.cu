@@ -9,14 +9,16 @@ namespace EnergyManager {
 		namespace Tests {
 			__global__ void vectorAdd(const int* A, const int* B, int* C, int N) {
 				int i = blockDim.x * blockIdx.x + threadIdx.x;
-				if(i < N)
+				if(i < N) {
 					C[i] = A[i] + B[i];
+				}
 			}
 
 			__global__ void vectorSubtract(const int* A, const int* B, int* C, int N) {
 				int i = blockDim.x * blockIdx.x + threadIdx.x;
-				if(i < N)
+				if(i < N) {
 					C[i] = A[i] - B[i];
+				}
 			}
 
 			void VectorAddSubtractTest::doPass(cudaStream_t stream) const {
@@ -67,13 +69,13 @@ namespace EnergyManager {
 				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&devCount));
 
 				CUdevice device;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGet(&device, gpu_.getID()));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGet(&device, gpu_->getID()));
 
 				char deviceName[32];
 				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGetName(deviceName, 32, device));
 				printf("Device Name: %s\n", deviceName);
 
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(gpu_.getID()));
+				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(gpu_->getID()));
 				// Do pass default stream
 				doPass(0);
 
@@ -93,10 +95,8 @@ namespace EnergyManager {
 				return {};
 			}
 
-			VectorAddSubtractTest::VectorAddSubtractTest(const std::string& name, const Hardware::GPU& gpu, const int& computeCount)
-				: Test(name, { { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) } })
-				, gpu_(gpu)
-				, computeCount_(computeCount) {
+			VectorAddSubtractTest::VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const int& computeCount)
+				: Test(name, { { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) } }), gpu_(gpu), computeCount_(computeCount) {
 			}
 		}
 	}

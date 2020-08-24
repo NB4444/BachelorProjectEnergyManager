@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Utility/Text.hpp"
+
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -12,14 +14,8 @@ namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {
 			static void vlog(const std::string& header, std::string format, va_list& arguments) {
-				// Get the current date and time
-				auto time = std::time(nullptr);
-				auto localTime = *std::localtime(&time);
-				std::ostringstream outputStringStream;
-				outputStringStream << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S");
-
 				// Prepend header
-				format = "[" + outputStringStream.str() + "] [" + header + "] " + format + '\n';
+				format = "[" + Text::formatTimestamp(std::chrono::system_clock::now()) + "] [" + header + "] " + format + '\n';
 
 				// Print the message
 				vprintf(format.c_str(), arguments);
