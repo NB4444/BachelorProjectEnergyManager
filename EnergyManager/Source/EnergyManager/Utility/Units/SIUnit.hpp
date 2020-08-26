@@ -30,7 +30,8 @@ namespace EnergyManager {
 			};
 
 			template<typename Self, typename Type>
-			class SIUnit : public Unit<Self, Type, SIPrefix> {
+			class SIUnit :
+				public Unit<Self, Type, SIPrefix> {
 				public:
 					using Unit<Self, Type, SIPrefix>::Unit;
 			};

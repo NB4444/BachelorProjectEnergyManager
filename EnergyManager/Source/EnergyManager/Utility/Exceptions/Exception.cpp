@@ -20,7 +20,7 @@ namespace EnergyManager {
 					char address[256];
 					sprintf(address, "%p", info->si_addr);
 					char fromAdrress[256];
-					sprintf(fromAdrress, "%p", (void*)ucontext->uc_mcontext.gregs[REG_RIP]);
+					sprintf(fromAdrress, "%p", (void*) ucontext->uc_mcontext.gregs[REG_RIP]);
 
 					Exception("Got signal " + std::to_string(signal) + ", faulty address is " + std::string(address) + ", from " + std::string(fromAdrress), __FILE__, __LINE__).log();
 				} else {

@@ -5,7 +5,8 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Units {
-			class Permillion : public PerUnit<double, unsigned long, double> {
+			class Permillion :
+				public PerUnit<double, unsigned long, double> {
 				public:
 					Permillion(const double& value = 0);
 			};

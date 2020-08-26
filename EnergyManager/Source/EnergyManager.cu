@@ -70,60 +70,60 @@ int main(int argumentCount, char* argumentValues[]) {
 	auto arguments = parseArguments(argumentCount, argumentValues);
 
 	try {
-		try {
-			// Initialize APIs
-			EnergyManager::Utility::Exceptions::Exception::initialize();
-			EnergyManager::Hardware::GPU::initialize();
-			EnergyManager::Persistence::Entity::initialize(arguments.database);
+		// Initialize APIs
+		EnergyManager::Utility::Exceptions::Exception::initialize();
+		EnergyManager::Hardware::GPU::initialize();
+		EnergyManager::Persistence::Entity::initialize(arguments.database);
 
-			// Set up a new TestRunner
-			EnergyManager::Testing::TestRunner testRunner;
+		// Set up a new TestRunner
+		EnergyManager::Testing::TestRunner testRunner;
 
-			// Generate the test
-			testRunner.addTest(std::shared_ptr<EnergyManager::Testing::Tests::Test>([&]() -> EnergyManager::Testing::Tests::Test* {
-				if(arguments.test == "FixedFrequencyMatrixMultiplyTest") {
-					return new EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest(
-						arguments.parameters["name"],
-						EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
-						EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-						std::stoi(arguments.parameters["matrixAWidth"]),
-						std::stoi(arguments.parameters["matrixAHeight"]),
-						std::stoi(arguments.parameters["matrixBWidth"]),
-						std::stoi(arguments.parameters["matrixBHeight"]),
-						std::stoul(arguments.parameters["minimumCPUFrequency"]),
-						std::stoul(arguments.parameters["maximumCPUFrequency"]),
-						std::stoul(arguments.parameters["minimumGPUFrequency"]),
-						std::stoul(arguments.parameters["maximumGPUFrequency"]));
-				} else if(arguments.test == "MatrixMultiplyTest") {
-					return new EnergyManager::Testing::Tests::MatrixMultiplyTest(
-						arguments.parameters["name"],
-						EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
-						EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-						std::stoi(arguments.parameters["matrixAWidth"]),
-						std::stoi(arguments.parameters["matrixAHeight"]),
-						std::stoi(arguments.parameters["matrixBWidth"]),
-						std::stoi(arguments.parameters["matrixBHeight"]));
-				} else if(arguments.test == "PingTest") {
-					return new EnergyManager::Testing::Tests::PingTest(arguments.parameters["name"], arguments.parameters["host"], std::stoi(arguments.parameters["times"]));
-				} else if(arguments.test == "VectorAddSubtractTest") {
-					return new EnergyManager::Testing::Tests::VectorAddSubtractTest(
-						arguments.parameters["name"],
-						EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-						std::stoi(arguments.parameters["computeCount"]));
-				}
+		// Generate the test
+		testRunner.addTest(std::shared_ptr<EnergyManager::Testing::Tests::Test>([&]() -> EnergyManager::Testing::Tests::Test* {
+			if(arguments.test == "FixedFrequencyMatrixMultiplyTest") {
+				return new EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest(
+					arguments.parameters["name"],
+					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
+					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
+					std::stoi(arguments.parameters["matrixAWidth"]),
+					std::stoi(arguments.parameters["matrixAHeight"]),
+					std::stoi(arguments.parameters["matrixBWidth"]),
+					std::stoi(arguments.parameters["matrixBHeight"]),
+					std::stoul(arguments.parameters["minimumCPUFrequency"]),
+					std::stoul(arguments.parameters["maximumCPUFrequency"]),
+					std::stoul(arguments.parameters["minimumGPUFrequency"]),
+					std::stoul(arguments.parameters["maximumGPUFrequency"]));
+			} else if(arguments.test == "MatrixMultiplyTest") {
+				return new EnergyManager::Testing::Tests::MatrixMultiplyTest(
+					arguments.parameters["name"],
+					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
+					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
+					std::stoi(arguments.parameters["matrixAWidth"]),
+					std::stoi(arguments.parameters["matrixAHeight"]),
+					std::stoi(arguments.parameters["matrixBWidth"]),
+					std::stoi(arguments.parameters["matrixBHeight"]));
+			} else if(arguments.test == "PingTest") {
+				return new EnergyManager::Testing::Tests::PingTest(arguments.parameters["name"], arguments.parameters["host"], std::stoi(arguments.parameters["times"]));
+			} else if(arguments.test == "VectorAddSubtractTest") {
+				return new EnergyManager::Testing::Tests::VectorAddSubtractTest(
+					arguments.parameters["name"],
+					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
+					std::stoi(arguments.parameters["computeCount"]));
+			}
 
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Unknown test type");
-			}()));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Unknown test type");
+		}()));
 
-			// Run the tests
-			testRunner.run(arguments.database);
+		// Run the tests
+		testRunner.run(arguments.database);
 
-			return 0;
-		} catch(const std::exception& exception) {
-			throw EnergyManager::Utility::Exceptions::Exception(exception.what(), __FILE__, __LINE__);
-		}
+		return 0;
 	} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
 		exception.log();
+
+		return 1;
+	} catch(const std::exception& exception) {
+		EnergyManager::Utility::Exceptions::Exception(exception.what(), __FILE__, __LINE__).log();
 
 		return 1;
 	}

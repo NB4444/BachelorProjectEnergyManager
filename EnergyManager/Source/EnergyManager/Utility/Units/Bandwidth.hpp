@@ -8,7 +8,8 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Units {
-			class Bandwidth : public PerUnit<Byte, std::chrono::system_clock::duration, double> {
+			class Bandwidth :
+				public PerUnit<Byte, std::chrono::system_clock::duration, double> {
 				public:
 					Bandwidth(const Byte& value = 0, const std::chrono::system_clock::duration& duration = std::chrono::seconds(1));
 
