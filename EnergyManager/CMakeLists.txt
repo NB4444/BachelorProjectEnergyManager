@@ -16,6 +16,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
+# Set up directories
+set(PROJECT_RESOURCES_DIRECTORY "${CMAKE_SOURCE_DIR}/Resources")
+set(PROJECT_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/Source")
+
 # Configure pthreads
 find_package(Threads REQUIRED)
 message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
@@ -35,7 +39,7 @@ message(STATUS "SQLite3 libraries: ${SQLite3_LIBRARIES}")
 ##set(ENV{LD_PRELOAD} ${CUDA_ENERGY_MONITOR_LIBRARY})
 
 # Get sources
-file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIR}/Source/*.cpp" "${PROJECT_SOURCE_DIR}/Source/*.cu")
+file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIRECTORY}/*.cpp" "${PROJECT_SOURCE_DIR}/Source/*.cu")
 message(STATUS "Source files: ${SOURCE_FILES}")
 
 # Add and configure target
@@ -62,9 +66,5 @@ target_link_libraries(
 	${SQLite3_LIBRARIES}
 )
 
-# Configure CXX compiler
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	# Configure GCC compiler
-	# Enable symbol generation for debug output
-	target_compile_options(${PROJECT_NAME} PRIVATE "-rdynamic")
-endif()
+# Enable symbol generation for debug output
+target_compile_options(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:--compiler-options=-rdynamic>")
