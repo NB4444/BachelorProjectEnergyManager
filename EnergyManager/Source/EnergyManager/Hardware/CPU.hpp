@@ -18,8 +18,8 @@ namespace EnergyManager {
 		 */
 		class CPU : public Processor {
 			/**
-				 * Keeps track of CPUs.
-				 */
+			 * Keeps track of CPUs.
+			 */
 			static std::map<uint32_t, std::shared_ptr<CPU>> cpus_;
 
 			static std::chrono::system_clock::time_point lastProcCPUInfoValuesPerProcessorRetrieval;
@@ -37,9 +37,9 @@ namespace EnergyManager {
 			static std::mutex monitorThreadMutex_;
 
 			/**
-				 * Gets the current values of all CPUs.
-				 * @return The current values.
-				 */
+			 * Gets the current values of all CPUs.
+			 * @return The current values.
+			 */
 			static std::map<unsigned int, std::map<std::string, std::string>> getProcCPUInfoValuesPerProcessor();
 
 			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> getProcCPUInfoValuesPerCPU();
@@ -49,79 +49,79 @@ namespace EnergyManager {
 			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> getProcStatValuesPerCPU();
 
 			/**
-				 * The thread monitoring certain performance variables.
-				 */
+			 * The thread monitoring certain performance variables.
+			 */
 			std::thread monitorThread_;
 
 			/**
-				 * Whether the monitor thread should keep running.
-				 */
+			 * Whether the monitor thread should keep running.
+			 */
 			bool monitorThreadRunning_ = true;
 
 			/**
-				 * The last time at which the variables were polled.
-				 */
+			 * The last time at which the variables were polled.
+			 */
 			std::chrono::system_clock::time_point lastMonitorTimestamp_ = std::chrono::system_clock::now();
 
 			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> lastProcStatValues_ = getProcStatValuesPerCPU();
 
 			/**
-				 * The last polled energy consumption.
-				 */
+			 * The last polled energy consumption.
+			 */
 			Utility::Units::Joule lastEnergyConsumption_ = 0;
 
 			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> startProcStatValues_ = getProcStatValuesPerCPU();
 
 			/**
-				 * The starting energy consumption.
-				 */
+			 * The starting energy consumption.
+			 */
 			Utility::Units::Joule startEnergyConsumption_ = 0;
 
 			/**
-				 * The ID of the device.
-				 */
+			 * The ID of the device.
+			 */
 			unsigned int id_;
 
 			/**
-				 * The power consumption.
-				 */
+			 * The power consumption.
+			 */
 			Utility::Units::Watt powerConsumption_ = 0;
 
 			std::map<unsigned int, Utility::Units::Percent> coreUtilizationRates_ = {};
 
 			/**
-				 * Creates a new CPU.
-				 * @param id The ID of the device.
-				 */
+			 * Creates a new CPU.
+			 * @param id The ID of the device.
+			 */
 			CPU(const unsigned int& id);
 
 			/**
-				 * Converts a core ID to a processor ID for use with system commands.
-				 * @param core The core ID.
-				 * @return The processor ID.
-				 */
+			 * Converts a core ID to a processor ID for use with system commands.
+			 * @param core The core ID.
+			 * @return The processor ID.
+			 */
 			unsigned int getProcessorID(const unsigned int& core) const;
 
 			/**
-				 * Gets a `/proc/stat` timespan.
-				 * @param core The core.
-				 * @param name The name of the timespan.
-				 * @return The timespan.
-				 */
+			 * Gets a `/proc/stat` timespan.
+			 * @param core The core.
+			 * @param name The name of the timespan.
+			 * @return The timespan.
+			 */
 			std::chrono::system_clock::duration getProcStatTimespan(const unsigned int& core, const std::string& name) const;
 
 		public:
 			/**
-				 * Gets the CPU with the specified ID.
-				 * @param id The ID.
-				 * @return The CPU.
-				 */
+			 * Gets the CPU with the specified ID.
+			 * @param id The ID.
+			 * @return The CPU.
+			 */
 			static std::shared_ptr<CPU> getCPU(const unsigned int& id);
 
 			/**
-				 * Gets the amount of CPUs.
-				 * @return The amount of CPUs.
-				 */
+			 * Gets the amount of CPUs.
+			 * @return The amount of CPUs.
+			 */
 			static unsigned int getCPUCount();
 
 			~CPU();
@@ -151,9 +151,9 @@ namespace EnergyManager {
 			Utility::Units::Watt getPowerConsumption() const override;
 
 			/**
-				 * Get the core count.
-				 * @return The amount of cores.
-				 */
+			 * Get the core count.
+			 * @return The amount of cores.
+			 */
 			unsigned int getCoreCount() const;
 
 			std::chrono::system_clock::duration getUserTimespan() const;

@@ -23,8 +23,8 @@ namespace EnergyManager {
 		 */
 		class Entity {
 			/**
-				 * The database to use.
-				 */
+			 * The database to use.
+			 */
 			static sqlite3* database_;
 
 			static std::vector<std::map<std::string, std::string>> rows_;
@@ -33,24 +33,24 @@ namespace EnergyManager {
 
 		protected:
 			/**
-				 * Called when data is saved to the database.
-				 * Used to store the object's fields.
-				 */
+			 * Called when data is saved to the database.
+			 * Used to store the object's fields.
+			 */
 			virtual void onSave();
 
 		public:
 			static void initialize(const std::string& databaseFile);
 
 			/**
-				 * Executes the SQL statement.
-				 * @param statement The statement to execute.
-				 * @return The rows that were returned.
-				 */
+			 * Executes the SQL statement.
+			 * @param statement The statement to execute.
+			 * @return The rows that were returned.
+			 */
 			static std::vector<std::map<std::string, std::string>> executeSQL(const std::string& statement, const std::string& file, const int& line);
 
 			/**
-				 * Creates a new Entity.
-				 */
+			 * Creates a new Entity.
+			 */
 			Entity() = default;
 
 			//~Entity() {
@@ -69,8 +69,8 @@ namespace EnergyManager {
 			void select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions);
 
 			/**
-				 * Saves the Entity to the database.
-				 */
+			 * Saves the Entity to the database.
+			 */
 			void save();
 		};
 	}
