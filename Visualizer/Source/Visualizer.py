@@ -4,6 +4,7 @@ import os
 import shutil
 from typing import OrderedDict, Any, Tuple
 
+import matplotlib
 from matplotlib import pyplot, dates, gridspec
 
 from Visualizer.Testing.Test import Test
@@ -114,7 +115,7 @@ if __name__ == '__main__':
             to_percentage = lambda value: value * 100
             ns_to_s = lambda value: value / 1e9
 
-            def add_indexed_value(plot, series_name_prefix: str, monitor: str, name: str, type, modifier = lambda value: value):
+            def add_indexed_value(plot, series_name_prefix: str, monitor: str, name: str, type, modifier=lambda value: value):
                 for index, values in enumerate(collect_indexed_values(test_results, monitor, name, type, modifier)):
                     plot[(f"{series_name_prefix} {index}", "")] = values
 
@@ -211,12 +212,13 @@ if __name__ == '__main__':
                 axes.set_ylim(((y_min - abs(0.1 * y_min)) if y_min < 0 else 0) if y_range is None else y_range[0], (y_max + abs(0.1 * y_max)) if y_range is None else y_range[1])
 
                 # Set the data
+                annotations = list()
                 for (series_name, series_style), series_values in plot_series.items():
                     axes.plot(series_values.keys(), series_values.values(), series_style, label=series_name)
 
                     if show_final_values and len(series_values.values()) > 0:
                         final_value = list(series_values.values())[-1]
-                        pyplot.annotate(f"{final_value:n}", xy=(1, final_value), xytext=(8, 0), xycoords=("axes fraction", "data"), textcoords="offset points")
+                        annotations.append(pyplot.annotate(f"{final_value:n}", xy=(1, final_value), xytext=(8, 0), xycoords=("axes fraction", "data"), textcoords="offset points"))
 
                 # Set the labels
                 axes.set(xlabel=x_label, ylabel=plot_name, title=title)
@@ -238,7 +240,16 @@ if __name__ == '__main__':
                 # Make everything fit
                 pyplot.tight_layout()
 
-            figure.savefig(f"{output_directory}/{title}.png")
+                def determine_extent(axes, padding=(0.0, 0.0)):
+                    axes.figure.canvas.draw()
+                    elements = axes.get_xticklabels() + axes.get_yticklabels() + annotations + [axes, axes.title, axes.get_xaxis().get_label(), axes.get_yaxis().get_label()]
+                    return matplotlib.transforms.Bbox.union([element.get_window_extent() for element in elements]).expanded(1.0 + padding[0], 1.0 + padding[1])
+
+                # Save the subplot
+                figure.savefig(f"{output_directory}/{plot_name}.png", bbox_inches=determine_extent(axes, (0.1, 0.1)).transformed(figure.dpi_scale_trans.inverted()))
+
+            # Save the summary
+            figure.savefig(f"{output_directory}/Summary.png")
 
 
         # Plot some graphs
