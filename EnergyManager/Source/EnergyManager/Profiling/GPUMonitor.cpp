@@ -32,8 +32,7 @@ namespace EnergyManager {
 																   { "multiprocessorCount", std::to_string(gpu_->getMultiprocessorCount()) },
 																   { "name", gpu_->getName() },
 																   { "powerLimit", std::to_string(gpu_->getPowerLimit().toValue()) },
-																   { "streamingMultiprocessorClockRate", std::to_string(gpu_->getStreamingMultiprocessorClockRate().toValue()) },
-																   { "temperature", std::to_string(gpu_->getTemperature().toValue()) } };
+																   { "streamingMultiprocessorClockRate", std::to_string(gpu_->getStreamingMultiprocessorClockRate().toValue()) } };
 
 			// Get upstream values
 			auto processorResults = ProcessorMonitor::onPoll();

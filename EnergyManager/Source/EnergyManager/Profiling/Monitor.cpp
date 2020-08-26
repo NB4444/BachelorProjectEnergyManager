@@ -41,13 +41,13 @@ namespace EnergyManager {
 		}
 
 		std::map<std::string, std::string> Monitor::poll(const bool& save) {
+			auto now = std::chrono::system_clock::now();
+
 			std::map<std::string, std::string> results = onPoll();
 
-			lastPollTimestamp_ = std::chrono::system_clock::now();
+			lastPollTimestamp_ = now;
 
 			if(save) {
-				auto now = std::chrono::system_clock::now();
-
 				variableValues_[now] = results;
 				variableValues_[now]["runtime"] = std::to_string(getRuntime().count());
 			}
@@ -61,9 +61,11 @@ namespace EnergyManager {
 			lastPollTimestamp_ = startTimestamp_;
 
 			while(isRunning_) {
-				poll(true);
-
-				usleep(std::chrono::duration_cast<std::chrono::microseconds>(interval).count());
+				if((std::chrono::system_clock::now() - lastPollTimestamp_) >= interval) {
+					poll(true);
+				} else {
+					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(10)).count());
+				}
 			}
 		}
 

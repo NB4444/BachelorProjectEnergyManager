@@ -107,11 +107,6 @@ namespace EnergyManager {
 			std::chrono::system_clock::time_point lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
 
 			/**
-			 * The fan speed as percentage of maximum.
-			 */
-			Utility::Units::RotationsPerMinute fanSpeed_;
-
-			/**
 			 * The global memory bandwidth available on the device, in kBytes/sec.
 			 */
 			Utility::Units::Bandwidth globalMemoryBandwidth_;
@@ -277,20 +272,6 @@ namespace EnergyManager {
 			 */
 			~GPU();
 
-			Utility::Units::Hertz getCoreClockRate() const override;
-
-			void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
-
-			void resetCoreClockRate() override;
-
-			Utility::Units::Percent getCoreUtilizationRate() const override;
-
-			Utility::Units::Joule getEnergyConsumption() const override;
-
-			Utility::Units::Hertz getMaximumCoreClockRate() const override;
-
-			Utility::Units::Watt getPowerConsumption() const override;
-
 			/**
 			 * Gets the per Application clock rate.
 			 * @return The Application clock rate.
@@ -337,11 +318,33 @@ namespace EnergyManager {
 			 */
 			unsigned int getComputeCapabilityMinorVersion() const;
 
+			Utility::Units::Hertz getCoreClockRate() const override;
+
+			void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
+
+			void resetCoreClockRate() override;
+
+			Utility::Units::Hertz getMaximumCoreClockRate() const override;
+
+			Utility::Units::Percent getCoreUtilizationRate() const override;
+
+			Utility::Units::Joule getEnergyConsumption() const override;
+
+			Utility::Units::Watt getPowerConsumption() const override;
+
+			/**
+			 * @copydoc GPU::powerLimit_
+			 * @return The power limit.
+			 */
+			Utility::Units::Watt getPowerLimit() const;
+
 			/**
 			 * @copydoc GPU::fanSpeed_
 			 * @return The fan speed.
 			 */
-			Utility::Units::RotationsPerMinute getFanSpeed() const;
+			Utility::Units::Percent getFanSpeed() const;
+
+			Utility::Units::Percent getFanSpeed(const unsigned int& fan) const;
 
 			/**
 			 * @copydoc GPU::globalMemoryBandwidth_
@@ -477,22 +480,12 @@ namespace EnergyManager {
 			std::string getName() const;
 
 			/**
-			 * @copydoc GPU::powerLimit_
-			 * @return The power limit.
-			 */
-			Utility::Units::Watt getPowerLimit() const;
-
-			/**
 			 * @copydoc GPU::streamingMultiprocessorClock_
 			 * @return The streaming multiprocessor clock.
 			 */
 			Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;
 
-			/**
-			 * @copydoc GPU::temperature_
-			 * @return The temperature.
-			 */
-			Utility::Units::Celsius getTemperature() const;
+			Utility::Units::Celsius getTemperature() const override;
 		};
 	}
 }

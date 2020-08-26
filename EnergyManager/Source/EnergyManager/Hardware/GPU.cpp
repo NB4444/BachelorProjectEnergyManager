@@ -170,9 +170,6 @@ namespace EnergyManager {
 
 		void GPU::handleEnvironmentActivity(const CUpti_ActivityEnvironment* activity) {
 			switch(activity->environmentKind) {
-				case CUPTI_ACTIVITY_ENVIRONMENT_COOLING:
-					fanSpeed_ = Utility::Units::Rotation(activity->data.cooling.fanSpeed);
-					break;
 				case CUPTI_ACTIVITY_ENVIRONMENT_POWER:
 					powerLimit_ = { activity->data.power.powerLimit, Utility::Units::SIPrefix::MILLI };
 					break;
@@ -206,17 +203,19 @@ namespace EnergyManager {
 
 			monitorThread_ = std::thread([&] {
 				while(monitorThreadRunning_) {
-					{
+					auto currentTimestamp = std::chrono::system_clock::now();
+
+					if((currentTimestamp - lastEnergyConsumptionPollTimestamp_) >= std::chrono::milliseconds(100)) {
 						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
 						energyConsumption_
 							+= (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
 							   * getPowerConsumption().toValue();
 
-						lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
+						lastEnergyConsumptionPollTimestamp_ = currentTimestamp;
+					} else {
+						usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(10)).count());
 					}
-
-					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(100)).count());
 				}
 			});
 		}
@@ -301,51 +300,6 @@ namespace EnergyManager {
 			monitorThread_.join();
 		}
 
-		Utility::Units::Hertz GPU::getCoreClockRate() const {
-			unsigned int coreClockRate;
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &coreClockRate));
-
-			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
-		}
-
-		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
-				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
-		}
-
-		void GPU::resetCoreClockRate() {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
-		}
-
-		Utility::Units::Percent GPU::getCoreUtilizationRate() const {
-			// Retrieve the utilization rates
-			nvmlUtilization_t rates;
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
-
-			return rates.gpu;
-		}
-
-		Utility::Units::Joule GPU::getEnergyConsumption() const {
-			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
-
-			return energyConsumption_;
-		}
-
-		Utility::Units::Hertz GPU::getMaximumCoreClockRate() const {
-			unsigned int maximumCoreClockRate;
-
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &maximumCoreClockRate));
-
-			return { maximumCoreClockRate, Utility::Units::SIPrefix::MEGA };
-		}
-
-		Utility::Units::Watt GPU::getPowerConsumption() const {
-			unsigned int powerConsumption = 0;
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
-
-			return { powerConsumption, Utility::Units::SIPrefix::MILLI };
-		}
-
 		Utility::Units::Hertz GPU::getApplicationCoreClockRate() const {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate));
@@ -398,8 +352,67 @@ namespace EnergyManager {
 			return computeCapabilityMinorVersion_;
 		}
 
-		Utility::Units::RotationsPerMinute GPU::getFanSpeed() const {
-			return fanSpeed_;
+		Utility::Units::Hertz GPU::getCoreClockRate() const {
+			unsigned int coreClockRate;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &coreClockRate));
+
+			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
+		}
+
+		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
+				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+		}
+
+		void GPU::resetCoreClockRate() {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
+		}
+
+		Utility::Units::Hertz GPU::getMaximumCoreClockRate() const {
+			unsigned int maximumCoreClockRate;
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &maximumCoreClockRate));
+
+			return { maximumCoreClockRate, Utility::Units::SIPrefix::MEGA };
+		}
+
+		Utility::Units::Percent GPU::getCoreUtilizationRate() const {
+			// Retrieve the utilization rates
+			nvmlUtilization_t rates;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
+
+			return rates.gpu;
+		}
+
+		Utility::Units::Joule GPU::getEnergyConsumption() const {
+			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+
+			return energyConsumption_;
+		}
+
+		Utility::Units::Watt GPU::getPowerConsumption() const {
+			unsigned int powerConsumption = 0;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
+
+			return { powerConsumption, Utility::Units::SIPrefix::MILLI };
+		}
+
+		Utility::Units::Watt GPU::getPowerLimit() const {
+			return powerLimit_;
+		}
+
+		Utility::Units::Percent GPU::getFanSpeed() const {
+			unsigned int speed;
+			nvmlDeviceGetFanSpeed(device_, &speed);
+
+			return { speed };
+		}
+
+		Utility::Units::Percent GPU::getFanSpeed(const unsigned int& fan) const {
+			unsigned int speed;
+			nvmlDeviceGetFanSpeed_v2(device_, fan, &speed);
+
+			return { speed };
 		}
 
 		Utility::Units::Bandwidth GPU::getGlobalMemoryBandwidth() const {
@@ -502,10 +515,6 @@ namespace EnergyManager {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetName(device_, name, sizeof(name)));
 
 			return name;
-		}
-
-		Utility::Units::Watt GPU::getPowerLimit() const {
-			return powerLimit_;
 		}
 
 		Utility::Units::Hertz GPU::getStreamingMultiprocessorClockRate() const {

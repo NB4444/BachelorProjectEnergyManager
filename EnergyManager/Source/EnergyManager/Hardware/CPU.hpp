@@ -195,6 +195,8 @@ namespace EnergyManager {
 			std::chrono::system_clock::duration getGuestNiceTimespan() const;
 
 			std::chrono::system_clock::duration getGuestNiceTimespan(const unsigned int& core) const;
+
+			Utility::Units::Celsius getTemperature() const override;
 		};
 	}
 }

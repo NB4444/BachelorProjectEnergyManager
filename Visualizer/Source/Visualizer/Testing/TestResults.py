@@ -14,7 +14,7 @@ class TestResults(Entity):
         test_results: Dict[str, str] = dict()
         monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]] = dict()
 
-        # Retrieve the test results for all tests
+        # Retrieve the test results
         for row in cls._select("TestResults", ["name", "value"], f"testID = {testID}"):
             # Keep track of the current result
             name = row[0]
@@ -23,7 +23,7 @@ class TestResults(Entity):
             # Store the results
             test_results[name] = value
 
-        # Retrieve the monitor results for all tests
+        # Retrieve the monitor results
         for row in cls._select("MonitorResults", ["monitor", "timestamp", "name", "value"], f"testID = {testID}", "timestamp ASC"):
             # Keep track of the current result
             monitor = row[0]

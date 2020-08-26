@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/Device.hpp"
 #include "EnergyManager/Utility/Units/Hertz.hpp"
 #include "EnergyManager/Utility/Units/Percent.hpp"
+#include "EnergyManager/Utility/Units/Celsius.hpp"
 
 namespace EnergyManager {
 	namespace Hardware {
@@ -36,6 +37,12 @@ namespace EnergyManager {
 			 * @return The maximum core clock rate.
 			 */
 			virtual Utility::Units::Hertz getMaximumCoreClockRate() const = 0;
+
+			/**
+			 * Gets the temperature of the device.
+			 * @return The temperature.
+			 */
+			virtual Utility::Units::Celsius getTemperature() const = 0;
 		};
 	}
 }

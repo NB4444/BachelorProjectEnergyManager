@@ -37,14 +37,12 @@ namespace EnergyManager {
 			TestResults Test::run(const std::string& databaseFile) {
 				// Start the Monitors
 				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults;
-				std::mutex monitorResultsMutex;
 				std::map<std::shared_ptr<Profiling::Monitor>, std::thread> monitors;
 				for(const auto& monitor : monitors_) {
 					monitors[monitor.first] = std::thread([&] {
 						monitor.first->run(monitor.second);
 
 						// Store the Monitor results
-						std::lock_guard<std::mutex> guard(monitorResultsMutex);
 						monitorResults[monitor.first] = monitor.first->getVariableValues();
 					});
 				}

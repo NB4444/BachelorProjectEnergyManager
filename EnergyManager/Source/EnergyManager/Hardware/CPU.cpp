@@ -177,13 +177,14 @@ namespace EnergyManager {
 		CPU::CPU(const unsigned int& id) : id_(id) {
 			monitorThread_ = std::thread([&] {
 				while(monitorThreadRunning_) {
-					{
+					auto currentTimestamp = std::chrono::system_clock::now();
+
+					if((currentTimestamp - lastMonitorTimestamp_) >= std::chrono::milliseconds(100)) {
 						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
 						// Get the current values
 						auto currentProcStatValues = getProcStatValuesPerCPU();
 						auto currentEnergyConsumption = getEnergyConsumption();
-						auto currentTimestamp = std::chrono::system_clock::now();
 						auto pollingTimespan = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastMonitorTimestamp_).count() / static_cast<float>(1000);
 
 						// Calculate the power consumption in Watts
@@ -217,9 +218,9 @@ namespace EnergyManager {
 						lastProcStatValues_ = currentProcStatValues;
 						lastEnergyConsumption_ = currentEnergyConsumption;
 						lastMonitorTimestamp_ = currentTimestamp;
+					} else {
+						usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(10)).count());
 					}
-
-					usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(100)).count());
 				}
 			});
 
@@ -505,6 +506,13 @@ namespace EnergyManager {
 
 		std::chrono::system_clock::duration CPU::getGuestNiceTimespan(const unsigned int& core) const {
 			return getProcStatTimespan(core, "guestNiceTimespan");
+		}
+
+		Utility::Units::Celsius CPU::getTemperature() const {
+			std::ifstream inputStream("/sys/class/thermal/thermal_zone0/temp");
+			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+			return Utility::Units::Celsius(std::stoi(cpuInfo), Utility::Units::SIPrefix::MILLI);
 		}
 	}
 }

@@ -13,6 +13,9 @@
       <file path="$PROJECT_DIR$/cuda_monitor/src" />
       <file path="$PROJECT_DIR$/sqlite" />
     </libraryRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
+    </excludeRoots>
   </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
