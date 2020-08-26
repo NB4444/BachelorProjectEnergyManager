@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdexcept>
 #include <csignal>
 #include <execinfo.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -11,30 +11,29 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Exceptions {
-			class Exception :
-				public std::runtime_error {
-					static void backtraceSignalHandler(int signal, siginfo_t* info, void* secret);
+			class Exception : public std::runtime_error {
+				static void backtraceSignalHandler(int signal, siginfo_t* info, void* secret);
 
-					std::string file_;
+				std::string file_;
 
-					size_t line_;
+				size_t line_;
 
-					std::vector<std::pair<std::string, std::string>> stackTrace_ = {};
+				std::vector<std::pair<std::string, std::string>> stackTrace_ = {};
 
-				public:
-					static void initialize();
+			public:
+				static void initialize();
 
-					static void logGDBStackTrace();
+				static void logGDBStackTrace();
 
-					Exception(const std::string& message, const std::string& file, const size_t& line);
+				Exception(const std::string& message, const std::string& file, const size_t& line);
 
-					std::string getMessage() const;
+				std::string getMessage() const;
 
-					std::string getFile() const;
+				std::string getFile() const;
 
-					size_t getLine() const;
+				size_t getLine() const;
 
-					void log() const;
+				void log() const;
 			};
 		}
 	}

@@ -6,11 +6,9 @@ namespace EnergyManager {
 		}
 
 		std::map<std::string, std::string> ProcessorMonitor::onPoll() {
-			auto processorResults = std::map<std::string, std::string> {
-				{ "coreClockRate", std::to_string(processor_->getCoreClockRate().toValue()) },
-				{ "coreUtilizationRate", std::to_string(processor_->getCoreUtilizationRate().toCombined()) },
-				{ "maximumCoreClockRate", std::to_string(processor_->getMaximumCoreClockRate().toValue()) }
-			};
+			auto processorResults = std::map<std::string, std::string> { { "coreClockRate", std::to_string(processor_->getCoreClockRate().toValue()) },
+																		 { "coreUtilizationRate", std::to_string(processor_->getCoreUtilizationRate().toCombined()) },
+																		 { "maximumCoreClockRate", std::to_string(processor_->getMaximumCoreClockRate().toValue()) } };
 
 			// Get upstream values
 			auto deviceResults = DeviceMonitor::onPoll();

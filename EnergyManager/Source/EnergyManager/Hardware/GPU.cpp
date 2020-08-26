@@ -1,8 +1,8 @@
 #include "./GPU.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Units/Byte.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/Units/Byte.hpp"
 
 #include <algorithm>
 #include <unistd.h>
@@ -30,9 +30,7 @@ namespace EnergyManager {
 		std::mutex GPU::monitorThreadMutex_;
 
 		uint8_t* GPU::alignBuffer(uint8_t* buffer, const size_t& alignSize) {
-			return (((uintptr_t) (buffer) & ((alignSize) - 1))
-				? ((buffer) + (alignSize) - ((uintptr_t) (buffer) & ((alignSize) - 1)))
-				: (buffer));
+			return (((uintptr_t)(buffer) & ((alignSize) -1)) ? ((buffer) + (alignSize) - ((uintptr_t)(buffer) & ((alignSize) -1))) : (buffer));
 		}
 
 		void CUPTIAPI GPU::allocateBuffer(uint8_t** buffer, size_t* size, size_t* maximumRecordCount) {
@@ -213,7 +211,7 @@ namespace EnergyManager {
 
 						energyConsumption_
 							+= (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
-							* getPowerConsumption().toValue();
+							   * getPowerConsumption().toValue();
 
 						lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
 					}
@@ -311,7 +309,8 @@ namespace EnergyManager {
 		}
 
 		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
+				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
 		}
 
 		void GPU::resetCoreClockRate() {

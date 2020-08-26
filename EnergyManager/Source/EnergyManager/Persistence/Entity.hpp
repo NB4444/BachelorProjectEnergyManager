@@ -22,56 +22,56 @@ namespace EnergyManager {
 		 * A persistent object.
 		 */
 		class Entity {
-				/**
+			/**
 				 * The database to use.
 				 */
-				static sqlite3* database_;
+			static sqlite3* database_;
 
-				static std::vector<std::map<std::string, std::string>> rows_;
+			static std::vector<std::map<std::string, std::string>> rows_;
 
-				static int callback(void* context, int columnCount, char** columnValues, char** columnNames);
+			static int callback(void* context, int columnCount, char** columnValues, char** columnNames);
 
-			protected:
-				/**
+		protected:
+			/**
 				 * Called when data is saved to the database.
 				 * Used to store the object's fields.
 				 */
-				virtual void onSave();
+			virtual void onSave();
 
-			public:
-				static void initialize(const std::string& databaseFile);
+		public:
+			static void initialize(const std::string& databaseFile);
 
-				/**
+			/**
 				 * Executes the SQL statement.
 				 * @param statement The statement to execute.
 				 * @return The rows that were returned.
 				 */
-				static std::vector<std::map<std::string, std::string>> executeSQL(const std::string& statement, const std::string& file, const int& line);
+			static std::vector<std::map<std::string, std::string>> executeSQL(const std::string& statement, const std::string& file, const int& line);
 
-				/**
+			/**
 				 * Creates a new Entity.
 				 */
-				Entity() = default;
+			Entity() = default;
 
-				//~Entity() {
-				//	// Close the connection
-				//	//sqlite3_close(database_);
-				//}
+			//~Entity() {
+			//	// Close the connection
+			//	//sqlite3_close(database_);
+			//}
 
-				void addColumn(const std::string& table, const std::string& column, const std::string& attributes);
+			void addColumn(const std::string& table, const std::string& column, const std::string& attributes);
 
-				void createTable(const std::string& table, const std::map<std::string, std::string>& columnsWithAttributes);
+			void createTable(const std::string& table, const std::map<std::string, std::string>& columnsWithAttributes);
 
-				void insert(const std::string& table, std::vector<std::map<std::string, std::string>>& rowColumnValues);
+			void insert(const std::string& table, std::vector<std::map<std::string, std::string>>& rowColumnValues);
 
-				void insert(const std::string& table, const std::map<std::string, std::string>& columnValues);
+			void insert(const std::string& table, const std::map<std::string, std::string>& columnValues);
 
-				void select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions);
+			void select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions);
 
-				/**
+			/**
 				 * Saves the Entity to the database.
 				 */
-				void save();
+			void save();
 		};
 	}
 }

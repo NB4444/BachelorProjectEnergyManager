@@ -3,11 +3,11 @@
 #include "EnergyManager/Testing/TestResults.hpp"
 
 #include <iostream>
+#include <mutex>
 #include <regex>
 #include <thread>
 #include <utility>
 #include <vector>
-#include <mutex>
 #include <zconf.h>
 
 namespace EnergyManager {

@@ -3,8 +3,8 @@
 namespace EnergyManager {
 	namespace Profiling {
 		class SyntheticWorkload {
-			public:
-				SyntheticWorkload();
+		public:
+			SyntheticWorkload();
 		};
 	}
 }

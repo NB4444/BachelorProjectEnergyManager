@@ -1,10 +1,10 @@
 #include "./Exception.hpp"
 
-#include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Application.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 
-#include <unistd.h>
 #include <sys/wait.h>
+#include <unistd.h>
 // Get REG_EIP from ucontext.h
 #define __USE_GNU
 #include <signal.h>

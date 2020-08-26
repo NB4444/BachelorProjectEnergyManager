@@ -132,7 +132,8 @@ namespace EnergyManager {
 						const double jiffiesPerSecond = sysconf(_SC_CLK_TCK);
 						const double jiffiesPerMillisecond = jiffiesPerSecond / 1e3;
 
-						procStatValues[processorID][name] = std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(static_cast<unsigned long>(std::stol(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
+						procStatValues[processorID][name] = std::chrono::duration_cast<std::chrono::system_clock::duration>(
+							std::chrono::milliseconds(static_cast<unsigned long>(std::stol(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
 					};
 
 					setValue("userTimespan", 1);
@@ -186,34 +187,30 @@ namespace EnergyManager {
 						auto pollingTimespan = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastMonitorTimestamp_).count() / static_cast<float>(1000);
 
 						// Calculate the power consumption in Watts
-						auto divisor = (pollingTimespan == 0
-							? 0.1
-							: pollingTimespan);
+						auto divisor = (pollingTimespan == 0 ? 0.1 : pollingTimespan);
 						powerConsumption_ = (currentEnergyConsumption - lastEnergyConsumption_).toValue() / divisor;
 
 						// Calculate the core utilization rates
 						for(unsigned int core = 0; core < getCoreCount(); ++core) {
 							auto previousIdle = lastProcStatValues_[id_][core]["idleTimespan"] + lastProcStatValues_[id_][core]["ioWaitTimespan"];
 							auto previousActive = lastProcStatValues_[id][core]["userTimespan"] + lastProcStatValues_[id_][core]["niceTimespan"] + lastProcStatValues_[id_][core]["systemTimespan"]
-								+ lastProcStatValues_[id_][core]["interruptsTimespan"] + lastProcStatValues_[id_][core]["softInterruptsTimespan"]
-								+ lastProcStatValues_[id_][core]["stealTimespan"] + lastProcStatValues_[id_][core]["guestTimespan"]
-								+ lastProcStatValues_[id_][core]["guestNiceTimespan"];
+												  + lastProcStatValues_[id_][core]["interruptsTimespan"] + lastProcStatValues_[id_][core]["softInterruptsTimespan"]
+												  + lastProcStatValues_[id_][core]["stealTimespan"] + lastProcStatValues_[id_][core]["guestTimespan"]
+												  + lastProcStatValues_[id_][core]["guestNiceTimespan"];
 							auto previousTotal = previousIdle + previousActive;
 
 							auto idle = currentProcStatValues[id_][core]["idleTimespan"] + currentProcStatValues[id_][core]["ioWaitTimespan"];
 							auto active = currentProcStatValues[id][core]["userTimespan"] + currentProcStatValues[id_][core]["niceTimespan"] + currentProcStatValues[id_][core]["systemTimespan"]
-								+ currentProcStatValues[id_][core]["interruptsTimespan"] + currentProcStatValues[id_][core]["softInterruptsTimespan"]
-								+ currentProcStatValues[id_][core]["stealTimespan"] + currentProcStatValues[id_][core]["guestTimespan"]
-								+ currentProcStatValues[id_][core]["guestNiceTimespan"];
+										  + currentProcStatValues[id_][core]["interruptsTimespan"] + currentProcStatValues[id_][core]["softInterruptsTimespan"]
+										  + currentProcStatValues[id_][core]["stealTimespan"] + currentProcStatValues[id_][core]["guestTimespan"]
+										  + currentProcStatValues[id_][core]["guestNiceTimespan"];
 							auto total = idle + active;
 
 							auto totalDifference = total - previousTotal;
 							auto idleDifference = idle - previousIdle;
 							auto activeDifference = active - previousActive;
 
-							coreUtilizationRates_[core] = totalDifference.count() == 0
-								? 0
-								: (static_cast<double>(activeDifference.count()) / static_cast<double>(totalDifference.count()) * 100);
+							coreUtilizationRates_[core] = totalDifference.count() == 0 ? 0 : (static_cast<double>(activeDifference.count()) / static_cast<double>(totalDifference.count()) * 100);
 						}
 
 						// Set the variables for the next poll cycle

@@ -2,21 +2,17 @@
 
 #include "EnergyManager/Utility/Units/Byte.hpp"
 
-#include <type_traits>
 #include <chrono>
+#include <type_traits>
 
 namespace EnergyManager {
 	namespace Utility {
 		namespace TypeTraits {
 			template<class Type>
-			struct IsDuration :
-				std::false_type {
-			};
+			struct IsDuration : std::false_type {};
 
 			template<class Representation, class Period>
-			struct IsDuration<std::chrono::duration<Representation, Period>> :
-				std::true_type {
-			};
+			struct IsDuration<std::chrono::duration<Representation, Period>> : std::true_type {};
 
 			template<typename Source, typename Target>
 			struct Cast {

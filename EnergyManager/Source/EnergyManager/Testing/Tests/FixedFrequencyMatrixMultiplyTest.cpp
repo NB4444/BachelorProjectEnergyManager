@@ -30,7 +30,13 @@ namespace EnergyManager {
 				const unsigned long& maximumCPUFrequency,
 				const unsigned long& minimumGPUFrequency,
 				const unsigned long& maximumGPUFrequency)
-				: MatrixMultiplyTest(name, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight), cpu_(cpu), gpu_(gpu), minimumCPUFrequency_(minimumGPUFrequency), maximumCPUFrequency_(maximumGPUFrequency), minimumGPUFrequency_(minimumGPUFrequency), maximumGPUFrequency_(maximumGPUFrequency) {
+				: MatrixMultiplyTest(name, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight)
+				, cpu_(cpu)
+				, gpu_(gpu)
+				, minimumCPUFrequency_(minimumGPUFrequency)
+				, maximumCPUFrequency_(maximumGPUFrequency)
+				, minimumGPUFrequency_(minimumGPUFrequency)
+				, maximumGPUFrequency_(maximumGPUFrequency) {
 			}
 		}
 	}

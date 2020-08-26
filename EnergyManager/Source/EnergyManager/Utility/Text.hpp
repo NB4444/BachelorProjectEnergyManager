@@ -1,14 +1,14 @@
 #pragma once
 
 #include <algorithm>
+#include <chrono>
+#include <iomanip>
 #include <numeric>
 #include <regex>
 #include <set>
 #include <string>
-#include <vector>
-#include <chrono>
 #include <time.h>
-#include <iomanip>
+#include <vector>
 
 namespace EnergyManager {
 	namespace Utility {
@@ -16,8 +16,8 @@ namespace EnergyManager {
 			static std::string trim(std::string value) {
 				// Trim prefix whitespace
 				value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](const int& character) {
-					return !std::isspace(character);
-				}));
+								return !std::isspace(character);
+							}));
 
 				// Trim postfix whitespace
 				value.erase(

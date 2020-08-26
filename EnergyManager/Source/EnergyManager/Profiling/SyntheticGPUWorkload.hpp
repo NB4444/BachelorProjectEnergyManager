@@ -4,15 +4,13 @@
 
 namespace EnergyManager {
 	namespace Profiling {
-		class SyntheticGPUWorkload :
-			public SyntheticWorkload {
-			public:
-				enum class Operations {
+		class SyntheticGPUWorkload : public SyntheticWorkload {
+		public:
+			enum class Operations {
 
-				};
+			};
 
-				SyntheticGPUWorkload();
-
+			SyntheticGPUWorkload();
 		};
 	}
 }

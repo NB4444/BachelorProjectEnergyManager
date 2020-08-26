@@ -8,10 +8,9 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Units {
-			class RotationsPerMinute :
-				public PerUnit<Rotation, int, double> {
-				public:
-					RotationsPerMinute(const Rotation& value = {});
+			class RotationsPerMinute : public PerUnit<Rotation, int, double> {
+			public:
+				RotationsPerMinute(const Rotation& value = {});
 			};
 		}
 	}

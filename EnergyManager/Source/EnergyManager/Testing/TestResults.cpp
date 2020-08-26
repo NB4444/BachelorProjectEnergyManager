@@ -24,13 +24,11 @@ namespace EnergyManager {
 						std::string name = variableValue.first;
 						std::string value = variableValue.second;
 
-						monitorRows.push_back({
-							{ "test", "\"" + getTest().getName() + "\"" },
-							{ "monitor", "\"" + monitor + "\"" },
-							{ "timestamp", timestamp },
-							{ "name", "\"" + name + "\"" },
-							{ "value", "\"" + value + "\"" }
-						});
+						monitorRows.push_back({ { "test", "\"" + getTest().getName() + "\"" },
+												{ "monitor", "\"" + monitor + "\"" },
+												{ "timestamp", timestamp },
+												{ "name", "\"" + name + "\"" },
+												{ "value", "\"" + value + "\"" } });
 					}
 				}
 			}
@@ -42,7 +40,9 @@ namespace EnergyManager {
 			Tests::Test test,
 			std::map<std::string, std::string> results,
 			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
-			: test_(std::move(test)), results_(std::move(results)), monitorResults_(std::move(monitorResults)) {
+			: test_(std::move(test))
+			, results_(std::move(results))
+			, monitorResults_(std::move(monitorResults)) {
 			// Create the tables if they do not exist yet
 			try {
 				createTable("TestResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "test", "TEXT NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });
@@ -51,14 +51,12 @@ namespace EnergyManager {
 			try {
 				createTable(
 					"MonitorResults",
-					{
-						{ "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" },
-						{ "test", "TEXT NOT NULL" },
-						{ "monitor", "TEXT NOT NULL" },
-						{ "timestamp", "INTEGER NOT NULL" },
-						{ "name", "TEXT NOT NULL" },
-						{ "value", "TEXT" }
-					});
+					{ { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" },
+					  { "test", "TEXT NOT NULL" },
+					  { "monitor", "TEXT NOT NULL" },
+					  { "timestamp", "INTEGER NOT NULL" },
+					  { "name", "TEXT NOT NULL" },
+					  { "value", "TEXT" } });
 			} catch(const std::runtime_error& error) {
 			}
 		}

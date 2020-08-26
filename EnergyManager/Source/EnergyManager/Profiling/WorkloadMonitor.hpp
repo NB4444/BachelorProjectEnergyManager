@@ -5,15 +5,14 @@
 
 namespace EnergyManager {
 	namespace Profiling {
-		class WorkloadMonitor :
-			public Monitor {
-				GPUMonitor gpuMonitor_;
+		class WorkloadMonitor : public Monitor {
+			GPUMonitor gpuMonitor_;
 
-			public:
-				WorkloadMonitor(const GPUMonitor& gpuMonitor);
+		public:
+			WorkloadMonitor(const GPUMonitor& gpuMonitor);
 
-			protected:
-				std::map<std::string, std::string> onPoll() override;
+		protected:
+			std::map<std::string, std::string> onPoll() override;
 		};
 	}
 }
