@@ -1,6 +1,9 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Processor.hpp"
+#include "EnergyManager/Utility/Units/Joule.hpp"
+#include "EnergyManager/Utility/Units/Watt.hpp"
+#include "EnergyManager/Utility/Units/Percent.hpp"
 
 #include <map>
 #include <memory>
@@ -20,6 +23,20 @@ namespace EnergyManager {
 				 */
 				static std::map<uint32_t, std::shared_ptr<CPU>> cpus_;
 
+				static std::chrono::system_clock::time_point lastProcCPUInfoValuesPerProcessorRetrieval;
+
+				static std::map<unsigned int, std::map<std::string, std::string>> procCPUInfoValues;
+
+				static std::mutex procCPUInfoValuesMutex_;
+
+				static std::chrono::system_clock::time_point lastProcStatValuesRetrieval;
+
+				static std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> procStatValues;
+
+				static std::mutex procStatValuesMutex_;
+
+				static std::mutex monitorThreadMutex_;
+
 				/**
 				 * Gets the current values of all CPUs.
 				 * @return The current values.
@@ -28,11 +45,9 @@ namespace EnergyManager {
 
 				static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> getProcCPUInfoValuesPerCPU();
 
-				static std::map<unsigned int, std::map<std::string, double>> getProcStatValuesPerProcessor();
+				static std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> getProcStatValuesPerProcessor();
 
-				static std::map<unsigned int, std::map<unsigned int, std::map<std::string, double>>> getProcStatValuesPerCPU();
-
-				static std::mutex monitorThreadMutex_;
+				static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> getProcStatValuesPerCPU();
 
 				/**
 				 * The thread monitoring certain performance variables.
@@ -49,21 +64,19 @@ namespace EnergyManager {
 				 */
 				std::chrono::system_clock::time_point lastMonitorTimestamp_ = std::chrono::system_clock::now();
 
-				std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> lastProcCPUInfoValues_ = getProcCPUInfoValuesPerCPU();
-
-				std::map<unsigned int, std::map<unsigned int, std::map<std::string, double>>> lastProcStatValues_ = getProcStatValuesPerCPU();
+				std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> lastProcStatValues_ = getProcStatValuesPerCPU();
 
 				/**
-				 * The last polled energy consumption in Joules.
+				 * The last polled energy consumption.
 				 */
-				float lastEnergyConsumption_ = 0;
+				Utility::Units::Joule lastEnergyConsumption_ = 0;
 
-				std::map<unsigned int, std::map<unsigned int, std::map<std::string, double>>> startProcStatValues_ = getProcStatValuesPerCPU();
+				std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> startProcStatValues_ = getProcStatValuesPerCPU();
 
 				/**
 				 * The starting energy consumption.
 				 */
-				float startEnergyConsumption_ = 0;
+				Utility::Units::Joule startEnergyConsumption_ = 0;
 
 				/**
 				 * The ID of the device.
@@ -71,11 +84,11 @@ namespace EnergyManager {
 				unsigned int id_;
 
 				/**
-				 * The power consumption in Watts.
+				 * The power consumption.
 				 */
-				float powerConsumption_ = 0;
+				Utility::Units::Watt powerConsumption_ = 0;
 
-				std::map<unsigned int, float> coreUtilizationRates_ = {};
+				std::map<unsigned int, Utility::Units::Percent> coreUtilizationRates_ = {};
 
 				/**
 				 * Creates a new CPU.
@@ -96,7 +109,7 @@ namespace EnergyManager {
 				 * @param name The name of the timespan.
 				 * @return The timespan.
 				 */
-				double getProcStatTimespan(const unsigned int& core, const std::string& name) const;
+				std::chrono::system_clock::duration getProcStatTimespan(const unsigned int& core, const std::string& name) const;
 
 			public:
 				/**
@@ -114,23 +127,29 @@ namespace EnergyManager {
 
 				~CPU();
 
-				unsigned long getCoreClockRate() const override;
+				Utility::Units::Hertz getCoreClockRate() const override;
 
-				unsigned long getCoreClockRate(const unsigned int& coreID) const;
+				Utility::Units::Hertz getCoreClockRate(const unsigned int& core) const;
 
-				void setCoreClockRate(unsigned long& rate) override;
+				void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
 
-				float getCoreUtilizationRate() const override;
+				void setCoreClockRate(const unsigned int& core, const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate);
 
-				float getCoreUtilizationRate(const unsigned int& core) const;
+				void resetCoreClockRate() override;
 
-				float getEnergyConsumption() const override;
+				void resetCoreClockRate(const unsigned int& core);
 
-				unsigned long getMaximumCoreClockRate() const override;
+				Utility::Units::Percent getCoreUtilizationRate() const override;
 
-				unsigned long getMaximumCoreClockRate(const unsigned int& coreID) const;
+				Utility::Units::Percent getCoreUtilizationRate(const unsigned int& core) const;
 
-				float getPowerConsumption() const override;
+				Utility::Units::Joule getEnergyConsumption() const override;
+
+				Utility::Units::Hertz getMaximumCoreClockRate() const override;
+
+				Utility::Units::Hertz getMaximumCoreClockRate(const unsigned int& coreID) const;
+
+				Utility::Units::Watt getPowerConsumption() const override;
 
 				/**
 				 * Get the core count.
@@ -138,45 +157,45 @@ namespace EnergyManager {
 				 */
 				unsigned int getCoreCount() const;
 
-				double getUserTimespan() const;
+				std::chrono::system_clock::duration getUserTimespan() const;
 
-				double getUserTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getUserTimespan(const unsigned int& core) const;
 
-				double getNiceTimespan() const;
+				std::chrono::system_clock::duration getNiceTimespan() const;
 
-				double getNiceTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getNiceTimespan(const unsigned int& core) const;
 
-				double getSystemTimespan() const;
+				std::chrono::system_clock::duration getSystemTimespan() const;
 
-				double getSystemTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getSystemTimespan(const unsigned int& core) const;
 
-				double getIdleTimespan() const;
+				std::chrono::system_clock::duration getIdleTimespan() const;
 
-				double getIdleTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getIdleTimespan(const unsigned int& core) const;
 
-				double getIOWaitTimespan() const;
+				std::chrono::system_clock::duration getIOWaitTimespan() const;
 
-				double getIOWaitTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getIOWaitTimespan(const unsigned int& core) const;
 
-				double getInterruptsTimespan() const;
+				std::chrono::system_clock::duration getInterruptsTimespan() const;
 
-				double getInterruptsTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getInterruptsTimespan(const unsigned int& core) const;
 
-				double getSoftInterruptsTimespan() const;
+				std::chrono::system_clock::duration getSoftInterruptsTimespan() const;
 
-				double getSoftInterruptsTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getSoftInterruptsTimespan(const unsigned int& core) const;
 
-				double getStealTimespan() const;
+				std::chrono::system_clock::duration getStealTimespan() const;
 
-				double getStealTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getStealTimespan(const unsigned int& core) const;
 
-				double getGuestTimespan() const;
+				std::chrono::system_clock::duration getGuestTimespan() const;
 
-				double getGuestTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getGuestTimespan(const unsigned int& core) const;
 
-				double getGuestNiceTimespan() const;
+				std::chrono::system_clock::duration getGuestNiceTimespan() const;
 
-				double getGuestNiceTimespan(const unsigned int& core) const;
+				std::chrono::system_clock::duration getGuestNiceTimespan(const unsigned int& core) const;
 		};
 	}
 }

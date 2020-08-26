@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <mutex>
+#include <zconf.h>
 
 namespace EnergyManager {
 	namespace Testing {
@@ -16,7 +17,7 @@ namespace EnergyManager {
 				return {};
 			}
 
-			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors) : name_(std::move(name)), monitors_(std::move(monitors)) {
+			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors) : name_(std::move(name)), monitors_(std::move(monitors)) {
 			}
 
 			std::string Test::getName() const {

@@ -3,7 +3,7 @@
 cpu=0
 gpu=0
 testSegments=4
-sizeMultiplier=25
+sizeMultiplier=50
 cpuMaximumCoreClockRate=3889646848
 gpuMaximumCoreClockRate=2370000000
 matrixAWidth=$((32 * $sizeMultiplier))
@@ -11,8 +11,11 @@ matrixAHeight=$((32 * $sizeMultiplier))
 matrixBWidth=$((32 * $sizeMultiplier))
 matrixBHeight=$((32 * $sizeMultiplier))
 
-executable="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/cmake-build-debug/EnergyManager"
-database="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/Resources/Test Results/database.sqlite"
+projectDirectory="/home/qub1-creation/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager"
+buildDirectory="$projectDirectory/cmake-build-debug"
+resourcesDirectory="$projectDirectory/Resources"
+executable="$buildDirectory/EnergyManager"
+database="$resourcesDirectory/Test Results/database.sqlite"
 
 cpuClockRatePerSegment=$(($cpuMaximumCoreClockRate / $testSegments))
 gpuClockRatePerSegment=$(($gpuMaximumCoreClockRate / $testSegments))

@@ -1,6 +1,5 @@
 #include "./TestRunner.hpp"
 
-#include "EnergyManager/Testing/TestResults.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 

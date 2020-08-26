@@ -1,6 +1,12 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Processor.hpp"
+#include "EnergyManager/Utility/Units/Joule.hpp"
+#include "EnergyManager/Utility/Units/Celsius.hpp"
+#include "EnergyManager/Utility/Units/Watt.hpp"
+#include "EnergyManager/Utility/Units/Percent.hpp"
+#include "EnergyManager/Utility/Units/RotationsPerMinute.hpp"
+#include "EnergyManager/Utility/Units/Bandwidth.hpp"
 
 #include <chrono>
 #include <cuda.h>
@@ -92,14 +98,9 @@ namespace EnergyManager {
 				unsigned int computeCapabilityMinorVersion_;
 
 				/**
-				 * The core clock rate of the device, in kHz.
-				 */
-				unsigned int coreClockRate_;
-
-				/**
 				 * The energy consumption in Joules.
 				 */
-				float energyConsumption_ = 0;
+				Utility::Units::Joule energyConsumption_ = 0;
 
 				/**
 				 * The last time at which the energy consumption was polled.
@@ -109,17 +110,17 @@ namespace EnergyManager {
 				/**
 				 * The fan speed as percentage of maximum.
 				 */
-				unsigned int fanSpeed_;
+				Utility::Units::RotationsPerMinute fanSpeed_;
 
 				/**
 				 * The global memory bandwidth available on the device, in kBytes/sec.
 				 */
-				unsigned long globalMemoryBandwidth_;
+				Utility::Units::Bandwidth globalMemoryBandwidth_;
 
 				/**
 				 * The amount of global memory on the device, in bytes.
 				 */
-				unsigned long globalMemorySize_;
+				Utility::Units::Byte globalMemorySize_;
 
 				/**
 				 * The ID of the device.
@@ -155,7 +156,7 @@ namespace EnergyManager {
 				/**
 				 * The dynamic shared memory reserved for the kernel, in bytes.
 				 */
-				int kernelDynamicSharedMemory_;
+				Utility::Units::Byte kernelDynamicSharedMemory_;
 
 				/**
 				 * The end timestamp for the kernel execution, in ns.
@@ -193,7 +194,7 @@ namespace EnergyManager {
 				/**
 				 * The static shared memory allocated for the kernel, in bytes.
 				 */
-				int kernelStaticSharedMemory_;
+				Utility::Units::Byte kernelStaticSharedMemory_;
 
 				/**
 				 * The ID of the stream where the kernel is executing.
@@ -201,20 +202,9 @@ namespace EnergyManager {
 				unsigned int kernelStreamID_;
 
 				/**
-				 * The memory frequency in MHz.
-				 */
-				unsigned int memoryClockRate_;
-
-				/**
 				 * Number of multiprocessors on the device.
 				 */
 				unsigned int multiprocessorCount_;
-
-				/**
-				 * The device name.
-				 * This name is shared across all activity records representing instances of the device, and so should not be modified.
-				 */
-				std::string name_;
 
 				/**
 				 * The GPU device.
@@ -222,24 +212,14 @@ namespace EnergyManager {
 				nvmlDevice_t device_;
 
 				/**
-				 * The power in milliwatts consumed by GPU and associated circuitry.
-				 */
-				unsigned int powerConsumption_ = 0;
-
-				/**
 				 * The power in milliwatts that will trigger power management algorithm.
 				 */
-				unsigned int powerLimit_;
+				Utility::Units::Watt powerLimit_;
 
 				/**
 				 * The SM frequency in MHz.
 				 */
-				unsigned int streamingMultiprocessorClockRate_;
-
-				/**
-				 * The GPU temperature in degrees C.
-				 */
-				unsigned int temperature_;
+				Utility::Units::Hertz streamingMultiprocessorClockRate_;
 
 				/**
 				 * Handles a device activity.
@@ -298,29 +278,31 @@ namespace EnergyManager {
 				 */
 				~GPU();
 
-				unsigned long getCoreClockRate() const override;
+				Utility::Units::Hertz getCoreClockRate() const override;
 
-				void setCoreClockRate(unsigned long& rate) override;
+				void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
 
-				float getCoreUtilizationRate() const override;
+				void resetCoreClockRate() override;
 
-				float getEnergyConsumption() const override;
+				Utility::Units::Percent getCoreUtilizationRate() const override;
 
-				unsigned long getMaximumCoreClockRate() const override;
+				Utility::Units::Joule getEnergyConsumption() const override;
 
-				float getPowerConsumption() const override;
+				Utility::Units::Hertz getMaximumCoreClockRate() const override;
+
+				Utility::Units::Watt getPowerConsumption() const override;
 
 				/**
 				 * Gets the per Application clock rate.
 				 * @return The Application clock rate.
 				 */
-				unsigned long getApplicationCoreClockRate() const;
+				Utility::Units::Hertz getApplicationCoreClockRate() const;
 
 				/**
 				 * Sets the per Application clock rate.
 				 * @param rate The Application clock rate.
 				 */
-				void setApplicationCoreClockRate(unsigned long& rate);
+				void setApplicationCoreClockRate(const Utility::Units::Hertz& rate);
 
 				/**
 				 * Resets the per Application clock rate.
@@ -331,13 +313,13 @@ namespace EnergyManager {
 				 * Gets the per Application memory clock rate.
 				 * @return The Application memory clock rate.
 				 */
-				unsigned long getApplicationMemoryClockRate() const;
+				Utility::Units::Hertz getApplicationMemoryClockRate() const;
 
 				/**
 				 * Sets the per Application memory clock rate.
 				 * @param rate The Application memory clock rate.
 				 */
-				void setApplicationMemoryClockRate(unsigned int& rate);
+				void setApplicationMemoryClockRate(const Utility::Units::Hertz& rate);
 
 				/**
 				 * Resets the per Application memory clock rate.
@@ -356,30 +338,23 @@ namespace EnergyManager {
 				 */
 				unsigned int getComputeCapabilityMinorVersion() const;
 
-				void setCoreClockRate(unsigned long& minimumRate, unsigned long& maximumRate);
-
-				/**
-				 * @copydoc GPU::coreClockRate_
-				 */
-				void resetCoreClockRate();
-
 				/**
 				 * @copydoc GPU::fanSpeed_
 				 * @return The fan speed.
 				 */
-				unsigned int getFanSpeed() const;
+				Utility::Units::RotationsPerMinute getFanSpeed() const;
 
 				/**
 				 * @copydoc GPU::globalMemoryBandwidth_
 				 * @return The global memory bandwidth.
 				 */
-				unsigned long getGlobalMemoryBandwidth() const;
+				Utility::Units::Bandwidth getGlobalMemoryBandwidth() const;
 
 				/**
 				 * @copydoc GPU::globalMemorySize_
 				 * @return The global memory size.
 				 */
-				unsigned long getGlobalMemorySize() const;
+				Utility::Units::Byte getGlobalMemorySize() const;
 
 				/**
 				 * @copydoc GPU::id_
@@ -421,7 +396,7 @@ namespace EnergyManager {
 				 * @copydoc GPU::kernelDynamicSharedMemory_
 				 * @return The kernel dynamic shared memory.
 				 */
-				unsigned int getKernelDynamicSharedMemory() const;
+				Utility::Units::Byte getKernelDynamicSharedMemory() const;
 
 				/**
 				 * @copydoc GPU::kernelEndTimestamp_
@@ -463,7 +438,7 @@ namespace EnergyManager {
 				 * @copydoc GPU::kernelStaticSharedMemory_
 				 * @return The kernel static shared memory.
 				 */
-				unsigned int getKernelStaticSharedMemory() const;
+				Utility::Units::Byte getKernelStaticSharedMemory() const;
 
 				/**
 				 * @copydoc GPU::kernelStreamID_
@@ -475,20 +450,20 @@ namespace EnergyManager {
 				 * Retrieves the maximum clock speeds for the device.
 				 * @return The maximum memory clock rate.
 				 */
-				unsigned long getMaximumMemoryClockRate() const;
+				Utility::Units::Hertz getMaximumMemoryClockRate() const;
 
 				/**
 				 * @copydoc GPU::memoryClock_
 				 * @return The memory clock.
 				 */
-				unsigned long getMemoryClockRate() const;
+				Utility::Units::Hertz getMemoryClockRate() const;
 
 				/**
 				 * Gets the memory utilization rate.
 				 * Percent of time over the past sample period during which global (device) memory was being read or written.
 				 * @return The memory utilization rate.
 				 */
-				unsigned int getMemoryUtilizationRate() const;
+				Utility::Units::Percent getMemoryUtilizationRate() const;
 
 				/**
 				 * @copydoc GPU::multiprocessorCount_
@@ -506,19 +481,19 @@ namespace EnergyManager {
 				 * @copydoc GPU::powerLimit_
 				 * @return The power limit.
 				 */
-				unsigned int getPowerLimit() const;
+				Utility::Units::Watt getPowerLimit() const;
 
 				/**
 				 * @copydoc GPU::streamingMultiprocessorClock_
 				 * @return The streaming multiprocessor clock.
 				 */
-				unsigned int getStreamingMultiprocessorClockRate() const;
+				Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;
 
 				/**
 				 * @copydoc GPU::temperature_
 				 * @return The temperature.
 				 */
-				unsigned int getTemperature() const;
+				Utility::Units::Celsius getTemperature() const;
 		};
 	}
 }

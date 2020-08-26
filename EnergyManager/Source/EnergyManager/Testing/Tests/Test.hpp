@@ -24,7 +24,7 @@ namespace EnergyManager {
 					/**
 					 * The monitors to run during the Test.
 					 */
-					std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors_;
+					std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors_;
 
 				protected:
 					/**
@@ -39,7 +39,7 @@ namespace EnergyManager {
 					 * @param name The name of the Test.
 					 * @param monitors The monitors to run during the Test and their associated polling intervals.
 					 */
-					Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors = {});
+					Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors = {});
 
 					/**
 					 * Gets the name of the Test.

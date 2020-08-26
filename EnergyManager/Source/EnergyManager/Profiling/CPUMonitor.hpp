@@ -12,45 +12,45 @@ namespace EnergyManager {
 			public ProcessorMonitor {
 				std::shared_ptr<Hardware::CPU> cpu_;
 
-				double startUserTimespan_ = 0;
+				std::chrono::system_clock::duration startUserTimespan_;
 
-				std::map<unsigned int, double> startCoreUserTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreUserTimespans_ = {};
 
-				double startNiceTimespan_ = 0;
+				std::chrono::system_clock::duration startNiceTimespan_;
 
-				std::map<unsigned int, double> startCoreNiceTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreNiceTimespans_ = {};
 
-				double startSystemTimespan_ = 0;
+				std::chrono::system_clock::duration startSystemTimespan_;
 
-				std::map<unsigned int, double> startCoreSystemTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreSystemTimespans_ = {};
 
-				double startIdleTimespan_ = 0;
+				std::chrono::system_clock::duration startIdleTimespan_;
 
-				std::map<unsigned int, double> startCoreIdleTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreIdleTimespans_ = {};
 
-				double startIOWaitTimespan_ = 0;
+				std::chrono::system_clock::duration startIOWaitTimespan_;
 
-				std::map<unsigned int, double> startCoreIOWaitTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreIOWaitTimespans_ = {};
 
-				double startInterruptsTimespan_ = 0;
+				std::chrono::system_clock::duration startInterruptsTimespan_;
 
-				std::map<unsigned int, double> startCoreInterruptsTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreInterruptsTimespans_ = {};
 
-				double startSoftInterruptsTimespan_ = 0;
+				std::chrono::system_clock::duration startSoftInterruptsTimespan_;
 
-				std::map<unsigned int, double> startCoreSoftInterruptsTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreSoftInterruptsTimespans_ = {};
 
-				double startStealTimespan_ = 0;
+				std::chrono::system_clock::duration startStealTimespan_;
 
-				std::map<unsigned int, double> startCoreStealTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreStealTimespans_ = {};
 
-				double startGuestTimespan_ = 0;
+				std::chrono::system_clock::duration startGuestTimespan_;
 
-				std::map<unsigned int, double> startCoreGuestTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreGuestTimespans_ = {};
 
-				double startGuestNiceTimespan_ = 0;
+				std::chrono::system_clock::duration startGuestNiceTimespan_;
 
-				std::map<unsigned int, double> startCoreGuestNiceTimespans_ = {};
+				std::map<unsigned int, std::chrono::system_clock::duration> startCoreGuestNiceTimespans_ = {};
 
 				bool startTimespansMeasured_ = false;
 

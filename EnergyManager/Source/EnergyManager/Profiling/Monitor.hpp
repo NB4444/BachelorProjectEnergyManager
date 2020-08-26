@@ -19,7 +19,7 @@ namespace EnergyManager {
 				/**
 				 * Whether the Monitor is running.
 				 */
-				bool running_ = false;
+				bool isRunning_ = false;
 
 				/**
 				 * The start timestamp.
@@ -72,7 +72,7 @@ namespace EnergyManager {
 				 * Gets the total runtime.
 				 * @return The runtime.
 				 */
-				std::chrono::milliseconds getRuntime() const;
+				std::chrono::system_clock::duration getRuntime() const;
 
 				/**
 				 * Gets the timestamp of the last poll operation.
@@ -84,7 +84,9 @@ namespace EnergyManager {
 				 * Gets the time since the last poll operation.
 				 * @return The time since the last poll operation.
 				 */
-				std::chrono::milliseconds getTimeSinceLastPoll() const;
+				std::chrono::system_clock::duration getTimeSinceLastPoll() const;
+
+				bool isRunning() const;
 
 				/**
 				 * Polls all variables and potentially stores their current values.
@@ -97,7 +99,7 @@ namespace EnergyManager {
 				 * Runs the Monitor using a specified polling interval.
 				 * @param interval The polling interval in seconds.
 				 */
-				void run(const std::chrono::seconds& interval);
+				void run(const std::chrono::system_clock::duration& interval);
 
 				/**
 				 * Stops the Monitor if it is running.

@@ -9,8 +9,8 @@ namespace EnergyManager {
 			}
 
 			return {
-				{ "energyConsumption", std::to_string(device_->getEnergyConsumption() - startEnergyConsumption_) },
-				{ "powerConsumption", std::to_string(device_->getPowerConsumption()) },
+				{ "energyConsumption", std::to_string((device_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
+				{ "powerConsumption", std::to_string(device_->getPowerConsumption().toValue()) },
 			};
 		}
 

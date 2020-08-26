@@ -3,8 +3,11 @@
 gpu=0
 computeCount=50000
 
-executable="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/cmake-build-debug/EnergyManager"
-database="$HOME/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager/Resources/Test Results/database.sqlite"
+projectDirectory="/home/qub1-creation/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/EnergyManager"
+buildDirectory="$projectDirectory/cmake-build-debug"
+resourcesDirectory="$projectDirectory/Resources"
+executable="$buildDirectory/EnergyManager"
+database="$resourcesDirectory/Test Results/database.sqlite"
 
 "$executable" \
 	--database "$database" \

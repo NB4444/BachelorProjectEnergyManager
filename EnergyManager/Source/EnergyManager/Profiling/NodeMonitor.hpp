@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Profiling/Monitor.hpp"
+#include "EnergyManager/Utility/Units/Joule.hpp"
 
 #include <memory>
 
@@ -14,7 +15,7 @@ namespace EnergyManager {
 
 				std::shared_ptr<Hardware::GPU> gpu_;
 
-				float startEnergyConsumption_ = 0;
+				Utility::Units::Joule startEnergyConsumption_ = 0;
 
 				bool startEnergyConsumptionMeasured_ = false;
 

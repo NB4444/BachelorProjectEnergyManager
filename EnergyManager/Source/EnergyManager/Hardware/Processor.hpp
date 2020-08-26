@@ -1,6 +1,8 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Device.hpp"
+#include "EnergyManager/Utility/Units/Hertz.hpp"
+#include "EnergyManager/Utility/Units/Percent.hpp"
 
 namespace EnergyManager {
 	namespace Hardware {
@@ -9,28 +11,32 @@ namespace EnergyManager {
 			public:
 				/**
 				 * Gets the core clock rate.
-				 * @return The core clock rate in Hertz.
+				 * @return The core clock rate.
 				 */
-				virtual unsigned long getCoreClockRate() const = 0;
+				virtual Utility::Units::Hertz getCoreClockRate() const = 0;
 
 				/**
 				 * Sets the core clock rate.
-				 * @param rate The core clock rate in Hertz.
+				 * @param rate The core clock rate.
 				 */
-				virtual void setCoreClockRate(unsigned long& rate) = 0;
+				void setCoreClockRate(const Utility::Units::Hertz& rate);
+
+				virtual void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) = 0;
+
+				virtual void resetCoreClockRate() = 0;
 
 				/**
 				 * Gets the core utilization rate.
 				 * Percent of time over the past sample period during which the core was active.
 				 * @return The core utilization rate.
 				 */
-				virtual float getCoreUtilizationRate() const = 0;
+				virtual Utility::Units::Percent getCoreUtilizationRate() const = 0;
 
 				/**
 				 * Retrieves the maximum clock speeds for the device.
-				 * @return The maximum core clock rate in Hertz.
+				 * @return The maximum core clock rate.
 				 */
-				virtual unsigned long getMaximumCoreClockRate() const = 0;
+				virtual Utility::Units::Hertz getMaximumCoreClockRate() const = 0;
 		};
 	}
 }

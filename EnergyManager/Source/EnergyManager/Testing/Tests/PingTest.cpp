@@ -3,7 +3,7 @@
 namespace EnergyManager {
 	namespace Testing {
 		namespace Tests {
-			PingTest::PingTest(const std::string& name, const std::string& host, const int& times)
+			PingTest::PingTest(const std::string& name, const std::string& host, const unsigned int& times)
 				: ApplicationTest(
 				name,
 				Application("/bin/ping"),

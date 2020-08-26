@@ -2,6 +2,7 @@
 
 #include "EnergyManager/Hardware/Device.hpp"
 #include "EnergyManager/Profiling/Monitor.hpp"
+#include "EnergyManager/Utility/Units/Joule.hpp"
 
 #include <string>
 #include <memory>
@@ -12,7 +13,7 @@ namespace EnergyManager {
 			public Monitor {
 				std::shared_ptr<Hardware::Device> device_;
 
-				float startEnergyConsumption_ = 0;
+				Utility::Units::Joule startEnergyConsumption_ = 0;
 
 				bool startEnergyConsumptionMeasured_ = false;
 

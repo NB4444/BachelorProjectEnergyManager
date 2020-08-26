@@ -17,9 +17,14 @@ namespace EnergyManager {
 				// Do something useful with siginfo_t
 				ucontext_t* ucontext = static_cast<ucontext_t*>(secret);
 				if(signal == SIGSEGV) {
-					printf("Got signal %d, faulty address is %p, from %p\n", signal, info->si_addr, (void*) ucontext->uc_mcontext.gregs[REG_RIP]);
+					char address[256];
+					sprintf(address, "%p", info->si_addr);
+					char fromAdrress[256];
+					sprintf(fromAdrress, "%p", (void*)ucontext->uc_mcontext.gregs[REG_RIP]);
+
+					Exception("Got signal " + std::to_string(signal) + ", faulty address is " + std::string(address) + ", from " + std::string(fromAdrress), __FILE__, __LINE__).log();
 				} else {
-					printf("Got signal %d\n", signal);
+					Exception("Got signal " + std::to_string(signal), __FILE__, __LINE__).log();
 				}
 
 				exit(0);
@@ -33,6 +38,7 @@ namespace EnergyManager {
 				signalAction.sa_flags = SA_RESTART | SA_SIGINFO;
 
 				sigaction(SIGSEGV, &signalAction, nullptr);
+				sigaction(SIGTERM, &signalAction, nullptr);
 				sigaction(SIGUSR1, &signalAction, nullptr);
 			}
 

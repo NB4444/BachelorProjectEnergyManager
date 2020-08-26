@@ -11,8 +11,6 @@
 
 namespace EnergyManager {
 	namespace Testing {
-		class TestResults;
-
 		namespace Tests {
 			__global__ void vectorAdd(const int* A, const int* B, int* C, int N);
 
@@ -30,7 +28,7 @@ namespace EnergyManager {
 					std::map<std::string, std::string> onRun() override;
 
 				public:
-					VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const int& computeCount);
+					VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const unsigned int& computeCount);
 			};
 		}
 	}

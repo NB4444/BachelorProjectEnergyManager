@@ -11,8 +11,8 @@ namespace EnergyManager {
 			}
 
 			return {
-				{ "energyConsumption", std::to_string(cpu_->getEnergyConsumption() + gpu_->getEnergyConsumption() - startEnergyConsumption_) },
-				{ "powerConsumption", std::to_string(cpu_->getPowerConsumption() + gpu_->getPowerConsumption()) }
+				{ "energyConsumption", std::to_string((cpu_->getEnergyConsumption() + gpu_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
+				{ "powerConsumption", std::to_string((cpu_->getPowerConsumption() + gpu_->getPowerConsumption()).toValue()) }
 			};
 		}
 

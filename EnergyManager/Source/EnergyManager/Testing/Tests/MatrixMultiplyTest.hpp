@@ -1,19 +1,13 @@
 #pragma once
 
 #include "EnergyManager/Testing/Tests/ApplicationTest.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Hardware/CPU.hpp"
 
 #include <string>
 
 namespace EnergyManager {
-	namespace Hardware {
-		class CPU;
-
-		class GPU;
-	}
-
 	namespace Testing {
-		class TestResults;
-
 		namespace Tests {
 			class MatrixMultiplyTest :
 				public ApplicationTest {

@@ -67,6 +67,9 @@ if __name__ == '__main__':
             show_final_values = True
             x_range: Tuple[Any, Any] = None
             y_range: Tuple[Any, Any] = None
+            j_to_wh = lambda value: value / 3600
+            to_percentage = lambda value: value * 100
+            ns_to_s = lambda value: value / 1e9
             plots = {
                 "Clock Rate (Hz)": {
                     ("CPU Core", ""): collect_values(test_results, "CPUMonitor", "coreClockRate", int),
@@ -80,12 +83,12 @@ if __name__ == '__main__':
                     ("Node", ""): collect_values(test_results, "NodeMonitor", "energyConsumption", float),
                 },
                 "Energy Consumption (Wh)": {
-                    ("CPU", ""): collect_values(test_results, "CPUMonitor", "energyConsumption", float, lambda value: value / 3600),
-                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "energyConsumption", float, lambda value: value / 3600),
-                    ("Node", ""): collect_values(test_results, "NodeMonitor", "energyConsumption", float, lambda value: value / 3600),
+                    ("CPU", ""): collect_values(test_results, "CPUMonitor", "energyConsumption", float, j_to_wh),
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "energyConsumption", float, j_to_wh),
+                    ("Node", ""): collect_values(test_results, "NodeMonitor", "energyConsumption", float, j_to_wh),
                 },
                 "Fan Speed (RPM)": {
-                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "fanSpeed", int),
+                    ("GPU", ""): collect_values(test_results, "GPUMonitor", "fanSpeed", float),
                 },
                 "Power Consumption (W)": {
                     ("CPU", ""): collect_values(test_results, "CPUMonitor", "powerConsumption", float),
@@ -93,25 +96,25 @@ if __name__ == '__main__':
                     ("Node", ""): collect_values(test_results, "NodeMonitor", "powerConsumption", float),
                 },
                 "Timespan (s)": {
-                    ("CPU Guest Nice", ""): collect_values(test_results, "CPUMonitor", "guestNiceTimespan", float),
-                    ("CPU Guest", ""): collect_values(test_results, "CPUMonitor", "guestTimespan", float),
-                    ("CPU IO Wait", ""): collect_values(test_results, "CPUMonitor", "ioWaitTimespan", float),
-                    ("CPU Idle", ""): collect_values(test_results, "CPUMonitor", "idleTimespan", float),
-                    ("CPU Interrupts", ""): collect_values(test_results, "CPUMonitor", "interruptsTimespan", float),
-                    ("CPU Nice", ""): collect_values(test_results, "CPUMonitor", "niceTimespan", float),
-                    ("CPU Soft Interrupts", ""): collect_values(test_results, "CPUMonitor", "softInterruptsTimespan", float),
-                    ("CPU Steal", ""): collect_values(test_results, "CPUMonitor", "stealTimespan", float),
-                    ("CPU System", ""): collect_values(test_results, "CPUMonitor", "systemTimespan", float),
-                    ("CPU User", ""): collect_values(test_results, "CPUMonitor", "userTimespan", float),
-                    ("Runtime", ""): collect_values(test_results, "NodeMonitor", "runtime", float),
+                    ("CPU Guest Nice", ""): collect_values(test_results, "CPUMonitor", "guestNiceTimespan", float, ns_to_s),
+                    ("CPU Guest", ""): collect_values(test_results, "CPUMonitor", "guestTimespan", float, ns_to_s),
+                    ("CPU IO Wait", ""): collect_values(test_results, "CPUMonitor", "ioWaitTimespan", float, ns_to_s),
+                    ("CPU Idle", ""): collect_values(test_results, "CPUMonitor", "idleTimespan", float, ns_to_s),
+                    ("CPU Interrupts", ""): collect_values(test_results, "CPUMonitor", "interruptsTimespan", float, ns_to_s),
+                    ("CPU Nice", ""): collect_values(test_results, "CPUMonitor", "niceTimespan", float, ns_to_s),
+                    ("CPU Soft Interrupts", ""): collect_values(test_results, "CPUMonitor", "softInterruptsTimespan", float, ns_to_s),
+                    ("CPU Steal", ""): collect_values(test_results, "CPUMonitor", "stealTimespan", float, ns_to_s),
+                    ("CPU System", ""): collect_values(test_results, "CPUMonitor", "systemTimespan", float, ns_to_s),
+                    ("CPU User", ""): collect_values(test_results, "CPUMonitor", "userTimespan", float, ns_to_s),
+                    ("Runtime", ""): collect_values(test_results, "NodeMonitor", "runtime", float, ns_to_s),
                 },
                 "Temperature (C)": {
                     ("GPU", ""): collect_values(test_results, "GPUMonitor", "temperature", float),
                 },
                 "Utilization Rate (%)": {
-                    ("CPU Core", ""): collect_values(test_results, "CPUMonitor", "coreUtilizationRate", float),
-                    ("GPU Core", ""): collect_values(test_results, "GPUMonitor", "coreUtilizationRate", float),
-                    ("GPU Memory", ""): collect_values(test_results, "GPUMonitor", "memoryUtilizationRate", float),
+                    ("CPU Core", ""): collect_values(test_results, "CPUMonitor", "coreUtilizationRate", float, to_percentage),
+                    ("GPU Core", ""): collect_values(test_results, "GPUMonitor", "coreUtilizationRate", float, to_percentage),
+                    ("GPU Memory", ""): collect_values(test_results, "GPUMonitor", "memoryUtilizationRate", float, to_percentage),
                 }
             }
 

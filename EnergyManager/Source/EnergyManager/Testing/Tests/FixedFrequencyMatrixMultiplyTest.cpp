@@ -5,13 +5,14 @@ namespace EnergyManager {
 		namespace Tests {
 			std::map<std::string, std::string> FixedFrequencyMatrixMultiplyTest::onRun() {
 				// Set the clock rates
-				// TODO: Set the CPU clock rate
+				cpu_->setCoreClockRate(minimumCPUFrequency_, maximumCPUFrequency_);
 				gpu_->setCoreClockRate(minimumGPUFrequency_, maximumGPUFrequency_);
 
 				// Run the test
 				auto results = MatrixMultiplyTest::onRun();
 
 				// Reset the clock rates
+				cpu_->resetCoreClockRate();
 				gpu_->resetCoreClockRate();
 
 				return results;

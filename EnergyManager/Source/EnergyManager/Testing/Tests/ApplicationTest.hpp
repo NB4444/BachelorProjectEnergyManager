@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Test.hpp"
+#include "EnergyManager/Testing/Tests/Test.hpp"
 
 namespace EnergyManager {
 	namespace Testing {
-		class TestResults;
-
 		namespace Tests {
 			class ApplicationTest :
 				public Test {
@@ -41,7 +39,7 @@ namespace EnergyManager {
 						const Application& application,
 						std::vector<std::string> parameters,
 						std::map<std::string, std::string> results,
-						std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::seconds> monitors = {});
+						std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors = {});
 			};
 		}
 	}

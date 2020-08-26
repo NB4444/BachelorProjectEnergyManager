@@ -3,8 +3,11 @@
 #SBATCH -N 1
 #SBATCH -t 00:10:00
 
-executable="$HOME/ear_sara_collab/EnergyManager/build/EnergyManager"
-database="$HOME/ear_sara_collab/EnergyManager/Resources/Test Results/database.sqlite"
+projectDirectory="$HOME/ear_sara_collab/EnergyManager"
+buildDirectory="$projectDirectory/build"
+resourcesDirectory="$projectDirectory/Resources"
+executable="$buildDirectory/EnergyManager"
+database="$resourcesDirectory/Test Results/database.sqlite"
 
 module purge
 module load 2019

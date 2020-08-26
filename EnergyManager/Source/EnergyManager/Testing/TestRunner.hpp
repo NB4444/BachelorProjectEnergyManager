@@ -1,14 +1,13 @@
 #pragma once
 
 #include "EnergyManager/Testing/Tests/Test.hpp"
+#include "EnergyManager/Testing/TestResults.hpp"
 
 #include <memory>
 #include <vector>
 
 namespace EnergyManager {
 	namespace Testing {
-		class TestResults;
-
 		/**
 		 * Used to run Tests and store their results.
 		 */

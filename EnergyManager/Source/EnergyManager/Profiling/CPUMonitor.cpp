@@ -31,33 +31,33 @@ namespace EnergyManager {
 			}
 
 			auto cpuResults = std::map<std::string, std::string> {
-				{ "userTimespan", std::to_string(cpu_->getUserTimespan() - startUserTimespan_) },
-				{ "niceTimespan", std::to_string(cpu_->getNiceTimespan() - startNiceTimespan_) },
-				{ "systemTimespan", std::to_string(cpu_->getSystemTimespan() - startSystemTimespan_) },
-				{ "idleTimespan", std::to_string(cpu_->getIdleTimespan() - startIdleTimespan_) },
-				{ "ioWaitTimespan", std::to_string(cpu_->getIOWaitTimespan() - startIOWaitTimespan_) },
-				{ "interruptsTimespan", std::to_string(cpu_->getInterruptsTimespan() - startInterruptsTimespan_) },
-				{ "softInterruptsTimespan", std::to_string(cpu_->getSoftInterruptsTimespan() - startSoftInterruptsTimespan_) },
-				{ "stealTimespan", std::to_string(cpu_->getStealTimespan() - startStealTimespan_) },
-				{ "guestTimespan", std::to_string(cpu_->getGuestTimespan() - startGuestTimespan_) },
-				{ "guestNiceTimespan", std::to_string(cpu_->getGuestNiceTimespan() - startGuestNiceTimespan_) },
+				{ "userTimespan", std::to_string((cpu_->getUserTimespan() - startUserTimespan_).count()) },
+				{ "niceTimespan", std::to_string((cpu_->getNiceTimespan() - startNiceTimespan_).count()) },
+				{ "systemTimespan", std::to_string((cpu_->getSystemTimespan() - startSystemTimespan_).count()) },
+				{ "idleTimespan", std::to_string((cpu_->getIdleTimespan() - startIdleTimespan_).count()) },
+				{ "ioWaitTimespan", std::to_string((cpu_->getIOWaitTimespan() - startIOWaitTimespan_).count()) },
+				{ "interruptsTimespan", std::to_string((cpu_->getInterruptsTimespan() - startInterruptsTimespan_).count()) },
+				{ "softInterruptsTimespan", std::to_string((cpu_->getSoftInterruptsTimespan() - startSoftInterruptsTimespan_).count()) },
+				{ "stealTimespan", std::to_string((cpu_->getStealTimespan() - startStealTimespan_).count()) },
+				{ "guestTimespan", std::to_string((cpu_->getGuestTimespan() - startGuestTimespan_).count()) },
+				{ "guestNiceTimespan", std::to_string((cpu_->getGuestNiceTimespan() - startGuestNiceTimespan_).count()) },
 			};
 
 			// Add the per-core values
 			for(unsigned int core = 0; core < cpu_->getCoreCount(); ++core) {
-				cpuResults["coreClockRateCore" + std::to_string(core)] = std::to_string(cpu_->getCoreClockRate(core));
-				cpuResults["coreUtilizationRateCore" + std::to_string(core)] = std::to_string(cpu_->getCoreUtilizationRate(core));
-				cpuResults["maximumCoreClockRateCore" + std::to_string(core)] = std::to_string(cpu_->getMaximumCoreClockRate(core));
-				cpuResults["userTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getUserTimespan() - startCoreUserTimespans_[core]);
-				cpuResults["niceTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getNiceTimespan() - startCoreNiceTimespans_[core]);
-				cpuResults["systemTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getSystemTimespan() - startCoreSystemTimespans_[core]);
-				cpuResults["idleTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getIdleTimespan() - startCoreIdleTimespans_[core]);
-				cpuResults["ioWaitTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getIOWaitTimespan() - startCoreIOWaitTimespans_[core]);
-				cpuResults["interruptsTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getInterruptsTimespan() - startCoreInterruptsTimespans_[core]);
-				cpuResults["softInterruptsTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getSoftInterruptsTimespan() - startCoreSoftInterruptsTimespans_[core]);
-				cpuResults["stealTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getStealTimespan() - startCoreStealTimespans_[core]);
-				cpuResults["guestTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getGuestTimespan() - startCoreGuestTimespans_[core]);
-				cpuResults["guestNiceTimespanCore" + std::to_string(core)] = std::to_string(cpu_->getGuestNiceTimespan() - startCoreGuestNiceTimespans_[core]);
+				cpuResults["coreClockRateCore" + std::to_string(core)] = std::to_string(cpu_->getCoreClockRate(core).toValue());
+				cpuResults["coreUtilizationRateCore" + std::to_string(core)] = std::to_string(cpu_->getCoreUtilizationRate(core).toCombined());
+				cpuResults["maximumCoreClockRateCore" + std::to_string(core)] = std::to_string(cpu_->getMaximumCoreClockRate(core).toValue());
+				cpuResults["userTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getUserTimespan() - startCoreUserTimespans_[core]).count());
+				cpuResults["niceTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getNiceTimespan() - startCoreNiceTimespans_[core]).count());
+				cpuResults["systemTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getSystemTimespan() - startCoreSystemTimespans_[core]).count());
+				cpuResults["idleTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getIdleTimespan() - startCoreIdleTimespans_[core]).count());
+				cpuResults["ioWaitTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getIOWaitTimespan() - startCoreIOWaitTimespans_[core]).count());
+				cpuResults["interruptsTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getInterruptsTimespan() - startCoreInterruptsTimespans_[core]).count());
+				cpuResults["softInterruptsTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getSoftInterruptsTimespan() - startCoreSoftInterruptsTimespans_[core]).count());
+				cpuResults["stealTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getStealTimespan() - startCoreStealTimespans_[core]).count());
+				cpuResults["guestTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getGuestTimespan() - startCoreGuestTimespans_[core]).count());
+				cpuResults["guestNiceTimespanCore" + std::to_string(core)] = std::to_string((cpu_->getGuestNiceTimespan() - startCoreGuestNiceTimespans_[core]).count());
 			}
 
 			// Get upstream values

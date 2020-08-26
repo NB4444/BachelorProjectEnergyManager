@@ -95,7 +95,7 @@ namespace EnergyManager {
 				return {};
 			}
 
-			VectorAddSubtractTest::VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const int& computeCount)
+			VectorAddSubtractTest::VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const unsigned int& computeCount)
 				: Test(name, { { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) } }), gpu_(gpu), computeCount_(computeCount) {
 			}
 		}

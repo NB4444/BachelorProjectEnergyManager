@@ -1,6 +1,7 @@
 #include "./GPU.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Units/Byte.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <algorithm>
@@ -99,11 +100,9 @@ namespace EnergyManager {
 		void GPU::handleDeviceActivity(const CUpti_ActivityDevice2* activity) {
 			computeCapabilityMajorVersion_ = activity->computeCapabilityMajor;
 			computeCapabilityMinorVersion_ = activity->computeCapabilityMinor;
-			coreClockRate_ = activity->coreClockRate;
-			globalMemoryBandwidth_ = activity->globalMemoryBandwidth;
+			globalMemoryBandwidth_ = { Utility::Units::Byte(activity->globalMemoryBandwidth, Utility::Units::SIPrefix::KILO), std::chrono::seconds(1) };
 			globalMemorySize_ = activity->globalMemorySize;
 			multiprocessorCount_ = activity->numMultiprocessors;
-			name_ = activity->name;
 
 			//switch(activity->kind) {
 			//	case CUPTI_ACTIVITY_KIND_CONTEXT: {
@@ -174,18 +173,13 @@ namespace EnergyManager {
 		void GPU::handleEnvironmentActivity(const CUpti_ActivityEnvironment* activity) {
 			switch(activity->environmentKind) {
 				case CUPTI_ACTIVITY_ENVIRONMENT_COOLING:
-					fanSpeed_ = activity->data.cooling.fanSpeed;
+					fanSpeed_ = Utility::Units::Rotation(activity->data.cooling.fanSpeed);
 					break;
 				case CUPTI_ACTIVITY_ENVIRONMENT_POWER:
-					powerConsumption_ = activity->data.power.power;
-					powerLimit_ = activity->data.power.powerLimit;
+					powerLimit_ = { activity->data.power.powerLimit, Utility::Units::SIPrefix::MILLI };
 					break;
 				case CUPTI_ACTIVITY_ENVIRONMENT_SPEED:
-					memoryClockRate_ = activity->data.speed.memoryClock;
-					streamingMultiprocessorClockRate_ = activity->data.speed.smClock;
-					break;
-				case CUPTI_ACTIVITY_ENVIRONMENT_TEMPERATURE:
-					temperature_ = activity->data.temperature.gpuTemperature;
+					streamingMultiprocessorClockRate_ = { activity->data.speed.smClock, Utility::Units::SIPrefix::MEGA };
 					break;
 				default:
 					break;
@@ -218,8 +212,8 @@ namespace EnergyManager {
 						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
 						energyConsumption_
-							+= (static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1000)
-							* getPowerConsumption();
+							+= (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
+							* getPowerConsumption().toValue();
 
 						lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
 					}
@@ -309,22 +303,22 @@ namespace EnergyManager {
 			monitorThread_.join();
 		}
 
-		unsigned long GPU::getCoreClockRate() const {
-			try {
-				unsigned int coreClockRate;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &coreClockRate));
+		Utility::Units::Hertz GPU::getCoreClockRate() const {
+			unsigned int coreClockRate;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &coreClockRate));
 
-				return coreClockRate * 1000000l;
-			} catch(const std::exception& exception) {
-				return coreClockRate_ * 1000l;
-			}
+			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		void GPU::setCoreClockRate(unsigned long& rate) {
-			setCoreClockRate(rate, rate);
+		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
 		}
 
-		float GPU::getCoreUtilizationRate() const {
+		void GPU::resetCoreClockRate() {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
+		}
+
+		Utility::Units::Percent GPU::getCoreUtilizationRate() const {
 			// Retrieve the utilization rates
 			nvmlUtilization_t rates;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
@@ -332,69 +326,65 @@ namespace EnergyManager {
 			return rates.gpu;
 		}
 
-		float GPU::getEnergyConsumption() const {
+		Utility::Units::Joule GPU::getEnergyConsumption() const {
 			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
 			return energyConsumption_;
 		}
 
-		unsigned long GPU::getMaximumCoreClockRate() const {
+		Utility::Units::Hertz GPU::getMaximumCoreClockRate() const {
 			unsigned int maximumCoreClockRate;
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &maximumCoreClockRate));
 
-			return maximumCoreClockRate * 1000000l;
+			return { maximumCoreClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		float GPU::getPowerConsumption() const {
-			try {
-				unsigned int powerConsumption = 0;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
+		Utility::Units::Watt GPU::getPowerConsumption() const {
+			unsigned int powerConsumption = 0;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
 
-				return static_cast<float>(powerConsumption) / 1000;
-			} catch(const std::exception& exception) {
-				return static_cast<float>(powerConsumption_) / 1000;
-			}
+			return { powerConsumption, Utility::Units::SIPrefix::MILLI };
 		}
 
-		unsigned long GPU::getApplicationCoreClockRate() const {
+		Utility::Units::Hertz GPU::getApplicationCoreClockRate() const {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate));
 
-			return coreClockRate * 1000000l;
+			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		void GPU::setApplicationCoreClockRate(unsigned long& rate) {
+		void GPU::setApplicationCoreClockRate(const Utility::Units::Hertz& rate) {
 			unsigned int memoryClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate));
 
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, memoryClockRate, rate / 1000000l));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, memoryClockRate, rate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
 		}
 
 		void GPU::resetApplicationCoreClockRate() {
-			unsigned int memoryClockRate = getApplicationMemoryClockRate();
+			auto memoryClockRate = getApplicationMemoryClockRate();
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetApplicationsClocks(device_));
 
 			setApplicationMemoryClockRate(memoryClockRate);
 		}
 
-		unsigned long GPU::getApplicationMemoryClockRate() const {
+		Utility::Units::Hertz GPU::getApplicationMemoryClockRate() const {
 			unsigned int memoryClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate));
 
-			return memoryClockRate * 1000000l;
+			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		void GPU::setApplicationMemoryClockRate(unsigned int& rate) {
+		void GPU::setApplicationMemoryClockRate(const Utility::Units::Hertz& rate) {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate));
 
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, rate / 1000000l, coreClockRate));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, rate.convertPrefix(Utility::Units::SIPrefix::MEGA), coreClockRate));
 		}
 
 		void GPU::resetApplicationMemoryClockRate() {
-			unsigned long coreClockRate = getApplicationCoreClockRate();
+			auto coreClockRate = getApplicationCoreClockRate();
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetApplicationsClocks(device_));
 
@@ -409,23 +399,15 @@ namespace EnergyManager {
 			return computeCapabilityMinorVersion_;
 		}
 
-		void GPU::setCoreClockRate(unsigned long& mininimumRate, unsigned long& maximumRate) {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetGpuLockedClocks(device_, mininimumRate / 1000000l, maximumRate / 1000000l));
-		}
-
-		void GPU::resetCoreClockRate() {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
-		}
-
-		unsigned int GPU::getFanSpeed() const {
+		Utility::Units::RotationsPerMinute GPU::getFanSpeed() const {
 			return fanSpeed_;
 		}
 
-		unsigned long GPU::getGlobalMemoryBandwidth() const {
+		Utility::Units::Bandwidth GPU::getGlobalMemoryBandwidth() const {
 			return globalMemoryBandwidth_;
 		}
 
-		unsigned long GPU::getGlobalMemorySize() const {
+		Utility::Units::Byte GPU::getGlobalMemorySize() const {
 			return globalMemorySize_;
 		}
 
@@ -453,7 +435,7 @@ namespace EnergyManager {
 			return kernelCorrelationID_;
 		}
 
-		unsigned int GPU::getKernelDynamicSharedMemory() const {
+		Utility::Units::Byte GPU::getKernelDynamicSharedMemory() const {
 			return kernelDynamicSharedMemory_;
 		}
 
@@ -481,7 +463,7 @@ namespace EnergyManager {
 			return kernelStartTimestamp_;
 		}
 
-		unsigned int GPU::getKernelStaticSharedMemory() const {
+		Utility::Units::Byte GPU::getKernelStaticSharedMemory() const {
 			return kernelStaticSharedMemory_;
 		}
 
@@ -489,26 +471,22 @@ namespace EnergyManager {
 			return kernelStreamID_;
 		}
 
-		unsigned long GPU::getMaximumMemoryClockRate() const {
+		Utility::Units::Hertz GPU::getMaximumMemoryClockRate() const {
 			unsigned int maximumMemoryClockRate;
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &maximumMemoryClockRate));
 
-			return maximumMemoryClockRate * 1000000l;
+			return { maximumMemoryClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		unsigned long GPU::getMemoryClockRate() const {
-			try {
-				unsigned int memoryClockRate;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &memoryClockRate));
+		Utility::Units::Hertz GPU::getMemoryClockRate() const {
+			unsigned int memoryClockRate;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &memoryClockRate));
 
-				return memoryClockRate * 1000000l;
-			} catch(const std::exception& exception) {
-				return memoryClockRate_ * 1000l;
-			}
+			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
-		unsigned int GPU::getMemoryUtilizationRate() const {
+		Utility::Units::Percent GPU::getMemoryUtilizationRate() const {
 			// Retrieve the utilization rates
 			nvmlUtilization_t rates;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
@@ -521,33 +499,25 @@ namespace EnergyManager {
 		}
 
 		std::string GPU::getName() const {
-			try {
-				char name[100] { '\0' };
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetName(device_, name, sizeof(name)));
+			char name[100] { '\0' };
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetName(device_, name, sizeof(name)));
 
-				return name;
-			} catch(const std::exception& exception) {
-				return name_;
-			}
+			return name;
 		}
 
-		unsigned int GPU::getPowerLimit() const {
+		Utility::Units::Watt GPU::getPowerLimit() const {
 			return powerLimit_;
 		}
 
-		unsigned int GPU::getStreamingMultiprocessorClockRate() const {
+		Utility::Units::Hertz GPU::getStreamingMultiprocessorClockRate() const {
 			return streamingMultiprocessorClockRate_;
 		}
 
-		unsigned int GPU::getTemperature() const {
-			try {
-				unsigned int temperature;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetTemperature(device_, nvmlTemperatureSensors_enum::NVML_TEMPERATURE_GPU, &temperature));
+		Utility::Units::Celsius GPU::getTemperature() const {
+			unsigned int temperature;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetTemperature(device_, nvmlTemperatureSensors_enum::NVML_TEMPERATURE_GPU, &temperature));
 
-				return temperature;
-			} catch(const std::exception& exception) {
-				return temperature_;
-			}
+			return temperature;
 		}
 	}
 }
