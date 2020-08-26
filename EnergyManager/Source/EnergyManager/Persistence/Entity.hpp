@@ -68,7 +68,7 @@ namespace EnergyManager {
 
 			void createTable(const std::string& table, const std::map<std::string, std::string>& columnsWithAttributes);
 
-			void insert(const std::string& table, std::vector<std::map<std::string, std::string>>& rowColumnValues);
+			void insert(const std::string& table, const std::vector<std::map<std::string, std::string>>& rowColumnValues);
 
 			unsigned long insert(const std::string& table, const std::map<std::string, std::string>& columnValues);
 

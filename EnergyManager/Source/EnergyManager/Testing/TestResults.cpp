@@ -8,7 +8,7 @@ namespace EnergyManager {
 			// Insert the Test results
 			std::vector<std::map<std::string, std::string>> testRows;
 			for(const auto& result : getResults()) {
-				testRows.push_back({ { "testID", std::to_string(getTest().getID()) }, { "name", "\"" + result.first + "\"" }, { "value", "\"" + result.second + "\"" } });
+				testRows.push_back({ { "testID", std::to_string(getTest().getID()) }, { "name", '"' + result.first + '"' }, { "value", '"' + result.second + '"' } });
 			}
 			insert("TestResults", testRows);
 
@@ -25,10 +25,10 @@ namespace EnergyManager {
 						std::string value = variableValue.second;
 
 						monitorRows.push_back({ { "testID", std::to_string(getTest().getID()) },
-												{ "monitor", "\"" + monitor + "\"" },
+												{ "monitor", '"' + monitor + '"' },
 												{ "timestamp", timestamp },
-												{ "name", "\"" + name + "\"" },
-												{ "value", "\"" + value + "\"" } });
+												{ "name", '"' + name + '"' },
+												{ "value", '"' + value + '"' } });
 					}
 				}
 			}
@@ -37,7 +37,7 @@ namespace EnergyManager {
 
 		TestResults::TestResults(
 			const std::string& databaseFile,
-			Tests::Test test,
+			const Tests::Test& test,
 			std::map<std::string, std::string> results,
 			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
 			: test_(std::move(test))
@@ -45,7 +45,7 @@ namespace EnergyManager {
 			, monitorResults_(std::move(monitorResults)) {
 			// Create the tables if they do not exist yet
 			try {
-				createTable("TestResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "test", "TEXT NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });
+				createTable("TestResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "testID", "INTEGER NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });
 			} catch(const std::runtime_error& error) {
 			}
 			try {

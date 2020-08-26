@@ -5,6 +5,10 @@ projectDirectory="$scriptDirectory/../.."
 buildDirectory="$projectDirectory/cmake-build-default"
 resourcesDirectory="$projectDirectory/Resources"
 
+# Build the CUDA samples
+cd "$resourcesDirectory/CUDA/Samples"
+make
+
 # Generate the build directory
 mkdir "$buildDirectory"
 cd "$buildDirectory"
@@ -13,8 +17,4 @@ cd "$buildDirectory"
 cmake "$projectDirectory"
 
 # Build the project
-make
-
-# Build the CUDA samples
-cd "$resourcesDirectory/CUDA/Samples"
 make

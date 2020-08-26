@@ -6,6 +6,7 @@ from typing import OrderedDict, Any, Tuple
 
 from matplotlib import pyplot, dates, gridspec
 
+from Visualizer.Testing.Test import Test
 from Visualizer.Testing.TestResults import TestResults
 
 
@@ -40,15 +41,14 @@ def parse_arguments():
 if __name__ == '__main__':
     arguments = parse_arguments()
 
-    for test_results in TestResults.load_all(arguments.database):
+    for test in Test.load_all(arguments.database):
         # Determine the output directory for the current test
-        output_directory = f"{arguments.output_directory}/{test_results.test}"
+        output_directory = f"{arguments.output_directory}/{test.name}"
 
         # Make sure the directory exists and is empty
         if os.path.exists(output_directory):
             shutil.rmtree(output_directory)
         os.makedirs(output_directory)
-
 
         def collect_values(test_results: TestResults, monitor: str, name: str, type, modifier=lambda value: value):
             values: OrderedDict[int, type] = collections.OrderedDict()
@@ -58,8 +58,8 @@ if __name__ == '__main__':
             return values
 
 
-        def plot(test_results: TestResults, size: Tuple[int, int]):
-            title = test_results.test
+        def plot(test: Test, test_results: TestResults, size: Tuple[int, int]):
+            title = test.name
             x_label = "Timestamp"
             legend = True
             grid = True
@@ -184,4 +184,4 @@ if __name__ == '__main__':
 
         # Plot some graphs
         # TODO: Add per-core series
-        plot(test_results, (10, 30))
+        plot(test, test.test_results, (10, 30))

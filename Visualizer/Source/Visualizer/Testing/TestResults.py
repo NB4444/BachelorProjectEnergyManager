@@ -7,53 +7,44 @@ from Visualizer.Persistence.Entity import Entity
 
 class TestResults(Entity):
     @classmethod
-    def load_all(cls, database_file: str):
+    def load_by_test_id(cls, database_file: str, testID: int):
         Entity.database_file = database_file
 
         # Keep track of the results
-        test_results: Dict[str, Tuple[Dict[str, str], Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]]]] = dict()
+        test_results: Dict[str, str] = dict()
+        monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]] = dict()
 
         # Retrieve the test results for all tests
-        for row in cls.select("TestResults", ["test", "name", "value"]):
+        for row in cls._select("TestResults", ["name", "value"], f"testID = {testID}"):
             # Keep track of the current result
-            test = row[0]
-            name = row[1]
-            value = row[2]
-
-            # Create the necessary data structures
-            if test not in test_results:
-                test_results[test] = (dict(), dict())
+            name = row[0]
+            value = row[1]
 
             # Store the results
-            test_results[test][0][name] = value
+            test_results[name] = value
 
         # Retrieve the monitor results for all tests
-        for row in cls.select("MonitorResults", ["test", "monitor", "timestamp", "name", "value"], None, "timestamp ASC"):
+        for row in cls._select("MonitorResults", ["monitor", "timestamp", "name", "value"], f"testID = {testID}", "timestamp ASC"):
             # Keep track of the current result
-            test = row[0]
-            monitor = row[1]
-            timestamp = datetime.datetime.fromtimestamp(float(row[2]) / 1000.0)
-            name = row[3]
-            value = row[4]
+            monitor = row[0]
+            timestamp = datetime.datetime.fromtimestamp(float(row[1]) / 1000.0)
+            name = row[2]
+            value = row[3]
 
             # Create the necessary data structures
-            if test not in test_results:
-                test_results[test] = (dict(), dict())
+            if monitor not in monitor_results:
+                monitor_results[monitor] = collections.OrderedDict()
 
-            if monitor not in test_results[test][1]:
-                test_results[test][1][monitor] = collections.OrderedDict()
-
-            if timestamp not in test_results[test][1][monitor]:
-                test_results[test][1][monitor][timestamp] = dict()
+            if timestamp not in monitor_results[monitor]:
+                monitor_results[monitor][timestamp] = dict()
 
             # Store the results
-            test_results[test][1][monitor][timestamp][name] = value
+            monitor_results[monitor][timestamp][name] = value
 
-        return [TestResults(database_file, test, test_results[test][0], test_results[test][1]) for test in test_results]
+        return TestResults(database_file, test_results, monitor_results)
 
-    def __init__(self, database_file: str, test: str, results: Dict[str, str], monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]]):
+    def __init__(self, database_file: str, results: Dict[str, str], monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]]):
         super().__init__(database_file)
 
-        self.test = test
         self.results = results
         self.monitor_results = monitor_results

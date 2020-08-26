@@ -19,7 +19,7 @@ namespace EnergyManager {
 
 			void Test::onSave() {
 				// Insert the Test
-				setID(insert("Tests", { { "name", getName() } }));
+				setID(insert("Tests", { { "name", '"' + getName() + '"' } }));
 			}
 
 			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors) : name_(std::move(name)), monitors_(std::move(monitors)) {

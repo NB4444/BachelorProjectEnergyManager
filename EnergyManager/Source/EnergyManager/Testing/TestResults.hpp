@@ -16,7 +16,7 @@ namespace EnergyManager {
 			/**
 			 * The Test that generated the results.
 			 */
-			Tests::Test test_;
+			const Tests::Test& test_;
 
 			/**
 			 * The actual result values.
@@ -41,7 +41,7 @@ namespace EnergyManager {
 			 */
 			TestResults(
 				const std::string& databaseFile,
-				Tests::Test test,
+				const Tests::Test& test,
 				std::map<std::string, std::string> results = {},
 				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults = {});
 

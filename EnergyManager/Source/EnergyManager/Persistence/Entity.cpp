@@ -64,7 +64,7 @@ namespace EnergyManager {
 			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL("CREATE TABLE " + table + "(" + Utility::Text::join(columnsWithAttributesSerialized, ",") + ");");
 		}
 
-		void Entity::insert(const std::string& table, std::vector<std::map<std::string, std::string>>& rowColumnValues) {
+		void Entity::insert(const std::string& table, const std::vector<std::map<std::string, std::string>>& rowColumnValues) {
 			// Collect columns
 			std::set<std::string> columns;
 			for(const auto& columnValues : rowColumnValues) {
@@ -79,7 +79,7 @@ namespace EnergyManager {
 				std::vector<std::string> insertValues;
 
 				for(const auto& column : columns) {
-					insertValues.push_back(columnValues[column]);
+					insertValues.push_back(columnValues.at(column));
 				}
 
 				rowValues.push_back(insertValues);
@@ -95,7 +95,7 @@ namespace EnergyManager {
 		}
 
 		unsigned long Entity::insert(const std::string& table, const std::map<std::string, std::string>& columnValues) {
-			insert(table, { columnValues });
+			insert(table, std::vector<std::map<std::string, std::string>> { columnValues });
 
 			return sqlite3_last_insert_rowid(database_);
 		}
