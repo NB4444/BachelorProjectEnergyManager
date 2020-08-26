@@ -68,6 +68,9 @@
         <rule entity="LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
       </rules>
     </Objective-C-extensions>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
     <yaml>
       <option name="ALIGN_VALUES_PROPERTIES" value="1" />
     </yaml>

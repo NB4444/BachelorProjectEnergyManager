@@ -61,3 +61,10 @@ target_link_libraries(
 	nvidia-ml
 	${SQLite3_LIBRARIES}
 )
+
+# Configure CXX compiler
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# Configure GCC compiler
+	# Enable symbol generation for debug output
+	target_compile_options(${PROJECT_NAME} PRIVATE "-rdynamic")
+endif()
