@@ -8,3 +8,7 @@ database="$resourcesDirectory/Test Results/database.sqlite"
 
 rm -r "$buildDirectory"
 rm "$database"
+
+# Clean CUDA samples
+cd "$resourcesDirectory/CUDA/Samples"
+make clean
