@@ -32,7 +32,7 @@ namespace EnergyManager {
 					Utility::Logging::logInformation("\t%s = %s", name.c_str(), value.c_str());
 				}
 
-				// Pretty-print the results
+				// Pretty-print the monitor results
 				for(const auto& monitorResult : testResults.getMonitorResults()) {
 					auto monitor = monitorResult.first;
 					auto name = monitor->getName();
@@ -58,6 +58,7 @@ namespace EnergyManager {
 				results.push_back(testResults);
 
 				// Save the Test and results to the database
+				test->save();
 				testResults.save();
 			}
 

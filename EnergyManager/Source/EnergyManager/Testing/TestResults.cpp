@@ -8,7 +8,7 @@ namespace EnergyManager {
 			// Insert the Test results
 			std::vector<std::map<std::string, std::string>> testRows;
 			for(const auto& result : getResults()) {
-				testRows.push_back({ { "test", "\"" + getTest().getName() + "\"" }, { "name", "\"" + result.first + "\"" }, { "value", "\"" + result.second + "\"" } });
+				testRows.push_back({ { "testID", std::to_string(getTest().getID()) }, { "name", "\"" + result.first + "\"" }, { "value", "\"" + result.second + "\"" } });
 			}
 			insert("TestResults", testRows);
 
@@ -24,7 +24,7 @@ namespace EnergyManager {
 						std::string name = variableValue.first;
 						std::string value = variableValue.second;
 
-						monitorRows.push_back({ { "test", "\"" + getTest().getName() + "\"" },
+						monitorRows.push_back({ { "testID", std::to_string(getTest().getID()) },
 												{ "monitor", "\"" + monitor + "\"" },
 												{ "timestamp", timestamp },
 												{ "name", "\"" + name + "\"" },
@@ -52,7 +52,7 @@ namespace EnergyManager {
 				createTable(
 					"MonitorResults",
 					{ { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" },
-					  { "test", "TEXT NOT NULL" },
+					  { "testID", "INTEGER NOT NULL" },
 					  { "monitor", "TEXT NOT NULL" },
 					  { "timestamp", "INTEGER NOT NULL" },
 					  { "name", "TEXT NOT NULL" },

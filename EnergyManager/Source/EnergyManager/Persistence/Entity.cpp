@@ -23,6 +23,10 @@ namespace EnergyManager {
 		void Entity::onSave() {
 		}
 
+		void Entity::setID(const unsigned long& id) {
+			id_ = id;
+		}
+
 		void Entity::initialize(const std::string& databaseFile) {
 			// Open a new database connection
 			if(database_ == nullptr && sqlite3_open(databaseFile.c_str(), &database_)) {
@@ -42,6 +46,10 @@ namespace EnergyManager {
 			}
 
 			return rows_;
+		}
+
+		unsigned long Entity::getID() const {
+			return id_;
 		}
 
 		void Entity::addColumn(const std::string& table, const std::string& column, const std::string& attributes) {
@@ -86,8 +94,10 @@ namespace EnergyManager {
 			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL("INSERT INTO " + table + "(" + Utility::Text::join(columns, ",") + ") VALUES(" + Utility::Text::join(insertRows, "),(") + ");");
 		}
 
-		void Entity::insert(const std::string& table, const std::map<std::string, std::string>& columnValues) {
+		unsigned long Entity::insert(const std::string& table, const std::map<std::string, std::string>& columnValues) {
 			insert(table, { columnValues });
+
+			return sqlite3_last_insert_rowid(database_);
 		}
 
 		void Entity::select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions) {

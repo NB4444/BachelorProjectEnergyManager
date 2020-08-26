@@ -34,6 +34,8 @@ namespace EnergyManager {
 				 */
 				virtual std::map<std::string, std::string> onRun();
 
+				void onSave() override;
+
 			public:
 				/**
 				 * Creates a new Test.

@@ -31,12 +31,16 @@ namespace EnergyManager {
 
 			static int callback(void* context, int columnCount, char** columnValues, char** columnNames);
 
+			unsigned long id_;
+
 		protected:
 			/**
 			 * Called when data is saved to the database.
 			 * Used to store the object's fields.
 			 */
 			virtual void onSave();
+
+			void setID(const unsigned long& id);
 
 		public:
 			static void initialize(const std::string& databaseFile);
@@ -53,6 +57,8 @@ namespace EnergyManager {
 			 */
 			Entity() = default;
 
+			unsigned long getID() const;
+
 			//~Entity() {
 			//	// Close the connection
 			//	//sqlite3_close(database_);
@@ -64,7 +70,7 @@ namespace EnergyManager {
 
 			void insert(const std::string& table, std::vector<std::map<std::string, std::string>>& rowColumnValues);
 
-			void insert(const std::string& table, const std::map<std::string, std::string>& columnValues);
+			unsigned long insert(const std::string& table, const std::map<std::string, std::string>& columnValues);
 
 			void select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions);
 

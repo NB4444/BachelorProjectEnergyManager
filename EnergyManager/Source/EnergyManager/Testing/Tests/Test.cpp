@@ -17,7 +17,17 @@ namespace EnergyManager {
 				return {};
 			}
 
+			void Test::onSave() {
+				// Insert the Test
+				setID(insert("Tests", { { "name", getName() } }));
+			}
+
 			Test::Test(std::string name, std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors) : name_(std::move(name)), monitors_(std::move(monitors)) {
+				// Create the table if it does not exist yet
+				try {
+					createTable("Tests", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "name", "TEXT NOT NULL" } });
+				} catch(const std::runtime_error& error) {
+				}
 			}
 
 			std::string Test::getName() const {
