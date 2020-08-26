@@ -21,7 +21,7 @@ namespace EnergyManager {
 				const size_t& matrixBHeight)
 				: ApplicationTest(
 					name,
-					Application("/usr/local/cuda-10.1/samples/0_Simple/matrixMul/matrixMul"),
+					Application(std::string(PROJECT_RESOURCES_DIRECTORY) + "/CUDA/Samples/0_Simple/matrixMul/matrixMul"),
 					{ "-device=" + std::to_string(gpu->getID()),
 					  "-wA=" + std::to_string(matrixAWidth),
 					  "-wB=" + std::to_string(matrixBWidth),

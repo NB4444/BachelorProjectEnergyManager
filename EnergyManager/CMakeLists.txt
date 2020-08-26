@@ -26,7 +26,7 @@ message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
 
 # Configure CUDA
 find_package(CUDA 10.1 REQUIRED)
-message(STATUS "CUDA include directories: ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
+add_compile_definitions(PROJECT_RESOURCES_DIRECTORY="${PROJECT_RESOURCES_DIRECTORY}")
 
 # Configure SQLite
 find_package(SQLite3 REQUIRED)
