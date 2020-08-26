@@ -64,7 +64,7 @@ target_link_libraries(
 	${CMAKE_CUDA_RUNTIME_LIBRARY}
 	"${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../../../lib64/libcudart.so"
 	"${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../../../extras/CUPTI/lib64/libcupti.so"
-	cupti
+	"${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../../../lib64/stubs/libnvidia-ml.so"
 	nvidia-ml
 	${SQLite3_LIBRARIES}
 )
