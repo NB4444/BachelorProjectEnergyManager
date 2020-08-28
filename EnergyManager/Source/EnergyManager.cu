@@ -1,10 +1,15 @@
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Hardware/Node.hpp"
+#include "EnergyManager/Testing/Benchmarking/AllocateFreeWorkload.hpp"
+#include "EnergyManager/Testing/Benchmarking/SyntheticWorkload.hpp"
+#include "EnergyManager/Testing/Benchmarking/VectorAddWorkload.hpp"
 #include "EnergyManager/Testing/TestResults.hpp"
 #include "EnergyManager/Testing/TestRunner.hpp"
 #include "EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.hpp"
 #include "EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp"
 #include "EnergyManager/Testing/Tests/PingTest.hpp"
+#include "EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.hpp"
 #include "EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
@@ -83,6 +88,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			if(arguments.test == "FixedFrequencyMatrixMultiplyTest") {
 				return new EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest(
 					arguments.parameters["name"],
+					EnergyManager::Hardware::Node::getNode(),
 					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
 					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
 					std::stoi(arguments.parameters["matrixAWidth"]),
@@ -96,6 +102,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			} else if(arguments.test == "MatrixMultiplyTest") {
 				return new EnergyManager::Testing::Tests::MatrixMultiplyTest(
 					arguments.parameters["name"],
+					EnergyManager::Hardware::Node::getNode(),
 					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
 					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
 					std::stoi(arguments.parameters["matrixAWidth"]),
@@ -104,6 +111,25 @@ int main(int argumentCount, char* argumentValues[]) {
 					std::stoi(arguments.parameters["matrixBHeight"]));
 			} else if(arguments.test == "PingTest") {
 				return new EnergyManager::Testing::Tests::PingTest(arguments.parameters["name"], arguments.parameters["host"], std::stoi(arguments.parameters["times"]));
+			} else if(arguments.test == "SyntheticGPUWorkloadTest") {
+				auto workloadName = arguments.parameters["workload"];
+				std::shared_ptr<EnergyManager::Testing::Benchmarking::SyntheticGPUWorkload> workload;
+				if(workloadName == "AllocateFreeWorkload") {
+					workload = std::make_shared<EnergyManager::Testing::Benchmarking::AllocateFreeWorkload>(
+						std::stoi(arguments.parameters["hostAllocations"]),
+						std::stoi(arguments.parameters["hostSize"]),
+						std::stoi(arguments.parameters["deviceAllocations"]),
+						std::stoi(arguments.parameters["deviceSize"]));
+				} else if(workloadName == "VectorAddWorkload") {
+					workload = std::make_shared<EnergyManager::Testing::Benchmarking::VectorAddWorkload>(std::stoi(arguments.parameters["size"]));
+				}
+
+				return new EnergyManager::Testing::Tests::SyntheticGPUWorkloadTest(
+					arguments.parameters["name"],
+					workload,
+					EnergyManager::Hardware::Node::getNode(),
+					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
+					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])));
 			} else if(arguments.test == "VectorAddSubtractTest") {
 				return new EnergyManager::Testing::Tests::VectorAddSubtractTest(
 					arguments.parameters["name"],
@@ -115,7 +141,7 @@ int main(int argumentCount, char* argumentValues[]) {
 		}()));
 
 		// Run the tests
-		testRunner.run(arguments.database);
+		testRunner.run();
 
 		return 0;
 	} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {

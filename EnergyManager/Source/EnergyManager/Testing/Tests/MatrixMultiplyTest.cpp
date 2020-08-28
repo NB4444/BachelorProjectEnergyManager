@@ -13,6 +13,7 @@ namespace EnergyManager {
 		namespace Tests {
 			MatrixMultiplyTest::MatrixMultiplyTest(
 				const std::string& name,
+				const std::shared_ptr<Hardware::Node>& node,
 				const std::shared_ptr<Hardware::CPU>& cpu,
 				const std::shared_ptr<Hardware::GPU>& gpu,
 				const size_t& matrixAWidth,
@@ -35,7 +36,7 @@ namespace EnergyManager {
 					},
 					{ { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
 					  { std::shared_ptr<Profiling::Monitor>(new Profiling::CPUMonitor(cpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(cpu, gpu)),
+					  { std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(node)),
 						std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) } }) {
 				if(matrixAWidth % 32 != 0 || matrixBWidth % 32 != 0 || matrixAHeight % 32 != 0 || matrixBHeight % 32 != 0) {
 					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Matrix dimensions must be a multiple of 32");

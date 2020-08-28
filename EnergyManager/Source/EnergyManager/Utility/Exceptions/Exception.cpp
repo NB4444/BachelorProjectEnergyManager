@@ -38,6 +38,7 @@ namespace EnergyManager {
 				signalAction.sa_flags = SA_RESTART | SA_SIGINFO;
 
 				sigaction(SIGSEGV, &signalAction, nullptr);
+				sigaction(SIGABRT, &signalAction, nullptr);
 				sigaction(SIGTERM, &signalAction, nullptr);
 				sigaction(SIGUSR1, &signalAction, nullptr);
 			}

@@ -20,6 +20,10 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/EnergyManager/Source/EnergyManager/Testing/Tests/SyntheicWorkloadTest.cpp" />
+    <file url="file://$PROJECT_DIR$/EnergyManager/Source/EnergyManager/Testing/Tests/SyntheticWorkloadTest.hpp" />
+  </component>
   <component name="idea.plugin.psiviewer.controller.project.PsiViewerProjectService">
     <option name="HIGHLIGHT" value="false" />
     <option name="FILTER_WHITESPACE" value="false" />

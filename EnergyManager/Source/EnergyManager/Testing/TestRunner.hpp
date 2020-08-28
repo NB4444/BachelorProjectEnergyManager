@@ -33,7 +33,7 @@ namespace EnergyManager {
 			 * Runs the Tests.
 			 * @param databaseFile The database file to use.
 			 */
-			std::vector<TestResults> run(const std::string& databaseFile);
+			std::vector<TestResults> run();
 		};
 	}
 }

@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Remote FixedFrequencyMatrixMultiplyTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" WORKING_DIR="file://$PROJECT_DIR$/Resources/Scripts" PASS_PARENT_ENVS_2="true" PROJECT_NAME="EnergyManager" TARGET_NAME="EnergyManager" CONFIG_NAME="Debug">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      <option name="RemoteToolBeforeRunTask" enabled="true" actionId="RemoteTool_Remote Tools_FixedFrequencyMatrixMultiplyTests" />
+    </method>
+  </configuration>
+</component>

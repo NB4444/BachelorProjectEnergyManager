@@ -78,11 +78,6 @@ namespace EnergyManager {
 					getGPU(deviceActivity->id)->handleDeviceActivity(deviceActivity);
 					break;
 				}
-				case CUPTI_ACTIVITY_KIND_ENVIRONMENT: {
-					auto environmentActivity = (CUpti_ActivityEnvironment*) activity;
-					getGPU(environmentActivity->deviceId)->handleEnvironmentActivity(environmentActivity);
-					break;
-				}
 				case CUPTI_ACTIVITY_KIND_KERNEL:
 				case CUPTI_ACTIVITY_KIND_CONCURRENT_KERNEL: {
 					auto kernelActivity = (CUpti_ActivityKernel4*) activity;
@@ -96,10 +91,7 @@ namespace EnergyManager {
 		}
 
 		void GPU::handleDeviceActivity(const CUpti_ActivityDevice2* activity) {
-			computeCapabilityMajorVersion_ = activity->computeCapabilityMajor;
-			computeCapabilityMinorVersion_ = activity->computeCapabilityMinor;
-			globalMemoryBandwidth_ = { Utility::Units::Byte(activity->globalMemoryBandwidth, Utility::Units::SIPrefix::KILO), std::chrono::seconds(1) };
-			globalMemorySize_ = activity->globalMemorySize;
+			memoryBandwidth_ = { Utility::Units::Byte(activity->globalMemoryBandwidth, Utility::Units::SIPrefix::KILO), std::chrono::seconds(1) };
 			multiprocessorCount_ = activity->numMultiprocessors;
 
 			//switch(activity->kind) {
@@ -166,19 +158,6 @@ namespace EnergyManager {
 			//	default:
 			//		break;
 			//}
-		}
-
-		void GPU::handleEnvironmentActivity(const CUpti_ActivityEnvironment* activity) {
-			switch(activity->environmentKind) {
-				case CUPTI_ACTIVITY_ENVIRONMENT_POWER:
-					powerLimit_ = { activity->data.power.powerLimit, Utility::Units::SIPrefix::MILLI };
-					break;
-				case CUPTI_ACTIVITY_ENVIRONMENT_SPEED:
-					streamingMultiprocessorClockRate_ = { activity->data.speed.smClock, Utility::Units::SIPrefix::MEGA };
-					break;
-				default:
-					break;
-			}
 		}
 
 		void GPU::handleKernelActivity(const CUpti_ActivityKernel4* activity) {
@@ -344,12 +323,64 @@ namespace EnergyManager {
 			setApplicationCoreClockRate(coreClockRate);
 		}
 
+		bool GPU::getAutoBoostedClocksEnabled() const {
+			nvmlEnableState_t autoBoostedClocksEnabled;
+			nvmlEnableState_t defaultAutoBoostedClocksEnabled;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetAutoBoostedClocksEnabled(device_, &autoBoostedClocksEnabled, &defaultAutoBoostedClocksEnabled));
+
+			return autoBoostedClocksEnabled == NVML_FEATURE_ENABLED;
+		}
+
+		bool GPU::getDefaultAutoBoostedClocksEnabled() const {
+			nvmlEnableState_t autoBoostedClocksEnabled;
+			nvmlEnableState_t defaultAutoBoostedClocksEnabled;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetAutoBoostedClocksEnabled(device_, &autoBoostedClocksEnabled, &defaultAutoBoostedClocksEnabled));
+
+			return defaultAutoBoostedClocksEnabled == NVML_FEATURE_ENABLED;
+		}
+
+		void GPU::setAutoBoostedClocksEnabled(const bool& enabled) {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
+				nvmlDeviceSetAutoBoostedClocksEnabled(device_, enabled ? nvmlEnableState_enum::NVML_FEATURE_ENABLED : nvmlEnableState_enum::NVML_FEATURE_DISABLED));
+		}
+
+		std::string GPU::getBrand() const {
+			nvmlBrandType_t brand;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetBrand(device_, &brand));
+
+			switch(brand) {
+				case NVML_BRAND_GEFORCE:
+					return "GeForce";
+				case NVML_BRAND_GRID:
+					return "Grid";
+				case NVML_BRAND_NVS:
+					return "NVS";
+				case NVML_BRAND_QUADRO:
+					return "Quadro";
+				case NVML_BRAND_TESLA:
+					return "Tesla";
+				case NVML_BRAND_TITAN:
+					return "Titan";
+				case NVML_BRAND_UNKNOWN:
+				default:
+					return "Unknown";
+			}
+		}
+
 		unsigned int GPU::getComputeCapabilityMajorVersion() const {
-			return computeCapabilityMajorVersion_;
+			int major;
+			int minor;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetCudaComputeCapability(device_, &major, &minor));
+
+			return major;
 		}
 
 		unsigned int GPU::getComputeCapabilityMinorVersion() const {
-			return computeCapabilityMinorVersion_;
+			int major;
+			int minor;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetCudaComputeCapability(device_, &major, &minor));
+
+			return minor;
 		}
 
 		Utility::Units::Hertz GPU::getCoreClockRate() const {
@@ -362,6 +393,18 @@ namespace EnergyManager {
 		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
 				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+		}
+
+		std::vector<Utility::Units::Hertz> GPU::getSupportedCoreClockRates(const Utility::Units::Hertz& memoryClockRate) const {
+			unsigned int count;
+			unsigned int coreClockRates[100] { 0 };
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetSupportedGraphicsClocks(device_, memoryClockRate.convertPrefix(Utility::Units::SIPrefix::MEGA), &count, coreClockRates));
+
+			std::vector<Utility::Units::Hertz> results = {};
+			for(unsigned int index = 0; index < count; ++index) {
+				results.push_back(coreClockRates[index]);
+			}
+			return results;
 		}
 
 		void GPU::resetCoreClockRate() {
@@ -398,29 +441,38 @@ namespace EnergyManager {
 		}
 
 		Utility::Units::Watt GPU::getPowerLimit() const {
-			return powerLimit_;
+			unsigned int powerManagementLimit;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerManagementLimit(device_, &powerManagementLimit));
+
+			return { powerManagementLimit, Utility::Units::SIPrefix::MILLI };
+		}
+
+		Utility::Units::Watt GPU::getDefaultPowerLimit() const {
+			unsigned int defaultPowerManagementLimit;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerManagementDefaultLimit(device_, &defaultPowerManagementLimit));
+
+			return { defaultPowerManagementLimit, Utility::Units::SIPrefix::MILLI };
+		}
+
+		Utility::Units::Watt GPU::getEnforcedPowerLimit() const {
+			unsigned int enforcedPowerLimit;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetEnforcedPowerLimit(device_, &enforcedPowerLimit));
+
+			return { enforcedPowerLimit, Utility::Units::SIPrefix::MILLI };
 		}
 
 		Utility::Units::Percent GPU::getFanSpeed() const {
 			unsigned int speed;
-			nvmlDeviceGetFanSpeed(device_, &speed);
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetFanSpeed(device_, &speed));
 
 			return { speed };
 		}
 
 		Utility::Units::Percent GPU::getFanSpeed(const unsigned int& fan) const {
 			unsigned int speed;
-			nvmlDeviceGetFanSpeed_v2(device_, fan, &speed);
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetFanSpeed_v2(device_, fan, &speed));
 
 			return { speed };
-		}
-
-		Utility::Units::Bandwidth GPU::getGlobalMemoryBandwidth() const {
-			return globalMemoryBandwidth_;
-		}
-
-		Utility::Units::Byte GPU::getGlobalMemorySize() const {
-			return globalMemorySize_;
 		}
 
 		unsigned int GPU::getID() const {
@@ -447,7 +499,7 @@ namespace EnergyManager {
 			return kernelCorrelationID_;
 		}
 
-		Utility::Units::Byte GPU::getKernelDynamicSharedMemory() const {
+		Utility::Units::Byte GPU::getKernelDynamicSharedMemorySize() const {
 			return kernelDynamicSharedMemory_;
 		}
 
@@ -475,7 +527,7 @@ namespace EnergyManager {
 			return kernelStartTimestamp_;
 		}
 
-		Utility::Units::Byte GPU::getKernelStaticSharedMemory() const {
+		Utility::Units::Byte GPU::getKernelStaticSharedMemorySize() const {
 			return kernelStaticSharedMemory_;
 		}
 
@@ -491,11 +543,48 @@ namespace EnergyManager {
 			return { maximumMemoryClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
+		Utility::Units::Byte GPU::getMemorySize() const {
+			nvmlMemory_t memoryInfo;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMemoryInfo(device_, &memoryInfo));
+
+			return memoryInfo.total;
+		}
+
+		Utility::Units::Byte GPU::getMemoryFreeSize() const {
+			nvmlMemory_t memoryInfo;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMemoryInfo(device_, &memoryInfo));
+
+			return memoryInfo.free;
+		}
+
+		Utility::Units::Byte GPU::getMemoryUsedSize() const {
+			nvmlMemory_t memoryInfo;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMemoryInfo(device_, &memoryInfo));
+
+			return memoryInfo.used;
+		}
+
+		Utility::Units::Bandwidth GPU::getMemoryBandwidth() const {
+			return memoryBandwidth_;
+		}
+
 		Utility::Units::Hertz GPU::getMemoryClockRate() const {
 			unsigned int memoryClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &memoryClockRate));
 
 			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
+		}
+
+		std::vector<Utility::Units::Hertz> GPU::getSupportedMemoryClockRates() const {
+			unsigned int count;
+			unsigned int memoryClockRates[100] { 0 };
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetSupportedMemoryClocks(device_, &count, memoryClockRates));
+
+			std::vector<Utility::Units::Hertz> results = {};
+			for(unsigned int index = 0; index < count; ++index) {
+				results.push_back(memoryClockRates[index]);
+			}
+			return results;
 		}
 
 		Utility::Units::Percent GPU::getMemoryUtilizationRate() const {
@@ -517,8 +606,18 @@ namespace EnergyManager {
 			return name;
 		}
 
+		Utility::Units::Byte GPU::getPCIELinkWidth() const {
+			unsigned int linkWidth;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetCurrPcieLinkWidth(device_, &linkWidth));
+
+			return linkWidth;
+		}
+
 		Utility::Units::Hertz GPU::getStreamingMultiprocessorClockRate() const {
-			return streamingMultiprocessorClockRate_;
+			unsigned int streamingMultiprocessorClockRate;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_SM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &streamingMultiprocessorClockRate));
+
+			return { streamingMultiprocessorClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
 		Utility::Units::Celsius GPU::getTemperature() const {

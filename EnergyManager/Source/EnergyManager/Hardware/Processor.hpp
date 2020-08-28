@@ -1,9 +1,9 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Device.hpp"
+#include "EnergyManager/Utility/Units/Celsius.hpp"
 #include "EnergyManager/Utility/Units/Hertz.hpp"
 #include "EnergyManager/Utility/Units/Percent.hpp"
-#include "EnergyManager/Utility/Units/Celsius.hpp"
 
 namespace EnergyManager {
 	namespace Hardware {

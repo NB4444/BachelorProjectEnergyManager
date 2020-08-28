@@ -1,20 +1,23 @@
 #include "./NodeMonitor.hpp"
 
-#include <chrono>
-
 namespace EnergyManager {
 	namespace Profiling {
 		std::map<std::string, std::string> NodeMonitor::onPoll() {
-			if(!startEnergyConsumptionMeasured_) {
-				startEnergyConsumptionMeasured_ = true;
-				startEnergyConsumption_ = cpu_->getEnergyConsumption() + gpu_->getEnergyConsumption();
-			}
-
-			return { { "energyConsumption", std::to_string((cpu_->getEnergyConsumption() + gpu_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
-					 { "powerConsumption", std::to_string((cpu_->getPowerConsumption() + gpu_->getPowerConsumption()).toValue()) } };
+			return { { "memorySize", std::to_string(node_->getMemorySize().toValue()) },
+					 { "freeMemorySize", std::to_string(node_->getFreeMemorySize().toValue()) },
+					 { "usedMemorySize", std::to_string(node_->getUsedMemorySize().toValue()) },
+					 { "sharedMemorySize", std::to_string(node_->getSharedMemorySize().toValue()) },
+					 { "bufferMemorySize", std::to_string(node_->getBufferMemorySize().toValue()) },
+					 { "swapMemorySize", std::to_string(node_->getSwapMemorySize().toValue()) },
+					 { "freeSwapMemorySize", std::to_string(node_->getFreeSwapMemorySize().toValue()) },
+					 { "usedSwapMemorySize", std::to_string(node_->getUsedSwapMemorySize().toValue()) },
+					 { "highMemorySize", std::to_string(node_->getHighMemorySize().toValue()) },
+					 { "freeHighMemorySize", std::to_string(node_->getFreeHighMemorySize().toValue()) },
+					 { "usedHighMemorySize", std::to_string(node_->getUsedHighMemorySize().toValue()) },
+					 { "processCount", std::to_string(node_->getProcessCount()) } };
 		}
 
-		NodeMonitor::NodeMonitor(const std::shared_ptr<Hardware::CPU>& cpu, const std::shared_ptr<Hardware::GPU>& gpu) : Monitor("NodeMonitor"), cpu_(cpu), gpu_(gpu) {
+		NodeMonitor::NodeMonitor(const std::shared_ptr<Hardware::Node>& node) : DeviceMonitor("NodeMonitor", node), node_(node) {
 		}
 	}
 }

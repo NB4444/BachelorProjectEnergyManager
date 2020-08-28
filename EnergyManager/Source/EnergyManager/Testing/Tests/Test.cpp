@@ -34,15 +34,17 @@ namespace EnergyManager {
 				return name_;
 			}
 
-			TestResults Test::run(const std::string& databaseFile) {
+			TestResults Test::run() {
 				// Start the Monitors
 				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults;
+				std::mutex monitorMutex;
 				std::map<std::shared_ptr<Profiling::Monitor>, std::thread> monitors;
 				for(const auto& monitor : monitors_) {
 					monitors[monitor.first] = std::thread([&] {
 						monitor.first->run(monitor.second);
 
 						// Store the Monitor results
+						std::lock_guard<std::mutex> guard(monitorMutex);
 						monitorResults[monitor.first] = monitor.first->getVariableValues();
 					});
 				}
@@ -60,7 +62,7 @@ namespace EnergyManager {
 					monitor.second.join();
 				}
 
-				return TestResults(databaseFile, *this, results, monitorResults);
+				return TestResults(*this, results, monitorResults);
 			}
 		}
 	}

@@ -87,16 +87,6 @@ namespace EnergyManager {
 			bool monitorThreadRunning_ = true;
 
 			/**
-			 * Compute capability for the device, major number.
-			 */
-			unsigned int computeCapabilityMajorVersion_;
-
-			/**
-			 * Compute capability for the device, minor number.
-			 */
-			unsigned int computeCapabilityMinorVersion_;
-
-			/**
 			 * The energy consumption in Joules.
 			 */
 			Utility::Units::Joule energyConsumption_ = 0;
@@ -109,12 +99,7 @@ namespace EnergyManager {
 			/**
 			 * The global memory bandwidth available on the device, in kBytes/sec.
 			 */
-			Utility::Units::Bandwidth globalMemoryBandwidth_;
-
-			/**
-			 * The amount of global memory on the device, in bytes.
-			 */
-			Utility::Units::Byte globalMemorySize_;
+			Utility::Units::Bandwidth memoryBandwidth_;
 
 			/**
 			 * The ID of the device.
@@ -206,26 +191,10 @@ namespace EnergyManager {
 			nvmlDevice_t device_;
 
 			/**
-			 * The power in milliwatts that will trigger power management algorithm.
-			 */
-			Utility::Units::Watt powerLimit_;
-
-			/**
-			 * The SM frequency in MHz.
-			 */
-			Utility::Units::Hertz streamingMultiprocessorClockRate_;
-
-			/**
 			 * Handles a device activity.
 			 * @param activity The activity.
 			 */
 			void handleDeviceActivity(const CUpti_ActivityDevice2* activity);
-
-			/**
-			 * Handles an environment activity.
-			 * @param activity The activity.
-			 */
-			void handleEnvironmentActivity(const CUpti_ActivityEnvironment* activity);
 
 			/**
 			 * Handles a kernel activity.
@@ -249,7 +218,7 @@ namespace EnergyManager {
 			 */
 			static void handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line);
 
-			static void handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line);
+			static void handleAPICall(const std::string& call, const cudaError& callResult, const std::string& file, const int& line);
 
 			static void handleAPICall(const std::string& call, const CUptiResult& callResult, const std::string& file, const int& line);
 
@@ -307,6 +276,33 @@ namespace EnergyManager {
 			void resetApplicationMemoryClockRate();
 
 			/**
+			 * Gets whether auto boosted clocks are enabled.
+			 * Auto Boosted clocks are enabled by default on some hardware, allowing the GPU to run at higher clock rates to maximize performance as thermal limits allow.
+			 * @return Whether auto boosted clocks are enabled.
+			 */
+			bool getAutoBoostedClocksEnabled() const;
+
+			/**
+			 * Gets whether auto boosted clocks are enabled by default.
+			 * Auto Boosted clocks are enabled by default on some hardware, allowing the GPU to run at higher clock rates to maximize performance as thermal limits allow.
+			 * @return Whether auto boosted clocks are enabled by default.
+			 */
+			bool getDefaultAutoBoostedClocksEnabled() const;
+
+			/**
+			 * Try to set the current state of Auto Boosted clocks on a device.
+			 * Auto Boosted clocks are enabled by default on some hardware, allowing the GPU to run at higher clock rates to maximize performance as thermal limits allow. Auto Boosted clocks should be disabled if fixed clock rates are desired.
+			 * @param enabled Whether to enable auto boosted clocks.
+			 */
+			void setAutoBoostedClocksEnabled(const bool& enabled);
+
+			/**
+			 * Returns the brand of the device.
+			 * @return The brand.
+			 */
+			std::string getBrand() const;
+
+			/**
 			 * @copydoc GPU::computeCapabilityMajorVersion_
 			 * @return The compute capability major version.
 			 */
@@ -322,6 +318,13 @@ namespace EnergyManager {
 
 			void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
 
+			/**
+			 * Gets the supported core clock rates for the specified memory clock rate.
+			 * @param memoryClockRate The memory clock rate.
+			 * @return The supported core clock rates.
+			 */
+			std::vector<Utility::Units::Hertz> getSupportedCoreClockRates(const Utility::Units::Hertz& memoryClockRate) const;
+
 			void resetCoreClockRate() override;
 
 			Utility::Units::Hertz getMaximumCoreClockRate() const override;
@@ -333,10 +336,22 @@ namespace EnergyManager {
 			Utility::Units::Watt getPowerConsumption() const override;
 
 			/**
-			 * @copydoc GPU::powerLimit_
+			 * Retrieves the power management limit associated with this device.
 			 * @return The power limit.
 			 */
 			Utility::Units::Watt getPowerLimit() const;
+
+			/**
+			 * Retrieves default power management limit on this device, in milliwatts.
+			 * @return The default power limit.
+			 */
+			Utility::Units::Watt getDefaultPowerLimit() const;
+
+			/**
+			 * Get the effective power limit that the driver enforces after taking into account all limiters.
+			 * @return The enforced power limit.
+			 */
+			Utility::Units::Watt getEnforcedPowerLimit() const;
 
 			/**
 			 * @copydoc GPU::fanSpeed_
@@ -345,18 +360,6 @@ namespace EnergyManager {
 			Utility::Units::Percent getFanSpeed() const;
 
 			Utility::Units::Percent getFanSpeed(const unsigned int& fan) const;
-
-			/**
-			 * @copydoc GPU::globalMemoryBandwidth_
-			 * @return The global memory bandwidth.
-			 */
-			Utility::Units::Bandwidth getGlobalMemoryBandwidth() const;
-
-			/**
-			 * @copydoc GPU::globalMemorySize_
-			 * @return The global memory size.
-			 */
-			Utility::Units::Byte getGlobalMemorySize() const;
 
 			/**
 			 * @copydoc GPU::id_
@@ -398,7 +401,7 @@ namespace EnergyManager {
 			 * @copydoc GPU::kernelDynamicSharedMemory_
 			 * @return The kernel dynamic shared memory.
 			 */
-			Utility::Units::Byte getKernelDynamicSharedMemory() const;
+			Utility::Units::Byte getKernelDynamicSharedMemorySize() const;
 
 			/**
 			 * @copydoc GPU::kernelEndTimestamp_
@@ -440,7 +443,7 @@ namespace EnergyManager {
 			 * @copydoc GPU::kernelStaticSharedMemory_
 			 * @return The kernel static shared memory.
 			 */
-			Utility::Units::Byte getKernelStaticSharedMemory() const;
+			Utility::Units::Byte getKernelStaticSharedMemorySize() const;
 
 			/**
 			 * @copydoc GPU::kernelStreamID_
@@ -455,10 +458,40 @@ namespace EnergyManager {
 			Utility::Units::Hertz getMaximumMemoryClockRate() const;
 
 			/**
-			 * @copydoc GPU::memoryClock_
+			 * Gets the amount of memory.
+			 * @return The memory clock.
+			 */
+			Utility::Units::Byte getMemorySize() const;
+
+			/**
+			 * Gets the amount of free memory.
+			 * @return The memory clock.
+			 */
+			Utility::Units::Byte getMemoryFreeSize() const;
+
+			/**
+			 * Gets the amount of used memory.
+			 * @return The memory clock.
+			 */
+			Utility::Units::Byte getMemoryUsedSize() const;
+
+			/**
+			 * @copydoc GPU::globalMemoryBandwidth_
+			 * @return The global memory bandwidth.
+			 */
+			Utility::Units::Bandwidth getMemoryBandwidth() const;
+
+			/**
+			 * @copydoc Gets the clock rate of the memory.
 			 * @return The memory clock.
 			 */
 			Utility::Units::Hertz getMemoryClockRate() const;
+
+			/**
+			 * Gets the supported memory clock rates for the specified memory clock rate.
+			 * @return The supported memory clock rates.
+			 */
+			std::vector<Utility::Units::Hertz> getSupportedMemoryClockRates() const;
 
 			/**
 			 * Gets the memory utilization rate.
@@ -474,13 +507,19 @@ namespace EnergyManager {
 			unsigned int getMultiprocessorCount() const;
 
 			/**
-			 * @copydoc GPU::name_
+			 * Gets the name of the GPU.
 			 * @return The name.
 			 */
 			std::string getName() const;
 
 			/**
-			 * @copydoc GPU::streamingMultiprocessorClock_
+			 * Retrieves the current PCIe link width.
+			 * @return The PCIe link width.
+			 */
+			Utility::Units::Byte getPCIELinkWidth() const;
+
+			/**
+			 * Gets the clock rate of the streaming multiprocessors.
 			 * @return The streaming multiprocessor clock.
 			 */
 			Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;

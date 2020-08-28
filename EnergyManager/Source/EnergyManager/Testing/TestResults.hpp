@@ -40,10 +40,9 @@ namespace EnergyManager {
 			 * @param monitorResults The results of the Monitors.
 			 */
 			TestResults(
-				const std::string& databaseFile,
 				const Tests::Test& test,
-				std::map<std::string, std::string> results = {},
-				std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults = {});
+				const std::map<std::string, std::string>& results = {},
+				const std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults = {});
 
 			/**
 			 * Gets the Test that generated the results.

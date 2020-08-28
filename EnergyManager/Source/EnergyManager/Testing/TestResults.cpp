@@ -10,7 +10,9 @@ namespace EnergyManager {
 			for(const auto& result : getResults()) {
 				testRows.push_back({ { "testID", std::to_string(getTest().getID()) }, { "name", '"' + result.first + '"' }, { "value", '"' + result.second + '"' } });
 			}
-			insert("TestResults", testRows);
+			if(!testRows.empty()) {
+				insert("TestResults", testRows);
+			}
 
 			// Insert the Monitor results
 			std::vector<std::map<std::string, std::string>> monitorRows;
@@ -32,17 +34,18 @@ namespace EnergyManager {
 					}
 				}
 			}
-			insert("MonitorResults", monitorRows);
+			if(!monitorRows.empty()) {
+				insert("MonitorResults", monitorRows);
+			}
 		}
 
 		TestResults::TestResults(
-			const std::string& databaseFile,
 			const Tests::Test& test,
-			std::map<std::string, std::string> results,
-			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults)
-			: test_(std::move(test))
-			, results_(std::move(results))
-			, monitorResults_(std::move(monitorResults)) {
+			const std::map<std::string, std::string>& results,
+			const std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults)
+			: test_(test)
+			, results_(results)
+			, monitorResults_(monitorResults) {
 			// Create the tables if they do not exist yet
 			try {
 				createTable("TestResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "testID", "INTEGER NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });

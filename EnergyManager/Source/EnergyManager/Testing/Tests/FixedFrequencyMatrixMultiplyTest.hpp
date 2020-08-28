@@ -28,6 +28,7 @@ namespace EnergyManager {
 			public:
 				FixedFrequencyMatrixMultiplyTest(
 					const std::string& name,
+					const std::shared_ptr<Hardware::Node>& node,
 					const std::shared_ptr<Hardware::CPU>& cpu,
 					const std::shared_ptr<Hardware::GPU>& gpu,
 					const size_t& matrixAWidth,

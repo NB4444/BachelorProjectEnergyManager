@@ -3,7 +3,7 @@
 cpu=0
 gpu=0
 testSegments=4
-sizeMultiplier=50
+sizeMultiplier=100
 cpuMaximumCoreClockRate=3889646848
 gpuMaximumCoreClockRate=2370000000
 matrixAWidth=$((32 * $sizeMultiplier))

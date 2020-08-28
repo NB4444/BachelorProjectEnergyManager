@@ -52,10 +52,9 @@ namespace EnergyManager {
 
 				/**
 				 * Runs the Test.
-				 * @param databaseFile The database file to use.
 				 * @return The parsed Test results.
 				 */
-				TestResults run(const std::string& databaseFile);
+				TestResults run();
 			};
 		}
 	}

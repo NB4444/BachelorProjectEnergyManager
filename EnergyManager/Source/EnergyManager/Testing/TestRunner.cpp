@@ -9,7 +9,7 @@ namespace EnergyManager {
 			tests_.push_back(test);
 		}
 
-		std::vector<TestResults> TestRunner::run(const std::string& databaseFile) {
+		std::vector<TestResults> TestRunner::run() {
 			std::vector<TestResults> results;
 
 			for(size_t testIndex = 0u; testIndex < tests_.size(); ++testIndex) {
@@ -19,7 +19,7 @@ namespace EnergyManager {
 				Utility::Logging::logInformation("Running test %s (%d/%d)...", name.c_str(), testIndex + 1, tests_.size());
 
 				// Execute the test and retrieve the results
-				TestResults testResults = test->run(databaseFile);
+				TestResults testResults = test->run();
 
 				Utility::Logging::logInformation("Test complete");
 

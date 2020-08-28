@@ -70,4 +70,4 @@ target_link_libraries(
 )
 
 # Enable symbol generation for debug output
-target_compile_options(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:--compiler-options=-rdynamic>")
+#target_compile_options(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:--compiler-options=-rdynamic>")

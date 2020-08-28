@@ -37,7 +37,8 @@ namespace EnergyManager {
 				return std::regex_replace(value, std::regex("\\s+"), " ");
 			}
 
-			static std::string join(const std::vector<std::string>& value, const std::string& delimiter) {
+			template<typename Type>
+			static std::string join(const std::vector<Type>& value, const std::string& delimiter) {
 				std::string result;
 
 				for(size_t index = 0u; index < value.size(); ++index) {
@@ -45,14 +46,15 @@ namespace EnergyManager {
 						result += delimiter;
 					}
 
-					result += value[index];
+					result += std::string(value[index]);
 				}
 
 				return result;
 			}
 
-			static std::string join(const std::set<std::string>& value, const std::string& delimiter) {
-				return join(std::vector<std::string>(value.begin(), value.end()), delimiter);
+			template<typename Type>
+			static std::string join(const std::set<Type>& value, const std::string& delimiter) {
+				return join(std::vector<Type>(value.begin(), value.end()), delimiter);
 			}
 
 			static std::vector<std::string> splitToVector(std::string value, const std::string& pairDelimiter, const bool& trim = false) {

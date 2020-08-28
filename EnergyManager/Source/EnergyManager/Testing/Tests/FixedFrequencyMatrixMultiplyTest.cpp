@@ -8,6 +8,18 @@ namespace EnergyManager {
 				cpu_->setCoreClockRate(minimumCPUFrequency_, maximumCPUFrequency_);
 				gpu_->setCoreClockRate(minimumGPUFrequency_, maximumGPUFrequency_);
 
+				// Disable automatic boosting
+				bool autoBoostedClocksEnabled;
+				bool autoBoostedClocksSet = true;
+				try {
+					autoBoostedClocksEnabled = gpu_->getAutoBoostedClocksEnabled();
+					if(autoBoostedClocksEnabled) {
+						gpu_->setAutoBoostedClocksEnabled(false);
+					}
+				} catch(const Utility::Exceptions::Exception& exception) {
+					bool autoBoostedClocksSet = false;
+				}
+
 				// Run the test
 				auto results = MatrixMultiplyTest::onRun();
 
@@ -15,11 +27,20 @@ namespace EnergyManager {
 				cpu_->resetCoreClockRate();
 				gpu_->resetCoreClockRate();
 
+				// Re-enable automatic boosting
+				if(autoBoostedClocksSet) {
+					try {
+						gpu_->setAutoBoostedClocksEnabled(autoBoostedClocksEnabled);
+					} catch(const Utility::Exceptions::Exception& exception) {
+					}
+				}
+
 				return results;
 			}
 
 			FixedFrequencyMatrixMultiplyTest::FixedFrequencyMatrixMultiplyTest(
 				const std::string& name,
+				const std::shared_ptr<Hardware::Node>& node,
 				const std::shared_ptr<Hardware::CPU>& cpu,
 				const std::shared_ptr<Hardware::GPU>& gpu,
 				const size_t& matrixAWidth,
@@ -30,7 +51,7 @@ namespace EnergyManager {
 				const unsigned long& maximumCPUFrequency,
 				const unsigned long& minimumGPUFrequency,
 				const unsigned long& maximumGPUFrequency)
-				: MatrixMultiplyTest(name, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight)
+				: MatrixMultiplyTest(name, node, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight)
 				, cpu_(cpu)
 				, gpu_(gpu)
 				, minimumCPUFrequency_(minimumGPUFrequency)

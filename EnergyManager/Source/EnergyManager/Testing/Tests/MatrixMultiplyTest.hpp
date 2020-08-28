@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EnergyManager/Hardware/Node.hpp"
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Testing/Tests/ApplicationTest.hpp"
@@ -13,6 +14,7 @@ namespace EnergyManager {
 			public:
 				MatrixMultiplyTest(
 					const std::string& name,
+					const std::shared_ptr<Hardware::Node>& node,
 					const std::shared_ptr<Hardware::CPU>& cpu,
 					const std::shared_ptr<Hardware::GPU>& gpu,
 					const size_t& matrixAWidth,
