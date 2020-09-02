@@ -95,5 +95,18 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+### CMake template
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
 ### Project ###
 !Source/EnergyManager/Testing
