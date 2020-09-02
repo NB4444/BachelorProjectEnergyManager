@@ -96,5 +96,4 @@ Mkfile.old
 dkms.conf
 
 ### Project ###
-cmake-build*
 !Source/EnergyManager/Testing
