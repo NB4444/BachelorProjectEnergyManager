@@ -28,7 +28,8 @@ class Entity(object):
 
     @classmethod
     def _create_table(cls, table: str, columns_with_attributes: Dict[str, str]):
-        return cls._execute_sql(f"CREATE TABLE {table}({','.join([column_with_attributes + ' ' + columns_with_attributes[column_with_attributes] for column_with_attributes in columns_with_attributes])});")
+        return cls._execute_sql(
+            f"CREATE TABLE {table}({','.join([column_with_attributes + ' ' + columns_with_attributes[column_with_attributes] for column_with_attributes in columns_with_attributes])});")
 
     @classmethod
     def _insert(cls, table: str, row_column_values):

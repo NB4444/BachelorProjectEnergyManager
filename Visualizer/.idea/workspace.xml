@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/Visualizer.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace (conflicted copy 2020-09-04 214103).xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Persistence/Entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Persistence/Entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/Test.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Testing/Test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/TestResults.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Testing/TestResults.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="JupyterTrust" id="2acc8a6b-ab4b-4dfb-b1e4-ffa4163d04dc" />
+  <component name="ProjectId" id="1h3PZVvJjIKPghb0pdr5Jm0TIVJ" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="" />
+      <created>1599236864878</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1599236864878</updated>
+      <workItem from="1599237012873" duration="91000" />
+      <workItem from="1599237134950" duration="79000" />
+      <workItem from="1599240342777" duration="6587000" />
+      <workItem from="1599479762260" duration="22579000" />
+      <workItem from="1599519546533" duration="3362000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1373" y="847" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1599245769655">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1373" y="847" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599245769655" />
+    <state x="1617" y="781" key="#xdebugger.evaluate" timestamp="1599245715210">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1617" y="781" key="#xdebugger.evaluate/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599245715210" />
+    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl" timestamp="1599237186617">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599237186617" />
+    <state width="3780" height="598" key="GridCell.Tab.0.bottom" timestamp="1599521433095">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.0.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
+    <state width="3780" height="598" key="GridCell.Tab.0.center" timestamp="1599521433095">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.0.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
+    <state width="3780" height="598" key="GridCell.Tab.0.left" timestamp="1599521433095">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.0.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
+    <state width="3780" height="598" key="GridCell.Tab.0.right" timestamp="1599521433095">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.0.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
+    <state width="3780" height="598" key="GridCell.Tab.1.bottom" timestamp="1599521433507">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.1.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433507" />
+    <state width="3780" height="598" key="GridCell.Tab.1.center" timestamp="1599521433506">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.1.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
+    <state width="3780" height="598" key="GridCell.Tab.1.left" timestamp="1599521433506">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.1.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
+    <state width="3780" height="598" key="GridCell.Tab.1.right" timestamp="1599521433506">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="3780" height="598" key="GridCell.Tab.1.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
+    <state x="1166" y="720" key="SettingsEditor" timestamp="1599515139785">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1166" y="720" key="SettingsEditor/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599515139785" />
+    <state width="1926" height="1034" key="XDebugger.FullValuePopup" timestamp="1599244176240">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state width="1926" height="1034" key="XDebugger.FullValuePopup/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599244176240" />
+    <state x="1593" y="1068" key="cloudConfig.PluginsDialog" timestamp="1599237096081">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1593" y="1068" key="cloudConfig.PluginsDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599237096081" />
+    <state x="1766" y="1079" width="310" height="399" key="cloudConfig.SelfSettingsDialog" timestamp="1599237086771">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1766" y="1079" width="310" height="399" key="cloudConfig.SelfSettingsDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599237086771" />
+    <state x="1920" y="234" width="1920" height="2062" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1599488877523">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1920" y="234" width="1920" height="2062" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599488877523" />
+    <state x="738" y="998" width="775" height="764" key="refactoring.ChangeSignatureDialog" timestamp="1599509267088">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="738" y="998" width="775" height="764" key="refactoring.ChangeSignatureDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599509267088" />
+    <state x="539" y="710" width="840" height="1034" key="search.everywhere.popup" timestamp="1599503784099">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="539" y="710" width="840" height="1034" key="search.everywhere.popup/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599503784099" />
+  </component>
+</project>

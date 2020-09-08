@@ -1,3 +1,6 @@
+from typing import List
+
+from Visualizer import Plotting
 from Visualizer.Persistence.Entity import Entity
 from Visualizer.Testing.TestResults import TestResults
 
@@ -22,6 +25,16 @@ class Test(Entity):
             ))
 
         return tests
+
+    @classmethod
+    def tests_table(cls, tests: List["Test"]):
+        table = Plotting.plot_table(
+            data=[[test.id, test.name] for test in tests],
+            columns=["ID", "Name"]
+        )
+        table
+
+        return table
 
     def __init__(self, database_file: str, id: int, name: str, test_results: TestResults):
         super().__init__(database_file)
