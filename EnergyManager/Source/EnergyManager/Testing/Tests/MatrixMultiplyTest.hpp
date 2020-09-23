@@ -6,6 +6,7 @@
 #include "EnergyManager/Testing/Tests/ApplicationTest.hpp"
 
 #include <string>
+#include <chrono>
 
 namespace EnergyManager {
 	namespace Testing {
@@ -20,7 +21,9 @@ namespace EnergyManager {
 					const size_t& matrixAWidth,
 					const size_t& matrixAHeight,
 					const size_t& matrixBWidth,
-					const size_t& matrixBHeight);
+					const size_t& matrixBHeight,
+					std::chrono::system_clock::duration applicationMonitorPollingInterval,
+					std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors = {});
 			};
 		}
 	}

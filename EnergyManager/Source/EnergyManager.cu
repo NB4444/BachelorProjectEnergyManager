@@ -1,9 +1,14 @@
+#include "EnergyManager/Benchmarking/Workloads/ActiveInactiveWorkload.hpp"
+#include "EnergyManager/Benchmarking/Workloads/AllocateFreeWorkload.hpp"
+#include "EnergyManager/Benchmarking/Workloads/SyntheticWorkload.hpp"
+#include "EnergyManager/Benchmarking/Workloads/VectorAddWorkload.hpp"
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Hardware/Node.hpp"
-#include "EnergyManager/Testing/Benchmarking/AllocateFreeWorkload.hpp"
-#include "EnergyManager/Testing/Benchmarking/SyntheticWorkload.hpp"
-#include "EnergyManager/Testing/Benchmarking/VectorAddWorkload.hpp"
+#include "EnergyManager/Monitoring/ApplicationMonitor.hpp"
+#include "EnergyManager/Monitoring/CPUMonitor.hpp"
+#include "EnergyManager/Monitoring/GPUMonitor.hpp"
+#include "EnergyManager/Monitoring/NodeMonitor.hpp"
 #include "EnergyManager/Testing/TestResults.hpp"
 #include "EnergyManager/Testing/TestRunner.hpp"
 #include "EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.hpp"
@@ -12,12 +17,21 @@
 #include "EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.hpp"
 #include "EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
-#include <getopt.h>
 #include <iostream>
 #include <memory>
+
+struct MonitorConfiguration {
+	std::string monitor = "";
+	std::map<std::string, std::string> parameters = {};
+};
+
+struct TestConfiguration {
+	std::string test = "";
+	std::map<std::string, std::string> parameters = {};
+	std::vector<MonitorConfiguration> monitorConfigurations = {};
+};
 
 auto parseArguments(int argumentCount, char* argumentValues[]) {
 	auto showUsage = [&](auto& stream) {
@@ -34,6 +48,8 @@ auto parseArguments(int argumentCount, char* argumentValues[]) {
 			   << std::endl
 			   << "\t--test NAME, -t NAME\tSpecifies the test to run." << std::endl
 			   << "\t--parameter NAME=VALUE, -p NAME=VALUE\tSpecifies a parameter and its associated value to provide to the test." << std::endl
+			   << "\t--monitor NAME, -m NAME\tSpecifies a monitor to use." << std::endl
+			   << "\t--monitorParameter NAME=VALUE, -mP NAME=VALUE\tSpecifies a parameter and its associated value to provide to the monitor." << std::endl
 			   << std::endl
 			   << std::endl
 			   << "Output:" << std::endl
@@ -41,11 +57,15 @@ auto parseArguments(int argumentCount, char* argumentValues[]) {
 			   << "\t--database FILE, -d FILE\tSpecifies the database to use." << std::endl;
 	};
 
+	// Keep track of arguments
 	struct {
 		std::string database = "database.sqlite";
-		std::string test = "";
-		std::map<std::string, std::string> parameters = {};
+		std::vector<TestConfiguration> testConfigurations = {};
 	} arguments;
+	TestConfiguration* currentTestConfiguration = nullptr;
+	MonitorConfiguration* currentMonitorConfiguration = nullptr;
+
+	// Parse arguments
 	size_t argumentIndex = 0u;
 	while(argumentIndex < argumentCount) {
 		std::string value = argumentValues[argumentIndex];
@@ -57,17 +77,120 @@ auto parseArguments(int argumentCount, char* argumentValues[]) {
 		} else if(value == "--database" || value == "-d") {
 			arguments.database = argumentValues[++argumentIndex];
 		} else if(value == "--test" || value == "-t") {
-			arguments.test = argumentValues[++argumentIndex];
-		} else if(value == "--parameter" || value == "-p") {
+			arguments.testConfigurations.emplace_back(TestConfiguration { .test = argumentValues[++argumentIndex] });
+			currentTestConfiguration = &arguments.testConfigurations[arguments.testConfigurations.size() - 1];
+		} else if((value == "--parameter" || value == "-p") && currentTestConfiguration != nullptr) {
 			std::vector<std::string> parameter = EnergyManager::Utility::Text::splitToVector(argumentValues[++argumentIndex], "=", true);
 
-			arguments.parameters[parameter[0]] = parameter[1];
+			currentTestConfiguration->parameters[parameter[0]] = parameter[1];
+		} else if(value == "--monitor" || value == "-m") {
+			currentTestConfiguration->monitorConfigurations.emplace_back(MonitorConfiguration { .monitor = argumentValues[++argumentIndex] });
+			currentMonitorConfiguration = &currentTestConfiguration->monitorConfigurations[currentTestConfiguration->monitorConfigurations.size() - 1];
+		} else if((value == "--monitorParameter" || value == "-mP") && currentMonitorConfiguration != nullptr) {
+			std::vector<std::string> parameter = EnergyManager::Utility::Text::splitToVector(argumentValues[++argumentIndex], "=", true);
+
+			currentMonitorConfiguration->parameters[parameter[0]] = parameter[1];
 		}
 
 		++argumentIndex;
 	}
 
 	return arguments;
+}
+
+std::pair<std::shared_ptr<EnergyManager::Monitoring::Monitor>, std::chrono::system_clock::duration> parseMonitor(MonitorConfiguration& monitorConfiguration) {
+	std::shared_ptr<EnergyManager::Monitoring::Monitor> monitor;
+	if(monitorConfiguration.monitor == "CPUMonitor") {
+		monitor = std::make_shared<EnergyManager::Monitoring::CPUMonitor>(EnergyManager::Hardware::CPU::getCPU(std::stoi(monitorConfiguration.parameters["cpu"])));
+	} else if(monitorConfiguration.monitor == "GPUMonitor") {
+		monitor = std::make_shared<EnergyManager::Monitoring::GPUMonitor>(EnergyManager::Hardware::GPU::getGPU(std::stoi(monitorConfiguration.parameters["gpu"])));
+	} else if(monitorConfiguration.monitor == "NodeMonitor") {
+		monitor = std::make_shared<EnergyManager::Monitoring::NodeMonitor>(EnergyManager::Hardware::Node::getNode());
+	}
+
+	return {
+		monitor,
+		std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(monitorConfiguration.parameters["pollingInterval"]))),
+	};
+}
+
+std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration& testConfiguration) {
+	// Parse the monitors
+	std::map<std::shared_ptr<EnergyManager::Monitoring::Monitor>, std::chrono::system_clock::duration> monitors;
+	for(auto& monitorConfiguration : testConfiguration.monitorConfigurations) {
+		monitors.insert(parseMonitor(monitorConfiguration));
+	}
+
+	// Parse the tests
+	if(testConfiguration.test == "FixedFrequencyMatrixMultiplyTest") {
+		return std::make_shared<EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest>(
+			testConfiguration.parameters["name"],
+			EnergyManager::Hardware::Node::getNode(),
+			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
+			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
+			std::stoi(testConfiguration.parameters["matrixAWidth"]),
+			std::stoi(testConfiguration.parameters["matrixAHeight"]),
+			std::stoi(testConfiguration.parameters["matrixBWidth"]),
+			std::stoi(testConfiguration.parameters["matrixBHeight"]),
+			std::stoul(testConfiguration.parameters["minimumCPUFrequency"]),
+			std::stoul(testConfiguration.parameters["maximumCPUFrequency"]),
+			std::stoul(testConfiguration.parameters["minimumGPUFrequency"]),
+			std::stoul(testConfiguration.parameters["maximumGPUFrequency"]),
+			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
+			monitors);
+	} else if(testConfiguration.test == "MatrixMultiplyTest") {
+		return std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(
+			testConfiguration.parameters["name"],
+			EnergyManager::Hardware::Node::getNode(),
+			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
+			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
+			std::stoi(testConfiguration.parameters["matrixAWidth"]),
+			std::stoi(testConfiguration.parameters["matrixAHeight"]),
+			std::stoi(testConfiguration.parameters["matrixBWidth"]),
+			std::stoi(testConfiguration.parameters["matrixBHeight"]),
+			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
+			monitors);
+	} else if(testConfiguration.test == "PingTest") {
+		return std::make_shared<EnergyManager::Testing::Tests::PingTest>(
+			testConfiguration.parameters["name"],
+			testConfiguration.parameters["host"],
+			std::stoi(testConfiguration.parameters["times"]),
+			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
+			monitors);
+	} else if(testConfiguration.test == "SyntheticGPUWorkloadTest") {
+		auto workloadName = testConfiguration.parameters["workload"];
+		std::shared_ptr<EnergyManager::Benchmarking::Workloads::SyntheticGPUWorkload> workload;
+		if(workloadName == "ActiveInactiveWorkload") {
+			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::ActiveInactiveWorkload>(
+				std::stoi(testConfiguration.parameters["activeOperations"]),
+				std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stol(testConfiguration.parameters["inactivePeriod"]))),
+				std::stoi(testConfiguration.parameters["cycles"]));
+		} else if(workloadName == "AllocateFreeWorkload") {
+			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::AllocateFreeWorkload>(
+				std::stoi(testConfiguration.parameters["hostAllocations"]),
+				std::stol(testConfiguration.parameters["hostSize"]),
+				std::stoi(testConfiguration.parameters["deviceAllocations"]),
+				std::stol(testConfiguration.parameters["deviceSize"]));
+		} else if(workloadName == "VectorAddWorkload") {
+			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::VectorAddWorkload>(std::stol(testConfiguration.parameters["size"]));
+		}
+
+		return std::make_shared<EnergyManager::Testing::Tests::SyntheticGPUWorkloadTest>(
+			testConfiguration.parameters["name"],
+			workload,
+			EnergyManager::Hardware::Node::getNode(),
+			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
+			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
+			monitors);
+	} else if(testConfiguration.test == "VectorAddSubtractTest") {
+		return std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(
+			testConfiguration.parameters["name"],
+			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
+			std::stoi(testConfiguration.parameters["computeCount"]),
+			monitors);
+	}
+
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Unknown test type");
 }
 
 int main(int argumentCount, char* argumentValues[]) {
@@ -83,62 +206,10 @@ int main(int argumentCount, char* argumentValues[]) {
 		// Set up a new TestRunner
 		EnergyManager::Testing::TestRunner testRunner;
 
-		// Generate the test
-		testRunner.addTest(std::shared_ptr<EnergyManager::Testing::Tests::Test>([&]() -> EnergyManager::Testing::Tests::Test* {
-			if(arguments.test == "FixedFrequencyMatrixMultiplyTest") {
-				return new EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest(
-					arguments.parameters["name"],
-					EnergyManager::Hardware::Node::getNode(),
-					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
-					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-					std::stoi(arguments.parameters["matrixAWidth"]),
-					std::stoi(arguments.parameters["matrixAHeight"]),
-					std::stoi(arguments.parameters["matrixBWidth"]),
-					std::stoi(arguments.parameters["matrixBHeight"]),
-					std::stoul(arguments.parameters["minimumCPUFrequency"]),
-					std::stoul(arguments.parameters["maximumCPUFrequency"]),
-					std::stoul(arguments.parameters["minimumGPUFrequency"]),
-					std::stoul(arguments.parameters["maximumGPUFrequency"]));
-			} else if(arguments.test == "MatrixMultiplyTest") {
-				return new EnergyManager::Testing::Tests::MatrixMultiplyTest(
-					arguments.parameters["name"],
-					EnergyManager::Hardware::Node::getNode(),
-					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
-					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-					std::stoi(arguments.parameters["matrixAWidth"]),
-					std::stoi(arguments.parameters["matrixAHeight"]),
-					std::stoi(arguments.parameters["matrixBWidth"]),
-					std::stoi(arguments.parameters["matrixBHeight"]));
-			} else if(arguments.test == "PingTest") {
-				return new EnergyManager::Testing::Tests::PingTest(arguments.parameters["name"], arguments.parameters["host"], std::stoi(arguments.parameters["times"]));
-			} else if(arguments.test == "SyntheticGPUWorkloadTest") {
-				auto workloadName = arguments.parameters["workload"];
-				std::shared_ptr<EnergyManager::Testing::Benchmarking::SyntheticGPUWorkload> workload;
-				if(workloadName == "AllocateFreeWorkload") {
-					workload = std::make_shared<EnergyManager::Testing::Benchmarking::AllocateFreeWorkload>(
-						std::stoi(arguments.parameters["hostAllocations"]),
-						std::stoi(arguments.parameters["hostSize"]),
-						std::stoi(arguments.parameters["deviceAllocations"]),
-						std::stoi(arguments.parameters["deviceSize"]));
-				} else if(workloadName == "VectorAddWorkload") {
-					workload = std::make_shared<EnergyManager::Testing::Benchmarking::VectorAddWorkload>(std::stoi(arguments.parameters["size"]));
-				}
-
-				return new EnergyManager::Testing::Tests::SyntheticGPUWorkloadTest(
-					arguments.parameters["name"],
-					workload,
-					EnergyManager::Hardware::Node::getNode(),
-					EnergyManager::Hardware::CPU::getCPU(std::stoi(arguments.parameters["cpu"])),
-					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])));
-			} else if(arguments.test == "VectorAddSubtractTest") {
-				return new EnergyManager::Testing::Tests::VectorAddSubtractTest(
-					arguments.parameters["name"],
-					EnergyManager::Hardware::GPU::getGPU(std::stoi(arguments.parameters["gpu"])),
-					std::stoi(arguments.parameters["computeCount"]));
-			}
-
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Unknown test type");
-		}()));
+		// Generate the tests
+		for(auto& testConfiguration : arguments.testConfigurations) {
+			testRunner.addTest(parseTest(testConfiguration));
+		}
 
 		// Run the tests
 		testRunner.run();

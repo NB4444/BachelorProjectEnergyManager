@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Persistence/Entity.hpp"
+#include "EnergyManager/Hardware/CPU.hpp"
 
 #include <functional>
 #include <string>
@@ -27,6 +28,11 @@ namespace EnergyManager {
 		 */
 		std::string executableOutput_;
 
+		/**
+		 * The pipe of the current executable.
+		 */
+		 pid_t processID_;
+
 	public:
 		/**
 		 * Creates a new Application.
@@ -47,6 +53,18 @@ namespace EnergyManager {
 		bool isRunning() const;
 
 		/**
+		 * Retrieves the Application's affinity.
+		 * @return The affinity.
+		 */
+		std::vector<std::shared_ptr<Hardware::CPU>> getCPUAffinity() const;
+
+		/**
+		 * Sets the Application's affinity.
+		 * @param affinity The affinity.
+		 */
+		void setCPUAffinity(const std::vector<std::shared_ptr<Hardware::CPU>>& affinity);
+
+		/**
 		 * Gets the Application's output.
 		 * @return The output.
 		 */
@@ -55,7 +73,8 @@ namespace EnergyManager {
 		/**
 		 * Starts the Application.
 		 * @param parameters The parameters to provide to the executable.
+		 * @param cpuAffinity The CPU affinity.
 		 */
-		void run(const std::vector<std::string>& parameters);
+		void run(std::vector<std::string> parameters, const std::vector<std::shared_ptr<Hardware::CPU>>& cpuAffinity = {});
 	};
 }

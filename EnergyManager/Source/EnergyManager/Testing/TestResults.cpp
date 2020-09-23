@@ -42,7 +42,7 @@ namespace EnergyManager {
 		TestResults::TestResults(
 			const Tests::Test& test,
 			const std::map<std::string, std::string>& results,
-			const std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults)
+			const std::map<std::shared_ptr<Monitoring::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults)
 			: test_(test)
 			, results_(results)
 			, monitorResults_(monitorResults) {
@@ -72,7 +72,7 @@ namespace EnergyManager {
 			return results_;
 		}
 
-		std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> TestResults::getMonitorResults() {
+		std::map<std::shared_ptr<Monitoring::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> TestResults::getMonitorResults() {
 			return monitorResults_;
 		}
 	}

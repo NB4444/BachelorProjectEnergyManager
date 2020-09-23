@@ -1,7 +1,7 @@
 #include "./VectorAddSubtractTest.hpp"
 
 #include "EnergyManager/Hardware/GPU.hpp"
-#include "EnergyManager/Profiling/GPUMonitor.hpp"
+#include "EnergyManager/Monitoring/GPUMonitor.hpp"
 #include "EnergyManager/Testing/TestResults.hpp"
 
 namespace EnergyManager {
@@ -94,9 +94,12 @@ namespace EnergyManager {
 
 				return {};
 			}
-
-			VectorAddSubtractTest::VectorAddSubtractTest(const std::string& name, const std::shared_ptr<Hardware::GPU>& gpu, const unsigned int& computeCount)
-				: Test(name, { { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::seconds(1) } })
+			VectorAddSubtractTest::VectorAddSubtractTest(
+				const std::string& name,
+				const std::shared_ptr<Hardware::GPU>& gpu,
+				const unsigned int& computeCount,
+				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
+				: Test(name, monitors)
 				, gpu_(gpu)
 				, computeCount_(computeCount) {
 			}

@@ -8,4 +8,7 @@ executable="$sourceDirectory/Visualizer.py"
 interpreter="$projectDirectory/venv/bin/python3"
 database="$projectDirectory/../EnergyManager/Resources/Test Results/database.sqlite"
 
+cd "$scriptDirectory"
+./Build.sh
+
 "$interpreter" "$executable" --database "$database" --output-directory "$resourcesDirectory/Visualizations"

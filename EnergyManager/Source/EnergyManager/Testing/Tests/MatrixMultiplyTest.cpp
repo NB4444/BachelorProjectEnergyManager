@@ -1,8 +1,8 @@
 #include "./MatrixMultiplyTest.hpp"
 
-#include "EnergyManager/Profiling/CPUMonitor.hpp"
-#include "EnergyManager/Profiling/GPUMonitor.hpp"
-#include "EnergyManager/Profiling/NodeMonitor.hpp"
+#include "EnergyManager/Monitoring/CPUMonitor.hpp"
+#include "EnergyManager/Monitoring/GPUMonitor.hpp"
+#include "EnergyManager/Monitoring/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 
 #include <chrono>
@@ -19,7 +19,9 @@ namespace EnergyManager {
 				const size_t& matrixAWidth,
 				const size_t& matrixAHeight,
 				const size_t& matrixBWidth,
-				const size_t& matrixBHeight)
+				const size_t& matrixBHeight,
+				std::chrono::system_clock::duration applicationMonitorPollingInterval,
+				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
 				: ApplicationTest(
 					name,
 					Application(std::string(PROJECT_RESOURCES_DIRECTORY) + "/CUDA/Samples/0_Simple/matrixMul/matrixMul"),
@@ -34,10 +36,8 @@ namespace EnergyManager {
 						{ "size", "Size= (.+?)," },
 						{ "workgroupSize", "WorkgroupSize= (.+?)\n" },
 					},
-					{ { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::CPUMonitor(cpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(node)),
-						std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) } }) {
+					applicationMonitorPollingInterval,
+					monitors) {
 				if(matrixAWidth % 32 != 0 || matrixBWidth % 32 != 0 || matrixAHeight % 32 != 0 || matrixBHeight % 32 != 0) {
 					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Matrix dimensions must be a multiple of 32");
 				}

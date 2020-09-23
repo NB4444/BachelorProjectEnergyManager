@@ -13,6 +13,31 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Text {
+			template<typename Type>
+			static std::string toString(const Type& value) {
+				return static_cast<std::string>(value);
+			}
+
+			template<>
+			std::string toString<unsigned int>(const unsigned int& value) {
+				return std::to_string(value);
+			}
+
+			template<>
+			std::string toString<unsigned long>(const unsigned long& value) {
+				return std::to_string(value);
+			}
+
+			template<>
+			std::string toString<int>(const int& value) {
+				return std::to_string(value);
+			}
+
+			template<>
+			std::string toString<long>(const long& value) {
+				return std::to_string(value);
+			}
+
 			static std::string trim(std::string value) {
 				// Trim prefix whitespace
 				value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](const int& character) {
@@ -46,7 +71,7 @@ namespace EnergyManager {
 						result += delimiter;
 					}
 
-					result += std::string(value[index]);
+					result += toString(value[index]);
 				}
 
 				return result;

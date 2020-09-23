@@ -50,8 +50,10 @@ namespace EnergyManager {
 				const unsigned long& minimumCPUFrequency,
 				const unsigned long& maximumCPUFrequency,
 				const unsigned long& minimumGPUFrequency,
-				const unsigned long& maximumGPUFrequency)
-				: MatrixMultiplyTest(name, node, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight)
+				const unsigned long& maximumGPUFrequency,
+				std::chrono::system_clock::duration applicationMonitorPollingInterval,
+				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
+				: MatrixMultiplyTest(name, node, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight, applicationMonitorPollingInterval, monitors)
 				, cpu_(cpu)
 				, gpu_(gpu)
 				, minimumCPUFrequency_(minimumGPUFrequency)

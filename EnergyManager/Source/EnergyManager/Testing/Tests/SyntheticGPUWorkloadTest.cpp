@@ -1,8 +1,8 @@
 #include "./SyntheticGPUWorkloadTest.hpp"
 
-#include "EnergyManager/Profiling/CPUMonitor.hpp"
-#include "EnergyManager/Profiling/GPUMonitor.hpp"
-#include "EnergyManager/Profiling/NodeMonitor.hpp"
+#include "EnergyManager/Monitoring/CPUMonitor.hpp"
+#include "EnergyManager/Monitoring/GPUMonitor.hpp"
+#include "EnergyManager/Monitoring/NodeMonitor.hpp"
 
 #include <utility>
 
@@ -17,15 +17,12 @@ namespace EnergyManager {
 
 			SyntheticGPUWorkloadTest::SyntheticGPUWorkloadTest(
 				const std::string& name,
-				std::shared_ptr<Benchmarking::SyntheticGPUWorkload> workload,
+				std::shared_ptr<Benchmarking::Workloads::SyntheticGPUWorkload> workload,
 				const std::shared_ptr<Hardware::Node>& node,
 				const std::shared_ptr<Hardware::CPU>& cpu,
-				const std::shared_ptr<Hardware::GPU>& gpu)
-				: Test(
-					name,
-					{ { std::shared_ptr<Profiling::Monitor>(new Profiling::GPUMonitor(gpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::CPUMonitor(cpu)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) },
-					  { std::shared_ptr<Profiling::Monitor>(new Profiling::NodeMonitor(node)), std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(100)) } })
+				const std::shared_ptr<Hardware::GPU>& gpu,
+				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
+				: Test(name, monitors)
 				, workload_(std::move(workload)) {
 			}
 		}

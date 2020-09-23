@@ -26,7 +26,7 @@ namespace EnergyManager {
 			/**
 			 * The results of the Monitors.
 			 */
-			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults_;
+			std::map<std::shared_ptr<Monitoring::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> monitorResults_;
 
 		protected:
 			void onSave() override;
@@ -42,7 +42,7 @@ namespace EnergyManager {
 			TestResults(
 				const Tests::Test& test,
 				const std::map<std::string, std::string>& results = {},
-				const std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults = {});
+				const std::map<std::shared_ptr<Monitoring::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>>& monitorResults = {});
 
 			/**
 			 * Gets the Test that generated the results.
@@ -60,7 +60,7 @@ namespace EnergyManager {
 			 * Gets the results of the Monitors.
 			 * @return the Monitor results.
 			 */
-			std::map<std::shared_ptr<Profiling::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> getMonitorResults();
+			std::map<std::shared_ptr<Monitoring::Monitor>, std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>>> getMonitorResults();
 		};
 	}
 }

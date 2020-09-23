@@ -87,10 +87,7 @@ if __name__ == '__main__':
         os.makedirs(test_output_directory)
 
         # Plot some graphs
-        test.test_results.overview_plot(
-            title=test.name,
-            output_directory=output_directory
-        )
+        test.test_results.overview_plot(output_directory=output_directory)
 
         Plotting.free()
 

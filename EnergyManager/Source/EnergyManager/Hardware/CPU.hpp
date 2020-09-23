@@ -10,6 +10,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <vector>
 
 namespace EnergyManager {
 	namespace Hardware {
@@ -118,6 +119,8 @@ namespace EnergyManager {
 			 */
 			static std::shared_ptr<CPU> getCPU(const unsigned int& id);
 
+			static std::vector<std::shared_ptr<CPU>> getCPUs();
+
 			/**
 			 * Gets the amount of CPUs.
 			 * @return The amount of CPUs.
@@ -125,6 +128,8 @@ namespace EnergyManager {
 			static unsigned int getCPUCount();
 
 			~CPU();
+
+			unsigned int getID() const;
 
 			Utility::Units::Hertz getCoreClockRate() const override;
 

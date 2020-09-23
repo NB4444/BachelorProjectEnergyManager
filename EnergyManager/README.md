@@ -1,10 +1,16 @@
 # EnergyManager
 
+EnergyManager is a framework that can be used to test and monitor heterogenous CPU-GPU applications in order to automatically apply energy saving strategies.
+
 ## Usage
+
+This section describes the different ways in which the EnergyManager framework can be used.
+
+### Scripts
 
 Some sample scripts can be found in the `Resources/Scripts` directory.
 
-### Parameters
+### Command Line
 
 EnergyManager can be used by providing arguments when starting the executable.
 The available arguments are as follows:
@@ -15,7 +21,7 @@ The available arguments are as follows:
 | --parameter | -p        | NAME=VALUE | A parameter to provide to the test.             |
 | --database  | -d        | FILE       | The database file to store the test results in. |
 
-### Available Tests
+#### Available Tests
 
 There are several tests available, each with their own parameters.
 They are as follows:
@@ -25,7 +31,17 @@ They are as follows:
 | FixedFrequencyMatrixMultiplyTest | name, cpu, gpu, minimumCPUFrequency, maximumCPUFrequency, minimumGPUFrequency, maximumGPUFrequency, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight |
 | MatrixMultiplyTest               | name, cpu, gpu, matrixAWidth, matrixAHeight, matrixBWidth, matrixBHeight                                                                                     |
 | PingTest                         | name, host, times                                                                                                                                            |
+| SyntheticGPUWorkloadTest*        | name, workload, cpu, gpu
 | VectorAddSubtractTest            | name, gpu, computeCount                                                                                                                                      |
+
+* The `SyntheticGPUWorkloadTest` supports multiple workload types, each with their own parameters.
+See the table below.
+
+| Workload               | Parameters                                               |
+| :--------------------- | :------------------------------------------------------- |
+| ActiveInactiveWorkload | activeOperations, inactivePeriod, cycles                 |
+| AllocateFreeWorkload   | hostAllocations, hostSize, deviceAllocations, deviceSize |
+| VectorAddWorkload      | size                                                     |
 
 ## Compiling
 

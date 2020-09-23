@@ -1,11 +1,12 @@
 #pragma once
 
-#include "EnergyManager/Hardware/Device.hpp"
 #include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/Device.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Utility/Units/Byte.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace EnergyManager {
 	namespace Hardware {
@@ -13,9 +14,9 @@ namespace EnergyManager {
 		 * Represents a Graphics Processing Unit.
 		 */
 		class Node : public Device {
-			std::shared_ptr<Hardware::CPU> cpu_;
+			std::vector<std::shared_ptr<Hardware::CPU>> cpus_;
 
-			std::shared_ptr<Hardware::GPU> gpu_;
+			std::vector<std::shared_ptr<Hardware::GPU>> gpus_;
 
 			/**
 			 * The starting energy consumption.
@@ -25,7 +26,7 @@ namespace EnergyManager {
 			/**
 			 * Creates a new Node.
 			 */
-			Node(const std::shared_ptr<Hardware::CPU>& cpu, const std::shared_ptr<Hardware::GPU>& gpu);
+			Node(std::vector<std::shared_ptr<Hardware::CPU>> cpus, std::vector<std::shared_ptr<Hardware::GPU>> gpus);
 
 		public:
 			/**

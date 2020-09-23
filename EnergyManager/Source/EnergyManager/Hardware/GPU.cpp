@@ -273,6 +273,20 @@ namespace EnergyManager {
 			return gpus_[id];
 		}
 
+		std::vector<std::shared_ptr<GPU>> GPU::getGPUs() {
+			std::vector<std::shared_ptr<GPU>> gpus;
+			for(unsigned int gpu = 0; gpu < getGPUCount(); ++gpu) {
+				gpus.push_back(getGPU(gpu));
+			}
+
+			return gpus;
+		}
+
+		unsigned int GPU::getGPUCount() {
+			// TODO: Implement this
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("NOT IMPLEMENTED");
+		}
+
 		GPU::~GPU() {
 			// Stop the monitor
 			monitorThreadRunning_ = false;

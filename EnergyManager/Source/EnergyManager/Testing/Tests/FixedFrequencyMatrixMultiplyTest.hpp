@@ -38,7 +38,9 @@ namespace EnergyManager {
 					const unsigned long& minimumCPUFrequency,
 					const unsigned long& maximumCPUFrequency,
 					const unsigned long& minimumGPUFrequency,
-					const unsigned long& maximumGPUFrequency);
+					const unsigned long& maximumGPUFrequency,
+					std::chrono::system_clock::duration applicationMonitorPollingInterval,
+					std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors = {});
 			};
 		}
 	}

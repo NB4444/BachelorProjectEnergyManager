@@ -194,14 +194,14 @@ namespace EnergyManager {
 						// Calculate the core utilization rates
 						for(unsigned int core = 0; core < getCoreCount(); ++core) {
 							auto previousIdle = lastProcStatValues_[id_][core]["idleTimespan"] + lastProcStatValues_[id_][core]["ioWaitTimespan"];
-							auto previousActive = lastProcStatValues_[id][core]["userTimespan"] + lastProcStatValues_[id_][core]["niceTimespan"] + lastProcStatValues_[id_][core]["systemTimespan"]
+							auto previousActive = lastProcStatValues_[id_][core]["userTimespan"] + lastProcStatValues_[id_][core]["niceTimespan"] + lastProcStatValues_[id_][core]["systemTimespan"]
 												  + lastProcStatValues_[id_][core]["interruptsTimespan"] + lastProcStatValues_[id_][core]["softInterruptsTimespan"]
 												  + lastProcStatValues_[id_][core]["stealTimespan"] + lastProcStatValues_[id_][core]["guestTimespan"]
 												  + lastProcStatValues_[id_][core]["guestNiceTimespan"];
 							auto previousTotal = previousIdle + previousActive;
 
 							auto idle = currentProcStatValues[id_][core]["idleTimespan"] + currentProcStatValues[id_][core]["ioWaitTimespan"];
-							auto active = currentProcStatValues[id][core]["userTimespan"] + currentProcStatValues[id_][core]["niceTimespan"] + currentProcStatValues[id_][core]["systemTimespan"]
+							auto active = currentProcStatValues[id_][core]["userTimespan"] + currentProcStatValues[id_][core]["niceTimespan"] + currentProcStatValues[id_][core]["systemTimespan"]
 										  + currentProcStatValues[id_][core]["interruptsTimespan"] + currentProcStatValues[id_][core]["softInterruptsTimespan"]
 										  + currentProcStatValues[id_][core]["stealTimespan"] + currentProcStatValues[id_][core]["guestTimespan"]
 										  + currentProcStatValues[id_][core]["guestNiceTimespan"];
@@ -255,6 +255,15 @@ namespace EnergyManager {
 			return cpus_[id];
 		}
 
+		std::vector<std::shared_ptr<CPU>> CPU::getCPUs() {
+			std::vector<std::shared_ptr<CPU>> cpus;
+			for(unsigned int cpu = 0; cpu < getCPUCount(); ++cpu) {
+				cpus.push_back(getCPU(cpu));
+			}
+
+			return cpus;
+		}
+
 		unsigned int CPU::getCPUCount() {
 			return getProcCPUInfoValuesPerCPU().size();
 		}
@@ -263,6 +272,10 @@ namespace EnergyManager {
 			// Stop the monitor
 			monitorThreadRunning_ = false;
 			monitorThread_.join();
+		}
+
+		unsigned int CPU::getID() const {
+			return id_;
 		}
 
 		Utility::Units::Hertz CPU::getCoreClockRate() const {

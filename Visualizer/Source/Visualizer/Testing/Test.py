@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import List
 
 from Visualizer import Plotting
@@ -21,7 +22,6 @@ class Test(Entity):
                 database_file,
                 id,
                 name,
-                TestResults.load_by_test_id(database_file, id)
             ))
 
         return tests
@@ -36,9 +36,12 @@ class Test(Entity):
 
         return table
 
-    def __init__(self, database_file: str, id: int, name: str, test_results: TestResults):
+    def __init__(self, database_file: str, id: int, name: str):
         super().__init__(database_file)
 
         self.id = id
         self.name = name
-        self.test_results = test_results
+
+    @cached_property
+    def test_results(self) -> TestResults:
+        return TestResults(self.database_file, self)

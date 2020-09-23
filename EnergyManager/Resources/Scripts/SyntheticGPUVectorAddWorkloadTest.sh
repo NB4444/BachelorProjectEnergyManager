@@ -2,7 +2,7 @@
 
 cpu=0
 gpu=0
-size=100
+size=1024000000
 
 scriptDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 projectDirectory="$scriptDirectory/../.."
@@ -20,6 +20,6 @@ cd "$scriptDirectory"
 	--test "SyntheticGPUWorkloadTest" \
 	--parameter "name=SyntheticGPUWorkloadTest ($workload)" \
 	--parameter "workload=$workload" \
-	--parameter "size=$size" \
 	--parameter "cpu=$cpu" \
-	--parameter "gpu=$gpu"
+	--parameter "gpu=$gpu" \
+	--parameter "size=$size"

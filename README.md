@@ -8,7 +8,7 @@ This is the research project that contains monitoring, profiling and energy savi
 
 ## Visualizer
 
-A project to visualize data generated using the Energy Manager.
+A project to visualize data generated using the EnergyManager.
 
 ## cuda_monitor
 

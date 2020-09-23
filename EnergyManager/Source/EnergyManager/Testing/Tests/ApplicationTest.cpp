@@ -1,6 +1,7 @@
 #include "./ApplicationTest.hpp"
 
 #include "EnergyManager/Application.hpp"
+#include "EnergyManager/Monitoring/ApplicationMonitor.hpp"
 
 #include <regex>
 #include <utility>
@@ -17,9 +18,6 @@ namespace EnergyManager {
 
 				// Get output
 				std::string output = application_.getExecutableOutput();
-
-				//// Add Application output
-				//results["output"] = output;
 
 				// Parse and add results
 				for(const auto& result : results_) {
@@ -38,8 +36,14 @@ namespace EnergyManager {
 				const Application& application,
 				std::vector<std::string> parameters,
 				std::map<std::string, std::string> results,
-				std::map<std::shared_ptr<Profiling::Monitor>, std::chrono::system_clock::duration> monitors)
-				: Test(name, monitors)
+				std::chrono::system_clock::duration applicationMonitorPollingInterval,
+				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
+				: Test(
+					name,
+					[&]() {
+						monitors[std::make_shared<Monitoring::ApplicationMonitor>(application)] = applicationMonitorPollingInterval;
+						return monitors;
+					}())
 				, application_(application)
 				, parameters_(std::move(parameters))
 				, results_(std::move(results)) {

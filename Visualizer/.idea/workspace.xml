@@ -2,23 +2,118 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/Visualizer.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace (conflicted copy 2020-09-04 214103).xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Build_Visualizer.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/SyntheticGPUActiveInactiveWorkloadTest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/SyntheticGPUAllocateFreeWorkloadTest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/VisualizeNotebook.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/SyntheticGPUActiveInactiveWorkloadTest.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AllocateCPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AllocateCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AllocateGPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AllocateGPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AssignCPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/AssignCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/CopyCPUToGPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/CopyCPUToGPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/FreeCPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/FreeGPUOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/MemoryCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/MemoryGPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SleepOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SleepOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SyntheticCPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SyntheticGPUOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SyntheticOperation.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Operations/SyntheticOperation.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/ActiveInactiveWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/ActiveInactiveWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/AllocateFreeWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/AllocateFreeWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/SyntheticGPUWorkload.cu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/SyntheticGPUWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/SyntheticWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/SyntheticWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/VectorAddWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Benchmarking/Workloads/VectorAddWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/ApplicationMonitor.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/ApplicationMonitor.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/WorkloadMonitor.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Source/ComparisonNotebook.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/EnergyManager.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/EnergyManager.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_All__Build.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Build.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_All__Clean.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Clean.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__Build.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Build_EnergyManager.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__Clean.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Clean_EnergyManager.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__FixedFrequencyMatrixMultiplyTests.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/FixedFrequencyMatrixMultiplyTests.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__MatrixMultiplyTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/MatrixMultiplyTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__SyntheticGPUAllocateFreeWorkloadTest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__SyntheticGPUVectorAddWorkloadTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/SyntheticGPUVectorAddWorkloadTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_EnergyManager__VectorAddSubtract.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/VectorAddSubtractTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_Visualizer__Clean.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Clean_Visualizer.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/runConfigurations/_Visualizer__Visualize.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Visualize.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/SyntheticAllocateFreeWorkloadTest.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/SyntheticGPUAllocateFreeWorkloadTest.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/SyntheticGPUVectorAddWorkloadTest.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/SyntheticGPUVectorAddWorkloadTest.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Application.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Application.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Application.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Application.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/CPU.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/CPU.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/CPU.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/CPU.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/GPU.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/GPU.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/GPU.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/GPU.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/Node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Hardware/Node.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/CPUMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/CPUMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/CPUMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/CPUMonitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/DeviceMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/DeviceMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/DeviceMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/DeviceMonitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/GPUMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/GPUMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/GPUMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/GPUMonitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/Monitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/Monitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/Monitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/Monitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/NodeMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/NodeMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/NodeMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/NodeMonitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/ProcessorMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/ProcessorMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/ProcessorMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/ProcessorMonitor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/WorkloadMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Monitoring/WorkloadMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Profiling/WorkloadMonitor.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/AllocateFreeWorkload.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/AllocateFreeWorkload.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/SyntheticGPUWorkload.cu" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/SyntheticGPUWorkload.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/SyntheticWorkload.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/VectorAddWorkload.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Benchmarking/VectorAddWorkload.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/TestResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/TestResults.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/TestResults.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/TestResults.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/ApplicationTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/ApplicationTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/ApplicationTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/ApplicationTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/MatrixMultiplyTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/MatrixMultiplyTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/PingTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/PingTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/PingTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/PingTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/Test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/Test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/Test.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/Test.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/VectorAddSubtractTest.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/VectorAddSubtractTest.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Utility/Text.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Source/EnergyManager/Utility/Text.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/Scripts/Visualize.sh" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/Scripts/Visualize.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Persistence/Entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Persistence/Entity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/Test.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Testing/Test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/TestResults.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Testing/TestResults.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,15 +123,19 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Jupyter Notebook" />
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="JupyterTrust" id="2acc8a6b-ab4b-4dfb-b1e4-ffa4163d04dc" />
+  <component name="JupyterTrust" id="b84fa526-df02-497a-b6b1-5ac5f521855c">
+    <option name="files">
+      <option value="Source/ComparisonNotebook.ipynb" />
+    </option>
+  </component>
   <component name="ProjectId" id="1h3PZVvJjIKPghb0pdr5Jm0TIVJ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -46,12 +145,51 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="add_unversioned_files" value="$PROJECT_DIR$/Resources/Scripts/VisualizeNotebook.sh" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Source" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Source" />
+      <recent name="$PROJECT_DIR$/Resources/Scripts" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Shell Script.Build.sh">
+    <configuration name="Build.sh" type="ShConfigurationType" temporary="true">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/Resources/Scripts/Build.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/Resources/Scripts" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/usr/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="VisualizeNotebook.sh" type="ShConfigurationType" temporary="true">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/Resources/Scripts/VisualizeNotebook.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/Resources/Scripts" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/usr/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Shell Script.VisualizeNotebook.sh" />
+        <item itemvalue="Shell Script.Build.sh" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -65,12 +203,25 @@
       <workItem from="1599237134950" duration="79000" />
       <workItem from="1599240342777" duration="6587000" />
       <workItem from="1599479762260" duration="22579000" />
-      <workItem from="1599519546533" duration="3362000" />
+      <workItem from="1599519546533" duration="15903000" />
+      <workItem from="1599701059272" duration="2645000" />
+      <workItem from="1599726887557" duration="2643000" />
+      <workItem from="1600092379052" duration="456000" />
+      <workItem from="1600119613458" duration="599000" />
+      <workItem from="1600181472221" duration="555000" />
+      <workItem from="1600182075844" duration="23000" />
+      <workItem from="1600182107019" duration="12000" />
+      <workItem from="1600182127813" duration="2077000" />
+      <workItem from="1600358501368" duration="1172000" />
+      <workItem from="1600597444684" duration="2207000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="1373" y="847" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1599245769655">
@@ -81,54 +232,60 @@
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
     <state x="1617" y="781" key="#xdebugger.evaluate/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599245715210" />
-    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl" timestamp="1599237186617">
+    <state x="94" y="334" width="3652" height="1868" key="DiffContextDialog" timestamp="1599682794010">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599237186617" />
-    <state width="3780" height="598" key="GridCell.Tab.0.bottom" timestamp="1599521433095">
+    <state x="94" y="334" width="3652" height="1868" key="DiffContextDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599682794009" />
+    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl" timestamp="1599682787733">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.0.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
-    <state width="3780" height="598" key="GridCell.Tab.0.center" timestamp="1599521433095">
+    <state x="1650" y="969" width="542" height="620" key="FileChooserDialogImpl/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599682787733" />
+    <state width="3780" height="234" key="GridCell.Tab.0.bottom" timestamp="1599727405602">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.0.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
-    <state width="3780" height="598" key="GridCell.Tab.0.left" timestamp="1599521433095">
+    <state width="3780" height="234" key="GridCell.Tab.0.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599727405602" />
+    <state width="3780" height="234" key="GridCell.Tab.0.center" timestamp="1599727405602">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.0.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
-    <state width="3780" height="598" key="GridCell.Tab.0.right" timestamp="1599521433095">
+    <state width="3780" height="234" key="GridCell.Tab.0.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599727405602" />
+    <state width="3780" height="234" key="GridCell.Tab.0.left" timestamp="1599727405602">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.0.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433095" />
-    <state width="3780" height="598" key="GridCell.Tab.1.bottom" timestamp="1599521433507">
+    <state width="3780" height="234" key="GridCell.Tab.0.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599727405602" />
+    <state width="3780" height="234" key="GridCell.Tab.0.right" timestamp="1599727405602">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.1.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433507" />
-    <state width="3780" height="598" key="GridCell.Tab.1.center" timestamp="1599521433506">
+    <state width="3780" height="234" key="GridCell.Tab.0.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599727405602" />
+    <state width="3780" height="112" key="GridCell.Tab.1.bottom" timestamp="1599679767506">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.1.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
-    <state width="3780" height="598" key="GridCell.Tab.1.left" timestamp="1599521433506">
+    <state width="3780" height="112" key="GridCell.Tab.1.bottom/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599679767506" />
+    <state width="3780" height="112" key="GridCell.Tab.1.center" timestamp="1599679767506">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.1.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
-    <state width="3780" height="598" key="GridCell.Tab.1.right" timestamp="1599521433506">
+    <state width="3780" height="112" key="GridCell.Tab.1.center/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599679767506" />
+    <state width="3780" height="112" key="GridCell.Tab.1.left" timestamp="1599679767506">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state width="3780" height="598" key="GridCell.Tab.1.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599521433506" />
-    <state x="1166" y="720" key="SettingsEditor" timestamp="1599515139785">
+    <state width="3780" height="112" key="GridCell.Tab.1.left/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599679767506" />
+    <state width="3780" height="112" key="GridCell.Tab.1.right" timestamp="1599679767506">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
-    <state x="1166" y="720" key="SettingsEditor/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599515139785" />
+    <state width="3780" height="112" key="GridCell.Tab.1.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599679767506" />
+    <state x="1166" y="544" key="SettingsEditor" timestamp="1600183073145">
+      <screen x="0" y="32" width="3840" height="2128" />
+    </state>
+    <state x="1166" y="720" key="SettingsEditor/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1600092823202" />
+    <state x="1166" y="544" key="SettingsEditor/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1600183073145" />
     <state width="1926" height="1034" key="XDebugger.FullValuePopup" timestamp="1599244176240">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
     <state width="1926" height="1034" key="XDebugger.FullValuePopup/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599244176240" />
-    <state x="1593" y="1068" key="cloudConfig.PluginsDialog" timestamp="1599237096081">
-      <screen x="0" y="200" width="3840" height="2160" />
+    <state x="1593" y="887" width="743" height="457" key="cloudConfig.PluginsDialog" timestamp="1600182116728">
+      <screen x="0" y="32" width="3840" height="2128" />
     </state>
     <state x="1593" y="1068" key="cloudConfig.PluginsDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599237096081" />
+    <state x="1593" y="887" width="743" height="457" key="cloudConfig.PluginsDialog/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1600182116728" />
     <state x="1766" y="1079" width="310" height="399" key="cloudConfig.SelfSettingsDialog" timestamp="1599237086771">
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
@@ -145,5 +302,9 @@
       <screen x="0" y="200" width="3840" height="2160" />
     </state>
     <state x="539" y="710" width="840" height="1034" key="search.everywhere.popup/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599503784099" />
+    <state x="1625" y="1132" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1600092683302">
+      <screen x="0" y="200" width="3840" height="2160" />
+    </state>
+    <state x="1625" y="1132" key="vcs.readOnlyHandler.ReadOnlyStatusDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1600092683302" />
   </component>
 </project>

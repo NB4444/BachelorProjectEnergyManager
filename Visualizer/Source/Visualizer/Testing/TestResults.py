@@ -1,5 +1,6 @@
 import collections
 import datetime
+from functools import cached_property
 from typing import Dict, OrderedDict, Any
 
 from Visualizer import Plotting
@@ -7,16 +8,16 @@ from Visualizer.Persistence.Entity import Entity
 
 
 class TestResults(Entity):
-    @classmethod
-    def load_by_test_id(cls, database_file: str, testID: int):
-        Entity.database_file = database_file
+    def __init__(self, database_file: str, test: "Test"):
+        super().__init__(database_file)
 
-        # Keep track of the results
-        test_results: Dict[str, str] = dict()
-        monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]] = dict()
+        self.test = test
 
+    @cached_property
+    def results(self) -> Dict[str, Any]:
         # Retrieve the test results
-        for row in cls._select("TestResults", ["name", "value"], f"testID = {testID}"):
+        test_results: Dict[str, str] = dict()
+        for row in self._select("TestResults", ["name", "value"], f"testID = {self.test.id}"):
             # Keep track of the current result
             name = row[0]
             value = row[1]
@@ -24,8 +25,13 @@ class TestResults(Entity):
             # Store the results
             test_results[name] = value
 
+        return test_results
+
+    @cached_property
+    def monitor_results(self) -> Dict[str, OrderedDict[datetime.datetime, Dict[str, Any]]]:
         # Retrieve the monitor results
-        for row in cls._select("MonitorResults", ["monitor", "timestamp", "name", "value"], f"testID = {testID}", "timestamp ASC"):
+        monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, str]]] = dict()
+        for row in self._select("MonitorResults", ["monitor", "timestamp", "name", "value"], f"testID = {self.test.id}", "timestamp ASC"):
             # Keep track of the current result
             monitor = row[0]
             timestamp = datetime.datetime.fromtimestamp(float(row[1]) / 1000.0)
@@ -57,15 +63,9 @@ class TestResults(Entity):
             # Store the results
             monitor_results[monitor][timestamp][name] = determine_type(value)(value)
 
-        return TestResults(database_file, test_results, monitor_results)
+        return monitor_results
 
-    def __init__(self, database_file: str, results: Dict[str, Any], monitor_results: Dict[str, OrderedDict[datetime.datetime, Dict[str, Any]]]):
-        super().__init__(database_file)
-
-        self.results = results
-        self.monitor_results = monitor_results
-
-    @property
+    @cached_property
     def monitor_results_table(self):
         return self.get_monitor_results_table()
 
@@ -75,10 +75,11 @@ class TestResults(Entity):
             columns=["Timestamp", "Monitor", "Name", "Value"],
             maximum_column_width=maximum_column_width,
             maximum_columns=maximum_columns,
+            minimum_rows=minimum_rows,
             maximum_rows=maximum_rows
         )
 
-    @property
+    @cached_property
     def data_table(self):
         # Transform the data into a better format
         transformed_data: Dict[int, Dict[str, Any]] = collections.OrderedDict()
@@ -88,7 +89,7 @@ class TestResults(Entity):
                     transformed_data[timestamp] = dict()
 
                 for name, value in data.items():
-                    transformed_data[timestamp][f"{monitor_name}_{name}"] = value
+                    transformed_data[timestamp][f"{monitor_name}.{name}"] = value
 
         transformed_data = collections.OrderedDict(sorted(transformed_data.items()))
 
@@ -161,12 +162,14 @@ class TestResults(Entity):
             self.temperature_plot,
             self.timespan_plot,
             self.utilization_rate_plot,
+            self.kernel_coordinates_plot,
             # self.correlations_plot,
         ], output_directory=output_directory)
 
-    @property
+    @cached_property
     def summary(self):
         return {
+            "Name": self.test.name,
             "GPU Brand": self.__collect_constant_value("GPUMonitor", "brand", str),
             "GPU Compute Capability Major Version": self.__collect_constant_value("GPUMonitor", "computeCapabilityMajorVersion", int),
             "GPU Compute Capability Minor Version": self.__collect_constant_value("GPUMonitor", "computeCapabilityMinorVersion", int),
@@ -184,24 +187,35 @@ class TestResults(Entity):
     def summary_plot(self, figure=None, axes=None):
         return Plotting.plot_dictionary(self.summary, figure, axes)
 
-    @property
+    @cached_property
     def clock_rate(self):
         clock_rate = self.__collect_summarized_indexed_values("CPU", "CPU Core", "CPUMonitor", "coreClockRate", "coreClockRateCore", int)
-        clock_rate.update(self.__collect_summarized_indexed_values("CPU Maximum", "CPU Maximum Core", "CPUMonitor", "maximumCoreClockRate", "maximumCoreClockRateCore", int))
         clock_rate.update({
             ("GPU Core", ""): self.__collect_values("GPUMonitor", "coreClockRate", int),
-            # ("GPU Core Maximum", ""): self.__collect_values("GPUMonitor", "maximumCoreClockRate", int),
             ("GPU Memory", ""): self.__collect_values("GPUMonitor", "memoryClockRate", int),
-            # ("GPU Memory Maximum", ""): self.__collect_values("GPUMonitor", "maximumMemoryClockRate", int),
             ("GPU SM", ""): self.__collect_values("GPUMonitor", "streamingMultiprocessorClockRate", int),
         })
 
         return clock_rate
 
-    def clock_rate_plot(self, figure=None, axes=None, output_directory: str = None):
-        return Plotting.plot_timeseries(title="Clock Rate", plot_series=self.clock_rate, figure=figure, axes=axes, y_label="Clock Rate (Hz)", output_directory=output_directory)
+    @cached_property
+    def clock_rate_limits(self):
+        clock_rate_limits = self.__collect_summarized_indexed_values("CPU Maximum", "CPU Maximum Core", "CPUMonitor", "maximumCoreClockRate", "maximumCoreClockRateCore", int)
+        clock_rate_limits.update({
+            ("GPU Core Maximum", ""): self.__collect_values("GPUMonitor", "maximumCoreClockRate", int),
+            ("GPU Memory Maximum", ""): self.__collect_values("GPUMonitor", "maximumMemoryClockRate", int),
+        })
 
-    @property
+        return clock_rate_limits
+
+    def clock_rate_plot(self, plot_limits=True, figure=None, axes=None, output_directory: str = None):
+        series = self.clock_rate
+        if plot_limits:
+            series.update(self.clock_rate_limits)
+
+        return Plotting.plot_timeseries(title="Clock Rate", plot_series=series, figure=figure, axes=axes, y_label="Clock Rate (Hz)", output_directory=output_directory)
+
+    @cached_property
     def energy_consumption(self):
         return self.get_energy_consumption(None)
 
@@ -216,52 +230,70 @@ class TestResults(Entity):
         return Plotting.plot_timeseries(title="Energy Consumption", plot_series=self.get_energy_consumption(modifier), figure=figure, axes=axes, y_label=f"Energy Consumption ({unit_string})",
                                         output_directory=output_directory)
 
-    @property
+    @cached_property
     def fan_speed(self):
         return self.__collect_summarized_indexed_values("GPU", "GPU Fan", "GPUMonitor", "fanSpeed", "fanSpeedFan", float, Plotting.to_percentage)
 
     def fan_speed_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Fan Speed", plot_series=self.fan_speed, figure=figure, axes=axes, y_label="Fan Speed (%)", output_directory=output_directory)
 
-    @property
+    @cached_property
     def memory_consumption(self):
         return {
-            ("GPU Kernel Dynamic Shared", ""): self.__collect_values("GPUMonitor", "kernelDynamicSharedMemorySize", int),
-            ("GPU Kernel Static Shared", ""): self.__collect_values("GPUMonitor", "kernelStaticSharedMemorySize", int),
-            # ("GPU", ""): self.__collect_values("GPUMonitor", "memorySize", int),
-            # ("GPU Free", ""): self.__collect_values("GPUMonitor", "memoryFreeSize", int),
+            ("GPU Free", ""): self.__collect_values("GPUMonitor", "memoryFreeSize", int),
             ("GPU Used", ""): self.__collect_values("GPUMonitor", "memoryUsedSize", int),
-            ("GPU PCIe Link", ""): self.__collect_values("GPUMonitor", "pciELinkWidth", int),
-            # ("RAM", ""): self.__collect_values("NodeMonitor", "memorySize", int),
-            # ("RAM Free", ""): self.__collect_values("NodeMonitor", "freeMemorySize", int),
+            ("RAM Free", ""): self.__collect_values("NodeMonitor", "freeMemorySize", int),
             ("RAM Used", ""): self.__collect_values("NodeMonitor", "usedMemorySize", int),
-            ("RAM Shared", ""): self.__collect_values("NodeMonitor", "sharedMemorySize", int),
-            ("RAM Buffer", ""): self.__collect_values("NodeMonitor", "bufferMemorySize", int),
-            # ("Swap", ""): self.__collect_values("NodeMonitor", "swapMemorySize", int),
-            # ("Swap Free", ""): self.__collect_values("NodeMonitor", "freeSwapMemorySize", int),
+            ("Swap Free", ""): self.__collect_values("NodeMonitor", "freeSwapMemorySize", int),
             ("Swap Used", ""): self.__collect_values("NodeMonitor", "usedSwapMemorySize", int),
-            # ("High", ""): self.__collect_values("NodeMonitor", "highMemorySize", int),
-            # ("High Free", ""): self.__collect_values("NodeMonitor", "freeHighMemorySize", int),
+            ("High Free", ""): self.__collect_values("NodeMonitor", "freeHighMemorySize", int),
             ("High Used", ""): self.__collect_values("NodeMonitor", "usedHighMemorySize", int),
         }
 
-    def memory_consumption_plot(self, figure=None, axes=None, output_directory: str = None):
-        return Plotting.plot_timeseries(title="Memory Consumption", plot_series=self.memory_consumption, figure=figure, axes=axes, y_label="Memory Consumption (B)", output_directory=output_directory)
+    @cached_property
+    def memory_sizes(self):
+        return {
+            ("GPU Kernel Dynamic Shared", ""): self.__collect_values("GPUMonitor", "kernelDynamicSharedMemorySize", int),
+            ("GPU Kernel Static Shared", ""): self.__collect_values("GPUMonitor", "kernelStaticSharedMemorySize", int),
+            ("GPU", ""): self.__collect_values("GPUMonitor", "memorySize", int),
+            ("GPU PCIe Link", ""): self.__collect_values("GPUMonitor", "pciELinkWidth", int),
+            ("RAM", ""): self.__collect_values("NodeMonitor", "memorySize", int),
+            ("RAM Shared", ""): self.__collect_values("NodeMonitor", "sharedMemorySize", int),
+            ("RAM Buffer", ""): self.__collect_values("NodeMonitor", "bufferMemorySize", int),
+            ("Swap", ""): self.__collect_values("NodeMonitor", "swapMemorySize", int),
+            ("High", ""): self.__collect_values("NodeMonitor", "highMemorySize", int),
+        }
 
-    @property
+    def memory_consumption_plot(self, plot_sizes=True, figure=None, axes=None, output_directory: str = None):
+        series = self.memory_consumption
+        if plot_sizes:
+            series.update(self.memory_sizes)
+
+        return Plotting.plot_timeseries(title="Memory Consumption", plot_series=series, figure=figure, axes=axes, y_label="Memory Consumption (B)", output_directory=output_directory)
+
+    @cached_property
     def power_consumption(self):
         return {
             ("CPU", ""): self.__collect_values("CPUMonitor", "powerConsumption", float),
             ("GPU", ""): self.__collect_values("GPUMonitor", "powerConsumption", float),
-            ("GPU Power Limit", ""): self.__collect_values("GPUMonitor", "powerLimit", float),
-            ("GPU Enforced Power Limit", ""): self.__collect_values("GPUMonitor", "powerLimit", float),
             ("Node", ""): self.__collect_values("NodeMonitor", "powerConsumption", float),
         }
 
-    def power_consumption_plot(self, figure=None, axes=None, output_directory: str = None):
-        return Plotting.plot_timeseries(title="Power Consumption", plot_series=self.power_consumption, figure=figure, axes=axes, y_label="Power Consumption (W)", output_directory=output_directory)
+    @cached_property
+    def power_limits(self):
+        return {
+            ("GPU Power Limit", ""): self.__collect_values("GPUMonitor", "powerLimit", float),
+            ("GPU Enforced Power Limit", ""): self.__collect_values("GPUMonitor", "powerLimit", float),
+        }
 
-    @property
+    def power_consumption_plot(self, plot_limits=True, figure=None, axes=None, output_directory: str = None):
+        series = self.power_consumption
+        if plot_limits:
+            series.update(self.power_limits)
+
+        return Plotting.plot_timeseries(title="Power Consumption", plot_series=series, figure=figure, axes=axes, y_label="Power Consumption (W)", output_directory=output_directory)
+
+    @cached_property
     def processes(self):
         return {
             ("Processes", ""): self.__collect_values("NodeMonitor", "processCount", int)
@@ -270,7 +302,7 @@ class TestResults(Entity):
     def processes_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Processes", plot_series=self.processes, figure=figure, axes=axes, y_label="Processes", output_directory=output_directory)
 
-    @property
+    @cached_property
     def switches(self):
         return {
             ("GPU Auto Boosted Clocks", ""): self.__collect_values("GPUMonitor", "autoBoostedClocksEnabled", bool),
@@ -279,7 +311,7 @@ class TestResults(Entity):
     def switches_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Switches", plot_series=self.switches, figure=figure, axes=axes, y_label="Switches (bool)", output_directory=output_directory)
 
-    @property
+    @cached_property
     def temperature(self):
         return {
             ("CPU", ""): self.__collect_values("CPUMonitor", "temperature", float),
@@ -289,7 +321,7 @@ class TestResults(Entity):
     def temperature_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Temperature", plot_series=self.temperature, figure=figure, axes=axes, y_label="Temperature (C)", output_directory=output_directory)
 
-    @property
+    @cached_property
     def timespan(self):
         timespan = self.__collect_summarized_indexed_values("CPU Guest Nice", "CPU Guest Nice Core", "CPUMonitor", "guestNiceTimespan", "guestNiceTimespanCore", float, Plotting.to_percentage)
         timespan.update(self.__collect_summarized_indexed_values("CPU Guest", "CPU Guest Core", "CPUMonitor", "guestTimespan", "guestTimespanCore", float, Plotting.to_percentage))
@@ -310,7 +342,7 @@ class TestResults(Entity):
     def timespan_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Timespan", plot_series=self.timespan, figure=figure, axes=axes, y_label="Timespan (s)", output_directory=output_directory)
 
-    @property
+    @cached_property
     def utilization_rate(self):
         utilization_rate = self.__collect_summarized_indexed_values("CPU", "CPU Core", "CPUMonitor", "coreUtilizationRate", "coreUtilizationRateCore", float, Plotting.to_percentage)
         utilization_rate.update({
@@ -322,6 +354,20 @@ class TestResults(Entity):
 
     def utilization_rate_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_timeseries(title="Utilization Rate", plot_series=self.utilization_rate, figure=figure, axes=axes, y_label="Utilization Rate (%)", output_directory=output_directory)
+
+    @cached_property
+    def kernel_coordinates(self):
+        return {
+            ("Block X", ""): self.__collect_values("GPUMonitor", "kernelBlockX", int),
+            ("Block Y", ""): self.__collect_values("GPUMonitor", "kernelBlockY", int),
+            ("Block Z", ""): self.__collect_values("GPUMonitor", "kernelBlockZ", int),
+            ("Grid X", ""): self.__collect_values("GPUMonitor", "kernelGridX", int),
+            ("Grid Y", ""): self.__collect_values("GPUMonitor", "kernelGridY", int),
+            ("Grid Z", ""): self.__collect_values("GPUMonitor", "kernelGridZ", int),
+        }
+
+    def kernel_coordinates_plot(self, figure=None, axes=None, output_directory: str = None):
+        return Plotting.plot_timeseries(title="Kernel Coordinates", plot_series=self.kernel_coordinates, figure=figure, axes=axes, y_label="Coordinate", output_directory=output_directory)
 
     def correlations_plot(self, figure=None, axes=None, output_directory: str = None):
         return Plotting.plot_correlations(self.data_table._get_numeric_data().corr(), figure=figure, axes=axes, output_directory=output_directory)

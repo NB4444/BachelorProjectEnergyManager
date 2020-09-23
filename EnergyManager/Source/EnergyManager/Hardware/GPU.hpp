@@ -236,6 +236,14 @@ namespace EnergyManager {
 			 */
 			static std::shared_ptr<GPU> getGPU(const unsigned int& id);
 
+			static std::vector<std::shared_ptr<GPU>> getGPUs();
+
+			/**
+			 * Gets the amount of GPUs.
+			 * @return The amount of GPUs.
+			 */
+			static unsigned int getGPUCount();
+
 			/**
 			 * Destructs the GPU.
 			 */
