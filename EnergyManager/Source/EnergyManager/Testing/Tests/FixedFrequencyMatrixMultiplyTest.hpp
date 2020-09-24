@@ -1,16 +1,16 @@
 #pragma once
 
 #include "EnergyManager/Hardware/CPU.hpp"
-#include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp"
 
 #include <string>
+#include <vector>
 
 namespace EnergyManager {
 	namespace Testing {
 		namespace Tests {
 			class FixedFrequencyMatrixMultiplyTest : public MatrixMultiplyTest {
-				std::shared_ptr<Hardware::CPU> cpu_;
+				std::vector<std::shared_ptr<Hardware::CPU>> cpus_;
 
 				std::shared_ptr<Hardware::GPU> gpu_;
 
@@ -28,9 +28,8 @@ namespace EnergyManager {
 			public:
 				FixedFrequencyMatrixMultiplyTest(
 					const std::string& name,
-					const std::shared_ptr<Hardware::Node>& node,
-					const std::shared_ptr<Hardware::CPU>& cpu,
-					const std::shared_ptr<Hardware::GPU>& gpu,
+					std::vector<std::shared_ptr<Hardware::CPU>> cpus,
+					std::shared_ptr<Hardware::GPU> gpu,
 					const size_t& matrixAWidth,
 					const size_t& matrixAHeight,
 					const size_t& matrixBWidth,
@@ -40,7 +39,7 @@ namespace EnergyManager {
 					const unsigned long& minimumGPUFrequency,
 					const unsigned long& maximumGPUFrequency,
 					std::chrono::system_clock::duration applicationMonitorPollingInterval,
-					std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors = {});
+					const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors = {});
 			};
 		}
 	}

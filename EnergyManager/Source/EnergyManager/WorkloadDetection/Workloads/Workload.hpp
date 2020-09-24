@@ -3,8 +3,7 @@
 namespace EnergyManager {
 	namespace WorkloadDetection {
 		namespace Workloads {
-			class Workload {
-			};
+			class Workload {};
 		}
 	}
 }

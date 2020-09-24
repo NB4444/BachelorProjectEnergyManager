@@ -65,17 +65,8 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> VectorAddSubtractTest::onRun() {
-				int devCount = 0;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&devCount));
+				gpu_->makeActive();
 
-				CUdevice device;
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGet(&device, gpu_->getID()));
-
-				char deviceName[32];
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuDeviceGetName(deviceName, 32, device));
-				printf("Device Name: %s\n", deviceName);
-
-				ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(gpu_->getID()));
 				// Do pass default stream
 				doPass(0);
 

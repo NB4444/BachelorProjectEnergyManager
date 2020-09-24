@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Testing/Tests/Test.hpp"
 
 namespace EnergyManager {
@@ -15,6 +17,16 @@ namespace EnergyManager {
 				 * The parameters to use to run the Application.
 				 */
 				std::vector<std::string> parameters_;
+
+				/**
+				 * The CPUs to run on.
+				 */
+				std::vector<std::shared_ptr<Hardware::CPU>> cpus_;
+
+				/**
+				 * The GPU to run on.
+				 */
+				std::shared_ptr<Hardware::GPU> gpu_;
 
 				/**
 				 * The results to parse from the Application's output.
@@ -37,6 +49,8 @@ namespace EnergyManager {
 					const std::string& name,
 					const Application& application,
 					std::vector<std::string> parameters,
+					std::vector<std::shared_ptr<Hardware::CPU>> cpus,
+					std::shared_ptr<Hardware::GPU> gpu,
 					std::map<std::string, std::string> results,
 					std::chrono::system_clock::duration applicationMonitorPollingInterval,
 					std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors = {});

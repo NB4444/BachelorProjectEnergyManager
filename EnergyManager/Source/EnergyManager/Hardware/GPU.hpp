@@ -250,6 +250,11 @@ namespace EnergyManager {
 			~GPU();
 
 			/**
+			 * Makes this GPU the active GPU for future kernel launches.
+			 */
+			void makeActive() const;
+
+			/**
 			 * Gets the per Application clock rate.
 			 * @return The Application clock rate.
 			 */

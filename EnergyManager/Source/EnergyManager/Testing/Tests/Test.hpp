@@ -1,8 +1,8 @@
 #pragma once
 
-#include "EnergyManager/Application.hpp"
-#include "EnergyManager/Persistence/Entity.hpp"
 #include "EnergyManager/Monitoring/Monitor.hpp"
+#include "EnergyManager/Persistence/Entity.hpp"
+#include "EnergyManager/Testing/Application.hpp"
 
 #include <map>
 #include <memory>

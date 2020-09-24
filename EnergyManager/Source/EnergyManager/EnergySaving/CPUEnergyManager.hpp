@@ -4,7 +4,6 @@
 
 namespace EnergyManager {
 	namespace EnergySaving {
-		class CPUEnergyManager : public EnergyManager {
-		};
+		class CPUEnergyManager : public EnergyManager {};
 	}
 }

@@ -13,6 +13,8 @@ namespace EnergyManager {
 					name,
 					Application("/bin/ping"),
 					{ "-c " + std::to_string(times), host },
+					{},
+					nullptr,
 					{
 						{ "Packets Transmitted", "(\\d+) packets transmitted" },
 						{ "Packets Received", "(\\d+) received" },

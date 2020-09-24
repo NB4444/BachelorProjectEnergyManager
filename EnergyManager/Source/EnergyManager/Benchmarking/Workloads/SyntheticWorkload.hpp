@@ -1,12 +1,13 @@
 #pragma once
 
 #include "EnergyManager/Benchmarking/Operations/SyntheticOperation.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <memory>
 
 namespace EnergyManager {
 	namespace Benchmarking {
@@ -19,7 +20,7 @@ namespace EnergyManager {
 
 				void addOperation(const std::shared_ptr<Operations::SyntheticOperation>& operation);
 
-				void run();
+				void run(const std::shared_ptr<Hardware::GPU>& gpu);
 			};
 		}
 	}

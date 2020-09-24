@@ -9,7 +9,7 @@ namespace EnergyManager {
 		std::map<std::string, std::string> ApplicationMonitor::onPoll() {
 			auto cpuAffinity = application_.getCPUAffinity();
 			std::vector<unsigned int> cpuIDs;
-			std::transform(cpuAffinity.begin(), cpuAffinity.end(), std::back_inserter(cpuIDs), [] (const auto& cpu) {
+			std::transform(cpuAffinity.begin(), cpuAffinity.end(), std::back_inserter(cpuIDs), [](const auto& cpu) {
 				return cpu->getID();
 			});
 
@@ -20,7 +20,7 @@ namespace EnergyManager {
 			return applicationResults;
 		}
 
-		ApplicationMonitor::ApplicationMonitor(const Application& application) : Monitor("ApplicationMonitor"), application_(application) {
+		ApplicationMonitor::ApplicationMonitor(const Testing::Application& application) : Monitor("ApplicationMonitor"), application_(application) {
 		}
 	}
 }

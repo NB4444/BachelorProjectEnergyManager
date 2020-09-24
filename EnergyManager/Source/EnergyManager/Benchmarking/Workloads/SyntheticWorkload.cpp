@@ -10,7 +10,11 @@ namespace EnergyManager {
 				operations_.emplace_back(operation);
 			}
 
-			void SyntheticWorkload::run() {
+			void SyntheticWorkload::run(const std::shared_ptr<Hardware::GPU>& gpu) {
+				if(gpu != nullptr) {
+					gpu->makeActive();
+				}
+
 				for(const auto& operation : operations_) {
 					operation->run();
 				}

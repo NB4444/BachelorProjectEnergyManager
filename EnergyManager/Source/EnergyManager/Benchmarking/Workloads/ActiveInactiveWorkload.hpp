@@ -1,13 +1,13 @@
 #pragma once
 
-#include "SyntheticGPUWorkload.hpp"
+#include "SyntheticWorkload.hpp"
 
 #include <chrono>
 
 namespace EnergyManager {
 	namespace Benchmarking {
 		namespace Workloads {
-			class ActiveInactiveWorkload : public SyntheticGPUWorkload {
+			class ActiveInactiveWorkload : public SyntheticWorkload {
 			public:
 				ActiveInactiveWorkload(const unsigned int& activeOperations, const std::chrono::system_clock::duration& inactivePeriod, const unsigned int& cycles = 1);
 			};

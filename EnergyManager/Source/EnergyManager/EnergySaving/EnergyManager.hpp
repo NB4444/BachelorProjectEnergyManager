@@ -2,7 +2,6 @@
 
 namespace EnergyManager {
 	namespace EnergySaving {
-		class EnergyManager {
-		};
+		class EnergyManager {};
 	}
 }

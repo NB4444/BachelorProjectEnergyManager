@@ -14,7 +14,7 @@
 #include "EnergyManager/Testing/Tests/FixedFrequencyMatrixMultiplyTest.hpp"
 #include "EnergyManager/Testing/Tests/MatrixMultiplyTest.hpp"
 #include "EnergyManager/Testing/Tests/PingTest.hpp"
-#include "EnergyManager/Testing/Tests/SyntheticGPUWorkloadTest.hpp"
+#include "EnergyManager/Testing/Tests/SyntheticWorkloadTest.hpp"
 #include "EnergyManager/Testing/Tests/VectorAddSubtractTest.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Text.hpp"
@@ -121,12 +121,21 @@ std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration
 		monitors.insert(parseMonitor(monitorConfiguration));
 	}
 
+	auto parseCPUs = [](const std::string& cpuString) {
+		std::vector<std::string> cpuStrings = EnergyManager::Utility::Text::splitToVector(cpuString, ",", true);
+		std::vector<std::shared_ptr<EnergyManager::Hardware::CPU>> cpus;
+		std::transform(cpuStrings.begin(), cpuStrings.end(), std::back_inserter(cpus), [](const auto& cpuString) {
+			return EnergyManager::Hardware::CPU::getCPU(std::stoi(cpuString));
+		});
+
+		return cpus;
+	};
+
 	// Parse the tests
 	if(testConfiguration.test == "FixedFrequencyMatrixMultiplyTest") {
 		return std::make_shared<EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest>(
 			testConfiguration.parameters["name"],
-			EnergyManager::Hardware::Node::getNode(),
-			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
+			parseCPUs(testConfiguration.parameters["cpu"]),
 			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
 			std::stoi(testConfiguration.parameters["matrixAWidth"]),
 			std::stoi(testConfiguration.parameters["matrixAHeight"]),
@@ -141,8 +150,7 @@ std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration
 	} else if(testConfiguration.test == "MatrixMultiplyTest") {
 		return std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(
 			testConfiguration.parameters["name"],
-			EnergyManager::Hardware::Node::getNode(),
-			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
+			parseCPUs(testConfiguration.parameters["cpu"]),
 			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
 			std::stoi(testConfiguration.parameters["matrixAWidth"]),
 			std::stoi(testConfiguration.parameters["matrixAHeight"]),
@@ -157,9 +165,9 @@ std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration
 			std::stoi(testConfiguration.parameters["times"]),
 			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
 			monitors);
-	} else if(testConfiguration.test == "SyntheticGPUWorkloadTest") {
+	} else if(testConfiguration.test == "SyntheticWorkloadTest") {
 		auto workloadName = testConfiguration.parameters["workload"];
-		std::shared_ptr<EnergyManager::Benchmarking::Workloads::SyntheticGPUWorkload> workload;
+		std::shared_ptr<EnergyManager::Benchmarking::Workloads::SyntheticWorkload> workload;
 		if(workloadName == "ActiveInactiveWorkload") {
 			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::ActiveInactiveWorkload>(
 				std::stoi(testConfiguration.parameters["activeOperations"]),
@@ -175,11 +183,9 @@ std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration
 			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::VectorAddWorkload>(std::stol(testConfiguration.parameters["size"]));
 		}
 
-		return std::make_shared<EnergyManager::Testing::Tests::SyntheticGPUWorkloadTest>(
+		return std::make_shared<EnergyManager::Testing::Tests::SyntheticWorkloadTest>(
 			testConfiguration.parameters["name"],
 			workload,
-			EnergyManager::Hardware::Node::getNode(),
-			EnergyManager::Hardware::CPU::getCPU(std::stoi(testConfiguration.parameters["cpu"])),
 			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
 			monitors);
 	} else if(testConfiguration.test == "VectorAddSubtractTest") {

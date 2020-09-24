@@ -1,27 +1,24 @@
 #include "./MatrixMultiplyTest.hpp"
 
-#include "EnergyManager/Monitoring/CPUMonitor.hpp"
-#include "EnergyManager/Monitoring/GPUMonitor.hpp"
-#include "EnergyManager/Monitoring/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 
 #include <chrono>
 #include <stdexcept>
+#include <utility>
 
 namespace EnergyManager {
 	namespace Testing {
 		namespace Tests {
 			MatrixMultiplyTest::MatrixMultiplyTest(
 				const std::string& name,
-				const std::shared_ptr<Hardware::Node>& node,
-				const std::shared_ptr<Hardware::CPU>& cpu,
+				const std::vector<std::shared_ptr<Hardware::CPU>>& cpus,
 				const std::shared_ptr<Hardware::GPU>& gpu,
 				const size_t& matrixAWidth,
 				const size_t& matrixAHeight,
 				const size_t& matrixBWidth,
 				const size_t& matrixBHeight,
 				std::chrono::system_clock::duration applicationMonitorPollingInterval,
-				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors)
+				const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors)
 				: ApplicationTest(
 					name,
 					Application(std::string(PROJECT_RESOURCES_DIRECTORY) + "/CUDA/Samples/0_Simple/matrixMul/matrixMul"),
@@ -30,6 +27,8 @@ namespace EnergyManager {
 					  "-wB=" + std::to_string(matrixBWidth),
 					  "-hA=" + std::to_string(matrixAHeight),
 					  "-hB=" + std::to_string(matrixBHeight) },
+					cpus,
+					gpu,
 					{
 						{ "performance", "Performance= (.+?)," },
 						{ "time", "Time= (.+?)," },

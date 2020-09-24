@@ -283,14 +283,20 @@ namespace EnergyManager {
 		}
 
 		unsigned int GPU::getGPUCount() {
-			// TODO: Implement this
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("NOT IMPLEMENTED");
+			int deviceCount = 0;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&deviceCount));
+
+			return deviceCount;
 		}
 
 		GPU::~GPU() {
 			// Stop the monitor
 			monitorThreadRunning_ = false;
 			monitorThread_.join();
+		}
+
+		void GPU::makeActive() const {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(id_));
 		}
 
 		Utility::Units::Hertz GPU::getApplicationCoreClockRate() const {

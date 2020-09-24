@@ -1,6 +1,6 @@
 #include "./Exception.hpp"
 
-#include "EnergyManager/Application.hpp"
+#include "EnergyManager/Testing/Application.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <sys/wait.h>
@@ -89,7 +89,7 @@ namespace EnergyManager {
 					auto executable = message.substr(0, endIndex);
 
 					// Extract the line number
-					Application application("addr2line");
+					Testing::Application application("addr2line");
 					application.run({ "-e \"" + executable + "\"", address });
 
 					// Add the trace

@@ -2,13 +2,10 @@
 
 #include "EnergyManager/Testing/TestResults.hpp"
 
-#include <iostream>
 #include <mutex>
 #include <regex>
 #include <thread>
 #include <utility>
-#include <vector>
-#include <zconf.h>
 
 namespace EnergyManager {
 	namespace Testing {

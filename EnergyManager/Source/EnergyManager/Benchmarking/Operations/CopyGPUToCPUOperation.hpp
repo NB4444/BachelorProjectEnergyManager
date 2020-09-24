@@ -8,7 +8,9 @@
 namespace EnergyManager {
 	namespace Benchmarking {
 		namespace Operations {
-			class CopyGPUToCPUOperation : public MemoryCPUOperation, public MemoryGPUOperation {
+			class CopyGPUToCPUOperation
+				: public MemoryCPUOperation
+				, public MemoryGPUOperation {
 				unsigned int count_;
 
 			protected:

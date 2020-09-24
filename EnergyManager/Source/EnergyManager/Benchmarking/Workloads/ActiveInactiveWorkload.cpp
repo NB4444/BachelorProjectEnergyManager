@@ -1,5 +1,6 @@
 #include "./ActiveInactiveWorkload.hpp"
 
+#include "EnergyManager/Benchmarking/Operations/AddGPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/AllocateCPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/AllocateGPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/AssignCPUOperation.hpp"
@@ -7,7 +8,6 @@
 #include "EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp"
-#include "EnergyManager/Benchmarking/Operations/AddGPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/SleepOperation.hpp"
 
 namespace EnergyManager {

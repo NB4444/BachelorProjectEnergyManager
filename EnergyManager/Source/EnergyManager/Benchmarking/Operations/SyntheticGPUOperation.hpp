@@ -5,8 +5,7 @@
 namespace EnergyManager {
 	namespace Benchmarking {
 		namespace Operations {
-			class SyntheticGPUOperation : public virtual SyntheticOperation {
-			};
+			class SyntheticGPUOperation : public virtual SyntheticOperation {};
 		}
 	}
 }
