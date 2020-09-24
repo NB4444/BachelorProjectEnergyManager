@@ -128,6 +128,11 @@ int main(int argumentCount, char* argumentValues[]) {
 		EnergyManager::Benchmarking::Workloads::AllocateFreeWorkload::initialize();
 		EnergyManager::Benchmarking::Workloads::VectorAddWorkload::initialize();
 
+		// Initialize monitoring framework
+		EnergyManager::Monitoring::CPUMonitor::initialize();
+		EnergyManager::Monitoring::GPUMonitor::initialize();
+		EnergyManager::Monitoring::NodeMonitor::initialize();
+
 		// Initialize persistence framework
 		EnergyManager::Persistence::Entity::initialize(arguments.database);
 
