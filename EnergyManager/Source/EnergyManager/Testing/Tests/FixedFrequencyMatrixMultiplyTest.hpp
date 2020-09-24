@@ -26,6 +26,8 @@ namespace EnergyManager {
 				std::map<std::string, std::string> onRun() override;
 
 			public:
+				static void initialize();
+
 				FixedFrequencyMatrixMultiplyTest(
 					const std::string& name,
 					std::vector<std::shared_ptr<Hardware::CPU>> cpus,

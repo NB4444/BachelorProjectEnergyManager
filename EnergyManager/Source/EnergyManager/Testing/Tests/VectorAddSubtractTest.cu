@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/GPUMonitor.hpp"
 #include "EnergyManager/Testing/TestResults.hpp"
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
 
 namespace EnergyManager {
 	namespace Testing {
@@ -85,6 +86,23 @@ namespace EnergyManager {
 
 				return {};
 			}
+
+			void VectorAddSubtractTest::initialize() {
+				Test::addParser([](const std::string& name,
+								   const std::map<std::string, std::string>& parameters,
+								   const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors) {
+					if(name != "VectorAddSubtractTest") {
+						ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+					}
+
+					return std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(
+						Utility::Text::getParameter(parameters, "name"),
+						EnergyManager::Hardware::GPU::getGPU(std::stoi(Utility::Text::getParameter(parameters, "gpu"))),
+						std::stoi(Utility::Text::getParameter(parameters, "computeCount")),
+						monitors);
+				});
+			}
+
 			VectorAddSubtractTest::VectorAddSubtractTest(
 				const std::string& name,
 				const std::shared_ptr<Hardware::GPU>& gpu,

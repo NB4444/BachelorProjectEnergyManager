@@ -7,6 +7,8 @@ namespace EnergyManager {
 		namespace Workloads {
 			class VectorAddWorkload : public SyntheticWorkload {
 			public:
+				static void initialize();
+
 				VectorAddWorkload(const size_t& size);
 			};
 		}

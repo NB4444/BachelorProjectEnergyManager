@@ -1,14 +1,36 @@
 #include "./MatrixMultiplyTest.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
 
 #include <chrono>
 #include <stdexcept>
-#include <utility>
 
 namespace EnergyManager {
 	namespace Testing {
 		namespace Tests {
+			void MatrixMultiplyTest::initialize() {
+				Test::addParser([](const std::string& name,
+								   const std::map<std::string, std::string>& parameters,
+								   const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors) {
+					if(name != "MatrixMultiplyTest") {
+						ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+					}
+
+					return std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(
+						Utility::Text::getParameter(parameters, "name"),
+						Hardware::CPU::parseCPUs(Utility::Text::getParameter(parameters, "cpu")),
+						EnergyManager::Hardware::GPU::getGPU(std::stoi(Utility::Text::getParameter(parameters, "gpu"))),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixAWidth")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixAHeight")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixBWidth")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixBHeight")),
+						std::chrono::duration_cast<std::chrono::system_clock::duration>(
+							std::chrono::milliseconds(std::stoul(Utility::Text::getParameter(parameters, "applicationMonitorPollingInterval")))),
+						monitors);
+				});
+			}
+
 			MatrixMultiplyTest::MatrixMultiplyTest(
 				const std::string& name,
 				const std::vector<std::shared_ptr<Hardware::CPU>>& cpus,

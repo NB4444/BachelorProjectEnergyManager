@@ -1,6 +1,8 @@
 #include "./CPUMonitor.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 #define ENERGY_MANAGER_PROFILING_CPU_MONITOR_ADD(KEY, VALUE) ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(cpuResults[KEY] = VALUE);
 
@@ -74,6 +76,16 @@ namespace EnergyManager {
 			cpuResults.insert(processorResults.begin(), processorResults.end());
 
 			return cpuResults;
+		}
+
+		void CPUMonitor::initialize() {
+			Monitor::addParser([](const std::string& name, const std::map<std::string, std::string>& parameters) {
+				if(name != "CPUMonitor") {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+				}
+
+				return std::make_shared<EnergyManager::Monitoring::CPUMonitor>(EnergyManager::Hardware::CPU::getCPU(std::stoi(Utility::Text::getParameter(parameters, "cpu"))));
+			});
 		}
 
 		CPUMonitor::CPUMonitor(const std::shared_ptr<Hardware::CPU>& cpu) : ProcessorMonitor("CPUMonitor", cpu), cpu_(cpu) {

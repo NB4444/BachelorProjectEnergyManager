@@ -1,5 +1,7 @@
 #include "./FixedFrequencyMatrixMultiplyTest.hpp"
 
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
+
 #include <utility>
 
 namespace EnergyManager {
@@ -42,6 +44,32 @@ namespace EnergyManager {
 				}
 
 				return results;
+			}
+
+			void FixedFrequencyMatrixMultiplyTest::initialize() {
+				Test::addParser([](const std::string& name,
+								   const std::map<std::string, std::string>& parameters,
+								   const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors) {
+					if(name != "FixedFrequencyMatrixMultiplyTest") {
+						ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+					}
+
+					return std::make_shared<EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest>(
+						Utility::Text::getParameter(parameters, "name"),
+						Hardware::CPU::parseCPUs(Utility::Text::getParameter(parameters, "cpu")),
+						EnergyManager::Hardware::GPU::getGPU(std::stoi(Utility::Text::getParameter(parameters, "gpu"))),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixAWidth")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixAHeight")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixBWidth")),
+						std::stoi(Utility::Text::getParameter(parameters, "matrixBHeight")),
+						std::stoul(Utility::Text::getParameter(parameters, "minimumCPUFrequency")),
+						std::stoul(Utility::Text::getParameter(parameters, "maximumCPUFrequency")),
+						std::stoul(Utility::Text::getParameter(parameters, "minimumGPUFrequency")),
+						std::stoul(Utility::Text::getParameter(parameters, "maximumGPUFrequency")),
+						std::chrono::duration_cast<std::chrono::system_clock::duration>(
+							std::chrono::milliseconds(std::stoul(Utility::Text::getParameter(parameters, "applicationMonitorPollingInterval")))),
+						monitors);
+				});
 			}
 
 			FixedFrequencyMatrixMultiplyTest::FixedFrequencyMatrixMultiplyTest(

@@ -19,6 +19,8 @@ namespace EnergyManager {
 			std::map<std::string, std::string> onPoll() override;
 
 		public:
+			static void initialize();
+
 			NodeMonitor(const std::shared_ptr<Hardware::Node>& node);
 		};
 	}

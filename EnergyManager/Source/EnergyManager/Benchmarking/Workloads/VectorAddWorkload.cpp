@@ -8,10 +8,22 @@
 #include "EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp"
 #include "EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp"
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 namespace EnergyManager {
 	namespace Benchmarking {
 		namespace Workloads {
+			void VectorAddWorkload::initialize() {
+				SyntheticWorkload::addParser([](const std::string& name, const std::map<std::string, std::string>& parameters) {
+					if(name != "ActiveInactiveWorkload") {
+						ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+					}
+
+					return std::make_shared<EnergyManager::Benchmarking::Workloads::VectorAddWorkload>(std::stol(Utility::Text::getParameter(parameters, "size")));
+				});
+			}
+
 			VectorAddWorkload::VectorAddWorkload(const size_t& size) {
 				// Allocate host input vectors
 				addOperation(std::make_shared<Operations::AllocateCPUOperation>(size));

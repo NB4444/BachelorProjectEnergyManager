@@ -128,6 +128,12 @@ namespace EnergyManager {
 			static std::string formatTimestamp(const std::chrono::system_clock::time_point& timestamp, const std::string& format = "%Y-%m-%d %H:%M:%S") {
 				return formatTimestamp(std::chrono::system_clock::to_time_t(timestamp), format);
 			}
+
+			static std::string getParameter(const std::map<std::string, std::string>& parameters, const std::string& name, const std::string& defaultValue = "") {
+				auto iterator = parameters.find(name);
+
+				return iterator != parameters.end() ? iterator->second : defaultValue;
+			}
 		}
 	}
 }

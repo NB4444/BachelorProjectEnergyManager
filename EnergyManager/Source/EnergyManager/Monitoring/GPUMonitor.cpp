@@ -1,6 +1,7 @@
 #include "./GPUMonitor.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #define ENERGY_MANAGER_PROFILING_GPU_MONITOR_ADD(KEY, VALUE) ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(gpuResults[KEY] = VALUE);
@@ -79,6 +80,16 @@ namespace EnergyManager {
 			gpuResults.insert(processorResults.begin(), processorResults.end());
 
 			return gpuResults;
+		}
+
+		void GPUMonitor::initialize() {
+			Monitor::addParser([](const std::string& name, const std::map<std::string, std::string>& parameters) {
+				if(name != "GPUMonitor") {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+				}
+
+				return std::make_shared<EnergyManager::Monitoring::GPUMonitor>(EnergyManager::Hardware::GPU::getGPU(std::stoi(Utility::Text::getParameter(parameters, "gpu"))));
+			});
 		}
 
 		GPUMonitor::GPUMonitor(const std::shared_ptr<Hardware::GPU>& gpu) : ProcessorMonitor("GPUMonitor", gpu), gpu_(gpu) {

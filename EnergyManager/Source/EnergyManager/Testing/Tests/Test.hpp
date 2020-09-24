@@ -17,6 +17,13 @@ namespace EnergyManager {
 			 * A test of an Application.
 			 */
 			class Test : public Persistence::Entity {
+				using Parser = std::function<std::shared_ptr<Test>(
+					const std::string& name,
+					const std::map<std::string, std::string>& parameters,
+					const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors)>;
+
+				static std::vector<Parser> parsers_;
+
 				/**
 				 * The name of the Test.
 				 */
@@ -28,6 +35,8 @@ namespace EnergyManager {
 				std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration> monitors_;
 
 			protected:
+				static void addParser(const Parser& parser);
+
 				/**
 				 * Executes the Test.
 				 * @return The results of the Test.
@@ -37,6 +46,11 @@ namespace EnergyManager {
 				void onSave() override;
 
 			public:
+				static std::shared_ptr<Test> parse(
+					const std::string& name,
+					const std::map<std::string, std::string>& parameters,
+					const std::map<std::shared_ptr<Monitoring::Monitor>, std::chrono::system_clock::duration>& monitors);
+
 				/**
 				 * Creates a new Test.
 				 * @param name The name of the Test.

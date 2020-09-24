@@ -27,6 +27,8 @@ namespace EnergyManager {
 				std::map<std::string, std::string> onRun() override;
 
 			public:
+				static void initialize();
+
 				VectorAddSubtractTest(
 					const std::string& name,
 					const std::shared_ptr<Hardware::GPU>& gpu,

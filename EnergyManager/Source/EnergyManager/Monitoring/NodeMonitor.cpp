@@ -1,5 +1,8 @@
 #include "./NodeMonitor.hpp"
 
+#include "EnergyManager/Utility/Exceptions/ParseException.hpp"
+#include "EnergyManager/Utility/Text.hpp"
+
 namespace EnergyManager {
 	namespace Monitoring {
 		std::map<std::string, std::string> NodeMonitor::onPoll() {
@@ -21,6 +24,16 @@ namespace EnergyManager {
 			nodeResults.insert(deviceResults.begin(), deviceResults.end());
 
 			return nodeResults;
+		}
+
+		void NodeMonitor::initialize() {
+			Monitor::addParser([](const std::string& name, const std::map<std::string, std::string>& parameters) {
+				if(name != "NodeMonitor") {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_PARSE_EXCEPTION();
+				}
+
+				return std::make_shared<EnergyManager::Monitoring::NodeMonitor>(EnergyManager::Hardware::Node::getNode());
+			});
 		}
 
 		NodeMonitor::NodeMonitor(const std::shared_ptr<Hardware::Node>& node) : DeviceMonitor("NodeMonitor", node), node_(node) {

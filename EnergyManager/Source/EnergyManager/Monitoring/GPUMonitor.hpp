@@ -12,6 +12,8 @@ namespace EnergyManager {
 			std::map<std::string, std::string> onPoll() override;
 
 		public:
+			static void initialize();
+
 			GPUMonitor(const std::shared_ptr<Hardware::GPU>& gpu);
 		};
 	}

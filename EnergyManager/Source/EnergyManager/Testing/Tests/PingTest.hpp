@@ -9,6 +9,8 @@ namespace EnergyManager {
 		namespace Tests {
 			class PingTest : public ApplicationTest {
 			public:
+				static void initialize();
+
 				PingTest(
 					const std::string& name,
 					const std::string& host,

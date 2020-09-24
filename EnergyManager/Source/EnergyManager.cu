@@ -98,105 +98,18 @@ auto parseArguments(int argumentCount, char* argumentValues[]) {
 	return arguments;
 }
 
-std::pair<std::shared_ptr<EnergyManager::Monitoring::Monitor>, std::chrono::system_clock::duration> parseMonitor(MonitorConfiguration& monitorConfiguration) {
-	std::shared_ptr<EnergyManager::Monitoring::Monitor> monitor;
-	if(monitorConfiguration.monitor == "CPUMonitor") {
-		monitor = std::make_shared<EnergyManager::Monitoring::CPUMonitor>(EnergyManager::Hardware::CPU::getCPU(std::stoi(monitorConfiguration.parameters["cpu"])));
-	} else if(monitorConfiguration.monitor == "GPUMonitor") {
-		monitor = std::make_shared<EnergyManager::Monitoring::GPUMonitor>(EnergyManager::Hardware::GPU::getGPU(std::stoi(monitorConfiguration.parameters["gpu"])));
-	} else if(monitorConfiguration.monitor == "NodeMonitor") {
-		monitor = std::make_shared<EnergyManager::Monitoring::NodeMonitor>(EnergyManager::Hardware::Node::getNode());
-	}
-
-	return {
-		monitor,
-		std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(monitorConfiguration.parameters["pollingInterval"]))),
-	};
-}
-
 std::shared_ptr<EnergyManager::Testing::Tests::Test> parseTest(TestConfiguration& testConfiguration) {
 	// Parse the monitors
 	std::map<std::shared_ptr<EnergyManager::Monitoring::Monitor>, std::chrono::system_clock::duration> monitors;
 	for(auto& monitorConfiguration : testConfiguration.monitorConfigurations) {
-		monitors.insert(parseMonitor(monitorConfiguration));
-	}
-
-	auto parseCPUs = [](const std::string& cpuString) {
-		std::vector<std::string> cpuStrings = EnergyManager::Utility::Text::splitToVector(cpuString, ",", true);
-		std::vector<std::shared_ptr<EnergyManager::Hardware::CPU>> cpus;
-		std::transform(cpuStrings.begin(), cpuStrings.end(), std::back_inserter(cpus), [](const auto& cpuString) {
-			return EnergyManager::Hardware::CPU::getCPU(std::stoi(cpuString));
+		monitors.insert({
+			EnergyManager::Monitoring::Monitor::parse(monitorConfiguration.monitor, monitorConfiguration.parameters),
+			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(monitorConfiguration.parameters["pollingInterval"]))),
 		});
-
-		return cpus;
-	};
-
-	// Parse the tests
-	if(testConfiguration.test == "FixedFrequencyMatrixMultiplyTest") {
-		return std::make_shared<EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest>(
-			testConfiguration.parameters["name"],
-			parseCPUs(testConfiguration.parameters["cpu"]),
-			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
-			std::stoi(testConfiguration.parameters["matrixAWidth"]),
-			std::stoi(testConfiguration.parameters["matrixAHeight"]),
-			std::stoi(testConfiguration.parameters["matrixBWidth"]),
-			std::stoi(testConfiguration.parameters["matrixBHeight"]),
-			std::stoul(testConfiguration.parameters["minimumCPUFrequency"]),
-			std::stoul(testConfiguration.parameters["maximumCPUFrequency"]),
-			std::stoul(testConfiguration.parameters["minimumGPUFrequency"]),
-			std::stoul(testConfiguration.parameters["maximumGPUFrequency"]),
-			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
-			monitors);
-	} else if(testConfiguration.test == "MatrixMultiplyTest") {
-		return std::make_shared<EnergyManager::Testing::Tests::MatrixMultiplyTest>(
-			testConfiguration.parameters["name"],
-			parseCPUs(testConfiguration.parameters["cpu"]),
-			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
-			std::stoi(testConfiguration.parameters["matrixAWidth"]),
-			std::stoi(testConfiguration.parameters["matrixAHeight"]),
-			std::stoi(testConfiguration.parameters["matrixBWidth"]),
-			std::stoi(testConfiguration.parameters["matrixBHeight"]),
-			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
-			monitors);
-	} else if(testConfiguration.test == "PingTest") {
-		return std::make_shared<EnergyManager::Testing::Tests::PingTest>(
-			testConfiguration.parameters["name"],
-			testConfiguration.parameters["host"],
-			std::stoi(testConfiguration.parameters["times"]),
-			std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stoul(testConfiguration.parameters["applicationMonitorPollingInterval"]))),
-			monitors);
-	} else if(testConfiguration.test == "SyntheticWorkloadTest") {
-		auto workloadName = testConfiguration.parameters["workload"];
-		std::shared_ptr<EnergyManager::Benchmarking::Workloads::SyntheticWorkload> workload;
-		if(workloadName == "ActiveInactiveWorkload") {
-			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::ActiveInactiveWorkload>(
-				std::stoi(testConfiguration.parameters["activeOperations"]),
-				std::chrono::duration_cast<std::chrono::system_clock::duration>(std::chrono::milliseconds(std::stol(testConfiguration.parameters["inactivePeriod"]))),
-				std::stoi(testConfiguration.parameters["cycles"]));
-		} else if(workloadName == "AllocateFreeWorkload") {
-			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::AllocateFreeWorkload>(
-				std::stoi(testConfiguration.parameters["hostAllocations"]),
-				std::stol(testConfiguration.parameters["hostSize"]),
-				std::stoi(testConfiguration.parameters["deviceAllocations"]),
-				std::stol(testConfiguration.parameters["deviceSize"]));
-		} else if(workloadName == "VectorAddWorkload") {
-			workload = std::make_shared<EnergyManager::Benchmarking::Workloads::VectorAddWorkload>(std::stol(testConfiguration.parameters["size"]));
-		}
-
-		return std::make_shared<EnergyManager::Testing::Tests::SyntheticWorkloadTest>(
-			testConfiguration.parameters["name"],
-			workload,
-			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
-			monitors);
-	} else if(testConfiguration.test == "VectorAddSubtractTest") {
-		return std::make_shared<EnergyManager::Testing::Tests::VectorAddSubtractTest>(
-			testConfiguration.parameters["name"],
-			EnergyManager::Hardware::GPU::getGPU(std::stoi(testConfiguration.parameters["gpu"])),
-			std::stoi(testConfiguration.parameters["computeCount"]),
-			monitors);
 	}
 
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Unknown test type");
+	// Parse the test
+	return EnergyManager::Testing::Tests::Test::parse(testConfiguration.test, testConfiguration.parameters, monitors);
 }
 
 int main(int argumentCount, char* argumentValues[]) {
@@ -204,10 +117,26 @@ int main(int argumentCount, char* argumentValues[]) {
 	auto arguments = parseArguments(argumentCount, argumentValues);
 
 	try {
-		// Initialize APIs
+		// Initialize utility framework
 		EnergyManager::Utility::Exceptions::Exception::initialize();
+
+		// Initialize hardware framework
 		EnergyManager::Hardware::GPU::initialize();
+
+		// Initialize benchmarking framework
+		EnergyManager::Benchmarking::Workloads::ActiveInactiveWorkload::initialize();
+		EnergyManager::Benchmarking::Workloads::AllocateFreeWorkload::initialize();
+		EnergyManager::Benchmarking::Workloads::VectorAddWorkload::initialize();
+
+		// Initialize persistence framework
 		EnergyManager::Persistence::Entity::initialize(arguments.database);
+
+		// Initialize testing framework
+		EnergyManager::Testing::Tests::FixedFrequencyMatrixMultiplyTest::initialize();
+		EnergyManager::Testing::Tests::MatrixMultiplyTest::initialize();
+		EnergyManager::Testing::Tests::PingTest::initialize();
+		EnergyManager::Testing::Tests::SyntheticWorkloadTest::initialize();
+		EnergyManager::Testing::Tests::VectorAddSubtractTest::initialize();
 
 		// Set up a new TestRunner
 		EnergyManager::Testing::TestRunner testRunner;

@@ -57,6 +57,8 @@ namespace EnergyManager {
 			std::map<std::string, std::string> onPoll() override;
 
 		public:
+			static void initialize();
+
 			CPUMonitor(const std::shared_ptr<Hardware::CPU>& cpu);
 		};
 	}

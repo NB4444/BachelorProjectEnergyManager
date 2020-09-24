@@ -10,6 +10,8 @@ namespace EnergyManager {
 		namespace Tests {
 			class MatrixMultiplyTest : public ApplicationTest {
 			public:
+				static void initialize();
+
 				MatrixMultiplyTest(
 					const std::string& name,
 					const std::vector<std::shared_ptr<Hardware::CPU>>& cpus,

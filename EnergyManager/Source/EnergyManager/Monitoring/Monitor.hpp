@@ -3,7 +3,9 @@
 #include <chrono>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace EnergyManager {
 	namespace Monitoring {
@@ -11,6 +13,10 @@ namespace EnergyManager {
 		 * Monitors a set of variables and keeps track of their values over time.
 		 */
 		class Monitor {
+			using Parser = std::function<std::shared_ptr<Monitor>(const std::string& name, const std::map<std::string, std::string>& parameters)>;
+
+			static std::vector<Parser> parsers_;
+
 			/**
 			 * The name of the Monitor.
 			 */
@@ -37,6 +43,8 @@ namespace EnergyManager {
 			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> variableValues_;
 
 		protected:
+			static void addParser(const Parser& parser);
+
 			/**
 			 * Executes when the monitor is polled.
 			 * @return The variables at the current point in time.
@@ -44,6 +52,8 @@ namespace EnergyManager {
 			virtual std::map<std::string, std::string> onPoll();
 
 		public:
+			static std::shared_ptr<Monitor> parse(const std::string& name, const std::map<std::string, std::string>& parameters);
+
 			/**
 			 * Creates a new Monitor.
 			 * @param name The name of the Monitor.

@@ -21,6 +21,8 @@ namespace EnergyManager {
 				std::map<std::string, std::string> onRun() override;
 
 			public:
+				static void initialize();
+
 				SyntheticWorkloadTest(
 					const std::string& name,
 					std::shared_ptr<Benchmarking::Workloads::SyntheticWorkload> workload,

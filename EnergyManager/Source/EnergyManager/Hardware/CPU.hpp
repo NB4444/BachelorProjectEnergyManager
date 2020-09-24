@@ -112,6 +112,8 @@ namespace EnergyManager {
 			std::chrono::system_clock::duration getProcStatTimespan(const unsigned int& core, const std::string& name) const;
 
 		public:
+			static std::vector<std::shared_ptr<Hardware::CPU>> parseCPUs(const std::string& cpuString);
+
 			/**
 			 * Gets the CPU with the specified ID.
 			 * @param id The ID.

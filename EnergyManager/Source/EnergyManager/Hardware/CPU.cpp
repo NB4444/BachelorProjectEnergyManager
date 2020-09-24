@@ -246,6 +246,16 @@ namespace EnergyManager {
 			return lastValue - startValue;
 		}
 
+		std::vector<std::shared_ptr<Hardware::CPU>> CPU::parseCPUs(const std::string& cpuString) {
+			std::vector<std::string> cpuStrings = EnergyManager::Utility::Text::splitToVector(cpuString, ",", true);
+			std::vector<std::shared_ptr<EnergyManager::Hardware::CPU>> cpus;
+			std::transform(cpuStrings.begin(), cpuStrings.end(), std::back_inserter(cpus), [](const auto& cpuString) {
+				return EnergyManager::Hardware::CPU::getCPU(std::stoi(cpuString));
+			});
+
+			return cpus;
+		}
+
 		std::shared_ptr<CPU> CPU::getCPU(const unsigned int& id) {
 			auto iterator = cpus_.find(id);
 			if(iterator == cpus_.end()) {
