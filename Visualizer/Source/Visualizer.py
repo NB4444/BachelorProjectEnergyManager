@@ -3,8 +3,8 @@ import multiprocessing
 import os
 import shutil
 
-from Visualizer import Plotting
-from Visualizer.Testing.Test import Test
+from Visualizer.Plotting.Plot import Plot
+from Visualizer.Testing.Persistence.TestSession import TestSession
 
 
 def parse_arguments():
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     arguments = parse_arguments()
 
     # Load the tests
-    tests = Test.load_all(arguments.database)
+    tests = TestSession.load_all(arguments.database)
 
     # Set up statistics variable
     processed_tests = multiprocessing.Value("i", 0)
@@ -58,16 +58,16 @@ if __name__ == '__main__':
         processed_tests = arguments
 
 
-    def process_test(test: Test, test_count: int, output_directory: str, update: bool):
+    def process_test(test_session: TestSession, test_count: int, output_directory: str, update: bool):
         global processed_tests
 
         with processed_tests.get_lock():
             processed_tests.value += 1
 
-            print(f"Processing test {processed_tests.value}/{test_count}: {test.id} - {test.name}...")
+            print(f"Processing test {processed_tests.value}/{test_count}: {test_session.id} - {test_session.test_name}...")
 
         # Determine the output directory for the current test
-        test_output_directory = f"{output_directory}/{test.id} - {test.name}"
+        test_output_directory = f"{output_directory}/{test_session.id} - {test_session.test_name}"
 
         # Check if the results already exists
         if os.path.exists(test_output_directory):
@@ -87,9 +87,11 @@ if __name__ == '__main__':
         os.makedirs(test_output_directory)
 
         # Plot some graphs
-        test.test_results.overview_plot(output_directory=output_directory)
+        overview_plot = test_session.profiler_session.overview_plot()
+        overview_plot.save(output_directory)
 
-        Plotting.free()
+        # Free up memory between plots
+        Plot.free()
 
 
     # Create a thread pool and process all threads

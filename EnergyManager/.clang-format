@@ -39,16 +39,16 @@ DisableFormat:                                  false
 FixNamespaceComments:                           false
 IncludeBlocks:                                  "Regroup"
 IncludeCategories:
-  - Regex:           '^\"\./[^.]*\.declaration\.hpp\"'
-    Priority:        1
-  - Regex:           '^\"\./[^.]*\.hpp\"'
-    Priority:        2
-  - Regex:           '^\"[^.]*\.declaration\.hpp\"'
-    Priority:        3
-  - Regex:           '^\"[^.]*\.hpp\"'
-    Priority:        4
-  - Regex:           '^<.*>'
-    Priority:        5
+  - Regex:    '^\"\./[^.]*\.declaration\.hpp\"'
+    Priority: 1
+  - Regex:    '^\"\./[^.]*\.hpp\"'
+    Priority: 2
+  - Regex:    '^\"[^.]*\.declaration\.hpp\"'
+    Priority: 3
+  - Regex:    '^\"[^.]*\.hpp\"'
+    Priority: 4
+  - Regex:    '^<.*>'
+    Priority: 5
 IncludeIsMainRegex:                             '^$' # Disables the main file detection, since it can interfere with the custom definitions above
 IncludeIsMainSourceRegex:                       '(\.tpp)?$'
 IndentCaseLabels:                               true

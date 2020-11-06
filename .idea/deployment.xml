@@ -5,33 +5,15 @@
       <paths name="Cartesius (e1353d1d-b03a-4825-80bb-3f331f5f0763)">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/bakker/ear_sara_collab" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$/EnergyManager" />
           </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-cartesius" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-cartesius" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
-          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="Showcees (2ab65507-bbf8-43cc-8992-68b5b87dfe0c)">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/quincy/ear_sara_collab" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$/EnergyManager" />
           </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-cartesius" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-cartesius" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
-          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>

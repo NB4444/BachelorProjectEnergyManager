@@ -13,34 +13,33 @@
 #define HELPER_MULTIPROCESS_H
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
 #else
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/wait.h>
+	#include <errno.h>
+	#include <fcntl.h>
+	#include <sys/mman.h>
+	#include <sys/wait.h>
+	#include <unistd.h>
 #endif
 
 typedef struct sharedMemoryInfo_st {
-    void *addr;
-    size_t size;
+	void* addr;
+	size_t size;
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-    HANDLE shmHandle;
+	HANDLE shmHandle;
 #else
-    int shmFd;
+	int shmFd;
 #endif
 } sharedMemoryInfo;
 
-int sharedMemoryCreate(const char *name, size_t sz, sharedMemoryInfo *info);
+int sharedMemoryCreate(const char* name, size_t sz, sharedMemoryInfo* info);
 
-int sharedMemoryOpen(const char *name, size_t sz, sharedMemoryInfo *info);
+int sharedMemoryOpen(const char* name, size_t sz, sharedMemoryInfo* info);
 
-void sharedMemoryClose(sharedMemoryInfo *info);
-
+void sharedMemoryClose(sharedMemoryInfo* info);
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 typedef PROCESS_INFORMATION Process;
@@ -48,8 +47,8 @@ typedef PROCESS_INFORMATION Process;
 typedef pid_t Process;
 #endif
 
-int spawnProcess(Process *process, const char *app, char * const *args);
+int spawnProcess(Process* process, const char* app, char* const* args);
 
-int waitProcess(Process *process);
+int waitProcess(Process* process);
 
 #endif // HELPER_MULTIPROCESS_H

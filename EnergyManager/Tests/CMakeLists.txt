@@ -1,0 +1,8 @@
+add_subdirectory(ActiveInactive)
+add_subdirectory(AllocateFree)
+add_subdirectory(FixedFrequencyMatrixMultiply)
+add_subdirectory(LinearRegression)
+add_subdirectory(MatrixMultiply)
+add_subdirectory(Ping)
+add_subdirectory(VectorAdd)
+add_subdirectory(VectorAddSubtract)

@@ -5,7 +5,21 @@
   </component>
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/EnergyManager/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Console/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Library/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/BFS/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/KMeans/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/ActiveInactive/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/AllocateFree/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/LinearRegression/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/Ping/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/VectorAdd/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Tests/VectorAddSubtract/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Training/KMeans/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Training/MatrixMultiply/Source" />
       <file path="$PROJECT_DIR$/Visualizer/Source" />
     </sourceRoots>
     <libraryRoots>
