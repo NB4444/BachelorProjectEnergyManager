@@ -1,7 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 #include "EnergyManager/Testing/Application.hpp"
-#include "Monitor.hpp"
 
 #include <map>
 

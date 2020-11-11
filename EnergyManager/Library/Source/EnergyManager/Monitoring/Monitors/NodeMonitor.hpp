@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DeviceMonitor.hpp"
 #include "EnergyManager/Hardware/Node.hpp"
+#include "EnergyManager/Monitoring/Monitors/DeviceMonitor.hpp"
 #include "EnergyManager/Utility/Units/Joule.hpp"
 
 #include <memory>

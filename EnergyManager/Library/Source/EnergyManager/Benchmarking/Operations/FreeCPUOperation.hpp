@@ -10,7 +10,7 @@ namespace EnergyManager {
 			 */
 			class FreeCPUOperation : public MemoryCPUOperation {
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

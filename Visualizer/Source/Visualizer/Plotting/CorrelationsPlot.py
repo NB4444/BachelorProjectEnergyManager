@@ -9,11 +9,8 @@ class CorrelationsPlot(FigurePlot):
         super().__init__(title=title)
 
         self.correlations = correlations
-        self.figure = pyplot.figure(figsize=(100, 50))
+        self.figure = pyplot.figure(figsize=(75, 25))
         self.axes = self.figure.add_subplot(1, 1, 1)
 
-    def on_plot_figure(self, figure, axes):
+    def on_plot_figure(self, figure):
         seaborn.heatmap(self.correlations, annot=True, cmap=pyplot.cm.Reds)
-
-        # Make everything fit
-        # pyplot.tight_layout()

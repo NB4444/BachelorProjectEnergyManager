@@ -1,6 +1,6 @@
 #include "./TestRunner.hpp"
 
-#include "EnergyManager/Testing/Persistence/TestResults.hpp"
+#include "EnergyManager/Testing/Persistence/TestSession.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
@@ -40,13 +40,7 @@ namespace EnergyManager {
 				Utility::Logging::logInformation("Storing test %s results...", test->getName().c_str());
 
 				// Set up the session
-				auto testSession = std::make_shared<Persistence::TestSession>(test->getName(), nullptr, test->getProfilerSessions()[0]);
-
-				// Set up the results and add them to the session
-				auto testResults = std::make_shared<Persistence::TestResults>(test->getTestResults(), testSession);
-				testSession->setTestResults(testResults);
-
-				testSessions_.push_back(testSession);
+				testSessions_.push_back(std::make_shared<Persistence::TestSession>(test->getName(), test->getTestResults(), test->getProfilerSessions()[0]));
 			}
 		}
 

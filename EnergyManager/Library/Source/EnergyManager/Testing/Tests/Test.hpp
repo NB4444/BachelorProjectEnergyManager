@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
-#include "EnergyManager/Monitoring/Profiler.hpp"
+#include "EnergyManager/Monitoring/Profilers/Profiler.hpp"
 #include "EnergyManager/Testing/Application.hpp"
 
 #include <map>
@@ -16,7 +16,7 @@ namespace EnergyManager {
 			/**
 			 * A test of an Application.
 			 */
-			class Test : public Monitoring::Profiler {
+			class Test : public Monitoring::Profilers::Profiler {
 				/**
 				 * The name of the Test.
 				 */

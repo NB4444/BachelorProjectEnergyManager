@@ -17,7 +17,7 @@ namespace EnergyManager {
 				std::chrono::system_clock::duration duration_;
 
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

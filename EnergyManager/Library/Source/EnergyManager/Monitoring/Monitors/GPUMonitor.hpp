@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Hardware/GPU.hpp"
-#include "ProcessorMonitor.hpp"
+#include "EnergyManager/Monitoring/Monitors/ProcessorMonitor.hpp"
 
 namespace EnergyManager {
 	namespace Monitoring {

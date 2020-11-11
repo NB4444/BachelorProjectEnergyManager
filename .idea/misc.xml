@@ -23,12 +23,17 @@
       <file path="$PROJECT_DIR$/Visualizer/Source" />
     </sourceRoots>
     <libraryRoots>
+      <file path="$PROJECT_DIR$/EnergyManager/Library/Libraries" />
       <file path="$PROJECT_DIR$/Resources/Examples/cuda_monitor" />
       <file path="$PROJECT_DIR$/Resources/Examples/cuda_monitor/src" />
       <file path="$PROJECT_DIR$/sqlite" />
     </libraryRoots>
     <excludeRoots>
+      <file path="$PROJECT_DIR$/EnergyManager/Resources" />
       <file path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
+      <file path="$PROJECT_DIR$/Resources" />
+      <file path="$PROJECT_DIR$/Visualizer/.idea" />
+      <file path="$PROJECT_DIR$/Visualizer/Resources" />
       <file path="$PROJECT_DIR$/Visualizer/venv" />
     </excludeRoots>
   </component>

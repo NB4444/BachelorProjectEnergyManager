@@ -1,5 +1,9 @@
 #include "./Monitor.hpp"
 
+#include "EnergyManager/Monitoring/Monitors/CPUCoreMonitor.hpp"
+#include "EnergyManager/Monitoring/Monitors/CPUMonitor.hpp"
+#include "EnergyManager/Monitoring/Monitors/GPUMonitor.hpp"
+#include "EnergyManager/Monitoring/Monitors/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 
 #include <utility>
@@ -16,6 +20,27 @@ namespace EnergyManager {
 			}
 
 			void Monitor::onReset() {
+			}
+
+			std::vector<std::shared_ptr<Monitor>> Monitor::getMonitorsForAllDevices(
+				const std::chrono::system_clock::duration& applicationMonitorInterval,
+				const std::chrono::system_clock::duration& nodeMonitorInterval,
+				const std::chrono::system_clock::duration& cpuMonitorInterval,
+				const std::chrono::system_clock::duration& cpuCoreMonitorInterval,
+				const std::chrono::system_clock::duration& gpuMonitorInterval) {
+				std::vector<std::shared_ptr<Monitor>> monitors = { std::make_shared<NodeMonitor>(Hardware::Node::getNode(), nodeMonitorInterval) };
+				for(const auto& cpu : Hardware::CPU::getCPUs()) {
+					monitors.push_back(std::make_shared<CPUMonitor>(cpu, cpuMonitorInterval));
+
+					for(const auto& core : cpu->getCores()) {
+						monitors.push_back(std::make_shared<CPUCoreMonitor>(core, cpuMonitorInterval));
+					}
+				}
+				for(const auto& gpu : Hardware::GPU::getGPUs()) {
+					monitors.push_back(std::make_shared<GPUMonitor>(gpu, gpuMonitorInterval));
+				}
+
+				return monitors;
 			}
 
 			Monitor::Monitor(std::string name, const std::chrono::system_clock::duration& interval) : Loopable(interval), name_(std::move(name)) {
@@ -40,13 +65,11 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> Monitor::poll(const bool& save) {
-				auto now = std::chrono::system_clock::now();
-
 				std::map<std::string, std::string> results = onPoll();
 
 				if(save) {
-					variableValues_[now] = results;
-					variableValues_[now]["runtime"] = std::to_string(getRuntime().count());
+					variableValues_[getLastLoopTimestamp()] = results;
+					variableValues_[getLastLoopTimestamp()]["runtime"] = std::to_string(getRuntime().count());
 				}
 
 				return results;

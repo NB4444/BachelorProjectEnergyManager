@@ -12,7 +12,12 @@ class HistogramPlot(FigurePlot):
         self.grid = grid
         self.bins = bins
 
-    def on_plot_figure(self, figure, axes):
+    def on_plot_figure(self, figure):
+        axes = figure.add_subplot(1, 1, 1)
+
+        # Set the labels
+        axes.set(title=self.title)
+
         # Enable grid
         if self.grid:
             axes.grid()

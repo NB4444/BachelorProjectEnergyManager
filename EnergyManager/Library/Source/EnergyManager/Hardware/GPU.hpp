@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Processor.hpp"
+#include "EnergyManager/Utility/Loopable.hpp"
 #include "EnergyManager/Utility/StaticInitializer.hpp"
 #include "EnergyManager/Utility/Units/Bandwidth.hpp"
 #include "EnergyManager/Utility/Units/Celsius.hpp"
@@ -27,7 +28,9 @@ namespace EnergyManager {
 		/**
 		 * Represents a Graphics Processing Unit.
 		 */
-		class GPU : public Processor {
+		class GPU
+			: public Processor
+			, private Utility::Loopable {
 			/**
 			 * Initializes the APIs.
 			 */
@@ -71,29 +74,19 @@ namespace EnergyManager {
 			static void forwardActivity(const CUpti_Activity* activity);
 
 			/**
-			 * The ID of the device.
-			 */
-			unsigned int id_;
-
-			/**
 			 * The GPU device.
 			 */
 			nvmlDevice_t device_;
 
 			/**
-			 * The thread monitoring certain performance variables.
-			 */
-			std::thread monitorThread_;
-
-			/**
-			 * Whether the monitor thread should keep running.
-			 */
-			bool monitorThreadRunning_ = true;
-
-			/**
 			 * The energy consumption in Joules.
 			 */
 			Utility::Units::Joule energyConsumption_ = 0;
+
+			/**
+			 * Record the last time at which the energy consumption was polled.
+			 */
+			std::chrono::system_clock::time_point lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
 
 			/**
 			 * The global memory bandwidth available on the device, in kBytes/sec.
@@ -207,6 +200,9 @@ namespace EnergyManager {
 			 */
 			explicit GPU(const unsigned int& id);
 
+		protected:
+			void onLoop() override;
+
 		public:
 			/**
 			 * Handles the results of a call to the CUDA driver.
@@ -262,11 +258,6 @@ namespace EnergyManager {
 			 * @return The amount of GPUs.
 			 */
 			static unsigned int getGPUCount();
-
-			/**
-			 * Makes sure all threads are stopped when the application stops.
-			 */
-			~GPU();
 
 			/**
 			 * Makes this GPU the active GPU for future kernel launches.
@@ -346,13 +337,13 @@ namespace EnergyManager {
 			 */
 			unsigned int getComputeCapabilityMinorVersion() const;
 
-			Utility::Units::Hertz getCoreClockRate() const override;
+			Utility::Units::Hertz getCoreClockRate() const final;
 
-			Utility::Units::Hertz getCurrentMinimumCoreClockRate() const override;
+			Utility::Units::Hertz getCurrentMinimumCoreClockRate() const final;
 
-			Utility::Units::Hertz getCurrentMaximumCoreClockRate() const override;
+			Utility::Units::Hertz getCurrentMaximumCoreClockRate() const final;
 
-			void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) override;
+			void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) final;
 
 			/**
 			 * Gets the supported core clock rates for the specified memory clock rate.
@@ -367,17 +358,17 @@ namespace EnergyManager {
 			 */
 			std::vector<Utility::Units::Hertz> getSupportedCoreClockRates() const;
 
-			void resetCoreClockRate() override;
+			void resetCoreClockRate() final;
 
-			Utility::Units::Hertz getMinimumCoreClockRate() const override;
+			Utility::Units::Hertz getMinimumCoreClockRate() const final;
 
-			Utility::Units::Hertz getMaximumCoreClockRate() const override;
+			Utility::Units::Hertz getMaximumCoreClockRate() const final;
 
-			Utility::Units::Percent getCoreUtilizationRate() const override;
+			Utility::Units::Percent getCoreUtilizationRate() const final;
 
-			Utility::Units::Joule getEnergyConsumption() const override;
+			Utility::Units::Joule getEnergyConsumption() const final;
 
-			Utility::Units::Watt getPowerConsumption() const override;
+			Utility::Units::Watt getPowerConsumption() const final;
 
 			/**
 			 * Retrieves the power management limit associated with this device.
@@ -404,12 +395,6 @@ namespace EnergyManager {
 			Utility::Units::Percent getFanSpeed() const;
 
 			Utility::Units::Percent getFanSpeed(const unsigned int& fan) const;
-
-			/**
-			 * @copydoc GPU::id_
-			 * @return The ID.
-			 */
-			unsigned int getID() const;
 
 			/**
 			 * @copydoc GPU::kernelBlockX_
@@ -568,7 +553,7 @@ namespace EnergyManager {
 			 */
 			Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;
 
-			Utility::Units::Celsius getTemperature() const override;
+			Utility::Units::Celsius getTemperature() const final;
 		};
 	}
 }

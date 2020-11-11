@@ -1,14 +1,12 @@
 from functools import cached_property
-from typing import Dict, List, Any
 
-from Visualizer.Monitoring.Persistence.MonitorData import MonitorData
+from Visualizer.Monitoring.Persistence.MonitorSession import MonitorSession
 from Visualizer.Persistence.Entity import Entity
 from Visualizer.Plotting.DictionaryPlot import DictionaryPlot
 from Visualizer.Plotting.MultiPlot import MultiPlot
 from Visualizer.Plotting.Plot import Plot
-from Visualizer.Plotting.ScatterPlot import ScatterPlot
-from Visualizer.Plotting.TablePlot import TablePlot
 from Visualizer.Plotting.TimeseriesPlot import TimeseriesPlot
+from Visualizer.Utility.Parsing import determine_type
 
 
 class ProfilerSession(Entity):
@@ -38,151 +36,6 @@ class ProfilerSession(Entity):
 
         return profiler_sessions
 
-    @classmethod
-    def table(cls, profiler_sessions: List["ProfilerSession"]):
-        return TablePlot(title="Profiler Sessions", table=[[profiler_session.id, profiler_session.label, profiler_session.profile] for profiler_session in profiler_sessions],
-                         columns=["ID", "Label", "Profile"])
-
-    @classmethod
-    def optimal_energy_consumption(cls, profiler_sessions: List["ProfilerSession"]):
-        optimal_energy_consumption: ProfilerSession = None
-
-        for profiler_session in profiler_sessions:
-            energy_consumption = profiler_session.total_energy_consumption
-
-            if optimal_energy_consumption is None or energy_consumption < optimal_energy_consumption.total_energy_consumption:
-                optimal_energy_consumption = profiler_session
-
-        return optimal_energy_consumption
-
-    @classmethod
-    def optimal_runtime(cls, profiler_sessions: List["ProfilerSession"]):
-        optimal_runtime: ProfilerSession = None
-
-        for profiler_session in profiler_sessions:
-            runtime = profiler_session.total_runtime
-
-            if optimal_runtime is None or runtime < optimal_runtime.total_runtime:
-                optimal_runtime = profiler_session
-
-        return optimal_runtime
-
-    @classmethod
-    def optimal_flops(cls, profiler_sessions: List["ProfilerSession"]):
-        optimal_flops: ProfilerSession = None
-
-        for profiler_session in profiler_sessions:
-            flops = profiler_session.total_flops
-
-            if optimal_flops is None or flops > optimal_flops.total_flops:
-                optimal_flops = profiler_session
-
-        return optimal_flops
-
-    @classmethod
-    def energy_consumption_vs_runtime(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        # Find the optimal values
-        optimal_energy_consumption = cls.optimal_energy_consumption(profiler_sessions).total_energy_consumption
-        optimal_runtime = cls.optimal_runtime(profiler_sessions).total_runtime
-
-        data: Dict[str, Dict[Any, Any]] = {}
-        for profiler_session in profiler_sessions:
-            profile = f"{profiler_session.profile['minimumCPUClockRate']} - {profiler_session.profile['minimumGPUClockRate']}"
-            if profile not in data:
-                data[profile] = {}
-
-            if normalized:
-                data[profile][profiler_session.total_runtime / optimal_runtime * 100] = profiler_session.total_energy_consumption / optimal_energy_consumption * 100
-            else:
-                data[profile][profiler_session.total_runtime] = profiler_session.total_energy_consumption
-
-        return data
-
-    @classmethod
-    def energy_consumption_vs_runtime_plot(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        return ScatterPlot(title="Energy Consumption vs. Runtime", plot_series=cls.energy_consumption_vs_runtime(profiler_sessions, normalized),
-                           x_label="Runtime" + " (% of optimal)" if normalized else "",
-                           y_label="Energy Consumption" + " (% of optimal)" if normalized else "")
-
-    @classmethod
-    def energy_consumption_vs_flops(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        # Find the optimal values
-        optimal_energy_consumption = cls.optimal_energy_consumption(profiler_sessions)
-        optimal_flops = cls.optimal_flops(profiler_sessions)
-
-        data: Dict[str, Dict[Any, Any]] = {}
-        for profiler_session in profiler_sessions:
-            profile = f"{profiler_session.profile['minimumCPUClockRate']} - {profiler_session.profile['minimumGPUClockRate']}"
-            if profile not in data:
-                data[profile] = {}
-
-            if normalized:
-                data[profile][profiler_session.total_flops / optimal_flops * 100] = profiler_session.total_energy_consumption / optimal_energy_consumption * 100
-            else:
-                data[profile][profiler_session.total_flops] = profiler_session.total_energy_consumption
-
-        return data
-
-    @classmethod
-    def energy_consumption_vs_flops_plot(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        return ScatterPlot(title="Energy Consumption vs. FLOPs", plot_series=cls.energy_consumption_vs_flops(profiler_sessions, normalized),
-                           x_label="FLOPs (" + ("% of optimal" if normalized else "Operations") + ")",
-                           y_label="Energy Consumption (" + "% of optimal" if normalized else "Joules" + ")")
-
-    @classmethod
-    def energy_savings_vs_runtime_increase(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        # Find the optimal values
-        optimal_runtime = cls.optimal_runtime(profiler_sessions)
-
-        data: Dict[str, Dict[Any, Any]] = {}
-        for profiler_session in profiler_sessions:
-            energy_savings = optimal_runtime.total_energy_consumption - profiler_session.total_energy_consumption
-            runtime_increase = profiler_session.total_runtime - optimal_runtime.total_runtime
-
-            profile = f"{profiler_session.profile['minimumCPUClockRate']} - {profiler_session.profile['minimumGPUClockRate']}"
-            if profile not in data:
-                data[profile] = {}
-
-            if normalized:
-                data[profile][runtime_increase / optimal_runtime.total_runtime * 100] = energy_savings / optimal_runtime.total_energy_consumption * 100
-            else:
-                data[profile][Plot.ns_to_s(runtime_increase)] = energy_savings
-
-        return data
-
-    @classmethod
-    def energy_savings_vs_runtime_increase_plot(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        return ScatterPlot(title="Energy Savings vs. Runtime Increase", plot_series=cls.energy_savings_vs_runtime_increase(profiler_sessions, normalized),
-                           x_label="Runtime Increase (" + ("% of optimal" if normalized else "Seconds") + ")",
-                           y_label="Energy Savings (" + ("% of optimal" if normalized else "Joules") + ")")
-
-    @classmethod
-    def energy_savings_vs_flops_decrease(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        # Find the optimal values
-        optimal_flops = cls.optimal_flops(profiler_sessions)
-
-        data: Dict[str, Dict[Any, Any]] = {}
-        for profiler_session in profiler_sessions:
-            energy_savings = optimal_flops.total_energy_consumption - profiler_session.total_energy_consumption
-            flops_decrease = optimal_flops.total_flops - profiler_session.total_flops
-
-            profile = f"{profiler_session.profile['minimumCPUClockRate']} - {profiler_session.profile['minimumGPUClockRate']}"
-            if profile not in data:
-                data[profile] = {}
-
-            if normalized:
-                data[profile][flops_decrease / optimal_flops.total_runtime * 100] = energy_savings / optimal_flops.total_energy_consumption * 100
-            else:
-                data[profile][flops_decrease] = energy_savings
-
-        return data
-
-    @classmethod
-    def energy_savings_vs_flops_decrease_plot(cls, profiler_sessions: List["ProfilerSession"], normalized=True):
-        return ScatterPlot(title="Energy Savings vs. Runtime Increase", plot_series=cls.energy_savings_vs_runtime_increase(profiler_sessions, normalized),
-                           x_label="Runtime Increase" + " (% of optimal)" if normalized else "",
-                           y_label="Energy Savings" + " (% of optimal)" if normalized else "")
-
     def __init__(self, database_file: str, id: int, label: str):
         super().__init__(database_file)
 
@@ -195,123 +48,193 @@ class ProfilerSession(Entity):
         for row in self._select("ProfilerSessionProfile", ["argument", "value"], f"profilerSessionID = {self.id}"):
             argument = row[0]
             value = row[1]
-            profile[argument] = value
+            profile[argument] = determine_type(value)(value)
 
         return profile
 
     @cached_property
-    def monitor_data(self):
-        return MonitorData.load_by_profiler_session(self.database_file, self)
+    def monitor_sessions(self):
+        return MonitorSession.load_by_profiler_session(self.database_file, self)
 
-    def get_monitor_data_by_monitor_name(self, monitor_name: str):
-        matching_monitors = [monitor_data for monitor_data in self.monitor_data if monitor_data.monitor_name == monitor_name]
-        if len(matching_monitors) > 0:
-            return matching_monitors[0]
-        else:
-            print(f"Could not find monitor with name {monitor_name} for profiler session with ID {self.id}")
-            raise NotImplementedError
+    def get_monitor_session_by_monitor_name(self, monitor_name: str):
+        return [monitor_session for monitor_session in self.monitor_sessions if monitor_session.monitor_name == monitor_name]
 
     @cached_property
-    def cpu_monitor(self):
-        return self.get_monitor_data_by_monitor_name("CPUMonitor")
+    def cpu_monitors(self):
+        return self.get_monitor_session_by_monitor_name("CPUMonitor")
 
     @cached_property
-    def gpu_monitor(self):
-        return self.get_monitor_data_by_monitor_name("GPUMonitor")
+    def cpu_core_monitors(self):
+        return self.get_monitor_session_by_monitor_name("CPUCoreMonitor")
+
+    @cached_property
+    def gpu_monitors(self):
+        return self.get_monitor_session_by_monitor_name("GPUMonitor")
 
     @cached_property
     def node_monitor(self):
-        return self.get_monitor_data_by_monitor_name("NodeMonitor")
+        return self.get_monitor_session_by_monitor_name("NodeMonitor")[0]
+
+    @property
+    def monitor_data_correlations_plot(self):
+        return MonitorSession.correlations_plot(self.monitor_sessions)
 
     @property
     def summary(self):
         return {
             "Label": self.label,
-            "GPU Brand": self.gpu_monitor.collect_constant_value("brand", str),
-            "GPU Compute Capability Major Version": self.gpu_monitor.collect_constant_value("computeCapabilityMajorVersion", int),
-            "GPU Compute Capability Minor Version": self.gpu_monitor.collect_constant_value("computeCapabilityMinorVersion", int),
-            # "GPU Memory Bandwidth (B/s)": self.gpu_monitor.collect_constant_value("memoryBandwidth", float, Plot.humanize_size),
-            "GPU Memory Size (B)": self.gpu_monitor.collect_constant_value("memorySize", int, Plot.humanize_size),
-            # "GPU Multiprocessor Count": self.gpu_monitor.collect_constant_value("multiprocessorCount", int, Plot.humanize_number),
-            "GPU Name": self.gpu_monitor.collect_constant_value("name", str),
-            "GPU PCIe Link Width (B)": self.gpu_monitor.collect_constant_value("pciELinkWidth", int, Plot.humanize_size),
-            "GPU Default Power Limit (W)": self.gpu_monitor.collect_constant_value("defaultPowerLimit", float, Plot.humanize_number),
-            "GPU Supported Core Clock Rates (Hz)": self.gpu_monitor.collect_constant_value("supportedCoreClockRates", str, Plot.parse_number_list),
-            "GPU Supported Memory Clock Rates (Hz)": self.gpu_monitor.collect_constant_value("supportedMemoryClockRates", str, Plot.parse_number_list),
-            "GPU Default Auto Boosted Clocks Enabled": self.gpu_monitor.collect_constant_value("defaultAutoBoostedClocksEnabled", bool)
+            "GPUs": [{
+                "Brand": gpu_monitor.get_value("brand", str),
+                "Compute Capability Major Version": gpu_monitor.get_value("computeCapabilityMajorVersion", int),
+                "Compute Capability Minor Version": gpu_monitor.get_value("computeCapabilityMinorVersion", int),
+                # "GPU Memory Bandwidth (B/s)": gpu_monitor.get_value("memoryBandwidth", float, Plot.humanize_size),
+                "Memory Size (B)": gpu_monitor.get_value("memorySize", int, Plot.humanize_size),
+                # "GPU Multiprocessor Count": gpu_monitor.get_value("multiprocessorCount", int, Plot.humanize_number),
+                "Name": gpu_monitor.get_value("name", str),
+                "PCIe Link Width (B)": gpu_monitor.get_value("pciELinkWidth", int, Plot.humanize_size),
+                "Default Power Limit (W)": gpu_monitor.get_value("defaultPowerLimit", float, Plot.humanize_number),
+                "Supported Core Clock Rates (Hz)": gpu_monitor.get_value("supportedCoreClockRates", str, Plot.parse_number_list),
+                "Supported Memory Clock Rates (Hz)": gpu_monitor.get_value("supportedMemoryClockRates", str, Plot.parse_number_list),
+                "Default Auto Boosted Clocks Enabled": gpu_monitor.get_value("defaultAutoBoostedClocksEnabled", bool)
+            } for gpu_monitor in self.gpu_monitors]
         }
 
     @property
-    def summary_plot(self):
+    def summary_dictionary_plot(self):
         return DictionaryPlot(title="Summary", dictionary=self.summary)
 
     @property
-    def overview_plot(self):
+    def overview_multi_plot(self):
         return MultiPlot(title="Overview", plots=[
-            self.clock_rate_plot(),
-            self.energy_consumption_plot(),
-            self.fan_speed_plot,
-            self.memory_consumption_plot(),
-            self.power_consumption_plot(),
-            self.processes_plot,
-            self.switches_plot,
-            self.temperature_plot,
-            self.timespan_plot,
-            self.utilization_rate_plot,
-            self.kernel_coordinates_plot,
-            # self.correlations_plot,
+            self.clock_rate_timeseries_plot(),
+            self.energy_consumption_timeseries_plot(),
+            self.fan_speed_timeseries_plot,
+            self.memory_consumption_timeseries_plot(),
+            self.power_consumption_timeseries_plot(),
+            self.processes_timeseries_plot,
+            self.switches_timeseries_plot,
+            self.temperature_timeseries_plot,
+            self.timespan_timeseries_plot,
+            self.utilization_rate_timeseries_plot,
+            self.kernel_coordinates_timeseries_plot,
+            # self.monitor_data_correlations_plot,
         ])
 
     @property
     def clock_rate(self):
-        clock_rate = self.cpu_monitor.collect_summarized_indexed_values("CPU", "CPU Core", "coreClockRate", "coreClockRateCore", int)
-        clock_rate.update({
-            "GPU Core": self.gpu_monitor.collect_values("coreClockRate", int),
-            "GPU Memory": self.gpu_monitor.collect_values("memoryClockRate", int),
-            "GPU SM": self.gpu_monitor.collect_values("streamingMultiprocessorClockRate", int)
-        })
+        clock_rate = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            clock_rate.update({f"CPU {cpu_id}": cpu_monitor.get_values("coreClockRate", int)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            clock_rate.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("coreClockRate", int)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            clock_rate.update({
+                f"GPU {gpu_id} Core": gpu_monitor.get_values("coreClockRate", int),
+                f"GPU {gpu_id} Memory": gpu_monitor.get_values("memoryClockRate", int),
+                f"GPU {gpu_id} SM": gpu_monitor.get_values("streamingMultiprocessorClockRate", int)
+            })
 
         return clock_rate
 
     @property
     def clock_rate_limits(self):
-        clock_rate_limits = self.cpu_monitor.collect_summarized_indexed_values("CPU Maximum", "CPU Maximum Core", "maximumCoreClockRate", "maximumCoreClockRateCore",
-                                                                               int)
-        clock_rate_limits.update({
-            "GPU Core Maximum": self.gpu_monitor.collect_values("maximumCoreClockRate", int),
-            "GPU Memory Maximum": self.gpu_monitor.collect_values("GPUMonitor", "maximumMemoryClockRate", int)
-        })
+        clock_rate_limits = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            clock_rate_limits.update({f"CPU {cpu_id} Maximum": cpu_monitor.get_values("maximumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Current Maximum": cpu_monitor.get_values("currentMaximumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Minimum": cpu_monitor.get_values("minimumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Current Minimum": cpu_monitor.get_values("currentMinimumCoreClockRate", int)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Maximum": cpu_core_monitor.get_values("maximumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Current Maximum": cpu_core_monitor.get_values("currentMaximumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Minimum": cpu_core_monitor.get_values("minimumCoreClockRate", int)})
+            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Current Minimum": cpu_core_monitor.get_values("currentMinimumCoreClockRate", int)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            clock_rate_limits.update({
+                f"GPU {gpu_id} Core Maximum": gpu_monitor.get_values("maximumCoreClockRate", int),
+                f"GPU {gpu_id} Core Current Maximum": gpu_monitor.get_values("currentMaximumCoreClockRate", int),
+                f"GPU {gpu_id} Core Current Minimum": gpu_monitor.get_values("currentMinimumCoreClockRate", int),
+                f"GPU {gpu_id} Memory Maximum": gpu_monitor.get_values("maximumMemoryClockRate", int)
+            })
 
         return clock_rate_limits
 
-    def clock_rate_plot(self, plot_limits=True):
+    def clock_rate_timeseries_plot(self, plot_limits=True):
         series = self.clock_rate
         if plot_limits:
             series.update(self.clock_rate_limits)
 
-        return TimeseriesPlot(title="Clock Rate", plot_series=series, y_label="Clock Rate (Hz)")
+        return TimeseriesPlot(title="Clock Rate", plot_series=series, y_label="Clock Rate (Hertz)")
+
+    @property
+    def maximum_cpu_clock_rate_string(self):
+        result = "CPU"
+        if "maximumCPUClockRate" in self.profile:
+            result += f"@{Plot.humanize_number(self.profile['maximumCPUClockRate'])}"
+
+        return result
+
+    @property
+    def maximum_gpu_clock_rate_string(self):
+        result = "GPU"
+        if "maximumGPUClockRate" in self.profile:
+            result += f"@{Plot.humanize_number(self.profile['maximumGPUClockRate'])}"
+
+        return result
 
     def energy_consumption(self, modifier=lambda value: value):
-        return {
-            "CPU": self.cpu_monitor.collect_values("energyConsumption", float, modifier),
-            "GPU": self.gpu_monitor.collect_values("energyConsumption", float, modifier),
-            "Node": self.node_monitor.collect_values("energyConsumption", float, modifier)
-        }
+        energy_consumption = {}
 
-    def energy_consumption_plot(self, unit_string="J", modifier=lambda value: value):
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            energy_consumption.update({f"CPU {cpu_id}": cpu_monitor.get_values("energyConsumption", float, modifier)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            energy_consumption.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("energyConsumption", float, modifier)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            energy_consumption.update({f"GPU {gpu_id}": gpu_monitor.get_values("energyConsumption", float, modifier)})
+
+        energy_consumption.update({"Node": self.node_monitor.get_values("energyConsumption", float, modifier)})
+
+        return energy_consumption
+
+    def energy_consumption_timeseries_plot(self, unit_string="J", modifier=lambda value: value):
         return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier), y_label=f"Energy Consumption ({unit_string})")
 
     @property
     def total_energy_consumption(self):
-        _, variables = list(self.node_monitor.monitor_data.items())[-1]
-        return variables["energyConsumption"]
+        return self.node_monitor.get_last_value("energyConsumption", float)
 
     @property
     def fan_speed(self):
-        return self.gpu_monitor.collect_summarized_indexed_values("GPU", "GPU Fan", "fanSpeed", "fanSpeedFan", float, Plot.to_percentage)
+        fan_speed = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            fan_speed.update(gpu_monitor.get_summarized_indexed_value_series(f"GPU {gpu_id}", f"GPU {gpu_id} Fan", "fanSpeed", "fanSpeedFan", float, Plot.to_percentage))
+
+        return fan_speed
 
     @property
-    def fan_speed_plot(self):
+    def fan_speed_timeseries_plot(self):
         return TimeseriesPlot(title="Fan Speed", plot_series=self.fan_speed, y_label="Fan Speed (%)")
 
     @property
@@ -321,32 +244,50 @@ class ProfilerSession(Entity):
 
     @property
     def memory_consumption(self):
-        return {
-            "GPU Free": self.gpu_monitor.collect_values("memoryFreeSize", int),
-            "GPU Used": self.gpu_monitor.collect_values("memoryUsedSize", int),
-            "RAM Free": self.node_monitor.collect_values("freeMemorySize", int),
-            "RAM Used": self.node_monitor.collect_values("usedMemorySize", int),
-            "Swap Free": self.node_monitor.collect_values("freeSwapMemorySize", int),
-            "Swap Used": self.node_monitor.collect_values("usedSwapMemorySize", int),
-            "High Free": self.node_monitor.collect_values("freeHighMemorySize", int),
-            "High Used": self.node_monitor.collect_values("usedHighMemorySize", int)
-        }
+        memory_consumption = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            memory_consumption.update({
+                f"GPU {gpu_id} Free": gpu_monitor.get_values("memoryFreeSize", int),
+                f"GPU {gpu_id} Used": gpu_monitor.get_values("memoryUsedSize", int)
+            })
+
+        memory_consumption.update({
+            "RAM Free": self.node_monitor.get_values("freeMemorySize", int),
+            "RAM Used": self.node_monitor.get_values("usedMemorySize", int),
+            "Swap Free": self.node_monitor.get_values("freeSwapMemorySize", int),
+            "Swap Used": self.node_monitor.get_values("usedSwapMemorySize", int),
+            "High Free": self.node_monitor.get_values("freeHighMemorySize", int),
+            "High Used": self.node_monitor.get_values("usedHighMemorySize", int)
+        })
+
+        return memory_consumption
 
     @property
     def memory_sizes(self):
-        return {
-            "GPU Kernel Dynamic Shared": self.gpu_monitor.collect_values("kernelDynamicSharedMemorySize", int),
-            "GPU Kernel Static Shared": self.gpu_monitor.collect_values("kernelStaticSharedMemorySize", int),
-            "GPU": self.gpu_monitor.collect_values("memorySize", int),
-            "GPU PCIe Link": self.gpu_monitor.collect_values("pciELinkWidth", int),
-            "RAM": self.node_monitor.collect_values("memorySize", int),
-            "RAM Shared": self.node_monitor.collect_values("sharedMemorySize", int),
-            "RAM Buffer": self.node_monitor.collect_values("bufferMemorySize", int),
-            "Swap": self.node_monitor.collect_values("swapMemorySize", int),
-            "High": self.node_monitor.collect_values("highMemorySize", int)
-        }
+        memory_sizes = {}
 
-    def memory_consumption_plot(self, plot_sizes=True):
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            memory_sizes.update({
+                f"GPU {gpu_id} Kernel Dynamic Shared": gpu_monitor.get_values("kernelDynamicSharedMemorySize", int),
+                f"GPU {gpu_id} Kernel Static Shared": gpu_monitor.get_values("kernelStaticSharedMemorySize", int),
+                f"GPU {gpu_id}": gpu_monitor.get_values("memorySize", int),
+                f"GPU {gpu_id} PCIe Link": gpu_monitor.get_values("pciELinkWidth", int)
+            })
+
+        memory_sizes.update({
+            "RAM": self.node_monitor.get_values("memorySize", int),
+            "RAM Shared": self.node_monitor.get_values("sharedMemorySize", int),
+            "RAM Buffer": self.node_monitor.get_values("bufferMemorySize", int),
+            "Swap": self.node_monitor.get_values("swapMemorySize", int),
+            "High": self.node_monitor.get_values("highMemorySize", int)
+        })
+
+        return memory_sizes
+
+    def memory_consumption_timeseries_plot(self, plot_sizes=True):
         series = self.memory_consumption
         if plot_sizes:
             series.update(self.memory_sizes)
@@ -355,20 +296,39 @@ class ProfilerSession(Entity):
 
     @property
     def power_consumption(self):
-        return {
-            "CPU": self.cpu_monitor.collect_values("powerConsumption", float),
-            "GPU": self.gpu_monitor.collect_values("powerConsumption", float),
-            "Node": self.node_monitor.collect_values("powerConsumption", float)
-        }
+        power_consumption = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            power_consumption.update({f"CPU {cpu_id}": cpu_monitor.get_values("powerConsumption", float)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            power_consumption.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("powerConsumption", float)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            power_consumption.update({f"GPU {gpu_id}": gpu_monitor.get_values("powerConsumption", float)})
+
+        power_consumption.update({"Node": self.node_monitor.get_values("powerConsumption", float)})
+
+        return power_consumption
 
     @property
     def power_limits(self):
-        return {
-            "GPU Power Limit": self.gpu_monitor.collect_values("powerLimit", float),
-            "GPU Enforced Power Limit": self.gpu_monitor.collect_values("powerLimit", float)
-        }
+        power_limits = {}
 
-    def power_consumption_plot(self, plot_limits=True):
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            power_limits.update({
+                f"GPU {gpu_id} Power Limit": gpu_monitor.get_values("powerLimit", float),
+                f"GPU {gpu_id} Enforced Power Limit": gpu_monitor.get_values("powerLimit", float)
+            })
+
+        return power_limits
+
+    def power_consumption_timeseries_plot(self, plot_limits=True):
         series = self.power_consumption
         if plot_limits:
             series.update(self.power_limits)
@@ -378,11 +338,11 @@ class ProfilerSession(Entity):
     @property
     def processes(self):
         return {
-            "Processes": self.node_monitor.collect_values("processCount", int)
+            "Processes": self.node_monitor.get_values("processCount", int)
         }
 
     @property
-    def processes_plot(self):
+    def processes_timeseries_plot(self):
         return TimeseriesPlot(title="Processes", plot_series=self.processes, y_label="Processes")
 
     @property
@@ -392,71 +352,129 @@ class ProfilerSession(Entity):
 
     @property
     def switches(self):
-        return {
-            "GPU Auto Boosted Clocks": self.gpu_monitor.collect_values("autoBoostedClocksEnabled", bool)
-        }
+        switches = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            switches.update({
+                f"GPU {gpu_id} Auto Boosted Clocks": gpu_monitor.get_values("autoBoostedClocksEnabled", bool)
+            })
+
+        return switches
 
     @property
-    def switches_plot(self):
+    def switches_timeseries_plot(self):
         return TimeseriesPlot(title="Switches", plot_series=self.switches, y_label="Switches (bool)")
 
     @property
     def temperature(self):
-        return {
-            "CPU": self.cpu_monitor.collect_values("temperature", float),
-            "GPU": self.gpu_monitor.collect_values("temperature", float)
-        }
+        temperature = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            temperature.update({f"CPU {cpu_id}": cpu_monitor.get_values("temperature", float)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            temperature.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("temperature", float)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            temperature.update({f"GPU {gpu_id}": gpu_monitor.get_values("temperature", float)})
+
+        return temperature
 
     @property
-    def temperature_plot(self):
+    def temperature_timeseries_plot(self):
         return TimeseriesPlot(title="Temperature", plot_series=self.temperature, y_label="Temperature (C)")
 
     @property
     def timespan(self):
-        timespan = self.cpu_monitor.collect_summarized_indexed_values("CPU Guest Nice", "CPU Guest Nice Core", "guestNiceTimespan", "guestNiceTimespanCore", float, Plot.to_percentage)
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU Guest", "CPU Guest Core", "guestTimespan", "guestTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU IO Wait", "CPU IO Wait Core", "ioWaitTimespan", "ioWaitTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU Idle", "CPU Idle Core", "idleTimespan", "idleTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU Interrupts", "CPU Interrupts Core", "interruptsTimespan", "interruptsTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU Nice", "CPU Nice Core", "niceTimespan", "niceTimespanCore", float, Plot.to_percentage))
-        timespan.update(
-            self.cpu_monitor.collect_summarized_indexed_values("CPU Soft Interrupts", "CPU Soft Interrupts Core", "softInterruptsTimespan", "softInterruptsTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU Steal", "CPU Steal Core", "stealTimespan", "stealTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU System", "CPU System Core", "systemTimespan", "systemTimespanCore", float, Plot.to_percentage))
-        timespan.update(self.cpu_monitor.collect_summarized_indexed_values("CPU User", "CPU User Core", "userTimespan", "userTimespanCore", float, Plot.to_percentage))
-        timespan[("Runtime", "")] = self.node_monitor.collect_values("runtime", float, Plot.ns_to_s)
+        timespan = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            timespan.update({
+                f"CPU {cpu_id} Guest Nice": cpu_monitor.get_values("guestNiceTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Guest": cpu_monitor.get_values("guestTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} IO Wait": cpu_monitor.get_values("ioWaitTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Idle": cpu_monitor.get_values("idleTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Interrupts": cpu_monitor.get_values("interruptsTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Nice": cpu_monitor.get_values("niceTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Soft Interrupts": cpu_monitor.get_values("softInterruptsTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Steal": cpu_monitor.get_values("stealTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} System": cpu_monitor.get_values("systemTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} User": cpu_monitor.get_values("userTimespan", float, Plot.to_percentage)
+            })
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            timespan.update({
+                f"CPU {cpu_id} Core {core_id} Guest Nice": cpu_core_monitor.get_values("guestNiceTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Guest": cpu_core_monitor.get_values("guestTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} IO Wait": cpu_core_monitor.get_values("ioWaitTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Idle": cpu_core_monitor.get_values("idleTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Interrupts": cpu_core_monitor.get_values("interruptsTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Nice": cpu_core_monitor.get_values("niceTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Soft Interrupts": cpu_core_monitor.get_values("softInterruptsTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Steal": cpu_core_monitor.get_values("stealTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} System": cpu_core_monitor.get_values("systemTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} User": cpu_core_monitor.get_values("userTimespan", float, Plot.to_percentage)
+            })
+
+        timespan.update({"Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s)})
 
         return timespan
 
     @property
-    def timespan_plot(self):
+    def timespan_timeseries_plot(self):
         return TimeseriesPlot(title="Timespan", plot_series=self.timespan, y_label="Timespan (s)")
 
     @property
     def utilization_rate(self):
-        utilization_rate = self.cpu_monitor.collect_summarized_indexed_values("CPU", "CPU Core", "coreUtilizationRate", "coreUtilizationRateCore", float, Plot.to_percentage)
-        utilization_rate.update({
-            "GPU Core": self.gpu_monitor.collect_values("coreUtilizationRate", float, Plot.to_percentage),
-            "GPU Memory": self.gpu_monitor.collect_values("memoryUtilizationRate", float, Plot.to_percentage)
-        })
+        utilization_rate = {}
+
+        for cpu_monitor in self.cpu_monitors:
+            cpu_id = cpu_monitor.get_value("id", int)
+            utilization_rate.update({f"CPU {cpu_id}": cpu_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage)})
+
+        for cpu_core_monitor in self.cpu_core_monitors:
+            cpu_id = cpu_core_monitor.get_value("cpuID", int)
+            core_id = cpu_core_monitor.get_value("coreID", int)
+            utilization_rate.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage)})
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            utilization_rate.update({
+                f"GPU {gpu_id} Core": gpu_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage),
+                f"GPU {gpu_id} Memory": gpu_monitor.get_values("memoryUtilizationRate", float, Plot.to_percentage)
+            })
 
         return utilization_rate
 
     @property
-    def utilization_rate_plot(self):
+    def utilization_rate_timeseries_plot(self):
         return TimeseriesPlot(title="Utilization Rate", plot_series=self.utilization_rate, y_label="Utilization Rate (%)")
 
     @property
     def kernel_coordinates(self):
-        return {
-            "Block X": self.gpu_monitor.collect_values("kernelBlockX", int),
-            "Block Y": self.gpu_monitor.collect_values("kernelBlockY", int),
-            "Block Z": self.gpu_monitor.collect_values("kernelBlockZ", int),
-            "Grid X": self.gpu_monitor.collect_values("kernelGridX", int),
-            "Grid Y": self.gpu_monitor.collect_values("kernelGridY", int),
-            "Grid Z": self.gpu_monitor.collect_values("kernelGridZ", int)
-        }
+        kernel_coordinates = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            kernel_coordinates.update({
+                f"GPU {gpu_id} Block X": gpu_monitor.get_values("kernelBlockX", int),
+                f"GPU {gpu_id} Block Y": gpu_monitor.get_values("kernelBlockY", int),
+                f"GPU {gpu_id} Block Z": gpu_monitor.get_values("kernelBlockZ", int),
+                f"GPU {gpu_id} Grid X": gpu_monitor.get_values("kernelGridX", int),
+                f"GPU {gpu_id} Grid Y": gpu_monitor.get_values("kernelGridY", int),
+                f"GPU {gpu_id} Grid Z": gpu_monitor.get_values("kernelGridZ", int)
+            })
+
+        return kernel_coordinates
 
     @property
-    def kernel_coordinates_plot(self):
+    def kernel_coordinates_timeseries_plot(self):
         return TimeseriesPlot(title="Kernel Coordinates", plot_series=self.kernel_coordinates, y_label="Coordinate")

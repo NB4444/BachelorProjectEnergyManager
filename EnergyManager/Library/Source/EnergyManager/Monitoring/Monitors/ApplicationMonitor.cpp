@@ -11,7 +11,7 @@ namespace EnergyManager {
 				std::map<std::string, std::string> applicationResults;
 				ENERGY_MANAGER_MONITORING_APPLICATION_MONITOR_ADD("executableOutput", application_.getExecutableOutput());
 				try {
-					auto cpuAffinity = application_.getCPUAffinity();
+					auto cpuAffinity = application_.getAffinity();
 					std::vector<unsigned int> cpuIDs;
 					std::transform(cpuAffinity.begin(), cpuAffinity.end(), std::back_inserter(cpuIDs), [](const auto& cpu) {
 						return cpu->getID();
@@ -24,7 +24,7 @@ namespace EnergyManager {
 			}
 
 			ApplicationMonitor::ApplicationMonitor(const Testing::Application& application, const std::chrono::system_clock::duration& interval)
-				: Monitor("ApplicationMonitor", interval)
+				: Monitor("ApplicationMonitor " + application.getPath(), interval)
 				, application_(application) {
 			}
 		}

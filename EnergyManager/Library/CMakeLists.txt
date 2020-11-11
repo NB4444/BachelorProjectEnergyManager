@@ -31,13 +31,13 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 find_path(
 	ARMADILLO_INCLUDE_DIRECTORY
 	NAMES arma_version.hpp
-	PATHS "$ENV{ProgramFiles}/armadillo_bits/" /usr/local/include/armadillo_bits/ /usr/include/armadillo_bits/
+	PATHS "$ENV{ProgramFiles}/armadillo_bits/" /usr/local/include/armadillo_bits/ /usr/include/armadillo_bits/ ~/applications/armadillo/include/armadillo_bits
 )
 message(STATUS "armadillo include directories: ${ARMADILLO_INCLUDE_DIRECTORY}")
 find_library(
 	ARMADILLO_LIBRARY
 	NAMES armadillo
-	PATHS "$ENV{ProgramFiles}/armadillo_bits/" /usr/lib64/ /usr/lib/ /usr/local/lib64/ /usr/local/
+	PATHS "$ENV{ProgramFiles}/armadillo_bits/" /usr/lib64/ /usr/lib/ /usr/local/lib64/ /usr/local/ ~/applications/armadillo/lib64
 )
 message(STATUS "armadillo library: ${ARMADILLO_LIBRARY}")
 
@@ -45,13 +45,13 @@ message(STATUS "armadillo library: ${ARMADILLO_LIBRARY}")
 find_path(
 	MLPACK_INCLUDE_DIRECTORY
 	NAMES core.hpp prereqs.hpp
-	PATHS "$ENV{ProgramFiles}/mlpack/" /usr/local/include/mlpack/ /usr/include/mlpack/
+	PATHS "$ENV{ProgramFiles}/mlpack/" /usr/local/include/mlpack/ /usr/include/mlpack/ ~/applications/mlpack/include
 )
 message(STATUS "mlpack include directories: ${MLPACK_INCLUDE_DIRECTORY}")
 find_library(
 	MLPACK_LIBRARY
 	NAMES mlpack
-	PATHS "$ENV{ProgramFiles}/mlpack/" /usr/lib64/ /usr/lib/ /usr/local/lib64/ /usr/local/
+	PATHS "$ENV{ProgramFiles}/mlpack/" /usr/lib64/ /usr/lib/ /usr/local/lib64/ /usr/local/ ~/applications/mlpack/
 )
 message(STATUS "mlpack library: ${MLPACK_LIBRARY}")
 
@@ -59,7 +59,7 @@ message(STATUS "mlpack library: ${MLPACK_LIBRARY}")
 find_path(
 	ENSMALLEN_INCLUDE_DIRECTORY
 	NAMES ensmallen.hpp
-	PATHS "$ENV{ProgramFiles}/ensmallen_bits/" /usr/local/include/ /usr/include/
+	PATHS "$ENV{ProgramFiles}/ensmallen_bits/" /usr/local/include/ /usr/include/ ~/applications/ensmallen/include
 )
 message(STATUS "ensmallen include directories: ${ENSMALLEN_INCLUDE_DIRECTORY}")
 

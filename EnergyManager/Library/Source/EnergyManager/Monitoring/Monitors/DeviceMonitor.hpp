@@ -1,8 +1,8 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Device.hpp"
+#include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 #include "EnergyManager/Utility/Units/Joule.hpp"
-#include "Monitor.hpp"
 
 #include <memory>
 #include <string>

@@ -1,124 +1,90 @@
 #include <EnergyManager/EnergySaving/EnergyManager.hpp>
 #include <EnergyManager/Hardware/CPU.hpp>
 #include <EnergyManager/Hardware/GPU.hpp>
-#include <EnergyManager/Monitoring/Monitors/CPUMonitor.hpp>
-#include <EnergyManager/Monitoring/Monitors/GPUMonitor.hpp>
-#include <EnergyManager/Monitoring/Monitors/NodeMonitor.hpp>
-#include <EnergyManager/Monitoring/Profiler.hpp>
+#include <EnergyManager/Monitoring/Monitors/CPUCoreMonitor.hpp>
+#include <EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp>
+#include <EnergyManager/Monitoring/Profilers/Profiler.hpp>
 #include <EnergyManager/Testing/Tests/ApplicationTest.hpp>
 #include <memory>
 
+using EnergyManager::Hardware::CPU;
+using EnergyManager::Hardware::GPU;
+using EnergyManager::Monitoring::Monitors::Monitor;
+using EnergyManager::Monitoring::Persistence::ProfilerSession;
+using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler;
+using EnergyManager::Monitoring::Profilers::Profiler;
+using EnergyManager::Persistence::Entity;
+using EnergyManager::Testing::Application;
+using namespace EnergyManager::Utility::Text;
+
 int main(int argumentCount, char* argumentValues[]) {
 	// Parse arguments
-	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
+	static const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
 
 	// Load the database
-	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite");
-	EnergyManager::Persistence::Entity::initialize(database);
+	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite"));
+
+	// Get hardware
+	static const auto core = CPU::Core::getCore(getArgument<unsigned int>(arguments, "--core", 0));
+	static const auto gpu = GPU::getGPU(getArgument<unsigned int>(arguments, "--gpu", 0));
 
 	// Add monitors
-	const auto monitorInterval = EnergyManager::Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(100));
-	const auto applicationMonitorInterval = EnergyManager::Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--applicationMonitorInterval", monitorInterval);
-	const auto nodeMonitorInterval = EnergyManager::Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--nodeMonitorInterval", monitorInterval);
-	const auto cpuMonitorInterval = EnergyManager::Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--cpuMonitorInterval", monitorInterval);
-	const auto gpuMonitorInterval = EnergyManager::Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--gpuMonitorInterval", monitorInterval);
-	std::vector<std::shared_ptr<EnergyManager::Monitoring::Monitors::Monitor>> monitors
-		= { std::make_shared<EnergyManager::Monitoring::Monitors::NodeMonitor>(EnergyManager::Hardware::Node::getNode(), nodeMonitorInterval) };
-	std::vector<std::shared_ptr<EnergyManager::Monitoring::Monitors::CPUMonitor>> cpuMonitors = {};
-	for(const auto& cpu : EnergyManager::Hardware::CPU::getCPUs()) {
-		auto monitor = std::make_shared<EnergyManager::Monitoring::Monitors::CPUMonitor>(cpu, cpuMonitorInterval);
-		monitors.push_back(monitor);
-		cpuMonitors.push_back(monitor);
-	}
-	std::vector<std::shared_ptr<EnergyManager::Monitoring::Monitors::GPUMonitor>> gpuMonitors = {};
-	for(const auto& gpu : EnergyManager::Hardware::GPU::getGPUs()) {
-		auto monitor = std::make_shared<EnergyManager::Monitoring::Monitors::GPUMonitor>(gpu, gpuMonitorInterval);
-		monitors.push_back(monitor);
-		gpuMonitors.push_back(monitor);
-	}
+	static const auto monitorInterval = getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(100));
+	static const auto monitors = Monitor::getMonitorsForAllDevices(
+		getArgument<std::chrono::system_clock::duration>(arguments, "--applicationMonitorInterval", monitorInterval),
+		getArgument<std::chrono::system_clock::duration>(arguments, "--nodeMonitorInterval", monitorInterval),
+		getArgument<std::chrono::system_clock::duration>(arguments, "--cpuMonitorInterval", monitorInterval),
+		getArgument<std::chrono::system_clock::duration>(arguments, "--cpuCoreMonitorInterval", monitorInterval),
+		getArgument<std::chrono::system_clock::duration>(arguments, "--gpuMonitorInterval", monitorInterval));
 
 	// Generate the profiles
-	const auto cpu = EnergyManager::Hardware::CPU::getCPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--cpu", 0));
-	const auto gpu = EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
-	const auto cpuCoreClockRatesToProfile = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 20);
-	const auto gpuCoreClockRatesToProfile = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 20);
+	static const auto profiles = std::vector<std::map<std::string, std::string>> { { //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/100" },
+																					 //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/204800.txt" },
+																					 //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/819200.txt" },
+																					 { "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/kdd_cup" } } };
+	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 100);
 
-	const auto cpuMinimumClockRate = cpu->getMinimumCoreClockRate().toValue();
-	const auto cpuMaximumClockRate = cpu->getMaximumCoreClockRate().toValue();
-	const auto gpuMinimumClockRate = 1000;
-	//const auto gpuMinimumClockRate = gpu->getMinimumCoreClockRate();
-	const auto gpuMaximumClockRate = gpu->getMaximumCoreClockRate().toValue();
-	const auto cpuClockRateIntervalSize = (cpuMaximumClockRate - cpuMinimumClockRate) / (cpuCoreClockRatesToProfile - 1);
-	const auto gpuClockRateIntervalSize = (gpuMaximumClockRate - gpuMinimumClockRate) / (gpuCoreClockRatesToProfile - 1);
-	std::vector<std::map<std::string, std::string>> profiles;
-	for(unsigned int cpuClockRateIndex = 0; cpuClockRateIndex < cpuCoreClockRatesToProfile; ++cpuClockRateIndex) {
-		const auto cpuClockRate = cpuMinimumClockRate + cpuClockRateIndex * cpuClockRateIntervalSize;
-
-		for(unsigned int gpuClockRateIndex = 0; gpuClockRateIndex < gpuCoreClockRatesToProfile; ++gpuClockRateIndex) {
-			const auto gpuClockRate = gpuMinimumClockRate + gpuClockRateIndex * gpuClockRateIntervalSize;
-
-			for(const auto& file : {
-					//std::string(PROJECT_RESOURCES_DIRECTORY) + "/Rodinia/data/kmeans/100",
-					//std::string(PROJECT_RESOURCES_DIRECTORY) + "/Rodinia/data/kmeans/204800.txt",
-					//std::string(PROJECT_RESOURCES_DIRECTORY) + "/Rodinia/data/kmeans/819200.txt",
-					std::string(PROJECT_RESOURCES_DIRECTORY) + "/Rodinia/data/kmeans/kdd_cup"
-				}) {
-				profiles.push_back({ { "cpu", EnergyManager::Utility::Text::toString(cpu->getID()) },
-									 { "gpu", EnergyManager::Utility::Text::toString(gpu->getID()) },
-									 { "minimumCPUClockRate", EnergyManager::Utility::Text::toString(cpuClockRate) },
-									 { "maximumCPUClockRate", EnergyManager::Utility::Text::toString(cpuClockRate) },
-									 { "minimumGPUClockRate", EnergyManager::Utility::Text::toString(gpuClockRate) },
-									 { "maximumGPUClockRate", EnergyManager::Utility::Text::toString(gpuClockRate) },
-									 { "file", file } });
-			}
-		}
-	}
-
-	// Profile the application
-	class Profiler : public EnergyManager::Monitoring::Profiler {
-		using EnergyManager::Monitoring::Profiler::Profiler;
-
-	protected:
-		void beforeProfile(const std::map<std::string, std::string>& profile) final {
-			const auto cpu = EnergyManager::Hardware::CPU::getCPU(std::stoi(profile.at("cpu")));
-			cpu->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
-			cpu->setTurboEnabled(false);
-
-			const auto gpu = EnergyManager::Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
-			gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
-			//gpu->setAutoBoostedClocksEnabled(false);
-		}
-
-		void onProfile(const std::map<std::string, std::string>& profile) final {
-			EnergyManager::Testing::Application(
-				std::string(RODINIA_BIN_DIRECTORY) + "/linux/cuda/kmeans",
-				std::vector<std::string> { "-i \"" + profile.at("file") + '"' },
-				{ EnergyManager::Hardware::CPU::getCPU(std::stoi(profile.at("cpu"))) },
-				EnergyManager::Hardware::GPU::getGPU(std::stoi(profile.at("gpu"))))
-				.run();
-		}
-
-		void afterProfile(const std::map<std::string, std::string>& profile, const std::shared_ptr<EnergyManager::Monitoring::Persistence::ProfilerSession>& profilerSession) final {
-			const auto cpu = EnergyManager::Hardware::CPU::getCPU(std::stoi(profile.at("cpu")));
-			cpu->resetCoreClockRate();
-			cpu->setTurboEnabled(true);
-
-			const auto gpu = EnergyManager::Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
-			gpu->resetCoreClockRate();
-			//gpu->setAutoBoostedClocksEnabled(true);
-
-			// Save the data
-			profilerSession->save();
-		}
+	// Define the workload
+	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
+		EnergyManager::Testing::Application(std::string(RODINIA_BIN_DIRECTORY) + "/linux/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core }, gpu).run();
 	};
-	Profiler profiler(
-		"KMeans",
-		profiles,
-		monitors,
-		EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--runsPerProfile", 3),
-		EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--iterationsPerRun", 1),
-		true);
-	profiler.run();
+
+	// Check if we should generate the control data or not
+	if(getArgument<bool>(arguments, "--control", true)) {
+		class Profiler : public EnergyManager::Monitoring::Profilers::Profiler {
+			using EnergyManager::Monitoring::Profilers::Profiler::Profiler;
+
+		protected:
+			void onProfile(const std::map<std::string, std::string>& profile) final {
+				workload(profile);
+			}
+		};
+
+		Profiler("KMeans", profiles, monitors, runsPerProfile, 1, true, true).run();
+	} else {
+		class FixedFrequencyProfiler : public EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler {
+			using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler::FixedFrequencyProfiler;
+
+		protected:
+			void onProfile(const std::map<std::string, std::string>& profile) final {
+				workload(profile);
+			}
+		};
+
+		FixedFrequencyProfiler(
+			"Fixed Frequency KMeans",
+			core,
+			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 30),
+			gpu,
+			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 30),
+			profiles,
+			monitors,
+			runsPerProfile,
+			1,
+			true,
+			true)
+			.run();
+	}
 
 	return 0;
 }

@@ -20,7 +20,7 @@ namespace EnergyManager {
 				 */
 				Bandwidth(const Byte& value = 0, const std::chrono::system_clock::duration& duration = std::chrono::seconds(1));
 
-				double toCombined() const override;
+				double toCombined() const final;
 			};
 		}
 	}

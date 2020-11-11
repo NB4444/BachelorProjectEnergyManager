@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DeviceMonitor.hpp"
 #include "EnergyManager/Hardware/Processor.hpp"
+#include "EnergyManager/Monitoring/Monitors/DeviceMonitor.hpp"
 
 #include <string>
 

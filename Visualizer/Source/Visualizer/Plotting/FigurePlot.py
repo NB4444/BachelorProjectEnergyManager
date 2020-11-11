@@ -11,39 +11,34 @@ class FigurePlot(Plot):
         # Keep track of annotations
         self.annotations = list()
 
-        self.figure = None
-        self.axes = None
+        self.figure = pyplot.figure(figsize=(15, 5))
 
     def on_plot(self):
-        self.figure = pyplot.figure(figsize=(15, 5)) if self.figure is None else self.figure
-        self.axes = self.figure.add_subplot(1, 1, 1) if self.axes is None else self.axes
+        self.on_plot_figure(self.figure)
 
-        # Set the labels
-        if self.axes != False:
-            self.axes.set(title=self.title)
-
-        self.on_plot_figure(self.figure, self.axes)
-
-    def on_plot_figure(self, figure, axes):
+    def on_plot_figure(self, figure):
         raise NotImplementedError()
 
     def save(self, output_directory: str = None):
         self.plot()
 
         # Make everything fit
-        pyplot.tight_layout()
+        self.figure.tight_layout()
 
         # Save the subplot
         if output_directory is not None:
-            self.axes.figure.canvas.draw()
-            extent = self._determine_extent(
-                self.axes.get_xticklabels() + self.axes.get_yticklabels() + self.annotations + [self.axes, self.axes.title, self.axes.get_xaxis().get_label(), self.axes.get_yaxis().get_label(),
-                                                                                                self.axes.get_legend()]).transformed(
-                self.figure.dpi_scale_trans.inverted())
+            self.figure.canvas.draw()
 
             # Make everything fit
             pyplot.tight_layout()
-            self.figure.savefig(f"{output_directory}/{self.title}.png", bbox_inches=extent)
+            self.figure.savefig(f"{output_directory}/{self.title}.png", bbox_inches=self.extent)
 
-    def _determine_extent(elements, padding=(0.0, 0.0)):
-        return matplotlib.transforms.Bbox.union([element.get_window_extent() for element in elements]).expanded(1.0 + padding[0], 1.0 + padding[1])
+    @property
+    def extent(self):
+        padding = (0.0, 0.0)
+        elements = self.annotations
+
+        self.figure.canvas.draw()
+
+        return matplotlib.transforms.Bbox.union([element.get_window_extent() for element in elements if element is not None]).expanded(1.0 + padding[0], 1.0 + padding[1]).transformed(
+            self.figure.dpi_scale_trans.inverted())

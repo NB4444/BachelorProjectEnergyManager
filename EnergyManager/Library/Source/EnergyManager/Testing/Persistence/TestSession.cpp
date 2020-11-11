@@ -1,6 +1,5 @@
 #include "./TestSession.hpp"
 
-#include "EnergyManager/Testing/Persistence/TestResults.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <utility>
@@ -11,17 +10,27 @@ namespace EnergyManager {
 			void TestSession::onSave() {
 				setID(insert("TestSession", { { "testName", '"' + filterSQL(getTestName()) + '"' }, { "profilerSessionID", Utility::Text::toString(getProfilingSession()->getID()) } }));
 
-				getTestResults()->save();
+				std::vector<std::map<std::string, std::string>> testResults;
+				for(const auto& result : getTestResults()) {
+					testResults.push_back(
+						{ { "testSessionID", Utility::Text::toString(getID()) }, { "name", '"' + filterSQL(result.first) + '"' }, { "value", '"' + filterSQL(result.second) + '"' } });
+				}
+				insert("TestResults", testResults);
 
 				getProfilingSession()->save();
 			}
 
-			TestSession::TestSession(std::string testName, std::shared_ptr<TestResults> testResults, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession)
+			TestSession::TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession)
 				: testName_(std::move(testName))
 				, testResults_(std::move(testResults))
 				, profilingSession_(std::move(profilingSession)) {
 				try {
 					createTable("TestSession", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "testName", "TEXT NOT NULL" }, { "profilerSessionID", "INTEGER NOT NULL" } });
+				} catch(const std::runtime_error& error) {
+				}
+				try {
+					createTable("TestResults", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "testSessionID", "INTEGER NOT NULL" }, { "name", "TEXT NOT NULL" }, { "value", "TEXT" } });
+					createIndex("TestResults", "testSessionIDIndex", { "testSessionID" });
 				} catch(const std::runtime_error& error) {
 				}
 			}
@@ -34,11 +43,11 @@ namespace EnergyManager {
 				testName_ = testName;
 			}
 
-			std::shared_ptr<TestResults> TestSession::getTestResults() const {
+			std::map<std::string, std::string> TestSession::getTestResults() const {
 				return testResults_;
 			}
 
-			void TestSession::setTestResults(const std::shared_ptr<TestResults>& testResults) {
+			void TestSession::setTestResults(const std::map<std::string, std::string>& testResults) {
 				testResults_ = testResults;
 			}
 

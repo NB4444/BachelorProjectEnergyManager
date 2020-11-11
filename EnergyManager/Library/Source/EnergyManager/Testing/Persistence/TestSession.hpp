@@ -10,8 +10,6 @@
 namespace EnergyManager {
 	namespace Testing {
 		namespace Persistence {
-			class TestResults;
-
 			/**
 			 * Stores the results of a profiling operation.
 			 */
@@ -24,7 +22,7 @@ namespace EnergyManager {
 				/**
 				 * The Test results.
 				 */
-				std::shared_ptr<TestResults> testResults_;
+				std::map<std::string, std::string> testResults_;
 
 				/**
 				 * The profiling session that ran during the Test.
@@ -41,7 +39,7 @@ namespace EnergyManager {
 				 * @param testResults The Test results.
 				 * @param profilingSession The profiling session that ran during the Test.
 				 */
-				explicit TestSession(std::string testName, std::shared_ptr<TestResults> testResults = nullptr, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession = nullptr);
+				explicit TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession = nullptr);
 
 				/**
 				 * Gets the name of the Test that generated the results.
@@ -56,16 +54,16 @@ namespace EnergyManager {
 				void setTestName(const std::string& testName);
 
 				/**
-				 * Gets the Test results.
-				 * @return The Test results.
+				 * Gets the results.
+				 * @return The results.
 				 */
-				std::shared_ptr<TestResults> getTestResults() const;
+				std::map<std::string, std::string> getTestResults() const;
 
 				/**
-				 * Sets the Test results.
-				 * @param testResults The Test results.
+				 * Sets the results.
+				 * @param testResults The results.
 				 */
-				void setTestResults(const std::shared_ptr<TestResults>& testResults);
+				void setTestResults(const std::map<std::string, std::string>& testResults);
 
 				/**
 				 * Gets the profiling session that ran during the Test.

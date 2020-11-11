@@ -1,8 +1,7 @@
 #include "./Loopable.hpp"
 
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
-
-#include <unistd.h>
 
 namespace EnergyManager {
 	namespace Utility {
@@ -28,12 +27,21 @@ namespace EnergyManager {
 
 					// Check if we have exceeded the interval
 					if(now > nextRun) {
-						Logging::logWarning("Can't keep up, exceeded loop interval by %s", Utility::Text::formatDuration(now - nextRun).c_str());
+						const auto difference = now - nextRun;
+						Logging::logWarning("Can't keep up, exceeded loop interval by %s", Utility::Text::formatDuration(difference).c_str());
+
+						// Make the next run earlier by the amount of time we were delayed
+						nextRun = now;
+						if(difference < interval_) {
+							nextRun += interval_ - difference;
+						} else {
+							Logging::logWarning("Skipped a monitor frame");
+						}
 					} else {
 						// If not, wait until the end of the interval
 						loopCondition_.wait_for(lock, nextRun - now);
+						nextRun = std::chrono::system_clock::now() + interval_;
 					}
-					nextRun = now + interval_;
 				}
 
 				loop();
@@ -44,6 +52,10 @@ namespace EnergyManager {
 		}
 
 		Loopable::Loopable(const std::chrono::system_clock::duration& interval) : interval_(interval) {
+		}
+
+		Loopable::~Loopable() {
+			stop(true);
 		}
 
 		std::chrono::system_clock::time_point Loopable::getLastLoopTimestamp() const {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/CentralProcessor.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Persistence/Entity.hpp"
 #include "EnergyManager/Utility/Runnable.hpp"
@@ -29,7 +29,7 @@ namespace EnergyManager {
 			/**
 			 * The CPU affinity.
 			 */
-			std::vector<std::shared_ptr<Hardware::CPU>> cpuAffinity_;
+			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity_;
 
 			/**
 			 * The GPU to use.
@@ -56,13 +56,13 @@ namespace EnergyManager {
 			 * Creates a new Application.
 			 * @param path The path to the Application's main executable.
 			 * @param parameters The parameters to provide to the executable.
-			 * @param cpuAffinity The CPU affinity.
+			 * @param affinity The CPU affinity.
 			 * @param gpu The GPU to use.
 			 */
 			explicit Application(
 				std::string path,
 				std::vector<std::string> parameters = {},
-				std::vector<std::shared_ptr<Hardware::CPU>> cpuAffinity = {},
+				std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity = {},
 				std::shared_ptr<Hardware::GPU> gpu = nullptr);
 
 			/**
@@ -70,6 +70,18 @@ namespace EnergyManager {
 			 * @param application The Application to copy.
 			 */
 			Application(const Application& application);
+
+			/**
+			 * Gets the Application's path.
+			 * @return The path.
+			 */
+			std::string getPath() const;
+
+			/**
+			 * Sets the Application's path.
+			 * @param path The path.
+			 */
+			void setPath(const std::string& path);
 
 			/**
 			 * Gets the parameters to provide to the executable.
@@ -87,13 +99,13 @@ namespace EnergyManager {
 			 * Retrieves the Application's affinity.
 			 * @return The affinity.
 			 */
-			std::vector<std::shared_ptr<Hardware::CPU>> getCPUAffinity() const;
+			std::vector<std::shared_ptr<Hardware::CentralProcessor>> getAffinity() const;
 
 			/**
 			 * Sets the Application's affinity.
 			 * @param affinity The affinity.
 			 */
-			void setCPUAffinity(const std::vector<std::shared_ptr<Hardware::CPU>>& affinity);
+			void setAffinity(const std::vector<std::shared_ptr<Hardware::CentralProcessor>>& affinity);
 
 			/**
 			 * Gets the GPU to use.

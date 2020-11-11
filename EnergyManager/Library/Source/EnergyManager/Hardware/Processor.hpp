@@ -8,7 +8,25 @@
 namespace EnergyManager {
 	namespace Hardware {
 		class Processor : public Device {
+			/**
+			 * The ID of the device.
+			 */
+			unsigned int id_;
+
+		protected:
+			/**
+			 * Creates a new Processor.
+			 * @param id The ID of the device.
+			 */
+			explicit Processor(const unsigned int& id);
+
 		public:
+			/**
+			 * Gets the ID of the CentralProcessor.
+			 * @return The ID.
+			 */
+			unsigned int getID() const;
+
 			/**
 			 * Gets the core clock rate.
 			 * @return The core clock rate.

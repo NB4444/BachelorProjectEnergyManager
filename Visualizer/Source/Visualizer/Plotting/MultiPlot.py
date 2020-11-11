@@ -15,11 +15,9 @@ class MultiPlot(FigurePlot):
         self.axes = self.figure.add_subplot(1, 1, 1)
 
     def plot(self):
-        self.axes = False
-
         super().plot()
 
-    def on_plot_figure(self, figure, axes):
+    def on_plot_figure(self, figure):
         # Create the figure axes
         grid_spec = gridspec.GridSpec(len(self.plots) + 1, 1)
 

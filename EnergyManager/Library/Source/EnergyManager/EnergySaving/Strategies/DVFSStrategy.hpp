@@ -30,9 +30,9 @@ namespace EnergyManager {
 				const std::shared_ptr<Models::DVFSModel> model_;
 
 			protected:
-				bool isApplicable() override;
+				bool isApplicable() final;
 
-				void onUpdate() override;
+				void onUpdate() final;
 
 			public:
 				/**

@@ -9,7 +9,7 @@
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Persistence {
-			class MonitorData;
+			class MonitorSession;
 
 			/**
 			 * Stores the results of a profiling operation.
@@ -28,7 +28,7 @@ namespace EnergyManager {
 				/**
 				 * The Monitor data.
 				 */
-				std::vector<std::shared_ptr<MonitorData>> monitorData_;
+				std::vector<std::shared_ptr<MonitorSession>> monitorSessions_;
 
 			protected:
 				void onSave() final;
@@ -38,9 +38,9 @@ namespace EnergyManager {
 				 * Creates a new ProfilerSession.
 				 * @param label The label of the session.
 				 * @param profile The corresponding profile.
-				 * @param monitorData The Monitor data.
+				 * @param monitorSessions The Monitor data.
 				 */
-				explicit ProfilerSession(std::string label, std::map<std::string, std::string> profile, std::vector<std::shared_ptr<MonitorData>> monitorData = {});
+				explicit ProfilerSession(std::string label, std::map<std::string, std::string> profile, std::vector<std::shared_ptr<MonitorSession>> monitorSessions = {});
 
 				/**
 				 * Gets the label of the session.
@@ -70,13 +70,13 @@ namespace EnergyManager {
 				 * Gets the Monitor data.
 				 * @return The Monitor data.
 				 */
-				std::vector<std::shared_ptr<MonitorData>> getMonitorData() const;
+				std::vector<std::shared_ptr<MonitorSession>> getMonitorSessions() const;
 
 				/**
 				 * Sets the Monitor data.
-				 * @param monitorData The Monitor data.
+				 * @param monitorSessions The Monitor data.
 				 */
-				void setMonitorData(const std::vector<std::shared_ptr<MonitorData>>& monitorData);
+				void setMonitorSessions(const std::vector<std::shared_ptr<MonitorSession>>& monitorSessions);
 			};
 		}
 	}

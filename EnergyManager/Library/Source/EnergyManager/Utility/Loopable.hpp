@@ -34,7 +34,7 @@ namespace EnergyManager {
 			std::condition_variable loopCondition_;
 
 		protected:
-			void onRun() override;
+			void onRun() final;
 
 			/**
 			 * Executes when the object is looped.
@@ -47,6 +47,11 @@ namespace EnergyManager {
 			 * @param interval The interval between loops.
 			 */
 			explicit Loopable(const std::chrono::system_clock::duration& interval);
+
+			/**
+			 * Stops the thread.
+			 */
+			~Loopable();
 
 			/**
 			 * Gets the timestamp of the last loop operation.

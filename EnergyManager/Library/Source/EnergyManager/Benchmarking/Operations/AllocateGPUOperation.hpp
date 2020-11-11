@@ -17,7 +17,7 @@ namespace EnergyManager {
 				size_t size_;
 
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

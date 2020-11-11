@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 /**
@@ -134,7 +135,7 @@ namespace EnergyManager {
 						const double jiffiesPerMillisecond = jiffiesPerSecond / 1e3;
 
 						procStatValues[processorID][name] = std::chrono::duration_cast<std::chrono::system_clock::duration>(
-							std::chrono::milliseconds(static_cast<unsigned long>(std::stol(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
+							std::chrono::milliseconds(static_cast<unsigned long>(std::stoul(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
 					};
 
 					setValue("userTimespan", 1);
@@ -176,86 +177,69 @@ namespace EnergyManager {
 			return cpuCoreValues;
 		}
 
-		CPU::CPU(const unsigned int& id) : id_(id) {
-			monitorThread_ = std::thread([&] {
-				// Record the last time at which the variables were polled
-				std::chrono::system_clock::time_point lastMonitorTimestamp = std::chrono::system_clock::now();
-
-				// Record the last `/proc/stat` values
-				std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> lastProcStatValues = getProcStatValuesPerCPU();
-
-				// Record the last polled energy consumption
-				Utility::Units::Joule lastEnergyConsumption = 0;
-
-				// Keep the thread running
-				while(monitorThreadRunning_) {
-					auto currentTimestamp = std::chrono::system_clock::now();
-
-					if((currentTimestamp - lastMonitorTimestamp) >= std::chrono::milliseconds(100)) {
-						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
-
-						// Get the current values
-						auto currentProcStatValues = getProcStatValuesPerCPU();
-						auto currentEnergyConsumption = getEnergyConsumption();
-						auto pollingTimespan = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastMonitorTimestamp).count() / static_cast<float>(1000);
-
-						// Calculate the power consumption in Watts
-						auto divisor = (pollingTimespan == 0 ? 0.1 : pollingTimespan);
-						powerConsumption_ = (currentEnergyConsumption - lastEnergyConsumption).toValue() / divisor;
-
-						// Calculate the core utilization rates
-						for(unsigned int core = 0; core < getCoreCount(); ++core) {
-							auto previousIdle = lastProcStatValues[id_][core]["idleTimespan"] + lastProcStatValues[id_][core]["ioWaitTimespan"];
-							auto previousActive = lastProcStatValues[id_][core]["userTimespan"] + lastProcStatValues[id_][core]["niceTimespan"] + lastProcStatValues[id_][core]["systemTimespan"]
-												  + lastProcStatValues[id_][core]["interruptsTimespan"] + lastProcStatValues[id_][core]["softInterruptsTimespan"]
-												  + lastProcStatValues[id_][core]["stealTimespan"] + lastProcStatValues[id_][core]["guestTimespan"]
-												  + lastProcStatValues[id_][core]["guestNiceTimespan"];
-							auto previousTotal = previousIdle + previousActive;
-
-							auto idle = currentProcStatValues[id_][core]["idleTimespan"] + currentProcStatValues[id_][core]["ioWaitTimespan"];
-							auto active = currentProcStatValues[id_][core]["userTimespan"] + currentProcStatValues[id_][core]["niceTimespan"] + currentProcStatValues[id_][core]["systemTimespan"]
-										  + currentProcStatValues[id_][core]["interruptsTimespan"] + currentProcStatValues[id_][core]["softInterruptsTimespan"]
-										  + currentProcStatValues[id_][core]["stealTimespan"] + currentProcStatValues[id_][core]["guestTimespan"]
-										  + currentProcStatValues[id_][core]["guestNiceTimespan"];
-							auto total = idle + active;
-
-							auto totalDifference = total - previousTotal;
-							auto idleDifference = idle - previousIdle;
-							auto activeDifference = active - previousActive;
-
-							coreUtilizationRates_[core] = totalDifference.count() == 0 ? 0 : (static_cast<double>(activeDifference.count()) / static_cast<double>(totalDifference.count()) * 100);
+		CPU::CPU(const unsigned int& id) : CentralProcessor(id), Utility::Loopable(std::chrono::milliseconds(100)) {
+			// Detect and add all cores
+			for(unsigned int coreID = 0; coreID < getProcCPUInfoValuesPerCPU()[getID()].size(); ++coreID) {
+				unsigned int id = [&] {
+					for(auto& procCpuInfoValuesPerProcessor : getProcCPUInfoValuesPerProcessor()) {
+						if(std::stoi(procCpuInfoValuesPerProcessor.second["physical id"]) == getID() && procCpuInfoValuesPerProcessor.first == coreID) {
+							return procCpuInfoValuesPerProcessor.first;
 						}
-
-						// Set the variables for the next poll cycle
-						lastProcStatValues = currentProcStatValues;
-						lastEnergyConsumption = currentEnergyConsumption;
-						lastMonitorTimestamp = currentTimestamp;
-					} else {
-						usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(10)).count());
 					}
-				}
-			});
 
-			startEnergyConsumption_ = getEnergyConsumption();
-		}
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot find core");
+				}();
 
-		unsigned int CPU::getProcessorID(const unsigned int& core) const {
-			for(auto& procCpuInfoValuesPerProcessor : getProcCPUInfoValuesPerProcessor()) {
-				if(std::stoi(procCpuInfoValuesPerProcessor.second["physical id"]) == id_ && procCpuInfoValuesPerProcessor.first == core) {
-					return procCpuInfoValuesPerProcessor.first;
-				}
+				cores_.push_back(std::shared_ptr<Core>(new Core(this, id, coreID)));
 			}
 
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot find core");
+			startEnergyConsumption_ = getEnergyConsumption();
+
+			// start the monitor thread
+			run(true);
 		}
 
-		std::chrono::system_clock::duration CPU::getProcStatTimespan(const unsigned int& core, const std::string& name) const {
+		void CPU::onLoop() {
+			auto currentTimestamp = std::chrono::system_clock::now();
+
 			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
-			auto lastValue = getProcStatValuesPerCPU()[id_][core][name];
-			auto startValue = startProcStatValues_.at(id_).at(core).at(name);
+			// Get the current values
+			auto currentProcStatValues = getProcStatValuesPerCPU();
+			auto currentEnergyConsumption = getEnergyConsumption();
+			auto pollingTimespan = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastMonitorTimestamp_).count() / static_cast<float>(1000);
 
-			return lastValue - startValue;
+			// Calculate the power consumption in Watts
+			auto divisor = (pollingTimespan == 0 ? 0.1 : pollingTimespan);
+			powerConsumption_ = (currentEnergyConsumption - lastEnergyConsumption_).toValue() / divisor;
+
+			// Calculate the core utilization rates
+			for(unsigned int core = 0; core < getCores().size(); ++core) {
+				auto previousIdle = lastProcStatValues_[getID()][core]["idleTimespan"] + lastProcStatValues_[getID()][core]["ioWaitTimespan"];
+				auto previousActive = lastProcStatValues_[getID()][core]["userTimespan"] + lastProcStatValues_[getID()][core]["niceTimespan"] + lastProcStatValues_[getID()][core]["systemTimespan"]
+									  + lastProcStatValues_[getID()][core]["interruptsTimespan"] + lastProcStatValues_[getID()][core]["softInterruptsTimespan"]
+									  + lastProcStatValues_[getID()][core]["stealTimespan"] + lastProcStatValues_[getID()][core]["guestTimespan"]
+									  + lastProcStatValues_[getID()][core]["guestNiceTimespan"];
+				auto previousTotal = previousIdle + previousActive;
+
+				auto idle = currentProcStatValues[getID()][core]["idleTimespan"] + currentProcStatValues[getID()][core]["ioWaitTimespan"];
+				auto active = currentProcStatValues[getID()][core]["userTimespan"] + currentProcStatValues[getID()][core]["niceTimespan"] + currentProcStatValues[getID()][core]["systemTimespan"]
+							  + currentProcStatValues[getID()][core]["interruptsTimespan"] + currentProcStatValues[getID()][core]["softInterruptsTimespan"]
+							  + currentProcStatValues[getID()][core]["stealTimespan"] + currentProcStatValues[getID()][core]["guestTimespan"]
+							  + currentProcStatValues[getID()][core]["guestNiceTimespan"];
+				auto total = idle + active;
+
+				auto totalDifference = total - previousTotal;
+				auto idleDifference = idle - previousIdle;
+				auto activeDifference = active - previousActive;
+
+				coreUtilizationRates_[core] = totalDifference.count() == 0 ? 0 : (static_cast<double>(activeDifference.count()) / static_cast<double>(totalDifference.count()) * 100);
+			}
+
+			// Set the variables for the next poll cycle
+			lastProcStatValues_ = currentProcStatValues;
+			lastEnergyConsumption_ = currentEnergyConsumption;
+			lastMonitorTimestamp_ = currentTimestamp;
 		}
 
 		std::vector<std::shared_ptr<Hardware::CPU>> CPU::parseCPUs(const std::string& cpuString) {
@@ -293,31 +277,25 @@ namespace EnergyManager {
 			return getProcCPUInfoValuesPerCPU().size();
 		}
 
-		CPU::~CPU() {
-			// Stop the monitor
-			monitorThreadRunning_ = false;
-			monitorThread_.join();
-		}
-
-		unsigned int CPU::getID() const {
-			return id_;
+		std::vector<std::shared_ptr<CPU::Core>> CPU::getCores() const {
+			return cores_;
 		}
 
 		Utility::Units::Hertz CPU::getCoreClockRate() const {
 			Utility::Units::Hertz sum = 0;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getCoreClockRate();
 			}
 
-			return sum / getCoreCount();
+			return sum / getCores().size();
 		}
 
 		Utility::Units::Hertz CPU::getCurrentMinimumCoreClockRate() const {
 			Utility::Units::Hertz minimum = -1;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				auto current = getCurrentMinimumCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				auto current = core->getCurrentMinimumCoreClockRate();
 				if(minimum < 0 || current < minimum) {
 					minimum = current;
 				}
@@ -329,8 +307,8 @@ namespace EnergyManager {
 		Utility::Units::Hertz CPU::getCurrentMaximumCoreClockRate() const {
 			Utility::Units::Hertz maximum = 0;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				auto current = getCurrentMinimumCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				auto current = core->getCurrentMinimumCoreClockRate();
 				if(current > maximum) {
 					maximum = current;
 				}
@@ -339,76 +317,32 @@ namespace EnergyManager {
 			return maximum;
 		}
 
-		Utility::Units::Hertz CPU::getCoreClockRate(const unsigned int& core) const {
-			std::ifstream coreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_cur_freq");
-			std::string coreClockRateString((std::istreambuf_iterator<char>(coreClockRateStream)), std::istreambuf_iterator<char>());
-
-			// FIXME: Something may not be right with this output (see visualization results)
-			return Utility::Units::Hertz(std::stoul(coreClockRateString), Utility::Units::SIPrefix::KILO);
-		}
-
-		Utility::Units::Hertz CPU::getCurrentMinimumCoreClockRate(const unsigned int& core) const {
-			if(getPowerScalingDriver(0) == "intel_pstate") {
-				std::ifstream minimumCoreClockRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
-				std::string minimumCoreClockRateString((std::istreambuf_iterator<char>(minimumCoreClockRateStream)), std::istreambuf_iterator<char>());
-
-				return Utility::Units::Hertz(std::stod(minimumCoreClockRateString) / 100 * getMaximumCoreClockRate().toValue(), Utility::Units::SIPrefix::KILO);
-			} else {
-				std::ifstream minimumCoreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_min_freq");
-				std::string minimumCoreClockRateString((std::istreambuf_iterator<char>(minimumCoreClockRateStream)), std::istreambuf_iterator<char>());
-
-				return Utility::Units::Hertz(std::stoul(minimumCoreClockRateString), Utility::Units::SIPrefix::KILO);
-			}
-		}
-
-		Utility::Units::Hertz CPU::getCurrentMaximumCoreClockRate(const unsigned int& core) const {
-			if(getPowerScalingDriver(0) == "intel_pstate") {
-				std::ifstream maximumCoreClockRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
-				std::string maximumCoreClockRateString((std::istreambuf_iterator<char>(maximumCoreClockRateStream)), std::istreambuf_iterator<char>());
-
-				return Utility::Units::Hertz(std::stod(maximumCoreClockRateString) / 100 * getMaximumCoreClockRate().toValue(), Utility::Units::SIPrefix::KILO);
-			} else {
-				std::ifstream maximumCoreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_max_freq");
-				std::string maximumCoreClockRateString((std::istreambuf_iterator<char>(maximumCoreClockRateStream)), std::istreambuf_iterator<char>());
-
-				return Utility::Units::Hertz(std::stoul(maximumCoreClockRateString), Utility::Units::SIPrefix::KILO);
-			}
-		}
-
 		void CPU::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				setCoreClockRate(coreIndex, minimumRate, maximumRate);
+			for(const auto& core : getCores()) {
+				core->setCoreClockRate(minimumRate, maximumRate);
 			}
 
 			// Check the type of power scaling driver in use
-			if(getPowerScalingDriver(0) == "intel_pstate") {
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
 				// Set minimum rate
 				std::ofstream minimumRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
-				minimumRateStream << static_cast<unsigned int>((minimumRate.toValue() / getMaximumCoreClockRate().toValue()) * 100);
+				const auto minimumRatePercentage = static_cast<unsigned int>((static_cast<double>(minimumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				minimumRateStream << minimumRatePercentage;
 
 				// Set maximum rate
 				std::ofstream maximumRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
-				maximumRateStream << static_cast<unsigned int>((maximumRate.toValue() / getMaximumCoreClockRate().toValue()) * 100);
+				const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				maximumRateStream << maximumRatePercentage;
 			}
-		}
-
-		void CPU::setCoreClockRate(const unsigned int& core, const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
-			// Set minimum rate
-			std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_min_freq");
-			minimumRateStream << minimumRate.convertPrefix(Utility::Units::SIPrefix::KILO);
-
-			// Set maximum rate
-			std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_max_freq");
-			maximumRateStream << maximumRate.convertPrefix(Utility::Units::SIPrefix::KILO);
 		}
 
 		void CPU::resetCoreClockRate() {
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				resetCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				core->resetCoreClockRate();
 			}
 
 			// Check the type of power scaling driver in use
-			if(getPowerScalingDriver(0) == "intel_pstate") {
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
 				// Set minimum rate
 				std::ofstream minimumRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
 				minimumRateStream << 0;
@@ -419,38 +353,18 @@ namespace EnergyManager {
 			}
 		}
 
-		void CPU::resetCoreClockRate(const unsigned int& core) {
-			std::ifstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/cpuinfo_min_freq");
-			std::string minimumRateString((std::istreambuf_iterator<char>(minimumRateStream)), std::istreambuf_iterator<char>());
-			Utility::Units::Hertz minimumRate(std::stoul(minimumRateString), Utility::Units::SIPrefix::KILO);
-
-			std::ifstream maximumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/cpuinfo_max_freq");
-			std::string maximumRateString((std::istreambuf_iterator<char>(maximumRateStream)), std::istreambuf_iterator<char>());
-			Utility::Units::Hertz maximumRate(std::stoul(maximumRateString), Utility::Units::SIPrefix::KILO);
-
-			setCoreClockRate(core, minimumRate, maximumRate);
-		}
-
-		unsigned int CPU::getCoreCount() const {
-			return getProcCPUInfoValuesPerCPU()[id_].size();
-		}
-
 		Utility::Units::Percent CPU::getCoreUtilizationRate() const {
 			double sum = 0;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getCoreUtilizationRate(coreIndex).getUnit();
+			for(const auto& core : getCores()) {
+				sum += core->getCoreUtilizationRate().getUnit();
 			}
 
-			return sum / getCoreCount();
-		}
-
-		Utility::Units::Percent CPU::getCoreUtilizationRate(const unsigned int& core) const {
-			return coreUtilizationRates_.at(core);
+			return sum / getCores().size();
 		}
 
 		Utility::Units::Joule CPU::getEnergyConsumption() const {
-			std::ifstream inputStream("/sys/class/powercap/intel-rapl/intel-rapl:" + std::to_string(id_) + "/energy_uj");
+			std::ifstream inputStream("/sys/class/powercap/intel-rapl/intel-rapl:" + std::to_string(getID()) + "/energy_uj");
 			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 
 			return Utility::Units::Joule(std::stol(cpuInfo), Utility::Units::SIPrefix::MICRO) - startEnergyConsumption_;
@@ -460,8 +374,8 @@ namespace EnergyManager {
 			Utility::Units::Hertz minimum = 0;
 			bool found = false;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				auto currentCoreClockRate = getMinimumCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				auto currentCoreClockRate = core->getMinimumCoreClockRate();
 				if(!found || currentCoreClockRate < minimum) {
 					minimum = currentCoreClockRate;
 					found = true;
@@ -474,28 +388,14 @@ namespace EnergyManager {
 		Utility::Units::Hertz CPU::getMaximumCoreClockRate() const {
 			Utility::Units::Hertz maximum = 0;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				auto currentCoreClockRate = getMaximumCoreClockRate(coreIndex);
+			for(const auto& core : getCores()) {
+				auto currentCoreClockRate = core->getMaximumCoreClockRate();
 				if(currentCoreClockRate > maximum) {
 					maximum = currentCoreClockRate;
 				}
 			}
 
 			return maximum;
-		}
-
-		Utility::Units::Hertz CPU::getMaximumCoreClockRate(const unsigned int& core) const {
-			std::ifstream inputStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/cpuinfo_max_freq");
-			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
-
-			return Utility::Units::Hertz(std::stoi(cpuInfo), Utility::Units::SIPrefix::KILO);
-		}
-
-		Utility::Units::Hertz CPU::getMinimumCoreClockRate(const unsigned int& core) const {
-			std::ifstream inputStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/cpuinfo_min_freq");
-			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
-
-			return Utility::Units::Hertz(std::stoi(cpuInfo), Utility::Units::SIPrefix::KILO);
 		}
 
 		Utility::Units::Watt CPU::getPowerConsumption() const {
@@ -507,148 +407,101 @@ namespace EnergyManager {
 		std::chrono::system_clock::duration CPU::getUserTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getUserTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getUserTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getUserTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "userTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getNiceTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getNiceTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getNiceTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getNiceTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "niceTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getSystemTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getSystemTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getSystemTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getSystemTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "systemTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getIdleTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getIdleTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getIdleTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getIdleTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "idleTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getIOWaitTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getIOWaitTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getIOWaitTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getIOWaitTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "ioWaitTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getInterruptsTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getInterruptsTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getInterruptsTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getInterruptsTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "interruptsTimespan");
-		}
-
-		std::string CPU::getPowerScalingDriver(const unsigned int& core) const {
-			std::ifstream powerScalingDriverStream("/sys/devices/system/cpu/cpu" + std::to_string(getProcessorID(core)) + "/cpufreq/scaling_driver");
-			std::string powerScalingDriver((std::istreambuf_iterator<char>(powerScalingDriverStream)), std::istreambuf_iterator<char>());
-
-			return Utility::Text::trim(powerScalingDriver);
 		}
 
 		std::chrono::system_clock::duration CPU::getSoftInterruptsTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getSoftInterruptsTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getSoftInterruptsTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getSoftInterruptsTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "softInterruptsTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getStealTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getStealTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getStealTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getStealTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "stealTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getGuestTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getGuestTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getGuestTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getGuestTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "guestTimespan");
 		}
 
 		std::chrono::system_clock::duration CPU::getGuestNiceTimespan() const {
 			std::chrono::system_clock::duration sum;
 
-			for(unsigned int coreIndex = 0u; coreIndex < getCoreCount(); ++coreIndex) {
-				sum += getGuestNiceTimespan(coreIndex);
+			for(const auto& core : getCores()) {
+				sum += core->getGuestNiceTimespan();
 			}
 
 			return sum;
-		}
-
-		std::chrono::system_clock::duration CPU::getGuestNiceTimespan(const unsigned int& core) const {
-			return getProcStatTimespan(core, "guestNiceTimespan");
 		}
 
 		Utility::Units::Celsius CPU::getTemperature() const {
@@ -668,6 +521,180 @@ namespace EnergyManager {
 		void CPU::setTurboEnabled(const bool& turbo) const {
 			std::ofstream outputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
 			outputStream << !turbo;
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getProcStatTimespan(const std::string& name) const {
+			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+
+			auto lastValue = getProcStatValuesPerCPU()[getCPU()->getID()][getID()][name];
+			auto startValue = getCPU()->startProcStatValues_.at(getCPU()->getID()).at(getID()).at(name);
+
+			return lastValue - startValue;
+		}
+
+		CPU::Core::Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID) : CentralProcessor(id), cpu_(cpu), coreID_(coreID) {
+		}
+
+		std::shared_ptr<CPU::Core> CPU::Core::getCore(const unsigned int& id) {
+			for(const auto& cpu : CPU::getCPUs()) {
+				for(const auto& core : cpu->getCores()) {
+					if(core->getID() == id) {
+						return core;
+					}
+				}
+			}
+
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not find core");
+		}
+
+		std::shared_ptr<CPU> CPU::Core::getCPU() const {
+			return CPU::getCPU(cpu_->getID());
+		}
+
+		unsigned int CPU::Core::getCoreID() const {
+			return coreID_;
+		}
+
+		Utility::Units::Hertz CPU::Core::getCoreClockRate() const {
+			std::ifstream coreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_cur_freq");
+			std::string coreClockRateString((std::istreambuf_iterator<char>(coreClockRateStream)), std::istreambuf_iterator<char>());
+
+			return Utility::Units::Hertz(std::stoul(coreClockRateString), Utility::Units::SIPrefix::KILO);
+		}
+
+		Utility::Units::Hertz CPU::Core::getCurrentMinimumCoreClockRate() const {
+			if(getPowerScalingDriver() == "intel_pstate") {
+				std::ifstream minimumCoreClockRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
+				std::string minimumCoreClockRateString((std::istreambuf_iterator<char>(minimumCoreClockRateStream)), std::istreambuf_iterator<char>());
+				const auto minimumCoreClockRatePercentage = std::stod(minimumCoreClockRateString);
+
+				return Utility::Units::Hertz(minimumCoreClockRatePercentage / 100 * getMaximumCoreClockRate().toValue());
+			} else {
+				std::ifstream minimumCoreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_min_freq");
+				std::string minimumCoreClockRateString((std::istreambuf_iterator<char>(minimumCoreClockRateStream)), std::istreambuf_iterator<char>());
+
+				return Utility::Units::Hertz(std::stoul(minimumCoreClockRateString), Utility::Units::SIPrefix::KILO);
+			}
+		}
+
+		Utility::Units::Hertz CPU::Core::getCurrentMaximumCoreClockRate() const {
+			if(getPowerScalingDriver() == "intel_pstate") {
+				std::ifstream maximumCoreClockRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
+				std::string maximumCoreClockRateString((std::istreambuf_iterator<char>(maximumCoreClockRateStream)), std::istreambuf_iterator<char>());
+				const auto maximumCoreClockRatePercentage = std::stod(maximumCoreClockRateString);
+				const auto maximumCoreClockRate = static_cast<unsigned long>(maximumCoreClockRatePercentage / 100.0) * getMaximumCoreClockRate();
+
+				return Utility::Units::Hertz(maximumCoreClockRatePercentage / 100 * getMaximumCoreClockRate().toValue());
+			} else {
+				std::ifstream maximumCoreClockRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_max_freq");
+				std::string maximumCoreClockRateString((std::istreambuf_iterator<char>(maximumCoreClockRateStream)), std::istreambuf_iterator<char>());
+
+				return Utility::Units::Hertz(std::stoul(maximumCoreClockRateString), Utility::Units::SIPrefix::KILO);
+			}
+		}
+
+		void CPU::Core::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
+			// Set minimum rate
+			std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_min_freq");
+			minimumRateStream << minimumRate.convertPrefix(Utility::Units::SIPrefix::KILO);
+
+			// Set maximum rate
+			std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_max_freq");
+			maximumRateStream << maximumRate.convertPrefix(Utility::Units::SIPrefix::KILO);
+		}
+
+		void CPU::Core::resetCoreClockRate() {
+			std::ifstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/cpuinfo_min_freq");
+			std::string minimumRateString((std::istreambuf_iterator<char>(minimumRateStream)), std::istreambuf_iterator<char>());
+			Utility::Units::Hertz minimumRate(std::stoul(minimumRateString), Utility::Units::SIPrefix::KILO);
+
+			std::ifstream maximumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/cpuinfo_max_freq");
+			std::string maximumRateString((std::istreambuf_iterator<char>(maximumRateStream)), std::istreambuf_iterator<char>());
+			Utility::Units::Hertz maximumRate(std::stoul(maximumRateString), Utility::Units::SIPrefix::KILO);
+
+			setCoreClockRate(minimumRate, maximumRate);
+		}
+
+		Utility::Units::Percent CPU::Core::getCoreUtilizationRate() const {
+			std::lock_guard<std::mutex> guard(getCPU()->monitorThreadMutex_);
+
+			return getCPU()->coreUtilizationRates_.at(getCoreID());
+		}
+
+		Utility::Units::Hertz CPU::Core::getMaximumCoreClockRate() const {
+			std::ifstream inputStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/cpuinfo_max_freq");
+			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+			return Utility::Units::Hertz(std::stoi(cpuInfo), Utility::Units::SIPrefix::KILO);
+		}
+
+		Utility::Units::Hertz CPU::Core::getMinimumCoreClockRate() const {
+			std::ifstream inputStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/cpuinfo_min_freq");
+			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+
+			return Utility::Units::Hertz(std::stoi(cpuInfo), Utility::Units::SIPrefix::KILO);
+		}
+
+		Utility::Units::Joule CPU::Core::getEnergyConsumption() const {
+			// TODO: Maybe there is a way to measure the energy consumption of individual cores
+			return getCPU()->getEnergyConsumption() / getCPU()->getCores().size();
+		}
+
+		Utility::Units::Watt CPU::Core::getPowerConsumption() const {
+			// TODO: Maybe there is a way to measure the power consumption of individual cores
+			return getCPU()->getPowerConsumption() / getCPU()->getCores().size();
+		}
+
+		Utility::Units::Celsius CPU::Core::getTemperature() const {
+			// TODO: Maybe there is a way to measure the temperature of individual cores
+			return getCPU()->getTemperature();
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getUserTimespan() const {
+			return getProcStatTimespan("userTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getNiceTimespan() const {
+			return getProcStatTimespan("niceTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getSystemTimespan() const {
+			return getProcStatTimespan("systemTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getIdleTimespan() const {
+			return getProcStatTimespan("idleTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getIOWaitTimespan() const {
+			return getProcStatTimespan("ioWaitTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getInterruptsTimespan() const {
+			return getProcStatTimespan("interruptsTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getSoftInterruptsTimespan() const {
+			return getProcStatTimespan("softInterruptsTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getStealTimespan() const {
+			return getProcStatTimespan("stealTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getGuestTimespan() const {
+			return getProcStatTimespan("guestTimespan");
+		}
+
+		std::chrono::system_clock::duration CPU::Core::getGuestNiceTimespan() const {
+			return getProcStatTimespan("guestNiceTimespan");
+		}
+
+		std::string CPU::Core::getPowerScalingDriver() const {
+			std::ifstream powerScalingDriverStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_driver");
+			std::string powerScalingDriver((std::istreambuf_iterator<char>(powerScalingDriverStream)), std::istreambuf_iterator<char>());
+
+			return Utility::Text::trim(powerScalingDriver);
 		}
 	}
 }

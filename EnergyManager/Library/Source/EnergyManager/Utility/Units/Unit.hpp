@@ -73,8 +73,8 @@ namespace EnergyManager {
 				 * @param symbol Whether to use the symbol.
 				 * @return A string representation.
 				 */
-				std::string toString(const bool& symbol = false) const {
-					return std::to_string(value_) + " " + (symbol ? symbol_ : name_);
+				std::string toString(const bool& numeric = false, const bool& symbol = false) const {
+					return std::to_string(value_) + (numeric ? "" : (" " + (symbol ? symbol_ : name_)));
 				}
 
 				/**
@@ -82,7 +82,7 @@ namespace EnergyManager {
 				 * @return A string representation.
 				 */
 				explicit operator std::string() const {
-					return toString();
+					return toString(true, false);
 				}
 
 				/**

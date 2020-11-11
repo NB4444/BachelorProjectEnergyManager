@@ -33,7 +33,6 @@ namespace EnergyManager {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["defaultAutoBoostedClocksEnabled"] = std::to_string(gpu_->getDefaultAutoBoostedClocksEnabled()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["enforcedPowerLimit"] = std::to_string(gpu_->getEnforcedPowerLimit().toValue()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["fanSpeed"] = std::to_string(gpu_->getFanSpeed().toCombined()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["id"] = std::to_string(gpu_->getID()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["kernelBlockX"] = std::to_string(gpu_->getKernelBlockX()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["kernelBlockY"] = std::to_string(gpu_->getKernelBlockY()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["kernelBlockZ"] = std::to_string(gpu_->getKernelBlockZ()));

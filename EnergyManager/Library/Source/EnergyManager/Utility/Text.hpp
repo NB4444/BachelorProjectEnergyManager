@@ -394,7 +394,7 @@ namespace EnergyManager {
 			 */
 			template<typename Type>
 			static Type getArgument(const std::map<std::string, std::string>& arguments, const std::string& name, const Type& defaultValue = Type()) {
-				return static_cast<Type>(arguments.find(name) != arguments.end() ? arguments.at(name) : defaultValue);
+				return arguments.find(name) != arguments.end() ? static_cast<Type>(arguments.at(name)) : defaultValue;
 			}
 
 			/**
@@ -407,6 +407,18 @@ namespace EnergyManager {
 			template<>
 			std::string getArgument(const std::map<std::string, std::string>& arguments, const std::string& name, const std::string& defaultValue) {
 				return arguments.find(name) != arguments.end() ? arguments.at(name) : defaultValue;
+			}
+
+			/**
+			 * Extracts a bool argument from a set of arguments.
+			 * @param arguments The argument set.
+			 * @param name The name of the argument to extract.
+			 * @param defaultValue The default value to use if it does not exist.
+			 * @return The argument's value.
+			 */
+			template<>
+			bool getArgument(const std::map<std::string, std::string>& arguments, const std::string& name, const bool& defaultValue) {
+				return arguments.find(name) != arguments.end() ? std::stoi(arguments.at(name)) : defaultValue;
 			}
 
 			/**

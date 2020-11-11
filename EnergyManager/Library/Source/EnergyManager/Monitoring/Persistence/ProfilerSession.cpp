@@ -1,6 +1,6 @@
 #include "./ProfilerSession.hpp"
 
-#include "EnergyManager/Monitoring/Persistence/MonitorData.hpp"
+#include "EnergyManager/Monitoring/Persistence/MonitorSession.hpp"
 
 #include <utility>
 
@@ -8,26 +8,24 @@ namespace EnergyManager {
 	namespace Monitoring {
 		namespace Persistence {
 			void ProfilerSession::onSave() {
-				const auto profilerSessionID = insert("ProfilerSession", { { "label", '"' + getLabel() + '"' } });
-				setID(profilerSessionID);
+				setID(insert("ProfilerSession", { { "label", '"' + getLabel() + '"' } }));
 
 				std::vector<std::map<std::string, std::string>> profileRows;
 				for(const auto& argument : getProfile()) {
-					profileRows.push_back({ { "profilerSessionID", Utility::Text::toString(profilerSessionID) },
-											{ "argument", '"' + filterSQL(argument.first) + '"' },
-											{ "value", '"' + filterSQL(argument.second) + '"' } });
+					profileRows.push_back(
+						{ { "profilerSessionID", Utility::Text::toString(getID()) }, { "argument", '"' + filterSQL(argument.first) + '"' }, { "value", '"' + filterSQL(argument.second) + '"' } });
 				}
 				insert("ProfilerSessionProfile", profileRows);
 
-				for(const auto& monitorDatum : getMonitorData()) {
-					monitorDatum->save();
+				for(const auto& monitorSession : getMonitorSessions()) {
+					monitorSession->save();
 				}
 			}
 
-			ProfilerSession::ProfilerSession(std::string label, std::map<std::string, std::string> profile, std::vector<std::shared_ptr<MonitorData>> monitorData)
+			ProfilerSession::ProfilerSession(std::string label, std::map<std::string, std::string> profile, std::vector<std::shared_ptr<MonitorSession>> monitorSessions)
 				: label_(std::move(label))
 				, profile_(std::move(profile))
-				, monitorData_(std::move(monitorData)) {
+				, monitorSessions_(std::move(monitorSessions)) {
 				try {
 					createTable("ProfilerSession", { { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "label", "TEXT NOT NULL" } });
 				} catch(const std::runtime_error& error) {
@@ -36,6 +34,7 @@ namespace EnergyManager {
 					createTable(
 						"ProfilerSessionProfile",
 						{ { "id", "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL" }, { "profilerSessionID", "INTEGER NOT NULL" }, { "argument", "TEXT NOT NULL" }, { "value", "TEXT NOT NULL" } });
+					createIndex("ProfilerSessionProfile", "profilerSessionIDIndex", { "profilerSessionID" });
 				} catch(const std::runtime_error& error) {
 				}
 			}
@@ -56,12 +55,12 @@ namespace EnergyManager {
 				profile_ = profile;
 			}
 
-			std::vector<std::shared_ptr<MonitorData>> ProfilerSession::getMonitorData() const {
-				return monitorData_;
+			std::vector<std::shared_ptr<MonitorSession>> ProfilerSession::getMonitorSessions() const {
+				return monitorSessions_;
 			}
 
-			void ProfilerSession::setMonitorData(const std::vector<std::shared_ptr<MonitorData>>& monitorData) {
-				monitorData_ = monitorData;
+			void ProfilerSession::setMonitorSessions(const std::vector<std::shared_ptr<MonitorSession>>& monitorSessions) {
+				monitorSessions_ = monitorSessions;
 			}
 		}
 	}

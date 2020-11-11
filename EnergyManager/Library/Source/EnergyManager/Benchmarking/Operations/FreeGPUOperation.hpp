@@ -10,7 +10,7 @@ namespace EnergyManager {
 			 */
 			class FreeGPUOperation : public MemoryGPUOperation {
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

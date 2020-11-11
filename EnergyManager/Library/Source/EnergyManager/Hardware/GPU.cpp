@@ -142,29 +142,22 @@ namespace EnergyManager {
 			kernelStreamID_ = activity->streamId;
 		}
 
-		GPU::GPU(const unsigned int& id) : id_(id) {
+		GPU::GPU(const unsigned int& id) : Processor(id), Utility::Loopable(std::chrono::milliseconds(100)) {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
 
-			monitorThread_ = std::thread([&] {
-				// Record the last time at which the energy consumption was polled.
-				std::chrono::system_clock::time_point lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
+			// start the monitor thread
+			run(true);
+		}
 
-				while(monitorThreadRunning_) {
-					auto currentTimestamp = std::chrono::system_clock::now();
+		void GPU::onLoop() {
+			const auto currentTimestamp = std::chrono::system_clock::now();
 
-					if((currentTimestamp - lastEnergyConsumptionPollTimestamp_) >= std::chrono::milliseconds(100)) {
-						std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
-						energyConsumption_
-							+= (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
-							   * getPowerConsumption().toValue();
+			energyConsumption_ += (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
+								  * getPowerConsumption().toValue();
 
-						lastEnergyConsumptionPollTimestamp_ = currentTimestamp;
-					} else {
-						usleep(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::milliseconds(10)).count());
-					}
-				}
-			});
+			lastEnergyConsumptionPollTimestamp_ = currentTimestamp;
 		}
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
@@ -222,14 +215,8 @@ namespace EnergyManager {
 			return deviceCount;
 		}
 
-		GPU::~GPU() {
-			// Stop the monitor
-			monitorThreadRunning_ = false;
-			monitorThread_.join();
-		}
-
 		void GPU::makeActive() const {
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(id_));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDevice(getID()));
 		}
 
 		Utility::Units::Hertz GPU::getApplicationCoreClockRate() const {
@@ -457,10 +444,6 @@ namespace EnergyManager {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetFanSpeed_v2(device_, fan, &speed));
 
 			return { static_cast<double>(speed) };
-		}
-
-		unsigned int GPU::getID() const {
-			return id_;
 		}
 
 		int GPU::getKernelBlockX() const {

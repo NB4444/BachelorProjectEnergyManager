@@ -14,6 +14,8 @@
 #include <utility>
 #include <vector>
 
+#define ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL(STATEMENT) EnergyManager::Persistence::Entity::executeSQL(STATEMENT, __FILE__, __LINE__)
+
 namespace EnergyManager {
 	namespace Persistence {
 		/**
@@ -109,6 +111,15 @@ namespace EnergyManager {
 			 * @param conditions The conditions to select on.
 			 */
 			static void select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions);
+
+			/**
+			 * Creates a new index on the table.
+			 * @param table The table.
+			 * @param index The name of the index.
+			 * @param columns The columns on which to create the index.
+			 * @param unique Whether the indices are unique.
+			 */
+			static void createIndex(const std::string& table, const std::string& index, const std::vector<std::string>& columns, const bool& unique = false);
 
 			/**
 			 * Filters some text for SQL input.

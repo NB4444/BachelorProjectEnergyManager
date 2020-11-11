@@ -22,7 +22,7 @@ namespace EnergyManager {
 			}
 
 			Test::Test(std::string name, const std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>>& monitors)
-				: Monitoring::Profiler(name, { { { "", "" } } }, monitors)
+				: Monitoring::Profilers::Profiler(name, { { { "", "" } } }, monitors)
 				, name_(std::move(name)) {
 			}
 

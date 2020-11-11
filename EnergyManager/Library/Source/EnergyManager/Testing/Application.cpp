@@ -1,5 +1,6 @@
 #include "./Application.hpp"
 
+#include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
@@ -58,8 +59,8 @@ namespace EnergyManager {
 				close(startPipe[readPipe]);
 
 				// Set the application's affinity
-				if(!cpuAffinity_.empty()) {
-					setCPUAffinity(cpuAffinity_);
+				if(!affinity_.empty()) {
+					setAffinity(affinity_);
 				}
 
 				// Signal on the start pipe
@@ -123,14 +124,22 @@ namespace EnergyManager {
 			}
 		}
 
-		Application::Application(std::string path, std::vector<std::string> parameters, std::vector<std::shared_ptr<Hardware::CPU>> cpuAffinity, std::shared_ptr<Hardware::GPU> gpu)
+		Application::Application(std::string path, std::vector<std::string> parameters, std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity, std::shared_ptr<Hardware::GPU> gpu)
 			: path_(std::move(path))
 			, parameters_(std::move(parameters))
-			, cpuAffinity_(std::move(cpuAffinity))
+			, affinity_(std::move(affinity))
 			, gpu_(std::move(gpu)) {
 		}
 
-		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.cpuAffinity_, application.gpu_) {
+		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.affinity_, application.gpu_) {
+		}
+
+		std::string Application::getPath() const {
+			return path_;
+		}
+
+		void Application::setPath(const std::string& path) {
+			path_ = path;
 		}
 
 		std::vector<std::string> Application::getParameters() const {
@@ -141,7 +150,7 @@ namespace EnergyManager {
 			parameters_ = parameters;
 		}
 
-		std::vector<std::shared_ptr<Hardware::CPU>> Application::getCPUAffinity() const {
+		std::vector<std::shared_ptr<Hardware::CentralProcessor>> Application::getAffinity() const {
 			// Get the affinity mask
 			cpu_set_t cpuMask;
 			if(sched_getaffinity(processID_, sizeof(cpuMask), &cpuMask) != 0) {
@@ -149,22 +158,35 @@ namespace EnergyManager {
 			}
 
 			// Decode the mask
-			std::vector<std::shared_ptr<Hardware::CPU>> cpus;
+			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity;
 			for(const auto& cpu : Hardware::CPU::getCPUs()) {
-				if(CPU_ISSET(cpu->getID(), &cpuMask)) {
-					cpus.push_back(cpu);
+				for(const auto& core : cpu->getCores()) {
+					if(CPU_ISSET(core->getCoreID(), &cpuMask)) {
+						affinity.push_back(cpu);
+					}
 				}
 			}
 
-			return cpus;
+			return affinity;
 		}
 
-		void Application::setCPUAffinity(const std::vector<std::shared_ptr<Hardware::CPU>>& affinity) {
+		void Application::setAffinity(const std::vector<std::shared_ptr<Hardware::CentralProcessor>>& affinity) {
+			std::vector<std::shared_ptr<Hardware::CentralProcessor>> processors;
+			for(const auto& processor : affinity) {
+				if(dynamic_cast<Hardware::CPU*>(processor.get())) {
+					for(const auto& core : std::dynamic_pointer_cast<Hardware::CPU>(processor)->getCores()) {
+						processors.push_back(core);
+					}
+				} else {
+					processors.push_back(processor);
+				}
+			}
+
 			// Encode an affinity mask
 			cpu_set_t mask;
 			CPU_ZERO(&mask);
-			for(const auto& cpu : affinity) {
-				CPU_SET(cpu->getID(), &mask);
+			for(const auto& processor : processors) {
+				CPU_SET(processor->getID(), &mask);
 			}
 
 			// Set the affinity
@@ -173,8 +195,8 @@ namespace EnergyManager {
 				Utility::Text::join(
 					[&] {
 						std::vector<unsigned int> result;
-						std::transform(affinity.begin(), affinity.end(), std::back_inserter(result), [](const auto& cpu) {
-							return cpu->getID();
+						std::transform(processors.begin(), processors.end(), std::back_inserter(result), [](const auto& processor) {
+							return processor->getID();
 						});
 
 						return result;

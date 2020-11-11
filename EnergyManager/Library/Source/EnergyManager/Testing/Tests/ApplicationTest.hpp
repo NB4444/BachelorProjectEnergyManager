@@ -22,7 +22,7 @@ namespace EnergyManager {
 				std::map<std::string, std::string> results_;
 
 			protected:
-				std::map<std::string, std::string> onTest() override;
+				std::map<std::string, std::string> onTest() final;
 
 			public:
 				/**

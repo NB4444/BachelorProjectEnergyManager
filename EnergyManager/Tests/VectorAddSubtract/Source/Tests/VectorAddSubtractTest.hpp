@@ -21,7 +21,7 @@ namespace Tests {
 		void doPass(cudaStream_t stream) const;
 
 	protected:
-		std::map<std::string, std::string> onTest() override;
+		std::map<std::string, std::string> onTest() final;
 
 	public:
 		VectorAddSubtractTest(

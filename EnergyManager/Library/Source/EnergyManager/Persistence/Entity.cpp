@@ -1,7 +1,5 @@
 #include "./Entity.hpp"
 
-#define ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL(STATEMENT) EnergyManager::Persistence::Entity::executeSQL(STATEMENT, __FILE__, __LINE__)
-
 namespace EnergyManager {
 	namespace Persistence {
 		sqlite3* Entity::database_ = nullptr;
@@ -105,6 +103,10 @@ namespace EnergyManager {
 
 		void Entity::select(const std::string& table, const std::vector<std::string>& columns, const std::string& conditions) {
 			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL("SELECT " + Utility::Text::join(columns, ",") + " FROM " + table + " WHERE " + conditions + " ;");
+		}
+
+		void Entity::createIndex(const std::string& table, const std::string& index, const std::vector<std::string>& columns, const bool& unique) {
+			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL(std::string("CREATE") + (unique ? " UNIQUE" : "") + " INDEX " + index + " ON " + table + "(" + Utility::Text::join(columns, ",") + ");");
 		}
 
 		std::string Entity::filterSQL(std::string sql) {

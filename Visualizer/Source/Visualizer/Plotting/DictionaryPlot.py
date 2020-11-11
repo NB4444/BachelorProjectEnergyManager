@@ -11,7 +11,12 @@ class DictionaryPlot(FigurePlot):
 
         self.dictionary = dictionary
 
-    def on_plot_figure(self, figure, axes):
+    def on_plot_figure(self, figure):
+        axes = figure.add_subplot(1, 1, 1)
+
+        # Set the labels
+        axes.set(title=self.title)
+
         axes.axis("off")
         axes.invert_yaxis()
         text = ""

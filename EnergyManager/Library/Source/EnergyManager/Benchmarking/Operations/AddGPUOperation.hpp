@@ -30,7 +30,7 @@ namespace EnergyManager {
 				unsigned int threadsPerBlock_;
 
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

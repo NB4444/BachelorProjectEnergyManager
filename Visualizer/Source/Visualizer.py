@@ -87,7 +87,7 @@ if __name__ == '__main__':
         os.makedirs(test_output_directory)
 
         # Plot some graphs
-        overview_plot = test_session.profiler_session.overview_plot()
+        overview_plot = test_session.profiler_session.overview_multi_plot()
         overview_plot.save(output_directory)
 
         # Free up memory between plots

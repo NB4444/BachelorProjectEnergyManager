@@ -42,6 +42,22 @@ namespace EnergyManager {
 
 			public:
 				/**
+				 * Gets a list of monitors for all available devices.
+				 * @param applicationMonitorInterval The interval at which to run the ApplicationMonitor.
+				 * @param nodeMonitorInterval The interval at which to run the NodeMonitor.
+				 * @param cpuMonitorInterval The interval at which to run the CPUMonitor.
+				 * @param cpuCoreMonitorInterval The interval at which to run the CPUCoreMonitor.
+				 * @param gpuMonitorInterval The interval at which to run the GPUMonitor.
+				 * @return The monitors.
+				 */
+				static std::vector<std::shared_ptr<Monitor>> getMonitorsForAllDevices(
+					const std::chrono::system_clock::duration& applicationMonitorInterval = std::chrono::milliseconds(100),
+					const std::chrono::system_clock::duration& nodeMonitorInterval = std::chrono::milliseconds(100),
+					const std::chrono::system_clock::duration& cpuMonitorInterval = std::chrono::milliseconds(100),
+					const std::chrono::system_clock::duration& cpuCoreMonitorInterval = std::chrono::milliseconds(100),
+					const std::chrono::system_clock::duration& gpuMonitorInterval = std::chrono::milliseconds(100));
+
+				/**
 				 * Creates a new Monitor.
 				 * @param name The name of the Monitor.
 				 * @param interval The interval at which to poll the monitored variables.

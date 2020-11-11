@@ -7,6 +7,7 @@ namespace EnergyManager {
 		namespace Monitors {
 			std::map<std::string, std::string> ProcessorMonitor::onPollDevice() {
 				std::map<std::string, std::string> results;
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["id"] = std::to_string(processor_->getID()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreClockRate"] = std::to_string(processor_->getCoreClockRate().toValue()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreUtilizationRate"] = std::to_string(processor_->getCoreUtilizationRate().toCombined()));
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["currentMaximumCoreClockRate"] = std::to_string(processor_->getCurrentMaximumCoreClockRate().toValue()));

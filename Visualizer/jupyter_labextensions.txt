@@ -1,0 +1,2 @@
+JupyterLab v2.2.9
+Known labextensions:

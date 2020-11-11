@@ -19,7 +19,7 @@ namespace EnergyManager {
 				std::shared_ptr<Benchmarking::Workloads::Workload> workload_;
 
 			protected:
-				std::map<std::string, std::string> onTest() override;
+				std::map<std::string, std::string> onTest() final;
 
 			public:
 				/**

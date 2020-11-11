@@ -42,7 +42,7 @@ namespace Tests {
 		unsigned long maximumGPUFrequency_;
 
 	protected:
-		std::map<std::string, std::string> onTest() override;
+		std::map<std::string, std::string> onTest() final;
 
 	public:
 		/**

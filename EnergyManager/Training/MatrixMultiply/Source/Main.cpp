@@ -12,7 +12,6 @@ std::shared_ptr<EnergyManager::EnergySaving::Models::DVFSModel> train(
 	const std::chrono::system_clock::duration& cpuTrainingMonitorInterval,
 	const std::chrono::system_clock::duration& gpuTrainingMonitorInterval,
 	const std::string& dvfsModelPath) {
-
 	// Set up a model to use for the energy manager's algorithm
 	const auto dvfsModel = std::make_shared<EnergyManager::EnergySaving::Models::StaticDVFSModel>(cpuMonitor, gpuMonitor, dvfsModelPath, [&] {
 		application.run();

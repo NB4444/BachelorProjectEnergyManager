@@ -20,7 +20,7 @@ namespace EnergyManager {
 				unsigned int count_;
 
 			protected:
-				void onRun() override;
+				void onRun() final;
 
 			public:
 				/**

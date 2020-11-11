@@ -2,14 +2,29 @@
 <project version="4">
   <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="Cartesius (e1353d1d-b03a-4825-80bb-3f331f5f0763)">
+      <paths name="Cartesius (8af33936-d89f-4314-8245-19182585ffc2)">
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$/EnergyManager" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="Showcees (2ab65507-bbf8-43cc-8992-68b5b87dfe0c)">
+      <paths name="Root (c235f0b0-e1e8-4db4-82ed-f3d2d8c98eaf)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.cUFKzZSeII" local="$PROJECT_DIR$/EnergyManager" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-cartesius" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="Showcees (5dc443f6-e000-452b-a8e6-48fb8d0be341)">
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$/EnergyManager" />

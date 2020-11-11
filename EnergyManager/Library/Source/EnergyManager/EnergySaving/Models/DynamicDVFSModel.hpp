@@ -29,15 +29,15 @@
 //				std::chrono::system_clock::time_point lastOptimizationPeriodEndTimestamp_ = std::chrono::system_clock::now();
 //
 //			protected:
-//				void onRun() override;
+//				void onRun() final;
 //
 //				std::map<std::string, double> onPredict(
 //					const Utility::Units::Hertz& minimumCPUFrequency,
 //					const Utility::Units::Hertz& maximumCPUFrequency,
 //					const Utility::Units::Hertz& minimumGPUFrequency,
-//					const Utility::Units::Hertz& maximumGPUFrequency) const override;
+//					const Utility::Units::Hertz& maximumGPUFrequency) const final;
 //
-//				std::map<std::string, double> onOptimize() const override;
+//				std::map<std::string, double> onOptimize() const final;
 //
 //			public:
 //				/**
