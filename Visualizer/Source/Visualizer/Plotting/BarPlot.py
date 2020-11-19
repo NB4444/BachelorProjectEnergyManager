@@ -14,8 +14,7 @@ class BarPlot(AxesPlot):
         # Set the data
         for series_name, series_values in self.plot_series.items():
             if len(series_values) > 0:
-                bars = axes.bar(series_values.keys(), series_values.values(), label=series_name)
-                mplcursors.cursor(bars)
+                axes.bar(series_values.keys(), series_values.values(), label=series_name)
 
         self.on_plot_bars(figure, axes)
 

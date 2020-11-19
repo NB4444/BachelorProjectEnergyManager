@@ -57,7 +57,8 @@ class ProfilerSession(Entity):
         return MonitorSession.load_by_profiler_session(self.database_file, self)
 
     def get_monitor_session_by_monitor_name(self, monitor_name: str):
-        return [monitor_session for monitor_session in self.monitor_sessions if monitor_session.monitor_name == monitor_name]
+        return [monitor_session for monitor_session in self.monitor_sessions if
+                monitor_session.monitor_name == monitor_name]
 
     @cached_property
     def cpu_monitors(self):
@@ -80,6 +81,23 @@ class ProfilerSession(Entity):
         return MonitorSession.correlations_plot(self.monitor_sessions)
 
     @property
+    def plot_label(self):
+        result = f"ID={self.id}\n"
+        result += "\n"
+        if "minimumCPUClockRate" in self.profile:
+            result += f"Core Minimum Frequency={Plot.humanize_number(self.profile['minimumCPUClockRate'])}\n"
+        if "maximumCPUClockRate" in self.profile:
+            result += f"Core Maximum Frequency={Plot.humanize_number(self.profile['maximumCPUClockRate'])}\n"
+        if "minimumGPUClockRate" in self.profile:
+            result += f"GPU Minimum Frequency={Plot.humanize_number(self.profile['minimumGPUClockRate'])}\n"
+        if "maximumGPUClockRate" in self.profile:
+            result += f"GPU Maximum Frequency={Plot.humanize_number(self.profile['maximumGPUClockRate'])}\n"
+        result += f"Energy Consumption={Plot.humanize_number(self.total_energy_consumption)} J\n"
+        result += f"Runtime={Plot.ns_to_s(self.total_runtime)} s"
+
+        return result
+
+    @property
     def summary(self):
         return {
             "Label": self.label,
@@ -93,8 +111,10 @@ class ProfilerSession(Entity):
                 "Name": gpu_monitor.get_value("name", str),
                 "PCIe Link Width (B)": gpu_monitor.get_value("pciELinkWidth", int, Plot.humanize_size),
                 "Default Power Limit (W)": gpu_monitor.get_value("defaultPowerLimit", float, Plot.humanize_number),
-                "Supported Core Clock Rates (Hz)": gpu_monitor.get_value("supportedCoreClockRates", str, Plot.parse_number_list),
-                "Supported Memory Clock Rates (Hz)": gpu_monitor.get_value("supportedMemoryClockRates", str, Plot.parse_number_list),
+                "Supported Core Clock Rates (Hz)": gpu_monitor.get_value("supportedCoreClockRates", str,
+                                                                         Plot.parse_number_list),
+                "Supported Memory Clock Rates (Hz)": gpu_monitor.get_value("supportedMemoryClockRates", str,
+                                                                           Plot.parse_number_list),
                 "Default Auto Boosted Clocks Enabled": gpu_monitor.get_value("defaultAutoBoostedClocksEnabled", bool)
             } for gpu_monitor in self.gpu_monitors]
         }
@@ -150,17 +170,27 @@ class ProfilerSession(Entity):
         for cpu_monitor in self.cpu_monitors:
             cpu_id = cpu_monitor.get_value("id", int)
             clock_rate_limits.update({f"CPU {cpu_id} Maximum": cpu_monitor.get_values("maximumCoreClockRate", int)})
-            clock_rate_limits.update({f"CPU {cpu_id} Current Maximum": cpu_monitor.get_values("currentMaximumCoreClockRate", int)})
+            clock_rate_limits.update(
+                {f"CPU {cpu_id} Current Maximum": cpu_monitor.get_values("currentMaximumCoreClockRate", int)})
             clock_rate_limits.update({f"CPU {cpu_id} Minimum": cpu_monitor.get_values("minimumCoreClockRate", int)})
-            clock_rate_limits.update({f"CPU {cpu_id} Current Minimum": cpu_monitor.get_values("currentMinimumCoreClockRate", int)})
+            clock_rate_limits.update(
+                {f"CPU {cpu_id} Current Minimum": cpu_monitor.get_values("currentMinimumCoreClockRate", int)})
 
         for cpu_core_monitor in self.cpu_core_monitors:
             cpu_id = cpu_core_monitor.get_value("cpuID", int)
             core_id = cpu_core_monitor.get_value("coreID", int)
-            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Maximum": cpu_core_monitor.get_values("maximumCoreClockRate", int)})
-            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Current Maximum": cpu_core_monitor.get_values("currentMaximumCoreClockRate", int)})
-            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Minimum": cpu_core_monitor.get_values("minimumCoreClockRate", int)})
-            clock_rate_limits.update({f"CPU {cpu_id} Core {core_id} Current Minimum": cpu_core_monitor.get_values("currentMinimumCoreClockRate", int)})
+            clock_rate_limits.update(
+                {f"CPU {cpu_id} Core {core_id} Maximum": cpu_core_monitor.get_values("maximumCoreClockRate", int)})
+            clock_rate_limits.update({
+                f"CPU {cpu_id} Core {core_id} Current Maximum": cpu_core_monitor.get_values(
+                    "currentMaximumCoreClockRate", int)
+            })
+            clock_rate_limits.update(
+                {f"CPU {cpu_id} Core {core_id} Minimum": cpu_core_monitor.get_values("minimumCoreClockRate", int)})
+            clock_rate_limits.update({
+                f"CPU {cpu_id} Core {core_id} Current Minimum": cpu_core_monitor.get_values(
+                    "currentMinimumCoreClockRate", int)
+            })
 
         for gpu_monitor in self.gpu_monitors:
             gpu_id = gpu_monitor.get_value("id", int)
@@ -181,18 +211,32 @@ class ProfilerSession(Entity):
         return TimeseriesPlot(title="Clock Rate", plot_series=series, y_label="Clock Rate (Hertz)")
 
     @property
-    def maximum_cpu_clock_rate_string(self):
+    def cpu_clock_rate_string(self):
         result = "CPU"
-        if "maximumCPUClockRate" in self.profile:
-            result += f"@{Plot.humanize_number(self.profile['maximumCPUClockRate'])}"
+        if "minimumCPUClockRate" in self.profile or "maximumCPUClockRate" in self.profile:
+            result += "@{"
+
+            if "minimumCPUClockRate" in self.profile:
+                result += Plot.humanize_number(self.profile["minimumCPUClockRate"])
+            if "maximumCPUClockRate" in self.profile:
+                result += Plot.humanize_number(self.profile["maximumCPUClockRate"])
+
+            result += "}"
 
         return result
 
     @property
-    def maximum_gpu_clock_rate_string(self):
+    def gpu_clock_rate_string(self):
         result = "GPU"
-        if "maximumGPUClockRate" in self.profile:
-            result += f"@{Plot.humanize_number(self.profile['maximumGPUClockRate'])}"
+        if "minimumGPUClockRate" in self.profile or "maximumGPUClockRate" in self.profile:
+            result += "@{"
+
+            if "minimumGPUClockRate" in self.profile:
+                result += Plot.humanize_number(self.profile["minimumGPUClockRate"])
+            if "maximumGPUClockRate" in self.profile:
+                result += Plot.humanize_number(self.profile["maximumGPUClockRate"])
+
+            result += "}"
 
         return result
 
@@ -206,7 +250,8 @@ class ProfilerSession(Entity):
         for cpu_core_monitor in self.cpu_core_monitors:
             cpu_id = cpu_core_monitor.get_value("cpuID", int)
             core_id = cpu_core_monitor.get_value("coreID", int)
-            energy_consumption.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("energyConsumption", float, modifier)})
+            energy_consumption.update(
+                {f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("energyConsumption", float, modifier)})
 
         for gpu_monitor in self.gpu_monitors:
             gpu_id = gpu_monitor.get_value("id", int)
@@ -217,7 +262,8 @@ class ProfilerSession(Entity):
         return energy_consumption
 
     def energy_consumption_timeseries_plot(self, unit_string="J", modifier=lambda value: value):
-        return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier), y_label=f"Energy Consumption ({unit_string})")
+        return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier),
+                              y_label=f"Energy Consumption ({unit_string})")
 
     @property
     def total_energy_consumption(self):
@@ -229,7 +275,9 @@ class ProfilerSession(Entity):
 
         for gpu_monitor in self.gpu_monitors:
             gpu_id = gpu_monitor.get_value("id", int)
-            fan_speed.update(gpu_monitor.get_summarized_indexed_value_series(f"GPU {gpu_id}", f"GPU {gpu_id} Fan", "fanSpeed", "fanSpeedFan", float, Plot.to_percentage))
+            fan_speed.update(
+                gpu_monitor.get_summarized_indexed_value_series(f"GPU {gpu_id}", f"GPU {gpu_id} Fan", "fanSpeed",
+                                                                "fanSpeedFan", float, Plot.to_percentage))
 
         return fan_speed
 
@@ -305,7 +353,8 @@ class ProfilerSession(Entity):
         for cpu_core_monitor in self.cpu_core_monitors:
             cpu_id = cpu_core_monitor.get_value("cpuID", int)
             core_id = cpu_core_monitor.get_value("coreID", int)
-            power_consumption.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("powerConsumption", float)})
+            power_consumption.update(
+                {f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("powerConsumption", float)})
 
         for gpu_monitor in self.gpu_monitors:
             gpu_id = gpu_monitor.get_value("id", int)
@@ -402,7 +451,8 @@ class ProfilerSession(Entity):
                 f"CPU {cpu_id} Idle": cpu_monitor.get_values("idleTimespan", float, Plot.to_percentage),
                 f"CPU {cpu_id} Interrupts": cpu_monitor.get_values("interruptsTimespan", float, Plot.to_percentage),
                 f"CPU {cpu_id} Nice": cpu_monitor.get_values("niceTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Soft Interrupts": cpu_monitor.get_values("softInterruptsTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Soft Interrupts": cpu_monitor.get_values("softInterruptsTimespan", float,
+                                                                        Plot.to_percentage),
                 f"CPU {cpu_id} Steal": cpu_monitor.get_values("stealTimespan", float, Plot.to_percentage),
                 f"CPU {cpu_id} System": cpu_monitor.get_values("systemTimespan", float, Plot.to_percentage),
                 f"CPU {cpu_id} User": cpu_monitor.get_values("userTimespan", float, Plot.to_percentage)
@@ -412,16 +462,26 @@ class ProfilerSession(Entity):
             cpu_id = cpu_core_monitor.get_value("cpuID", int)
             core_id = cpu_core_monitor.get_value("coreID", int)
             timespan.update({
-                f"CPU {cpu_id} Core {core_id} Guest Nice": cpu_core_monitor.get_values("guestNiceTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Guest": cpu_core_monitor.get_values("guestTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} IO Wait": cpu_core_monitor.get_values("ioWaitTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Idle": cpu_core_monitor.get_values("idleTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Interrupts": cpu_core_monitor.get_values("interruptsTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Nice": cpu_core_monitor.get_values("niceTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Soft Interrupts": cpu_core_monitor.get_values("softInterruptsTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} Steal": cpu_core_monitor.get_values("stealTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} System": cpu_core_monitor.get_values("systemTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Core {core_id} User": cpu_core_monitor.get_values("userTimespan", float, Plot.to_percentage)
+                f"CPU {cpu_id} Core {core_id} Guest Nice": cpu_core_monitor.get_values("guestNiceTimespan", float,
+                                                                                       Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Guest": cpu_core_monitor.get_values("guestTimespan", float,
+                                                                                  Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} IO Wait": cpu_core_monitor.get_values("ioWaitTimespan", float,
+                                                                                    Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Idle": cpu_core_monitor.get_values("idleTimespan", float,
+                                                                                 Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Interrupts": cpu_core_monitor.get_values("interruptsTimespan", float,
+                                                                                       Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Nice": cpu_core_monitor.get_values("niceTimespan", float,
+                                                                                 Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Soft Interrupts": cpu_core_monitor.get_values("softInterruptsTimespan",
+                                                                                            float, Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} Steal": cpu_core_monitor.get_values("stealTimespan", float,
+                                                                                  Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} System": cpu_core_monitor.get_values("systemTimespan", float,
+                                                                                   Plot.to_percentage),
+                f"CPU {cpu_id} Core {core_id} User": cpu_core_monitor.get_values("userTimespan", float,
+                                                                                 Plot.to_percentage)
             })
 
         timespan.update({"Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s)})
@@ -438,12 +498,16 @@ class ProfilerSession(Entity):
 
         for cpu_monitor in self.cpu_monitors:
             cpu_id = cpu_monitor.get_value("id", int)
-            utilization_rate.update({f"CPU {cpu_id}": cpu_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage)})
+            utilization_rate.update(
+                {f"CPU {cpu_id}": cpu_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage)})
 
         for cpu_core_monitor in self.cpu_core_monitors:
             cpu_id = cpu_core_monitor.get_value("cpuID", int)
             core_id = cpu_core_monitor.get_value("coreID", int)
-            utilization_rate.update({f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values("coreUtilizationRate", float, Plot.to_percentage)})
+            utilization_rate.update({
+                f"CPU {cpu_id} Core {core_id}": cpu_core_monitor.get_values(
+                    "coreUtilizationRate", float, Plot.to_percentage)
+            })
 
         for gpu_monitor in self.gpu_monitors:
             gpu_id = gpu_monitor.get_value("id", int)
@@ -456,7 +520,8 @@ class ProfilerSession(Entity):
 
     @property
     def utilization_rate_timeseries_plot(self):
-        return TimeseriesPlot(title="Utilization Rate", plot_series=self.utilization_rate, y_label="Utilization Rate (%)")
+        return TimeseriesPlot(title="Utilization Rate", plot_series=self.utilization_rate,
+                              y_label="Utilization Rate (%)")
 
     @property
     def kernel_coordinates(self):

@@ -1,20 +1,24 @@
 import collections
 import math
 from random import Random
-from typing import Dict, Any
+from typing import Any, List, OrderedDict
 
 import matplotlib
+import mplcursors
 from matplotlib import dates, pyplot
 from mpl_toolkits.mplot3d import Axes3D
+from mplcursors import Selection
 from natsort import natsorted
 
 from Visualizer.Plotting.FigurePlot import FigurePlot
 
 
 class AxesPlot(FigurePlot):
-    def __init__(self, title: str, plot_series: Dict[str, Dict[Any, Any]], x_label: str = "x", y_label: str = "y", z_label: str = "z", legend: bool = True,
+    def __init__(self, title: str, plot_series: OrderedDict[str, OrderedDict[Any, Any]],
+                 x_label: str = "x", y_label: str = "y",
+                 z_label: str = "z", legend: bool = True,
                  grid: bool = True,
-                 format_x_as_date: bool = False, random_colors: bool = False):
+                 format_x_as_date: bool = False, random_colors: bool = False, labels: List[Any] = None):
         super().__init__(title=title)
 
         self.plot_series = collections.OrderedDict()
@@ -26,13 +30,15 @@ class AxesPlot(FigurePlot):
         self.z_label = z_label
         self.legend = legend
         self.grid = grid
+        self.random_colors = random_colors
+        self.labels = labels
+
         self.x_min = None
         self.x_max = None
         self.y_min = None
         self.y_max = None
         self.z_min = None
         self.z_max = None
-        self.random_colors = random_colors
         if self.is_3d:
             self.axes = Axes3D(self.figure)
         else:
@@ -83,7 +89,8 @@ class AxesPlot(FigurePlot):
             if len(values) > 0 and (isinstance(values[0], int) or isinstance(values[0], float)):
                 minimum = min(values) if len(values) > 0 else 0
                 maximum = max(values) if len(values) > 0 else 0
-                setter(((minimum - abs(0.1 * minimum)) if minimum < 0 else 0) if self_minimum is None else self_minimum, (maximum + abs(0.1 * maximum)) if self_maximum is None else self_maximum)
+                setter(((minimum - abs(0.1 * minimum)) if minimum < 0 else 0) if self_minimum is None else self_minimum,
+                       (maximum + abs(0.1 * maximum)) if self_maximum is None else self_maximum)
 
         set_ranges(axes.set_xlim, self.x_min, self.x_max, x_values)
         set_ranges(axes.set_ylim, self.y_min, self.y_max, y_values)
@@ -98,10 +105,29 @@ class AxesPlot(FigurePlot):
 
         self.on_plot_series(figure, axes)
 
+        # def onpick(event):
+        #     ind = event.ind[0]
+        #     x, y, z = event.artist._offsets3d
+        #     os.write(1, repr(x[ind]).encode() + b'\n')
+        #     os.write(1, repr(y[ind]).encode() + b'\n')
+        #     os.write(1, repr(z[ind]).encode() + b'\n')
+        #
+        # figure.canvas.mpl_connect("pick_event", onpick)
+
+        # Add cursors
+        cursor = mplcursors.cursor(axes)
+
+        if self.labels is not None:
+            @cursor.connect("add")
+            def on_add(selection: Selection):
+                if not self.is_3d:
+                    selection.annotation.set_text(self.labels[selection.target.index])
+
         # Enable legend
         if self.legend:
             max_columns = 3
-            axes.legend(bbox_to_anchor=(1.15, 1), loc="upper left", ncol=min(math.ceil(len(self.plot_series) / 10), max_columns))
+            axes.legend(bbox_to_anchor=(1.15, 1), loc="upper left",
+                        ncol=min(math.ceil(len(self.plot_series) / 10), max_columns))
 
         # Make everything fit
         if not self.is_3d:
@@ -112,15 +138,22 @@ class AxesPlot(FigurePlot):
 
     @property
     def is_3d(self):
-        return all(all(isinstance(value, dict) for key, value in values.items()) for _, values in self.plot_series.items())
+        return all(
+            all(isinstance(value, dict) for key, value in values.items()) for _, values in self.plot_series.items())
 
     @property
     def extent(self):
         padding = (0.0, 0.0)
-        elements = self.axes.get_xticklabels() + self.axes.get_yticklabels() + self.annotations + [self.axes, self.axes.title, self.axes.get_xaxis().get_label(), self.axes.get_yaxis().get_label(),
+        elements = self.axes.get_xticklabels() + self.axes.get_yticklabels() + self.annotations + [self.axes,
+                                                                                                   self.axes.title,
+                                                                                                   self.axes.get_xaxis().get_label(),
+                                                                                                   self.axes.get_yaxis().get_label(),
                                                                                                    self.axes.get_legend()]
 
         self.figure.canvas.draw()
 
-        return matplotlib.transforms.Bbox.union([element.get_window_extent() for element in elements if element is not None]).expanded(1.0 + padding[0], 1.0 + padding[1]).transformed(
+        return matplotlib.transforms.Bbox.union(
+            [element.get_window_extent() for element in elements if element is not None]).expanded(1.0 + padding[0],
+                                                                                                   1.0 + padding[
+                                                                                                       1]).transformed(
             self.figure.dpi_scale_trans.inverted())

@@ -2,143 +2,45 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/compilerexplorer.settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CentralProcessor.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CentralProcessor.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUCoreMonitor.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUCoreMonitor.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CentralProcessorMonitor.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CentralProcessorMonitor.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Libraries/armadillo-10.1.2.tar.xz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Libraries/ensmallen-2.15.1.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Libraries/mlpack-3.0.4.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/ClockRateEffects.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/ClockRateHistogram.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/DataSetOverview.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/EnergyConsumptionHistogram.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/FLOPsHistogram.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/ProfilerSessionsOverview.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/RuntimeHistogram.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Summary.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/UtilizationRateHistogram.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/ControlledDataSet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/DataSet.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/MonitorSession.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/BarPlot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/LinePlot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Visualizer/Utility/Parsing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/environment.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/jupyter_labextensions.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/Project.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/sshConfigs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Source/Presentation 2020-11-13.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Console/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Console/Source/Main.cu" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AddGPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AddGPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AllocateCPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AllocateCPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AllocateGPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AllocateGPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AssignCPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/AssignCPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/CopyCPUToGPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/CopyCPUToGPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/SleepOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/SleepOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/SubtractGPUOperation.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Benchmarking/Operations/SubtractGPUOperation.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Models/DynamicDVFSModel.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Models/DynamicDVFSModel.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Models/StaticDVFSModel.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Models/StaticDVFSModel.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Strategies/DVFSStrategy.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/EnergySaving/Strategies/DVFSStrategy.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CPU.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CPU.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CPU.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/CPU.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Node.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Node.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Processor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Processor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Processor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/Processor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ApplicationMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ApplicationMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ApplicationMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ApplicationMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/CPUMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/DeviceMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/DeviceMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/GPUMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/GPUMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/GPUMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/GPUMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/Monitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/Monitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/Monitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/Monitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/NodeMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/NodeMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ProcessorMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ProcessorMonitor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ProcessorMonitor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Monitors/ProcessorMonitor.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorData.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorData.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profiler.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profiler.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Application.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Application.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Application.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Application.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestResults.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestResults.hpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/TestRunner.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/TestRunner.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/ApplicationTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/ApplicationTest.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/Test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/Test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/Test.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/Test.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/WorkloadTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Tests/WorkloadTest.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Exceptions/Exception.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Exceptions/Exception.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Loopable.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Loopable.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Loopable.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Loopable.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Text.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Text.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Units/Bandwidth.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Units/Bandwidth.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Units/Unit.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Utility/Units/Unit.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/BFS/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/BFS/Source/Main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/KMeans/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/KMeans/Source/Main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/MatrixMultiply/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/MatrixMultiply/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Build.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Clean.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Clean.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/FixedFrequencyMatrixMultiplyTests.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/FixedFrequencyMatrixMultiplyTests.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/Job.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/JobRunner.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Resources/Scripts/JobRunner.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Tests/FixedFrequencyMatrixMultiplyTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Tests/FixedFrequencyMatrixMultiplyTest.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Tests/VectorAddSubtractTest.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Tests/VectorAddSubtractTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/ActiveInactive/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/ActiveInactive/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/AllocateFree/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/AllocateFree/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/MatrixMultiply/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/MatrixMultiply/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/Ping/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/Ping/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAdd/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAdd/Source/Main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../EnergyManager/Training/MatrixMultiply/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Training/MatrixMultiply/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Resources/Scripts/Build.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Resources/Scripts/Clean.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Visualizer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Visualizer.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Scripts/Clean.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Scripts/Visualize.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Visualizations 2/Matrix Multiply/Core Clock Rates.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Visualizations 2/Matrix Multiply/Power Consumption.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Visualizations 2/Matrix Multiply/Runtime.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Visualizations 2/Matrix Multiply/Total Power Consumption.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/Visualizations 2/Matrix Multiply/Utilization Rates.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ProfilerSessionAnalyzer.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ClockRateEffects.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ClockRateEffects.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ClockRateHistogram.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ClockRateHistogram.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/DataSetOverview.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/DataSetOverview.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/ProfilerSessionVisualizer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ProfilerSessionVisualizer.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/MonitorData.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/ControlledDataSet.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/ControlledDataSet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/DataSet.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/DataSet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/ProfilerSession.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/ProfilerSession.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/AxesPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/AxesPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/CorrelationsPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/CorrelationsPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/DictionaryPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/DictionaryPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/FigurePlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/FigurePlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/HistogramPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/HistogramPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/MultiPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/MultiPlot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/BarPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/BarPlot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/LinePlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/LinePlot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/ScatterPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/ScatterPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/TimeseriesPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/TimeseriesPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/Persistence/TestResults.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Testing/Persistence/TestSession.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Testing/Persistence/TestSession.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,6 +193,9 @@
       <workItem from="1604877954498" duration="6929000" />
       <workItem from="1604966184619" duration="42362000" />
       <workItem from="1605134516474" duration="958000" />
+      <workItem from="1605143306698" duration="14253000" />
+      <workItem from="1605183831295" duration="3456000" />
+      <workItem from="1605546612372" duration="8000" />
     </task>
     <servers />
   </component>
@@ -369,11 +274,11 @@
     </state>
     <state width="3780" height="112" key="GridCell.Tab.1.right/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599679767506" />
     <state width="3349" height="642" key="GridCell.Tab.1.right/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605062495662" />
-    <state x="552" y="398" width="2119" height="1247" key="SettingsEditor" timestamp="1604804988431">
+    <state x="552" y="398" width="2119" height="1247" key="SettingsEditor" timestamp="1605150395055">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
     <state x="1166" y="720" key="SettingsEditor/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1600092823202" />
-    <state x="552" y="398" width="2119" height="1247" key="SettingsEditor/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1604804988431" />
+    <state x="552" y="398" width="2119" height="1247" key="SettingsEditor/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605150395055" />
     <state x="1509" y="662" width="810" height="790" key="StructurePopup" timestamp="1604361932330">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
@@ -405,20 +310,20 @@
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
     <state x="1626" y="934" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1604797328829" />
-    <state x="1486" y="417" width="868" height="1296" key="find.popup" timestamp="1605106376767">
+    <state x="1486" y="417" width="982" height="1296" key="find.popup" timestamp="1605189421939">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
-    <state x="1486" y="417" width="868" height="1296" key="find.popup/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605106376767" />
+    <state x="1486" y="417" width="982" height="1296" key="find.popup/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605189421939" />
     <state x="738" y="818" width="775" height="764" key="refactoring.ChangeSignatureDialog" timestamp="1604264674917">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
     <state x="738" y="998" width="775" height="764" key="refactoring.ChangeSignatureDialog/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599509267088" />
     <state x="738" y="818" key="refactoring.ChangeSignatureDialog/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1604264674917" />
-    <state x="539" y="534" width="1009" height="1019" key="search.everywhere.popup" timestamp="1605016874955">
+    <state x="539" y="534" width="1009" height="1019" key="search.everywhere.popup" timestamp="1605180338900">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>
     <state x="539" y="710" width="840" height="1034" key="search.everywhere.popup/0.200.3840.2160/3840.0.1440.2560@0.200.3840.2160" timestamp="1599503784099" />
-    <state x="539" y="534" width="1009" height="1019" key="search.everywhere.popup/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605016874955" />
+    <state x="539" y="534" width="1009" height="1019" key="search.everywhere.popup/0.32.3840.2128/3840.0.1440.2560@0.32.3840.2128" timestamp="1605180338900" />
     <state x="1625" y="950" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1604673836899">
       <screen x="0" y="32" width="3840" height="2128" />
     </state>

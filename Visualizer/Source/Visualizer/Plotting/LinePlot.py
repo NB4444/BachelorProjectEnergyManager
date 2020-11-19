@@ -14,8 +14,7 @@ class LinePlot(AxesPlot):
         # Set the data
         for series_name, series_values in self.plot_series.items():
             if len(series_values) > 0:
-                lines = axes.plot(series_values.keys(), series_values.values(), label=series_name)
-                mplcursors.cursor(lines)
+                axes.plot(series_values.keys(), series_values.values(), label=series_name)
 
         self.on_plot_lines(figure, axes)
 
