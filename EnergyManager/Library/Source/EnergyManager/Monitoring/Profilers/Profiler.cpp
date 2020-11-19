@@ -1,5 +1,7 @@
 #include "./Profiler.hpp"
 
+#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Persistence/MonitorSession.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
@@ -26,12 +28,64 @@ namespace EnergyManager {
 
 				// Process all profiles
 				for(unsigned int profileIndex = 0; profileIndex < getProfiles().size(); ++profileIndex) {
-					const auto& profile = profiles[profileIndex];
+					auto& profile = profiles[profileIndex];
+
+					if(profile.find("iterations") == profile.end()) {
+						profile["iterations"] = Utility::Text::toString(getIterationsPerRun());
+					}
 
 					for(unsigned int runIndex = 0; runIndex < getRunsPerProfile(); ++runIndex) {
 						try {
 							Utility::Logging::logInformation("Preparing profiler execution...");
 							beforeProfile(profile);
+
+							// Set up devices
+							Utility::Logging::logInformation("Setting device parameters...");
+							std::shared_ptr<Hardware::CPU::Core> core;
+							if(profile.find("core") != profile.end()) {
+								core = Hardware::CPU::Core::getCore(std::stoi(profile.at("core")));
+
+								// Set up the defaults
+								core->resetCoreClockRate();
+								core->getCPU()->setTurboEnabled(true);
+								core->getCPU()->resetCoreClockRate();
+
+								// Apply custom configurations
+								if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
+									core->getCPU()->setTurboEnabled(false);
+									core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
+								}
+							}
+
+							std::shared_ptr<Hardware::GPU> gpu;
+							if(profile.find("gpu") != profile.end()) {
+								gpu = Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
+
+								// Set up the defaults
+								gpu->makeActive();
+								gpu->reset();
+								//gpu->setAutoBoostedClocksEnabled(true);
+								gpu->resetCoreClockRate();
+
+								// Apply custom configurations
+								if(profile.find("gpuSynchronizationMode") != profile.end()) {
+									const auto synchronizationMode = profile["gpuSynchronizationMode"];
+									if(synchronizationMode == "AUTOMATIC") {
+										gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::AUTOMATIC);
+									} else if(synchronizationMode == "SPIN") {
+										gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::SPIN);
+									} else if(synchronizationMode == "YIELD") {
+										gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::YIELD);
+									} else if(synchronizationMode == "BLOCKING") {
+										gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::BLOCKING);
+									}
+								}
+
+								if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
+									//gpu->setAutoBoostedClocksEnabled(false);
+									gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
+								}
+							}
 
 							EnergyManager::Utility::Logging::logInformation(
 								"Profiling profile %d/%d, run %d/%d, with profile {%s}...",
@@ -77,22 +131,18 @@ namespace EnergyManager {
 								monitor->synchronize();
 							}
 
-							//// Pretty-print the monitor results
-							//for(const auto& monitor : monitors_) {
-							//	Utility::Logging::logInformation("Monitor %s results:", monitor->getName().c_str());
-							//	for(const auto& timestampedValue : monitor->getVariableValues()) {
-							//		auto timestamp = timestampedValue.first;
-							//		auto variables = timestampedValue.second;
-							//
-							//		for(const auto& variableValues : variables) {
-							//			auto name = variableValues.first;
-							//			auto value = variableValues.second;
-							//			auto timestampString = Utility::Text::formatTimestamp(timestamp);
-							//
-							//			Utility::Logging::logInformation("\t[%s] %s = %s", timestampString.c_str(), name.c_str(), value.c_str());
-							//		}
-							//	}
-							//}
+							// Reset the devices
+							Utility::Logging::logInformation("Resetting device parameters...");
+							if(core != nullptr) {
+								core->getCPU()->resetCoreClockRate();
+								core->getCPU()->setTurboEnabled(true);
+							}
+
+							if(gpu != nullptr) {
+								gpu->resetCoreClockRate();
+								//gpu->setAutoBoostedClocksEnabled(true);
+								gpu->reset();
+							}
 
 							Utility::Logging::logInformation("Collecting profiler session data...");
 

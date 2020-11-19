@@ -8,12 +8,12 @@ namespace EnergyManager {
 	namespace Testing {
 		namespace Persistence {
 			void TestSession::onSave() {
-				setID(insert("TestSession", { { "testName", '"' + filterSQL(getTestName()) + '"' }, { "profilerSessionID", Utility::Text::toString(getProfilingSession()->getID()) } }));
+				setID(insert("TestSession", { { "testName", '\'' + filterSQL(getTestName()) + '\'' }, { "profilerSessionID", Utility::Text::toString(getProfilingSession()->getID()) } }));
 
 				std::vector<std::map<std::string, std::string>> testResults;
 				for(const auto& result : getTestResults()) {
 					testResults.push_back(
-						{ { "testSessionID", Utility::Text::toString(getID()) }, { "name", '"' + filterSQL(result.first) + '"' }, { "value", '"' + filterSQL(result.second) + '"' } });
+						{ { "testSessionID", Utility::Text::toString(getID()) }, { "name", '\'' + filterSQL(result.first) + '\'' }, { "value", '\'' + filterSQL(result.second) + '\'' } });
 				}
 				insert("TestResults", testResults);
 

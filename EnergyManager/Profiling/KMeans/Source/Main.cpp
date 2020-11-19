@@ -22,7 +22,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	static const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
 
 	// Load the database
-	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite"));
+	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE)));
 
 	// Get hardware
 	static const auto core = CPU::Core::getCore(getArgument<unsigned int>(arguments, "--core", 0));
@@ -38,11 +38,14 @@ int main(int argumentCount, char* argumentValues[]) {
 		getArgument<std::chrono::system_clock::duration>(arguments, "--gpuMonitorInterval", monitorInterval));
 
 	// Generate the profiles
-	static const auto profiles = std::vector<std::map<std::string, std::string>> { { //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/100" },
-																					 //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/204800.txt" },
-																					 //{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/819200.txt" },
-																					 { "file", std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/kdd_cup" } } };
-	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 100);
+	std::vector<std::map<std::string, std::string>> profiles = {};
+	for(const auto file : { //std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/100",
+							//std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/204800.txt",
+							//std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/819200.txt",
+							std::string(RODINIA_DATA_DIRECTORY) + "/kmeans/kdd_cup" }) {
+		profiles.push_back({ { "core", toString(core->getID()) }, { "gpu", toString(gpu->getID()) }, /*{ "gpuSynchronizationMode", "BLOCKING" },*/ { "file", file } });
+	}
+	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 1);
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
@@ -74,13 +77,13 @@ int main(int argumentCount, char* argumentValues[]) {
 		FixedFrequencyProfiler(
 			"Fixed Frequency KMeans",
 			core,
-			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 30),
+			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 5),
 			gpu,
-			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 30),
+			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 5),
 			profiles,
 			monitors,
 			runsPerProfile,
-			1,
+			4,
 			true,
 			true)
 			.run();

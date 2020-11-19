@@ -21,7 +21,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	static const auto arguments = parseArgumentsMap(argumentCount, argumentValues);
 
 	// Load the database
-	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite"));
+	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE)));
 
 	// Get hardware
 	static const auto core = CPU::Core::getCore(getArgument<unsigned int>(arguments, "--core", 0));
@@ -43,13 +43,19 @@ int main(int argumentCount, char* argumentValues[]) {
 	ENERGY_MANAGER_UTILITY_EXCEPTIONS_ASSERT(sizeEnd % 32 == 0 && sizeEnd >= sizeStart, "Size must be divisible by 32");
 	std::vector<std::map<std::string, std::string>> profiles;
 	for(const auto& matrixSize : Profiler::generateValueRange(sizeStart, sizeEnd, getArgument<unsigned int>(arguments, "--sizesToTest", 1))) {
-		profiles.push_back(
-			{ { "matrixAWidth", toString(matrixSize) }, { "matrixAHeight", toString(matrixSize) }, { "matrixBWidth", toString(matrixSize) }, { "matrixBHeight", toString(matrixSize) } });
+		profiles.push_back({ { "core", toString(core->getID()) },
+							 { "gpu", toString(gpu->getID()) },
+							 /*{ "gpuSynchronizationMode", "BLOCKING" },*/
+							 { "matrixAWidth", toString(matrixSize) },
+							 { "matrixAHeight", toString(matrixSize) },
+							 { "matrixBWidth", toString(matrixSize) },
+							 { "matrixBHeight", toString(matrixSize) } });
 	}
-	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 100);
+	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 2);
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
+		//		EnergyManager::Testing::Application("/bin/ping", { "-c " + std::to_string(5), "8.8.8.8" }, { core }, gpu).run();
 		Application(
 			std::string(CUDA_SAMPLES_DIRECTORY) + "/0_Simple/matrixMul/matrixMul",
 			std::vector<std::string> { "-device=" + toString(gpu->getID()),
@@ -63,7 +69,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	};
 
 	// Check if we should generate the control data or not
-	if(getArgument<bool>(arguments, "--control", false)) {
+	if(getArgument<bool>(arguments, "--control", true)) {
 		class Profiler : public EnergyManager::Monitoring::Profilers::Profiler {
 			using EnergyManager::Monitoring::Profilers::Profiler::Profiler;
 
@@ -73,7 +79,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			}
 		};
 
-		Profiler("Matrix Multiply", profiles, monitors, runsPerProfile, 1, true, true).run();
+		Profiler("Matrix Multiply With Sleep", profiles, monitors, runsPerProfile, 3, true, true).run();
 	} else {
 		class FixedFrequencyProfiler : public EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler {
 			using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler::FixedFrequencyProfiler;
@@ -85,15 +91,15 @@ int main(int argumentCount, char* argumentValues[]) {
 		};
 
 		FixedFrequencyProfiler(
-			"Fixed Frequency Matrix Multiply",
+			"Fixed Frequency Matrix Multiply With Sleep",
 			core,
-			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 30),
+			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 4),
 			gpu,
-			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 30),
+			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 4),
 			profiles,
 			monitors,
 			runsPerProfile,
-			1,
+			3,
 			true,
 			true)
 			.run();

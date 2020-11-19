@@ -8,7 +8,7 @@ namespace EnergyManager {
 	namespace Monitoring {
 		namespace Persistence {
 			void MonitorSession::onSave() {
-				setID(insert("MonitorSession", { { "profilerSessionID", Utility::Text::toString(getProfilerSession()->getID()) }, { "monitorName", '"' + getMonitorName() + '"' } }));
+				setID(insert("MonitorSession", { { "profilerSessionID", Utility::Text::toString(getProfilerSession()->getID()) }, { "monitorName", '\'' + filterSQL(getMonitorName()) + '\'' } }));
 
 				std::vector<std::map<std::string, std::string>> monitorData;
 				for(const auto& currentMonitorData : getMonitorData()) {
@@ -26,7 +26,7 @@ namespace EnergyManager {
 						}
 
 						monitorData.push_back(
-							{ { "monitorSessionID", std::to_string(getID()) }, { "timestamp", timestamp }, { "name", '"' + filterSQL(name) + '"' }, { "value", '"' + filterSQL(value) + '"' } });
+							{ { "monitorSessionID", std::to_string(getID()) }, { "timestamp", timestamp }, { "name", '\'' + filterSQL(name) + '\'' }, { "value", '\'' + filterSQL(value) + '\'' } });
 					}
 				}
 				insert("MonitorData", monitorData);

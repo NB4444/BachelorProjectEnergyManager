@@ -13,7 +13,7 @@
 int main(int argumentCount, char* argumentValues[]) {
 	// Parse arguments
 	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
-	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite");
+	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE));
 	const auto name = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--name", "Allocate Free Workload Test");
 	const auto hostAllocations = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--hostAllocations", 3000000);
 	const auto hostSize = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--hostSize", 1024);

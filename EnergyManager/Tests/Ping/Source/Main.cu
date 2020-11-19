@@ -12,7 +12,7 @@
 int main(int argumentCount, char* argumentValues[]) {
 	// Parse arguments
 	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
-	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite");
+	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE));
 	const auto name = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--name", "Matrix Multiply Test");
 	const auto host = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--host", "8.8.8.8");
 	const auto times = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--times", 5);

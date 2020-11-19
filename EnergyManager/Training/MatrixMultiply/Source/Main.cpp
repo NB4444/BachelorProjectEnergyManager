@@ -28,7 +28,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
 
 	// Load the database
-	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite");
+	const auto database = EnergyManager::Utility::Text::getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE));
 	EnergyManager::Persistence::Entity::initialize(database);
 
 	// Determine monitor interval
@@ -44,7 +44,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	const auto matrixBWidth = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--matrixBWidth", 32 * sizeMultiplier);
 	const auto matrixBHeight = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--matrixBHeight", 32 * sizeMultiplier);
 	auto application = EnergyManager::Testing::Application(
-		std::string(PROJECT_RESOURCES_DIRECTORY) + "/CUDA/Samples/0_Simple/matrixMul/matrixMul",
+		std::string(CUDA_SAMPLES_DIRECTORY) + "/0_Simple/matrixMul/matrixMul",
 		{ "-device=" + std::to_string(gpu->getID()),
 		  "-wA=" + std::to_string(matrixAWidth),
 		  "-wB=" + std::to_string(matrixBWidth),

@@ -14,11 +14,6 @@ namespace EnergyManager {
 			class FixedFrequencyProfiler : public Profiler {
 				using Profiler::Profiler;
 
-			protected:
-				void beforeProfile(const std::map<std::string, std::string>& profile) final;
-
-				void afterProfile(const std::map<std::string, std::string>& profile, const std::shared_ptr<Persistence::ProfilerSession>& profilerSession) final;
-
 			public:
 				/**
 				 * Creates a new FixedFrequencyProfiler.

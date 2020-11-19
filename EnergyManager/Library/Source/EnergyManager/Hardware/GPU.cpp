@@ -29,6 +29,8 @@ namespace EnergyManager {
 			int deviceCount = 0;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceCount(&deviceCount));
 
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDeviceFlags(cudaDeviceBlockingSync));
+
 			// Enable collection of various types of parameters
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(CUpti_ActivityKind::CUPTI_ACTIVITY_KIND_DEVICE)); // DEVICE needs to be enabled before all others
 			try {
@@ -542,6 +544,52 @@ namespace EnergyManager {
 			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
 		}
 
+		GPU::SynchronizationMode GPU::getSynchronizationMode() const {
+			unsigned int flags;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceFlags(&flags));
+
+			if(flags & cudaDeviceScheduleAuto) {
+				return SynchronizationMode::AUTOMATIC;
+			} else if(flags & cudaDeviceScheduleSpin) {
+				return SynchronizationMode::SPIN;
+			} else if(flags & cudaDeviceScheduleYield) {
+				return SynchronizationMode::YIELD;
+			} else if(flags & cudaDeviceScheduleBlockingSync) {
+				return SynchronizationMode::BLOCKING;
+			}
+
+			// Return the default if none was explicitly set
+			return SynchronizationMode::AUTOMATIC;
+		}
+
+		void GPU::setSynchronizationMode(const GPU::SynchronizationMode& synchronizationMode) {
+			// Get the current flags
+			unsigned int flags;
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaGetDeviceFlags(&flags));
+
+			// Unset any previous modes
+			flags &= ~(cudaDeviceScheduleAuto | cudaDeviceScheduleSpin | cudaDeviceScheduleYield | cudaDeviceScheduleBlockingSync);
+
+			// Set the mode
+			switch(synchronizationMode) {
+				case SynchronizationMode::AUTOMATIC:
+					flags |= cudaDeviceScheduleAuto;
+					break;
+				case SynchronizationMode::SPIN:
+					flags |= cudaDeviceScheduleSpin;
+					break;
+				case SynchronizationMode::YIELD:
+					flags |= cudaDeviceScheduleYield;
+					break;
+				case SynchronizationMode::BLOCKING:
+					flags |= cudaDeviceScheduleBlockingSync;
+					break;
+			}
+
+			// Set the flags
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaSetDeviceFlags(flags));
+		}
+
 		std::vector<Utility::Units::Hertz> GPU::getSupportedMemoryClockRates() const {
 			unsigned int count;
 			unsigned int memoryClockRates[100] { 0 };
@@ -592,6 +640,10 @@ namespace EnergyManager {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetTemperature(device_, nvmlTemperatureSensors_enum::NVML_TEMPERATURE_GPU, &temperature));
 
 			return temperature;
+		}
+
+		void GPU::reset() {
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaDeviceReset());
 		}
 	}
 }

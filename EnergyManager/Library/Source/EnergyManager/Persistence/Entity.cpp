@@ -28,6 +28,8 @@ namespace EnergyManager {
 		}
 
 		void Entity::initialize(const std::string& databaseFile) {
+			Utility::Logging::logInformation("Initializing database %s...", databaseFile.c_str());
+
 			// Open a new database connection
 			if(database_ == nullptr && sqlite3_open(databaseFile.c_str(), &database_)) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot open database: " + std::string(sqlite3_errmsg(database_)));

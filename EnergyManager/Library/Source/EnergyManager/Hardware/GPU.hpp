@@ -205,6 +205,36 @@ namespace EnergyManager {
 
 		public:
 			/**
+			 * A mode of synchronization between the host and the device.
+			 * Determines behavior when calling synchronization methods.
+			 */
+			enum class SynchronizationMode {
+				/**
+				 * The default value if the flags parameter is zero, uses a heuristic based on the number of active CUDA contexts in the process C and the number of logical processors in the system P.
+				 * If C > P, then CUDA will yield to other OS threads when waiting for the device, otherwise CUDA will not yield while waiting for results and actively spin on the processor.
+				 * Additionally, on Tegra devices, cudaDeviceScheduleAuto uses a heuristic based on the power profile of the platform and may choose cudaDeviceScheduleBlockingSync for low-powered devices.
+				 */
+				AUTOMATIC,
+
+				/**
+				 * Instruct CUDA to actively spin when waiting for results from the device.
+				 * This can decrease latency when waiting for the device, but may lower the performance of CPU threads if they are performing work in parallel with the CUDA thread.
+				 */
+				SPIN,
+
+				/**
+				 * Instruct CUDA to yield its thread when waiting for results from the device.
+				 * This can increase latency when waiting for the device, but can increase the performance of CPU threads performing work in parallel with the device.
+				 */
+				YIELD,
+
+				/**
+				 * Instruct CUDA to block the CPU thread on a synchronization primitive when waiting for the device to finish work.
+				 */
+				BLOCKING
+			};
+
+			/**
 			 * Handles the results of a call to the CUDA driver.
 			 * @param call The call.
 			 * @param callResult The result of the call.
@@ -517,6 +547,18 @@ namespace EnergyManager {
 			Utility::Units::Hertz getMemoryClockRate() const;
 
 			/**
+			 * Gets the synchronization mode currently set.
+			 * @return The synchronization mode.
+			 */
+			SynchronizationMode getSynchronizationMode() const;
+
+			/**
+			 * Sets the synchronization mode.
+			 * @param synchronizationMode The synchronization mode.
+			 */
+			void setSynchronizationMode(const SynchronizationMode& synchronizationMode);
+
+			/**
 			 * Gets the supported memory clock rates for the specified memory clock rate.
 			 * @return The supported memory clock rates.
 			 */
@@ -554,6 +596,11 @@ namespace EnergyManager {
 			Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;
 
 			Utility::Units::Celsius getTemperature() const final;
+
+			/**
+			 * Resets any flags set for the device.
+			 */
+			void reset();
 		};
 	}
 }

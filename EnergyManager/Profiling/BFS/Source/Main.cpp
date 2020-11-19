@@ -22,7 +22,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	static const auto arguments = parseArgumentsMap(argumentCount, argumentValues);
 
 	// Load the database
-	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_RESOURCES_DIRECTORY) + "/Test Results/database.sqlite"));
+	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE)));
 
 	// Get hardware
 	static const auto core = CPU::Core::getCore(getArgument<unsigned int>(arguments, "--core", 0));
@@ -38,12 +38,15 @@ int main(int argumentCount, char* argumentValues[]) {
 		getArgument<std::chrono::system_clock::duration>(arguments, "--gpuMonitorInterval", monitorInterval));
 
 	// Generate the profiles
-	static const auto profiles = std::vector<std::map<std::string, std::string>> { {
-		{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph1MW_6.txt" },
-		//{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph4096.txt" },
-		//{ "file", std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph65536.txt" }
-	} };
-	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 100);
+	std::vector<std::map<std::string, std::string>> profiles = {};
+	for(const auto file : {
+			std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph1MW_6.txt",
+			//std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph4096.txt",
+			//std::string(RODINIA_DATA_DIRECTORY) + "/bfs/graph65536.txt"
+		}) {
+		profiles.push_back({ { "core", toString(core->getID()) }, { "gpu", toString(gpu->getID()) }, /*{ "gpuSynchronizationMode", "BLOCKING" },*/ { "file", file } });
+	}
+	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 1);
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
