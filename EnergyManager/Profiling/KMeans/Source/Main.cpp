@@ -49,7 +49,7 @@ int main(int argumentCount, char* argumentValues[]) {
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
-		EnergyManager::Testing::Application(std::string(RODINIA_BIN_DIRECTORY) + "/linux/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core }, gpu).run();
+		EnergyManager::Testing::Application(std::string(RODINIA_BINARY_DIRECTORY) + "/linux/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core }, gpu).run();
 	};
 
 	// Check if we should generate the control data or not

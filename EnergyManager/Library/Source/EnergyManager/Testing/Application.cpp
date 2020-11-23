@@ -96,7 +96,8 @@ namespace EnergyManager {
 				std::string command = "\"" + path_ + "\" " + Utility::Text::join(parameters_, " ");
 				Utility::Logging::logInformation("Starting application process with command %s...", command.c_str());
 				std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
-					const auto returnCode = WEXITSTATUS(pclose(file));
+					const auto rawReturnCode = pclose(file);
+					const auto returnCode = WEXITSTATUS(rawReturnCode);
 
 					if(returnCode != 0) {
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Application threw an error");
