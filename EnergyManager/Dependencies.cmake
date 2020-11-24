@@ -1,21 +1,5 @@
 include(ExternalProject)
 
-# Configure Rodinia
-ExternalProject_Add(
-        Rodinia
-        URL "http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2"
-        URL_MD5 "047d983e62107972f217921aa0027b05"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'"
-)
-set(RODINIA_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/rodinia_3.1")
-set(RODINIA_BINARY_DIRECTORY "${RODINIA_DIRECTORY}/bin")
-set(RODINIA_DATA_DIRECTORY "${RODINIA_DIRECTORY}/data")
-add_compile_definitions(RODINIA_BINARY_DIRECTORY="${RODINIA_BINARY_DIRECTORY}")
-add_compile_definitions(RODINIA_DATA_DIRECTORY="${RODINIA_DATA_DIRECTORY}")
-message(STATUS "Rodinia directory: ${RODINIA_DIRECTORY}")
-message(STATUS "Rodinia binary directory: ${RODINIA_BINARY_DIRECTORY}")
-message(STATUS "Rodinia data directory: ${RODINIA_DATA_DIRECTORY}")
-
 # Configure pthreads
 find_package(Threads REQUIRED)
 message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
@@ -46,3 +30,29 @@ set(CMAKE_CUDA_COMPILER "${CUDA_COMPILER}")
 message(STATUS "CUDA compiler: ${CUDA_COMPILER}")
 set(CMAKE_CUDA_HOST_COMPILER "${GXX_COMPILER}")
 enable_language(CUDA)
+
+# Configure Rodinia
+set(RODINIA_DIRECTORY "~/rodinia_3.1")
+set(RODINIA_BINARY_DIRECTORY "${RODINIA_DIRECTORY}/bin")
+set(RODINIA_DATA_DIRECTORY "${RODINIA_DIRECTORY}/data")
+add_compile_definitions(RODINIA_BINARY_DIRECTORY="${RODINIA_BINARY_DIRECTORY}")
+add_compile_definitions(RODINIA_DATA_DIRECTORY="${RODINIA_DATA_DIRECTORY}")
+message(STATUS "Rodinia directory: ${RODINIA_DIRECTORY}")
+message(STATUS "Rodinia binary directory: ${RODINIA_BINARY_DIRECTORY}")
+message(STATUS "Rodinia data directory: ${RODINIA_DATA_DIRECTORY}")
+#find_package(CUDA 8 REQUIRED)
+#set(CUDA_8_DIRECTORY "/hpc/base/cuda/cuda-8.0")
+#set(CUDA_8_SAMPLES_DIRECTORY "${CUDA_8_DIRECTORY}/samples")
+#message(STATUS "CUDA 8 directory: ${CUDA_8_DIRECTORY}")
+#message(STATUS "CUDA 8 samples directory: ${CUDA_8_SAMPLES_DIRECTORY}")
+#ExternalProject_Add(
+#        Rodinia
+#        PREFIX "${RODINIA_DIRECTORY}"
+#        URL "http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2"
+#        URL_MD5 "047d983e62107972f217921aa0027b05"
+#        CONFIGURE_COMMAND ""
+#        BUILD_COMMAND cd cuda/bfs && make CC="'${CUDA_8_DIRECTORY}/bin/nvcc' '-ccbin=/hpc/base/ctt/packages/compiler/gnu/4.9.2/bin/g++'" CUDA_DIR="${CUDA_8_DIRECTORY}" SDK_DIR="${CUDA_8_SAMPLES_DIRECTORY}"
+#        BUILD_IN_SOURCE true
+#        INSTALL_COMMAND ""
+#        INSTALL_DIR "${RODINIA_DIRECTORY}"
+#)

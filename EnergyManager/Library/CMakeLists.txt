@@ -5,7 +5,7 @@
 set(PROJECT_SOURCE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/Source")
 
 # Set up dependencies
-include(InstallDependencies.cmake)
+include(Dependencies.cmake)
 
 # Get sources
 file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIRECTORY}/*.cpp" "${PROJECT_SOURCE_DIRECTORY}/*.cu")
@@ -35,7 +35,7 @@ target_include_directories(
         PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
         PUBLIC "${OPENBLAS_INCLUDE_DIRECTORY}"
         PUBLIC "${ARMADILLO_INCLUDE_DIRECTORY}"
-        #        PUBLIC "${ENSMALLEN_INCLUDE_DIRECTORY}"
+        PUBLIC "${ENSMALLEN_INCLUDE_DIRECTORY}"
         PUBLIC "${MLPACK_INCLUDE_DIRECTORY}"
 )
 target_link_libraries(

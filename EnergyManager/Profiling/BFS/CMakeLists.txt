@@ -13,7 +13,6 @@ set_target_properties(
 	PROPERTIES
 	CUDA_SEPARABLE_COMPILATION ON
 )
-add_dependencies(${TARGET_NAME} Rodinia)
 target_include_directories(
 	${TARGET_NAME}
 	PUBLIC Source
