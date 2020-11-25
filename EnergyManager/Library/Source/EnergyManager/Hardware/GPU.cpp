@@ -151,6 +151,13 @@ namespace EnergyManager {
 			run(true);
 		}
 
+		std::vector<std::string> GPU::generateHeaders() const {
+			auto headers = Loopable::generateHeaders();
+			headers.push_back("GPU " + Utility::Text::toString(getID()));
+
+			return headers;
+		}
+
 		void GPU::onLoop() {
 			const auto currentTimestamp = std::chrono::system_clock::now();
 
@@ -164,13 +171,16 @@ namespace EnergyManager {
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
 			if(callResult != CUDA_SUCCESS) {
-				throw Utility::Exceptions::Exception("Driver call " + call + " failed: " + std::to_string(callResult), file, line);
+				throw Utility::Exceptions::Exception(
+					"Driver call " + call + " failed with error code " + std::to_string(callResult) + ": " + cudaGetErrorString(static_cast<cudaError_t>(callResult)),
+					file,
+					line);
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line) {
 			if(callResult != static_cast<cudaError_t>(CUDA_SUCCESS)) {
-				throw Utility::Exceptions::Exception("Runtime driver call " + call + " failed: " + cudaGetErrorString(callResult), file, line);
+				throw Utility::Exceptions::Exception("Runtime driver call " + call + " failed with error code " + std::to_string(callResult) + ": " + cudaGetErrorString(callResult), file, line);
 			}
 		}
 
@@ -179,13 +189,13 @@ namespace EnergyManager {
 				const char* errorMessage;
 				cuptiGetResultString(callResult, &errorMessage);
 
-				throw Utility::Exceptions::Exception("CUPTI call " + call + " failed: " + errorMessage, file, line);
+				throw Utility::Exceptions::Exception("CUPTI call " + call + " failed with error code " + std::to_string(callResult) + ": " + errorMessage, file, line);
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const nvmlReturn_t& callResult, const std::string& file, const int& line) {
 			if(callResult != NVML_SUCCESS) {
-				throw Utility::Exceptions::Exception("NVML call " + call + " failed: " + std::to_string(callResult), file, line);
+				throw Utility::Exceptions::Exception("NVML call " + call + " failed with error code " + std::to_string(callResult) + ": " + nvmlErrorString(callResult), file, line);
 			}
 		}
 
@@ -341,6 +351,8 @@ namespace EnergyManager {
 		}
 
 		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
+			logDebug("Setting frequency range to [%lu, %lu]...", mininimumRate.toValue(), maximumRate.toValue());
+
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
 				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
 

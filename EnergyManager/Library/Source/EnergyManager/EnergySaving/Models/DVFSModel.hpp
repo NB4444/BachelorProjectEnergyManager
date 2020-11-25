@@ -52,6 +52,8 @@ namespace EnergyManager {
 				 */
 				std::function<void()> profilingWorkload_;
 
+				std::vector<std::string> generateHeaders() const override;
+
 				/**
 				 * Predicts the amount of Joules per FLOP for the current period.
 				 * @param minimumCPUFrequency The minimum CPU frequency.

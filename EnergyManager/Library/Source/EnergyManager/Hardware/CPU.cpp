@@ -1,6 +1,7 @@
 #include "./CPU.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <fstream>
@@ -82,8 +83,8 @@ namespace EnergyManager {
 				}
 
 				//auto coreID = std::stoi(processorValues.second["core id"]);
-				auto coreID = processorValues.first;
-				cpuCoreValues[cpuID][coreID] = processorValues.second;
+				auto processorID = processorValues.first;
+				cpuCoreValues[cpuID][processorID] = processorValues.second;
 			}
 
 			return cpuCoreValues;
@@ -179,24 +180,23 @@ namespace EnergyManager {
 
 		CPU::CPU(const unsigned int& id) : CentralProcessor(id), Utility::Loopable(std::chrono::milliseconds(100)) {
 			// Detect and add all cores
-			for(unsigned int coreID = 0; coreID < getProcCPUInfoValuesPerCPU()[getID()].size(); ++coreID) {
-				unsigned int id = [&] {
-					for(auto& procCpuInfoValuesPerProcessor : getProcCPUInfoValuesPerProcessor()) {
-						if(std::stoi(procCpuInfoValuesPerProcessor.second["physical id"]) == getID() && procCpuInfoValuesPerProcessor.first == coreID) {
-							return procCpuInfoValuesPerProcessor.first;
-						}
-					}
-
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot find core");
-				}();
-
-				cores_.push_back(std::shared_ptr<Core>(new Core(this, id, coreID)));
+			const auto data = getProcCPUInfoValuesPerCPU()[getID()];
+			auto coreID = 0;
+			for(const auto& coreDataElement : data) {
+				cores_.push_back(std::shared_ptr<Core>(new Core(this, coreDataElement.first, coreID++)));
 			}
 
 			startEnergyConsumption_ = getEnergyConsumption();
 
 			// start the monitor thread
 			run(true);
+		}
+
+		std::vector<std::string> CPU::generateHeaders() const {
+			auto headers = Loopable::generateHeaders();
+			headers.push_back("CPU " + Utility::Text::toString(getID()));
+
+			return headers;
 		}
 
 		void CPU::onLoop() {
@@ -318,6 +318,8 @@ namespace EnergyManager {
 		}
 
 		void CPU::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
+			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
+
 			for(const auto& core : getCores()) {
 				core->setCoreClockRate(minimumRate, maximumRate);
 			}
@@ -337,6 +339,8 @@ namespace EnergyManager {
 		}
 
 		void CPU::resetCoreClockRate() {
+			logDebug("Resetting clock rate...");
+
 			for(const auto& core : getCores()) {
 				core->resetCoreClockRate();
 			}
@@ -519,6 +523,8 @@ namespace EnergyManager {
 		}
 
 		void CPU::setTurboEnabled(const bool& turbo) const {
+			logDebug("Setting turbo enabled to %d...", turbo);
+
 			std::ofstream outputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
 			outputStream << !turbo;
 		}
@@ -533,6 +539,10 @@ namespace EnergyManager {
 		}
 
 		CPU::Core::Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID) : CentralProcessor(id), cpu_(cpu), coreID_(coreID) {
+		}
+
+		std::vector<std::string> CPU::Core::generateHeaders() const {
+			return { "CPU " + Utility::Text::toString(cpu_->getID()), "Core " + Utility::Text::toString(getID()) };
 		}
 
 		std::shared_ptr<CPU::Core> CPU::Core::getCore(const unsigned int& id) {
@@ -594,6 +604,8 @@ namespace EnergyManager {
 		}
 
 		void CPU::Core::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
+			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
+
 			// Set minimum rate
 			std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/scaling_min_freq");
 			minimumRateStream << minimumRate.convertPrefix(Utility::Units::SIPrefix::KILO);
@@ -604,6 +616,8 @@ namespace EnergyManager {
 		}
 
 		void CPU::Core::resetCoreClockRate() {
+			logDebug("Resetting clock rate...");
+
 			std::ifstream minimumRateStream("/sys/devices/system/cpu/cpu" + std::to_string(getID()) + "/cpufreq/cpuinfo_min_freq");
 			std::string minimumRateString((std::istreambuf_iterator<char>(minimumRateStream)), std::istreambuf_iterator<char>());
 			Utility::Units::Hertz minimumRate(std::stoul(minimumRateString), Utility::Units::SIPrefix::KILO);

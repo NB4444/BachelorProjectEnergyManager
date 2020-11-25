@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="LENOX (3633defa-a96f-4e2d-bd4f-17e9829d1f5c)" deleteMissingItems="true" remoteFilesAllowedToDisappearOnAutoupload="false" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="Always" promptOnRemoteOverwrite="CHECK_CONTENT" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" deleteMissingItems="true" autoUploadExternalChanges="true">
     <serverData>
-      <paths name="LENOX (3633defa-a96f-4e2d-bd4f-17e9829d1f5c)">
+      <paths name="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)">
         <serverdata>
           <mappings>
             <mapping deploy="/home/xqbakker/EnergyManager" local="$PROJECT_DIR$" web="" />
           </mappings>
           <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/Resources" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/venv" />
             <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -26,9 +18,13 @@
             <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
             <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-root" />
             <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
           </excludedPaths>
         </serverdata>
       </paths>

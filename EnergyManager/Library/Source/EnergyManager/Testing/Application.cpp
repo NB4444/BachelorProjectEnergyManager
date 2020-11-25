@@ -2,7 +2,6 @@
 
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
 
 #include <memory>
 #include <sched.h>
@@ -12,10 +11,17 @@
 
 namespace EnergyManager {
 	namespace Testing {
+		std::vector<std::string> Application::generateHeaders() const {
+			auto headers = Runnable::generateHeaders();
+			headers.push_back("Application " + getPath());
+
+			return headers;
+		}
+
 		void Application::beforeRun() {
 			// Set the active GPU
 			if(gpu_ != nullptr) {
-				Utility::Logging::logInformation("Changing active GPU to %d...", gpu_->getID());
+				logDebug("Changing active GPU to %d...", gpu_->getID());
 				gpu_->makeActive();
 			}
 		}
@@ -35,7 +41,7 @@ namespace EnergyManager {
 			executableOutput_ = "";
 
 			// Create communication pipes
-			Utility::Logging::logInformation("Setting up pipe to application...");
+			logDebug("Setting up pipe to application...");
 			int outputPipe[2]; // Pipe to transfer output from child to parent
 			if(pipe(outputPipe) == -1) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set up output pipe");
@@ -46,7 +52,7 @@ namespace EnergyManager {
 			}
 
 			// Fork the current process and open a set of pipes
-			Utility::Logging::logInformation("Forking current process...");
+			logDebug("Forking current process...");
 			if((processID_ = fork()) < 0) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not fork current process");
 			}
@@ -54,7 +60,7 @@ namespace EnergyManager {
 
 			// Set up the pipes
 			if(isParent) {
-				Utility::Logging::logInformation("Configuring pipe in parent process...");
+				logDebug("Configuring pipe in parent process...");
 				close(outputPipe[writePipe]);
 				close(startPipe[readPipe]);
 
@@ -69,13 +75,13 @@ namespace EnergyManager {
 				close(startPipe[writePipe]);
 
 				// Get a pointer to capture application output
-				Utility::Logging::logInformation("Capturing child output...");
+				logDebug("Capturing child output...");
 				FILE* filePointer = fdopen(outputPipe[readPipe], "r");
 				std::array<char, 128> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), filePointer) != nullptr) {
 					auto output = std::string(outputBuffer.data());
 
-					Utility::Logging::logInformation("Processing child output: %s", Utility::Text::trim(output).c_str());
+					logDebug("Processing child output: %s", Utility::Text::trim(output).c_str());
 					executableOutput_ += output;
 				}
 				close(outputPipe[readPipe]);
@@ -83,7 +89,7 @@ namespace EnergyManager {
 				// Clean up
 				fclose(filePointer);
 			} else {
-				Utility::Logging::logInformation("Configuring pipe in child process...");
+				logDebug("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
 
@@ -93,8 +99,11 @@ namespace EnergyManager {
 				close(startPipe[readPipe]);
 
 				// Start the child process
-				std::string command = "\"" + path_ + "\" " + Utility::Text::join(parameters_, " ");
-				Utility::Logging::logInformation("Starting application process with command %s...", command.c_str());
+				std::string command = "\"" + path_ + "\"";
+				if(!parameters_.empty()) {
+					command += " \"" + Utility::Text::join(parameters_, "\" \"") + "\"";
+				}
+				logDebug("Starting application process with command %s...", command.c_str());
 				std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
 					const auto rawReturnCode = pclose(file);
 					const auto returnCode = WEXITSTATUS(rawReturnCode);
@@ -110,13 +119,13 @@ namespace EnergyManager {
 				}
 
 				// Receive output
-				Utility::Logging::logInformation("Capturing application output...");
+				logDebug("Capturing application output...");
 				std::array<char, 128> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), childPipe.get()) != nullptr) {
 					auto output = std::string(outputBuffer.data());
 
 					// Send output to parent
-					//Utility::Logging::logInformation("Processing application output...\n%s", output.c_str());
+					logDebug("Processing application output...\n%s", output.c_str());
 					write(outputPipe[writePipe], output.c_str(), output.size());
 				}
 				close(outputPipe[writePipe]);
@@ -191,7 +200,7 @@ namespace EnergyManager {
 			}
 
 			// Set the affinity
-			Utility::Logging::logInformation(
+			logDebug(
 				"Changing the applications affinity to %s...",
 				Utility::Text::join(
 					[&] {

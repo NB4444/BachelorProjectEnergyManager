@@ -5,12 +5,20 @@
 #include "EnergyManager/Monitoring/Monitors/GPUMonitor.hpp"
 #include "EnergyManager/Monitoring/Monitors/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 
 #include <utility>
 
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
+			std::vector<std::string> Monitor::generateHeaders() const {
+				auto headers = Runnable::generateHeaders();
+				headers.push_back("Monitor " + getName());
+
+				return headers;
+			}
+
 			void Monitor::onLoop() {
 				poll(true);
 			}
@@ -65,6 +73,8 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> Monitor::poll(const bool& save) {
+				logDebug("Polling monitor...");
+
 				std::map<std::string, std::string> results = onPoll();
 
 				if(save) {

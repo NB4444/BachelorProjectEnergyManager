@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
+
 #include <csignal>
 #include <execinfo.h>
 #include <stdexcept>
@@ -25,7 +27,9 @@ namespace EnergyManager {
 			/**
 			 * Represents an error that occurred.
 			 */
-			class Exception : public std::runtime_error {
+			class Exception
+				: public std::runtime_error
+				, protected Logging::Loggable {
 				/**
 				 * The source file in which the error occurred.
 				 */

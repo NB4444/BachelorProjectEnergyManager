@@ -1,11 +1,13 @@
 #include "./Loopable.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 namespace EnergyManager {
 	namespace Utility {
 		void Loopable::onRun() {
+			logDebug("Starting loopable...");
+
 			isLooping_ = true;
 
 			std::chrono::system_clock::time_point nextRun {};
@@ -28,18 +30,20 @@ namespace EnergyManager {
 					// Check if we have exceeded the interval
 					if(now > nextRun) {
 						const auto difference = now - nextRun;
-						Logging::logWarning("Can't keep up, exceeded loop interval by %s", Utility::Text::formatDuration(difference).c_str());
+						logWarning("Can't keep up, exceeded loop interval by %s", Utility::Text::formatDuration(difference).c_str());
 
 						// Make the next run earlier by the amount of time we were delayed
 						nextRun = now;
 						if(difference < interval_) {
 							nextRun += interval_ - difference;
 						} else {
-							Logging::logWarning("Skipped a monitor frame");
+							logWarning("Skipped a monitor frame");
 						}
 					} else {
-						// If not, wait until the end of the interval
-						loopCondition_.wait_for(lock, nextRun - now);
+						const auto difference = nextRun - now;
+						logDebug("Waiting for next loop to start in %s...", Utility::Text::formatDuration(difference).c_str());
+
+						loopCondition_.wait_for(lock, difference);
 						nextRun = std::chrono::system_clock::now() + interval_;
 					}
 				}
@@ -67,6 +71,8 @@ namespace EnergyManager {
 		}
 
 		void Loopable::loop() {
+			logDebug("Looping loopable...");
+
 			auto now = std::chrono::system_clock::now();
 
 			lastLoopTimestamp_ = now;
@@ -75,6 +81,8 @@ namespace EnergyManager {
 		}
 
 		void Loopable::stop(const bool& synchronize) {
+			logDebug("Stopping loopable...");
+
 			{
 				std::unique_lock<std::mutex> lock(isLoopingMutex_);
 

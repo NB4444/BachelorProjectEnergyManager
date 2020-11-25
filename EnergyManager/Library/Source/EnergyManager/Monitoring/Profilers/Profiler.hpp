@@ -53,7 +53,30 @@ namespace EnergyManager {
 				 */
 				bool autosave_;
 
+				/**
+				 * Whether to use SLURM.
+				 */
+				bool slurm_;
+
+				/**
+				 * Whether to use EAR.
+				 */
+				bool ear_;
+
+				/**
+				 * The arguments to use for SLURM.
+				 */
+				std::map<std::string, std::string> slurmArguments_;
+
+				/**
+				 * Does one profiling run.
+				 * @param profile The profile.
+				 */
+				void runProfile(const std::map<std::string, std::string>& profile);
+
 			protected:
+				std::vector<std::string> generateHeaders() const override;
+
 				void beforeRun() final;
 
 				void onRun() final;
@@ -123,6 +146,9 @@ namespace EnergyManager {
 				 * @param iterationsPerRun The amount of iterations to do in a single run without restarting the Monitors.
 				 * @param randomize Whether to randomize profile evaluation order.
 				 * @param autosave Whether to automatically save profiler sessions.
+				 * @param slurm Whether to use SLURM.
+				 * @param slurmArguments The arguments to use for SLURM.
+				 * @param ear Whether to use EAR.
 				 */
 				explicit Profiler(
 					std::string profileName,
@@ -131,7 +157,10 @@ namespace EnergyManager {
 					const unsigned int& runsPerProfile = 1,
 					const unsigned int& iterationsPerRun = 1,
 					const bool& randomize = false,
-					const bool& autosave = false);
+					const bool& autosave = false,
+					const bool& slurm = false,
+					const std::map<std::string, std::string>& slurmArguments = {},
+					const bool& ear = false);
 
 				/**
 				 * Gets the name of the profile.

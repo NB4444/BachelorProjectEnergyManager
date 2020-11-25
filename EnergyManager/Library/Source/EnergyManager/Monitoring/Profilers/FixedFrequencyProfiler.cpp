@@ -17,7 +17,9 @@ namespace EnergyManager {
 				const unsigned int& runsPerProfile,
 				const unsigned int& iterationsPerRun,
 				const bool& randomize,
-				const bool& autosave)
+				const bool& autosave,
+				const bool& slurm,
+				const std::map<std::string, std::string>& slurmArguments)
 				: Profiler(
 					profileName,
 					[&] {
@@ -46,7 +48,9 @@ namespace EnergyManager {
 					runsPerProfile,
 					iterationsPerRun,
 					randomize,
-					autosave) {
+					autosave,
+					slurm,
+					slurmArguments) {
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 #include "./StaticDVFSModel.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
 
 namespace EnergyManager {
 	namespace EnergySaving {
@@ -36,7 +35,7 @@ namespace EnergyManager {
 				const auto gpuSlice = std::abs(static_cast<long>(gpu_->getMaximumCoreClockRate().toValue() / 10) - static_cast<long>(gpu_->getMaximumCoreClockRate().toValue())) / gpuSlices;
 
 				// Do the profiling runs
-				Utility::Logging::logInformation("Generating profile parameters...");
+				logDebug("Generating profile parameters...");
 				std::vector<std::tuple<unsigned long, unsigned long, unsigned long, unsigned long>> runParameters;
 
 				unsigned long minimumCPUFrequency = cpu_->getMinimumCoreClockRate().toValue();
@@ -56,16 +55,16 @@ namespace EnergyManager {
 					maximumCPUFrequency = minimumCPUFrequency + cpuSlice;
 				}
 
-				Utility::Logging::logInformation("Profiling model...");
+				logDebug("Profiling model...");
 				for(unsigned int runIndex = 0; runIndex < runParameters.size(); ++runIndex) {
 					const auto& runParameter = runParameters[runIndex];
 
-					Utility::Logging::logInformation("Running profiling run %d / %d...", runIndex + 1, runParameters.size());
+					logDebug("Running profiling run %d / %d...", runIndex + 1, runParameters.size());
 
 					// Start the monitor threads
 					std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>> monitors = { cpuMonitor_, gpuMonitor_ };
 					for(auto& monitor : monitors) {
-						Utility::Logging::logInformation("Starting monitor %s thread...", monitor->getName().c_str());
+						logDebug("Starting monitor %s thread...", monitor->getName().c_str());
 						monitor->reset(); // Ensure that there is no previous data
 						monitor->run(true);
 					}
@@ -73,21 +72,19 @@ namespace EnergyManager {
 					// Set the parameters
 					const auto minimumCPUFrequency = std::get<0>(runParameter);
 					const auto maximumCPUFrequency = std::get<1>(runParameter);
-					Utility::Logging::logInformation("Setting CPU frequency range to [%lu, %lu]...", minimumCPUFrequency, maximumCPUFrequency);
 					cpu_->setCoreClockRate(minimumCPUFrequency, maximumCPUFrequency);
 
 					const auto minimumGPUFrequency = std::get<2>(runParameter);
 					const auto maximumGPUFrequency = std::get<3>(runParameter);
-					Utility::Logging::logInformation("Setting GPU frequency range to [%lu, %lu]...", minimumGPUFrequency, maximumGPUFrequency);
 					gpu_->setCoreClockRate(minimumGPUFrequency, maximumGPUFrequency);
 
 					// Run the application and collect data
-					Utility::Logging::logInformation("Running workload...");
+					logDebug("Running workload...");
 					profilingWorkload_();
 
 					// Stop all monitors threads
 					for(auto& monitor : monitors) {
-						Utility::Logging::logInformation("Stopping monitor %s...", monitor->getName().c_str());
+						logDebug("Stopping monitor %s...", monitor->getName().c_str());
 						monitor->stop(true);
 					}
 
@@ -114,10 +111,10 @@ namespace EnergyManager {
 				}
 
 				// Train the model
-				Utility::Logging::logInformation("Training DVFS model...");
+				logDebug("Training DVFS model...");
 				const auto optimalValues = getOptimalValues();
-				Utility::Logging::logInformation("Found optimal energy consumption of %f", optimalValues.at("energyConsumption"));
-				Utility::Logging::logInformation("Found optimal runtime of %f", optimalValues.at("runtime"));
+				logDebug("Found optimal energy consumption of %f", optimalValues.at("energyConsumption"));
+				logDebug("Found optimal runtime of %f", optimalValues.at("runtime"));
 				linearRegression_.train(trainingData);
 			}
 
@@ -134,7 +131,7 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, double> StaticDVFSModel::onOptimize() const {
-				Utility::Logging::logInformation("Optimizing...");
+				logDebug("Optimizing...");
 
 				class LinearRegressionFunction {
 					const StaticDVFSModel& dvfsModel_;
@@ -228,15 +225,15 @@ namespace EnergyManager {
 				// Extract the predicted values
 				const Utility::Units::Hertz minimumCPUFrequency(optimizedPoint(0, 0));
 				const Utility::Units::Hertz maximumCPUFrequency(optimizedPoint(0, 1));
-				Utility::Logging::logInformation("Found optimal CPU frequency range of [%lu, %lu]", minimumCPUFrequency.toValue(), maximumCPUFrequency.toValue());
+				logDebug("Found optimal CPU frequency range of [%lu, %lu]", minimumCPUFrequency.toValue(), maximumCPUFrequency.toValue());
 
 				const Utility::Units::Hertz minimumGPUFrequency(optimizedPoint(0, 2));
 				const Utility::Units::Hertz maximumGPUFrequency(optimizedPoint(0, 3));
-				Utility::Logging::logInformation("Found optimal GPU frequency range of [%lu, %lu]", minimumGPUFrequency.toValue(), maximumGPUFrequency.toValue());
+				logDebug("Found optimal GPU frequency range of [%lu, %lu]", minimumGPUFrequency.toValue(), maximumGPUFrequency.toValue());
 
 				const auto predicted = predict(minimumCPUFrequency, maximumCPUFrequency, minimumGPUFrequency, maximumGPUFrequency);
-				Utility::Logging::logInformation("Optimal frequencies predict energy consumption of %f", predicted.at("energyConsumption"));
-				Utility::Logging::logInformation("Optimal frequencies predict runtime of %f", predicted.at("runtime"));
+				logDebug("Optimal frequencies predict energy consumption of %f", predicted.at("energyConsumption"));
+				logDebug("Optimal frequencies predict runtime of %f", predicted.at("runtime"));
 
 				// Return the results
 				return { { "minimumCPUFrequency", minimumCPUFrequency.toValue() },

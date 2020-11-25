@@ -103,6 +103,8 @@ namespace EnergyManager {
 			explicit CPU(const unsigned int& id);
 
 		protected:
+			std::vector<std::string> generateHeaders() const override;
+
 			void onLoop() override;
 
 		public:
@@ -190,7 +192,9 @@ namespace EnergyManager {
 			/**
 			 * Represents a CPU core.
 			 */
-			class Core : public CentralProcessor {
+			class Core
+				: public CentralProcessor
+				, protected Utility::Logging::Loggable {
 				friend CPU;
 
 				/**
@@ -217,6 +221,9 @@ namespace EnergyManager {
 				 * @return The timespan.
 				 */
 				std::chrono::system_clock::duration getProcStatTimespan(const std::string& name) const;
+
+			protected:
+				std::vector<std::string> generateHeaders() const override;
 
 			public:
 				/**

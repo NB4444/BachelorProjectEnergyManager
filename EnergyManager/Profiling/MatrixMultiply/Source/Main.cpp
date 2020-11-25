@@ -4,6 +4,7 @@
 #include <EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp>
 #include <EnergyManager/Monitoring/Profilers/Profiler.hpp>
 #include <EnergyManager/Testing/Tests/ApplicationTest.hpp>
+#include <EnergyManager/Utility/Logging.hpp>
 #include <memory>
 
 using EnergyManager::Hardware::CPU;
@@ -14,11 +15,13 @@ using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler;
 using EnergyManager::Monitoring::Profilers::Profiler;
 using EnergyManager::Persistence::Entity;
 using EnergyManager::Testing::Application;
+using namespace EnergyManager::Utility::Logging;
 using namespace EnergyManager::Utility::Text;
 
 int main(int argumentCount, char* argumentValues[]) {
 	// Parse arguments
 	static const auto arguments = parseArgumentsMap(argumentCount, argumentValues);
+	logInformation("Program started with the following arguments: %s", join(arguments, ", ", ": ").c_str());
 
 	// Load the database
 	Entity::initialize(getArgument<std::string>(arguments, "--database", std::string(PROJECT_DATABASE)));
@@ -51,7 +54,7 @@ int main(int argumentCount, char* argumentValues[]) {
 							 { "matrixBWidth", toString(matrixSize) },
 							 { "matrixBHeight", toString(matrixSize) } });
 	}
-	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 2);
+	static const auto runsPerProfile = getArgument<unsigned int>(arguments, "--runsPerProfile", 1);
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
@@ -79,7 +82,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			}
 		};
 
-		Profiler("Matrix Multiply With Sleep", profiles, monitors, runsPerProfile, 3, true, true).run();
+		Profiler("Matrix Multiply", profiles, monitors, runsPerProfile, 1, true, true, true, arguments).run();
 	} else {
 		class FixedFrequencyProfiler : public EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler {
 			using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler::FixedFrequencyProfiler;
@@ -91,17 +94,19 @@ int main(int argumentCount, char* argumentValues[]) {
 		};
 
 		FixedFrequencyProfiler(
-			"Fixed Frequency Matrix Multiply With Sleep",
+			"Fixed Frequency Matrix Multiply",
 			core,
-			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 4),
+			getArgument<unsigned int>(arguments, "--cpuCoreClockRatesToProfile", 1),
 			gpu,
-			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 4),
+			getArgument<unsigned int>(arguments, "--gpuCoreClockRatesToProfile", 1),
 			profiles,
 			monitors,
 			runsPerProfile,
-			3,
+			1,
 			true,
-			true)
+			true,
+			true,
+			arguments)
 			.run();
 	}
 

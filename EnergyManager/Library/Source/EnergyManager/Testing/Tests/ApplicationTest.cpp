@@ -15,7 +15,7 @@ namespace EnergyManager {
 				std::map<std::string, std::string> results;
 
 				// Run the Application
-				Utility::Logging::logInformation("Running application...");
+				logInformation("Running application...");
 				application_.run();
 
 				// Get output

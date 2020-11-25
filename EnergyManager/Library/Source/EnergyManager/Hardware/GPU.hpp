@@ -201,6 +201,8 @@ namespace EnergyManager {
 			explicit GPU(const unsigned int& id);
 
 		protected:
+			std::vector<std::string> generateHeaders() const override;
+
 			void onLoop() override;
 
 		public:

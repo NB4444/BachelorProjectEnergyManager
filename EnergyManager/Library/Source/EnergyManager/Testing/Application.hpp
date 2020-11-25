@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/CentralProcessor.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Persistence/Entity.hpp"
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Runnable.hpp"
 
 #include <functional>
@@ -47,6 +48,8 @@ namespace EnergyManager {
 			pid_t processID_;
 
 		protected:
+			std::vector<std::string> generateHeaders() const override;
+
 			void beforeRun() final;
 
 			void onRun() final;

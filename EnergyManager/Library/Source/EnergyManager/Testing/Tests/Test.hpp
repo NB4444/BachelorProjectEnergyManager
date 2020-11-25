@@ -28,6 +28,8 @@ namespace EnergyManager {
 				std::map<std::string, std::string> testResults_;
 
 			protected:
+				std::vector<std::string> generateHeaders() const override;
+
 				void onProfile(const std::map<std::string, std::string>& profile) final;
 
 				/**

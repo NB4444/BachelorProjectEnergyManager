@@ -89,15 +89,15 @@ namespace EnergyManager {
 
 			LinearRegression::LinearRegression(const std::string& filePath, const std::vector<std::string>& dependentVariableNames) {
 				// Load training data
-				Utility::Logging::logInformation("Loading training data...");
+				logDebug("Loading training data...");
 				std::ifstream ifstream(filePath);
 				boost::archive::text_iarchive iarchive(ifstream);
 				iarchive >> trainingData_;
-				Utility::Logging::logInformation("Loaded %d training entries", trainingData_.size());
+				logDebug("Loaded %d training entries", trainingData_.size());
 
 				// Load the models
 				for(const auto& dependentVariableName : dependentVariableNames) {
-					Utility::Logging::logInformation("Loading dependent variable model %s...", dependentVariableName.c_str());
+					logDebug("Loading dependent variable model %s...", dependentVariableName.c_str());
 					dependentVariableModels_[dependentVariableName] = mlpack::regression::LinearRegression();
 					mlpack::data::Load(filePath + "-" + dependentVariableName + ".txt", "lr_model", dependentVariableModels_[dependentVariableName]);
 				}

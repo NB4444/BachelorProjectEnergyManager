@@ -1,5 +1,7 @@
 #include "./Entity.hpp"
 
+#include "EnergyManager/Utility/Logging.hpp"
+
 namespace EnergyManager {
 	namespace Persistence {
 		sqlite3* Entity::database_ = nullptr;
@@ -28,7 +30,7 @@ namespace EnergyManager {
 		}
 
 		void Entity::initialize(const std::string& databaseFile) {
-			Utility::Logging::logInformation("Initializing database %s...", databaseFile.c_str());
+			Utility::Logging::logDebug("Initializing database %s...", databaseFile.c_str());
 
 			// Open a new database connection
 			if(database_ == nullptr && sqlite3_open(databaseFile.c_str(), &database_)) {

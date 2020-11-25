@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
+#include "EnergyManager/Utility/Runnable.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <chrono>
@@ -13,15 +15,42 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {
+			enum class Level { DEBUG, INFORMATION, WARNING, ERROR };
+
 			/**
 			 * Logs a message with a variable number of parameters.
-			 * @param header The log header.
+			 * @param level The logging level.
+			 * @param headers The log headers.
 			 * @param format The format of the message.
 			 * @param arguments The arguments to use.
 			 */
-			static void vlog(const std::string& header, std::string format, va_list& arguments) {
-				// Prepend header
-				format = "[" + Text::formatTimestamp(std::chrono::system_clock::now()) + "] [" + header + "] " + format + '\n';
+			static void vlog(const Level& level, std::vector<std::string> headers, std::string format, va_list& arguments) {
+				// Add timestamp
+				headers.insert(headers.begin(), Text::formatTimestamp(std::chrono::system_clock::now()));
+
+				// Add level
+				std::string levelString;
+				switch(level) {
+					case Level::DEBUG:
+						levelString = "DEBUG";
+						break;
+					default:
+					case Level::INFORMATION:
+						levelString = "INFORMATION";
+						break;
+					case Level::WARNING:
+						levelString = "WARNING";
+						break;
+					case Level::ERROR:
+						levelString = "ERROR";
+						break;
+				}
+				headers.push_back(levelString);
+
+				// Prepend headers
+				if(!headers.empty()) {
+					format = "[" + Text::join(headers, "] [") + "] " + format + '\n';
+				}
 
 				// Print the message
 				vprintf(format.c_str(), arguments);
@@ -29,14 +58,27 @@ namespace EnergyManager {
 
 			/**
 			 * Logs a message with a variable number of parameters.
-			 * @param header The log header.
+			 * @param level The logging level.
+			 * @param headers The log headers.
 			 * @param format The format of the message.
 			 * @param ... The arguments to use.
 			 */
-			static void log(const std::string& header, std::string format, ...) {
+			static void log(const Level& level, const std::vector<std::string>& headers, std::string format, ...) {
 				va_list arguments;
 				va_start(arguments, format);
-				vlog(header, format, arguments);
+				vlog(level, headers, format, arguments);
+				va_end(arguments);
+			}
+
+			/**
+			 * Logs a debug message.
+			 * @param format The format of the message.
+			 * @param ... The arguments to use.
+			 */
+			static void logDebug(std::string format, ...) {
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::DEBUG, {}, format, arguments);
 				va_end(arguments);
 			}
 
@@ -48,7 +90,7 @@ namespace EnergyManager {
 			static void logInformation(std::string format, ...) {
 				va_list arguments;
 				va_start(arguments, format);
-				vlog("INFORMATION", format, arguments);
+				vlog(Level::INFORMATION, {}, format, arguments);
 				va_end(arguments);
 			}
 
@@ -60,7 +102,7 @@ namespace EnergyManager {
 			static void logWarning(std::string format, ...) {
 				va_list arguments;
 				va_start(arguments, format);
-				vlog("WARNING", format, arguments);
+				vlog(Level::WARNING, {}, format, arguments);
 				va_end(arguments);
 			}
 
@@ -74,7 +116,7 @@ namespace EnergyManager {
 			static void logError(std::string format, std::string file, int line, ...) {
 				va_list arguments;
 				va_start(arguments, line);
-				vlog("ERROR", file + ":" + std::to_string(line) + ": " + format, arguments);
+				vlog(Level::ERROR, {}, file + ":" + std::to_string(line) + ": " + format, arguments);
 				va_end(arguments);
 			}
 		}

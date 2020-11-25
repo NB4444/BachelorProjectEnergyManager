@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Runnable.hpp"
 
 namespace EnergyManager {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
+
 #include <map>
 #include <mlpack/methods/linear_regression/linear_regression.hpp>
 #include <set>
@@ -12,7 +14,7 @@ namespace EnergyManager {
 			/**
 			 * A statistical model that models the relation between a set of independent variables and a set of dependent variables.
 			 */
-			class LinearRegression {
+			class LinearRegression : protected Utility::Logging::Loggable {
 				/**
 				 * Gets the corresponding matrix.
 				 * @param data The data to use.

@@ -1,7 +1,10 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
+
 #include <chrono>
 #include <condition_variable>
+#include <map>
 #include <mutex>
 #include <thread>
 
@@ -10,7 +13,17 @@ namespace EnergyManager {
 		/**
 		 * An object that can be executed.
 		 */
-		class Runnable {
+		class Runnable : protected Logging::Loggable {
+			/**
+			 * Human-understandable thread IDs.
+			 */
+			static std::map<std::thread::id, unsigned int> threadIDs_;
+
+			/**
+			 * Keep track of the next thread ID.
+			 */
+			unsigned int nextThreadID_ = 0;
+
 			/**
 			 * The start timestamp.
 			 */
@@ -37,6 +50,8 @@ namespace EnergyManager {
 			std::condition_variable synchronizationCondition_;
 
 		protected:
+			std::vector<std::string> generateHeaders() const override;
+
 			/**
 			 * Executes just before the object starts running.
 			 */
@@ -54,6 +69,12 @@ namespace EnergyManager {
 
 		public:
 			/**
+			 * Gets the ID of the current thread.
+			 * @return The thread ID.
+			 */
+			static unsigned int getCurrentThreadID();
+
+			/**
 			 * Creates a new Runnable.
 			 */
 			Runnable() = default;
@@ -63,6 +84,12 @@ namespace EnergyManager {
 			 * @param runnable The object to copy.
 			 */
 			Runnable(const Runnable& runnable);
+
+			/**
+			 * Gets the ID of the associated thread.
+			 * @return The thread ID.
+			 */
+			unsigned int getThreadID() const;
 
 			/**
 			 * Gets whether the object is running.

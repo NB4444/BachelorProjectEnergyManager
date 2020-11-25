@@ -1,7 +1,6 @@
 #include "./Test.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
 
 #include <mutex>
 #include <regex>
@@ -11,9 +10,16 @@
 namespace EnergyManager {
 	namespace Testing {
 		namespace Tests {
+			std::vector<std::string> Test::generateHeaders() const {
+				auto headers = Runnable::generateHeaders();
+				headers.push_back("Test " + getName());
+
+				return headers;
+			}
+
 			void Test::onProfile(const std::map<std::string, std::string>& profile) {
 				// Run the Test
-				Utility::Logging::logInformation("Running test %s...", getName().c_str());
+				logInformation("Running test...");
 				testResults_ = onTest();
 			}
 

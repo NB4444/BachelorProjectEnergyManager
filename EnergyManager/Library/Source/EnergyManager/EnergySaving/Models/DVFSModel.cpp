@@ -1,12 +1,17 @@
 #include "./DVFSModel.hpp"
 
-#include "EnergyManager/Utility/Logging.hpp"
-
 #include <utility>
 
 namespace EnergyManager {
 	namespace EnergySaving {
 		namespace Models {
+			std::vector<std::string> DVFSModel::generateHeaders() const {
+				auto headers = Runnable::generateHeaders();
+				headers.push_back("DVFS Model " + modelPath_);
+
+				return headers;
+			}
+
 			DVFSModel::DVFSModel(
 				std::shared_ptr<Hardware::CPU> cpu,
 				std::shared_ptr<Hardware::GPU> gpu,
@@ -33,7 +38,7 @@ namespace EnergyManager {
 				};
 
 				if(fileExists(modelPath_)) {
-					Utility::Logging::logInformation("Found existing DVFS model, loading it...");
+					logDebug("Found existing DVFS model, loading it...");
 					linearRegression_ = Utility::MachineLearning::LinearRegression(modelPath_, dependentVariableNames);
 				}
 			}

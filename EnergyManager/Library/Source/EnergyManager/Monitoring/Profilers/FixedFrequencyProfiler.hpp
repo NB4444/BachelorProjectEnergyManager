@@ -22,6 +22,8 @@ namespace EnergyManager {
 				 * @param clockRatesToProfile The amount of clock rates to test in between the minimum and maximum clock rate (inclusive).
 				 * @param gpu The GPU to use.
 				 * @param gpuClockRatesToProfile The amount of clock rates to test in between the minimum and maximum clock rate (inclusive).
+				 * @param slurm Whether to use SLURM.
+				 * @param slurmArguments The arguments to use for SLURM.
 				 */
 				FixedFrequencyProfiler(
 					const std::string& profileName,
@@ -34,7 +36,9 @@ namespace EnergyManager {
 					const unsigned int& runsPerProfile = 1,
 					const unsigned int& iterationsPerRun = 1,
 					const bool& randomize = false,
-					const bool& autosave = false);
+					const bool& autosave = false,
+					const bool& slurm = false,
+					const std::map<std::string, std::string>& slurmArguments = {});
 			};
 		}
 	}

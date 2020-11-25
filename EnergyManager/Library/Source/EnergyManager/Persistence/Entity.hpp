@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <algorithm>
@@ -21,7 +21,7 @@ namespace EnergyManager {
 		/**
 		 * A persistent object.
 		 */
-		class Entity {
+		class Entity : protected Utility::Logging::Loggable {
 			/**
 			 * The database to use.
 			 */

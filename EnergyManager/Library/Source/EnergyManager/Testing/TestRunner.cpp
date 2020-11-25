@@ -1,7 +1,6 @@
 #include "./TestRunner.hpp"
 
 #include "EnergyManager/Testing/Persistence/TestSession.hpp"
-#include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <utility>
@@ -13,18 +12,9 @@ namespace EnergyManager {
 				auto test = tests_[testIndex];
 
 				// Execute the test and retrieve the results
-				Utility::Logging::logInformation("Running test %s (%d/%d)...", test->getName().c_str(), testIndex + 1, tests_.size());
+				logInformation("Running test %s (%d/%d)...", test->getName().c_str(), testIndex + 1, tests_.size());
 				try {
 					test->run();
-
-					//// Pretty-print the results
-					//Utility::Logging::logInformation("Test completed with the following results:");
-					//for(const auto& result : test->getTestResults()) {
-					//	auto name = result.first;
-					//	auto value = result.second;
-					//
-					//	Utility::Logging::logInformation("\t%s = %s", name.c_str(), value.c_str());
-					//}
 				} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
 					exception.log();
 				} catch(const std::exception& exception) {
@@ -37,7 +27,7 @@ namespace EnergyManager {
 			testSessions_.clear();
 
 			for(auto& test : getTests()) {
-				Utility::Logging::logInformation("Storing test %s results...", test->getName().c_str());
+				logInformation("Storing test %s results...", test->getName().c_str());
 
 				// Set up the session
 				testSessions_.push_back(std::make_shared<Persistence::TestSession>(test->getName(), test->getTestResults(), test->getProfilerSessions()[0]));

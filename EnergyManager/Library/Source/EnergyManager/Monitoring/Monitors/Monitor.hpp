@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Loopable.hpp"
 
 #include <chrono>
@@ -27,6 +28,8 @@ namespace EnergyManager {
 				std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> variableValues_;
 
 			protected:
+				std::vector<std::string> generateHeaders() const override;
+
 				void onLoop() final;
 
 				/**
