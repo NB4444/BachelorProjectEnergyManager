@@ -15,7 +15,21 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {
-			enum class Level { DEBUG, INFORMATION, WARNING, ERROR };
+			/**
+			 * The logging levels.
+			 */
+			enum class Level { TRACE, DEBUG, INFORMATION, WARNING, ERROR };
+
+			/**
+			 * The logging levels that are enabled.
+			 */
+			static const std::vector<Level> enabledLogLevels = {
+				//Level::TRACE,
+				Level::DEBUG,
+				Level::INFORMATION,
+				Level::WARNING,
+				Level::ERROR
+			};
 
 			/**
 			 * Logs a message with a variable number of parameters.
@@ -25,12 +39,20 @@ namespace EnergyManager {
 			 * @param arguments The arguments to use.
 			 */
 			static void vlog(const Level& level, std::vector<std::string> headers, std::string format, va_list& arguments) {
+				// Check if this log level is enabled
+				if(std::find(enabledLogLevels.begin(), enabledLogLevels.end(), level) == enabledLogLevels.end()) {
+					return;
+				}
+
 				// Add timestamp
 				headers.insert(headers.begin(), Text::formatTimestamp(std::chrono::system_clock::now()));
 
 				// Add level
 				std::string levelString;
 				switch(level) {
+					case Level::TRACE:
+						levelString = "TRACE";
+						break;
 					case Level::DEBUG:
 						levelString = "DEBUG";
 						break;
@@ -67,6 +89,18 @@ namespace EnergyManager {
 				va_list arguments;
 				va_start(arguments, format);
 				vlog(level, headers, format, arguments);
+				va_end(arguments);
+			}
+
+			/**
+			 * Logs a trace message.
+			 * @param format The format of the message.
+			 * @param ... The arguments to use.
+			 */
+			static void logTrace(std::string format, ...) {
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::TRACE, {}, format, arguments);
 				va_end(arguments);
 			}
 

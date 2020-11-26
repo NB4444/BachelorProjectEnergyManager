@@ -47,10 +47,10 @@ namespace EnergyManager {
 		}
 
 		void Runnable::run(const bool& asynchronous) {
-			logDebug("Running runnable" + std::string(asynchronous ? " asynchronously" : "") + "...");
+			logTrace("Running runnable" + std::string(asynchronous ? " asynchronously" : "") + "...");
 
 			auto operation = [&] {
-				logDebug("Preparing run...");
+				logTrace("Preparing run...");
 				beforeRun();
 
 				// Set up the running state and lock any waiting threads
@@ -59,7 +59,7 @@ namespace EnergyManager {
 				startTimestamp_ = std::chrono::system_clock::now();
 
 				// Run the operation
-				logDebug("Executing workload...");
+				logTrace("Executing workload...");
 				onRun();
 
 				// Release any waiting threads
@@ -67,7 +67,7 @@ namespace EnergyManager {
 				lock.unlock();
 				synchronizationCondition_.notify_one();
 
-				logDebug("Finalizing run...");
+				logTrace("Finalizing run...");
 				afterRun();
 			};
 			if(asynchronous) {
@@ -79,7 +79,7 @@ namespace EnergyManager {
 		}
 
 		void Runnable::synchronize() {
-			logDebug("Synchronizing with run thread...");
+			logTrace("Synchronizing with run thread...");
 
 			// Wait for the worker thread to finish running
 			std::unique_lock<std::mutex> lock(synchronizationMutex_);

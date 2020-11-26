@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=EnergyManager
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+##SBATCH --ntasks-per-node=1
 #SBATCH --constraint=2666MHz&GPU&V100_16GB
-#SBATCH -o log.%j.out
-#SBATCH -e log.%j.err
+#SBATCH --output log.%J.out
+#SBATCH --error log.%J.err
 #SBATCH --time=1:00:00
 
 module purge

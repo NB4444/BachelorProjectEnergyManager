@@ -6,7 +6,7 @@
 namespace EnergyManager {
 	namespace Utility {
 		void Loopable::onRun() {
-			logDebug("Starting loopable...");
+			logTrace("Starting loopable...");
 
 			isLooping_ = true;
 
@@ -41,7 +41,7 @@ namespace EnergyManager {
 						}
 					} else {
 						const auto difference = nextRun - now;
-						logDebug("Waiting for next loop to start in %s...", Utility::Text::formatDuration(difference).c_str());
+						logTrace("Waiting for next loop to start in %s...", Utility::Text::formatDuration(difference).c_str());
 
 						loopCondition_.wait_for(lock, difference);
 						nextRun = std::chrono::system_clock::now() + interval_;
@@ -71,7 +71,7 @@ namespace EnergyManager {
 		}
 
 		void Loopable::loop() {
-			logDebug("Looping loopable...");
+			logTrace("Looping loopable...");
 
 			auto now = std::chrono::system_clock::now();
 
@@ -81,7 +81,7 @@ namespace EnergyManager {
 		}
 
 		void Loopable::stop(const bool& synchronize) {
-			logDebug("Stopping loopable...");
+			logTrace("Stopping loopable...");
 
 			{
 				std::unique_lock<std::mutex> lock(isLoopingMutex_);

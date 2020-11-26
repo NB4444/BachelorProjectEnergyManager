@@ -532,10 +532,12 @@ namespace EnergyManager {
 		std::chrono::system_clock::duration CPU::Core::getProcStatTimespan(const std::string& name) const {
 			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
 
-			auto lastValue = getProcStatValuesPerCPU()[getCPU()->getID()][getID()][name];
-			auto startValue = getCPU()->startProcStatValues_.at(getCPU()->getID()).at(getID()).at(name);
+			const auto lastValue = getProcStatValuesPerCPU().at(getCPU()->getID()).at(getID()).at(name);
+			const auto startValue = getCPU()->startProcStatValues_.at(getCPU()->getID()).at(getID()).at(name);
 
-			return lastValue - startValue;
+			// Clamp the value to be larger than 0
+			const auto difference = lastValue - startValue;
+			return difference >= std::chrono::system_clock::duration(0) ? difference : std::chrono::system_clock::duration(0);
 		}
 
 		CPU::Core::Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID) : CentralProcessor(id), cpu_(cpu), coreID_(coreID) {

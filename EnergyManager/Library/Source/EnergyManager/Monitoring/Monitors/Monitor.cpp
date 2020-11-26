@@ -73,7 +73,7 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> Monitor::poll(const bool& save) {
-				logDebug("Polling monitor...");
+				logTrace("Polling monitor...");
 
 				std::map<std::string, std::string> results = onPoll();
 

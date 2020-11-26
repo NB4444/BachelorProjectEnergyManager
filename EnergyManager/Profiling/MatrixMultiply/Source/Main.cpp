@@ -82,7 +82,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			}
 		};
 
-		Profiler("Matrix Multiply", profiles, monitors, runsPerProfile, 1, true, true, true, arguments).run();
+		Profiler("Matrix Multiply", profiles, monitors, runsPerProfile, 1, true, true, true, arguments, true).run();
 	} else {
 		class FixedFrequencyProfiler : public EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler {
 			using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler::FixedFrequencyProfiler;
@@ -106,7 +106,8 @@ int main(int argumentCount, char* argumentValues[]) {
 			true,
 			true,
 			true,
-			arguments)
+			arguments,
+			true)
 			.run();
 	}
 

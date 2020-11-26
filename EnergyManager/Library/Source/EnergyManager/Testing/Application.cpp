@@ -3,6 +3,7 @@
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 
+#include <iostream>
 #include <memory>
 #include <sched.h>
 #include <stdexcept>
@@ -53,6 +54,12 @@ namespace EnergyManager {
 
 			// Fork the current process and open a set of pipes
 			logDebug("Forking current process...");
+
+			// Flush all output buffers to prevent duplicate output caused by a double-flush
+			// This happens because the fork duplicates all output buffers
+			std::cout.flush();
+			std::cerr.flush();
+
 			if((processID_ = fork()) < 0) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not fork current process");
 			}
@@ -77,7 +84,7 @@ namespace EnergyManager {
 				// Get a pointer to capture application output
 				logDebug("Capturing child output...");
 				FILE* filePointer = fdopen(outputPipe[readPipe], "r");
-				std::array<char, 128> outputBuffer {};
+				std::array<char, BUFSIZ> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), filePointer) != nullptr) {
 					auto output = std::string(outputBuffer.data());
 
@@ -98,36 +105,56 @@ namespace EnergyManager {
 				read(startPipe[readPipe], startBuffer.data(), startBuffer.size());
 				close(startPipe[readPipe]);
 
-				// Start the child process
-				std::string command = "\"" + path_ + "\"";
-				if(!parameters_.empty()) {
-					command += " \"" + Utility::Text::join(parameters_, "\" \"") + "\"";
-				}
-				logDebug("Starting application process with command %s...", command.c_str());
-				std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
-					const auto rawReturnCode = pclose(file);
-					const auto returnCode = WEXITSTATUS(rawReturnCode);
+				//// Start the child process
+				//std::string command = "\"" + path_ + "\"";
+				//if(!parameters_.empty()) {
+				//	command += " \"" + Utility::Text::join(parameters_, "\" \"") + "\"";
+				//}
+				//command += " 2>&1";
+				//logDebug("Starting application process with command %s...", command.c_str());
 
-					if(returnCode != 0) {
-						ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Application threw an error");
-					} else {
-						return returnCode;
-					}
+				// Flush the buffers
+				std::cout.flush();
+				std::cerr.flush();
+
+				// Redirect the output
+				dup2(outputPipe[writePipe], STDOUT_FILENO);
+				dup2(outputPipe[writePipe], STDERR_FILENO);
+
+				// Start the application
+				parameters_.insert(parameters_.begin(), path_);
+				std::vector<char*> cParameters;
+				cParameters.reserve(parameters_.size() + 1);
+				std::transform(parameters_.begin(), parameters_.end(), std::back_inserter(cParameters), [](std::string& string) {
+					return const_cast<char*>(string.data());
 				});
-				if(!childPipe) {
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set up child pipe");
-				}
+				cParameters.push_back(nullptr);
+				execv(path_.c_str(), cParameters.data());
 
-				// Receive output
-				logDebug("Capturing application output...");
-				std::array<char, 128> outputBuffer {};
-				while(fgets(outputBuffer.data(), outputBuffer.size(), childPipe.get()) != nullptr) {
-					auto output = std::string(outputBuffer.data());
-
-					// Send output to parent
-					logDebug("Processing application output...\n%s", output.c_str());
-					write(outputPipe[writePipe], output.c_str(), output.size());
-				}
+				//std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
+				//	const auto rawReturnCode = pclose(file);
+				//	const auto returnCode = WEXITSTATUS(rawReturnCode);
+				//
+				//	if(returnCode != 0) {
+				//		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Application threw an error");
+				//	} else {
+				//		return returnCode;
+				//	}
+				//});
+				//if(!childPipe) {
+				//	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set up child pipe");
+				//}
+				//
+				//// Receive output
+				//logDebug("Capturing application output...");
+				//std::array<char, 128> outputBuffer {};
+				//while(fgets(outputBuffer.data(), outputBuffer.size(), childPipe.get()) != nullptr) {
+				//	auto output = std::string(outputBuffer.data());
+				//
+				//	// Send output to parent
+				//	//logDebug("Processing application output: %s", Utility::Text::trim(output).c_str());
+				//	write(outputPipe[writePipe], output.c_str(), output.size());
+				//}
 				close(outputPipe[writePipe]);
 
 				exit(0);

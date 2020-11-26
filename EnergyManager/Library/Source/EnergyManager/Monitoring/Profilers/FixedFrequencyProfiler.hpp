@@ -24,6 +24,7 @@ namespace EnergyManager {
 				 * @param gpuClockRatesToProfile The amount of clock rates to test in between the minimum and maximum clock rate (inclusive).
 				 * @param slurm Whether to use SLURM.
 				 * @param slurmArguments The arguments to use for SLURM.
+				 * @param ear Whether to use EAR.
 				 */
 				FixedFrequencyProfiler(
 					const std::string& profileName,
@@ -38,7 +39,8 @@ namespace EnergyManager {
 					const bool& randomize = false,
 					const bool& autosave = false,
 					const bool& slurm = false,
-					const std::map<std::string, std::string>& slurmArguments = {});
+					const std::map<std::string, std::string>& slurmArguments = {},
+					const bool& ear = false);
 			};
 		}
 	}

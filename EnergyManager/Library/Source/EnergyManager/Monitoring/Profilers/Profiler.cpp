@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <random>
+#include <unistd.h>
 #include <utility>
 
 namespace EnergyManager {
@@ -26,7 +27,7 @@ namespace EnergyManager {
 					core = Hardware::CPU::Core::getCore(std::stoi(profile.at("core")));
 
 					// Set up the defaults
-					if(!ear_) {
+					if(!slurm_) {
 						core->resetCoreClockRate();
 						core->getCPU()->setTurboEnabled(true);
 						core->getCPU()->resetCoreClockRate();
@@ -34,7 +35,7 @@ namespace EnergyManager {
 
 					// Apply custom configurations
 					if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
-						if(!ear_) {
+						if(!slurm_) {
 							core->getCPU()->setTurboEnabled(false);
 							core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
 						}
@@ -46,7 +47,7 @@ namespace EnergyManager {
 					gpu = Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
 
 					// Set up the defaults
-					if(!ear_) {
+					if(!slurm_ && !ear_) {
 						gpu->makeActive();
 						gpu->reset();
 						//gpu->setAutoBoostedClocksEnabled(true);
@@ -54,7 +55,7 @@ namespace EnergyManager {
 					}
 
 					// Apply custom configurations
-					if(!ear_ && profile.find("gpuSynchronizationMode") != profile.end()) {
+					if(!slurm_ && !ear_ && profile.find("gpuSynchronizationMode") != profile.end()) {
 						const auto synchronizationMode = profile.at("gpuSynchronizationMode");
 						if(synchronizationMode == "AUTOMATIC") {
 							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::AUTOMATIC);
@@ -68,7 +69,7 @@ namespace EnergyManager {
 					}
 
 					if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
-						if(!ear_) {
+						if(!slurm_ && !ear_) {
 							//gpu->setAutoBoostedClocksEnabled(false);
 							gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
 						}
@@ -101,12 +102,12 @@ namespace EnergyManager {
 
 				// Reset the devices
 				logDebug("Resetting device parameters...");
-				if(core != nullptr) {
+				if(!slurm_ && !ear_ && core != nullptr) {
 					core->getCPU()->resetCoreClockRate();
 					core->getCPU()->setTurboEnabled(true);
 				}
 
-				if(gpu != nullptr) {
+				if(!slurm_ && !ear_ && gpu != nullptr) {
 					gpu->resetCoreClockRate();
 					//gpu->setAutoBoostedClocksEnabled(true);
 					gpu->reset();
@@ -165,127 +166,140 @@ namespace EnergyManager {
 						auto& profile = profiles[profileIndex];
 
 						logInformation("Profiling profile %d/%d: {%s}...", profileIndex + 1, getProfiles().size(), Utility::Text::join(profile, ", ", " = ").c_str());
+						if(!(profileIndex == 0 /*&& runIndex == 0*/)) {
+							const auto now = std::chrono::system_clock::now();
+							const auto timeSinceStart = now - getStartTimestamp();
+							const auto completedRuns = profileIndex * getRunsPerProfile() /*+ runIndex*/;
+							const auto timePerRun = timeSinceStart / completedRuns;
+							const auto runsLeft = getProfiles().size() * getRunsPerProfile() - completedRuns;
+							const auto timeToEnd = runsLeft * timePerRun;
+							const auto endTime = now + timeToEnd;
+
+							logInformation("Time left: %s", Utility::Text::formatDuration(timeToEnd).c_str());
+							logInformation("ETA: %s", Utility::Text::formatTimestamp(endTime).c_str());
+						}
 
 						if(profile.find("iterations") == profile.end()) {
 							profile["iterations"] = Utility::Text::toString(getIterationsPerRun());
 						}
 
-						for(unsigned int runIndex = 0; runIndex < getRunsPerProfile(); ++runIndex) {
-							logInformation("Profiling run %d/%d...", runIndex + 1, getRunsPerProfile());
-							if(!(profileIndex == 0 && runIndex == 0)) {
-								const auto now = std::chrono::system_clock::now();
-								const auto timeSinceStart = now - getStartTimestamp();
-								const auto completedRuns = profileIndex * getRunsPerProfile() + runIndex;
-								const auto timePerRun = timeSinceStart / completedRuns;
-								const auto runsLeft = getProfiles().size() * getRunsPerProfile() - completedRuns;
-								const auto timeToEnd = runsLeft * timePerRun;
-								const auto endTime = now + timeToEnd;
+						if(slurm_) {
+							logDebug("SLURM enabled, starting child SLURM process...");
 
-								logInformation("Time left: %s", Utility::Text::formatDuration(timeToEnd).c_str());
-								logInformation("ETA: %s", Utility::Text::formatTimestamp(endTime).c_str());
+							// Get the path to SLURM
+							const std::string slurmPath = "/usr/bin/salloc";
+
+							// Prepare the SLURM parameters
+							std::vector<std::string> slurmParameters;
+
+							// Set the name
+							slurmParameters.push_back("--job-name");
+							slurmParameters.push_back("EnergyManager");
+
+							// Set the time limit
+							slurmParameters.push_back("--time");
+							slurmParameters.push_back("1:00:00");
+
+							// Ensure exclusive access
+							slurmParameters.push_back("--exclusive");
+
+							// Set the partition
+							slurmParameters.push_back("--partition");
+							slurmParameters.push_back("standard");
+
+							// Set the account
+							slurmParameters.push_back("--account");
+							slurmParameters.push_back("COLBSC");
+
+							// Configure amount of nodes to be equal to the amount of runs
+							slurmParameters.push_back("--nodes");
+							slurmParameters.push_back(Utility::Text::toString(getRunsPerProfile()));
+
+							//// Set the amount of repetitions per node
+							//slurmParameters.push_back("--ntasks-per-node");
+							//slurmParameters.push_back("1");
+
+							// Constrain the nodes from which to select by using features
+							slurmParameters.push_back("--constraint");
+							slurmParameters.push_back("2666MHz&GPU&V100_16GB");
+
+							//// Set up the output file
+							//slurmParameters.push_back("-o");
+							//slurmParameters.push_back("log.%j.profiler-session.out");
+							//
+							//// Set up the error output file
+							//slurmParameters.push_back("-e");
+							//slurmParameters.push_back("log.%j.profiler-session.err");
+
+							// Set the CPU frequency
+							if(profile.find("maximumCPUClockRate") != profile.end()) {
+								slurmParameters.push_back("--cpu-freq");
+								slurmParameters.push_back(
+									(profile.find("minimumCPUClockRate") == profile.end()
+										 ? ""
+										 : (Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("minimumCPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)) + "-"))
+									+ Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("maximumCPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)));
 							}
 
-							if(slurm_) {
-								logDebug("SLURM enabled, starting child SLURM process...");
+							// Set the GPU frequency
+							if(profile.find("maximumGPUClockRate") != profile.end()) {
+								slurmParameters.push_back("--gpu-freq");
+								slurmParameters.push_back(Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("maximumGPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)));
+							}
 
-								// Get the path to SLURM
-								const std::string slurmPath = "srun";
+							// Get the path to the application
+							char applicationPathBuffer[PATH_MAX];
+							if(readlink("/proc/self/exe", applicationPathBuffer, PATH_MAX) < 0) {
+								ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Invalid application path");
+							}
+							const std::string applicationPath(applicationPathBuffer);
 
-								// Prepare the SLURM parameters
-								std::vector<std::string> slurmParameters;
+							// Prepare application parameters
+							auto applicationParameters = Utility::Text::flatten(slurmArguments_);
 
-								// Set the name
-								slurmParameters.push_back("--job-name");
-								slurmParameters.push_back("EnergyManager");
+							// Set up the new application as a runner
+							applicationParameters.push_back("--slurm-runner");
 
-								// Set the time limit
-								slurmParameters.push_back("--time");
-								slurmParameters.push_back("1:00:00");
+							// Serialize and add the profile
+							applicationParameters.push_back("--profile");
+							applicationParameters.push_back(Utility::Text::join(profile, ", ", ": "));
 
-								// Ensure exclusive access
-								slurmParameters.push_back("--exclusive");
+							// Configure the EAR framework
+							if(ear_) {
+								// Inject EAR into SLURM
+								Utility::Environment::setVariable("SLURM_HACK_LIBRARY_FILE", "${EAR_INSTALL_PATH}/lib/libear.seq.so");
 
-								// Set the partition
-								slurmParameters.push_back("--partition");
-								slurmParameters.push_back("standard");
+								// Disable loading MPI
+								Utility::Environment::setVariable("SLURM_LOADER_LOAD_NO_MPI_LIB", applicationPath);
 
-								// Set the account
-								slurmParameters.push_back("--account");
-								slurmParameters.push_back("COLBSC");
-
-								// Configure amount of nodes
-								slurmParameters.push_back("--nodes");
+								// Set the verbosity
+								slurmParameters.push_back("--ear-verbose");
 								slurmParameters.push_back("1");
 
-								// Set the amount of repetitions per node
-								slurmParameters.push_back("--ntasks-per-node");
-								slurmParameters.push_back("1");
+								// Set the policy
+								slurmParameters.push_back("--ear-policy");
+								slurmParameters.push_back("monitoring");
 
-								// Constrain the nodes from which to select by using features
-								slurmParameters.push_back("--constraint");
-								slurmParameters.push_back("2666MHz&GPU&V100_16GB");
-
-								// Set up the output file
-								slurmParameters.push_back("-o");
-								slurmParameters.push_back("log.%j.out");
-
-								// Set up the error output file
-								slurmParameters.push_back("-e");
-								slurmParameters.push_back("log.%j.err");
-
-								// Get the path to the application
-								// TODO
-								const std::string applicationPath;
-
-								// Prepare application parameters
-								auto applicationParameters = Utility::Text::flatten(slurmArguments_);
-
-								// Set up the new application as a runner
-								applicationParameters.push_back("--slurm-runner");
-
-								// Serialize and add the profile
-								applicationParameters.push_back("--profile");
-								applicationParameters.push_back(Utility::Text::join(profile, ", ", ": "));
-
-								// Configure the EAR framework
-								if(ear_) {
-									// Inject EAR into SLURM
-									Utility::Environment::setVariable("SLURM_HACK_LIBRARY_FILE", "${EAR_INSTALL_PATH}/lib/libear.seq.so");
-
-									// Disable loading MPI
-									Utility::Environment::setVariable("SLURM_LOADER_LOAD_NO_MPI_LIB", applicationPath);
-
-									// Set the verbosity
-									slurmParameters.push_back("--ear-verbose");
-									slurmParameters.push_back("1");
-
-									// Set the policy
-									slurmParameters.push_back("--ear-policy");
-									slurmParameters.push_back("monitoring");
-
-									// Set the CPU frequency
-									if(profile.find("maximumCPUClockRate") != profile.end()) {
-										slurmParameters.push_back("--cpu-freq");
-										slurmParameters.push_back(
-											Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("maximumCPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)));
-									}
-
-									// Set the GPU frequency
-									if(profile.find("maximumGPUClockRate") != profile.end()) {
-										Utility::Environment::setVariable(
-											"SLURM_EAR_GPU_DEF_FREQ",
-											Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("maximumCPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)));
-									}
+								// Set the GPU frequency
+								if(profile.find("maximumGPUClockRate") != profile.end()) {
+									Utility::Environment::setVariable(
+										"SLURM_EAR_GPU_DEF_FREQ",
+										Utility::Text::toString(Utility::Units::Hertz(std::stoul(profile.at("maximumCPUClockRate"))).convertPrefix(Utility::Units::SIPrefix::MEGA)));
 								}
+							}
 
-								// Combine the parameters
-								std::vector<std::string> parameters(slurmParameters.begin(), slurmParameters.end());
-								parameters.push_back(applicationPath);
-								parameters.insert(parameters.end(), applicationParameters.begin(), applicationParameters.end());
+							// Combine the parameters
+							std::vector<std::string> parameters(slurmParameters.begin(), slurmParameters.end());
+							parameters.push_back(applicationPath);
+							parameters.insert(parameters.end(), applicationParameters.begin(), applicationParameters.end());
 
-								// Prepare and run the SLURM runner
-								Testing::Application(slurmPath, parameters).run(false);
-							} else {
+							// Prepare and run the SLURM runner
+							logDebug("Running SLURM process...");
+							Testing::Application(slurmPath, parameters).run(false);
+						} else {
+							for(unsigned int runIndex = 0; runIndex < getRunsPerProfile(); ++runIndex) {
+								logInformation("Profiling run %d/%d...", runIndex + 1, getRunsPerProfile());
+
 								// SLURM disabled
 								// Simply run the profile if slurm is disabled
 								runProfile(profile);
@@ -293,10 +307,15 @@ namespace EnergyManager {
 						}
 					}
 				} else {
-					logDebug("Initializing SLURM process...");
+					logDebug("Initializing SLURM runner...");
 
-					// TODO: Deserialize profile and run it
-					//doRun(profile);
+					// Deserialize the profile
+					std::map<std::string, std::string> profile = Utility::Text::splitToMap(Utility::Text::getArgument<std::string>(slurmArguments_, "--profile", ""), ", ", ": ");
+					logDebug("Profile: {%s}", Utility::Text::join(profile, ", ", ": ").c_str());
+
+					// Run the profile
+					logDebug("Running SLURM profile...");
+					runProfile(profile);
 				}
 			}
 

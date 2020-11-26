@@ -19,7 +19,8 @@ namespace EnergyManager {
 				const bool& randomize,
 				const bool& autosave,
 				const bool& slurm,
-				const std::map<std::string, std::string>& slurmArguments)
+				const std::map<std::string, std::string>& slurmArguments,
+				const bool& ear)
 				: Profiler(
 					profileName,
 					[&] {
@@ -50,7 +51,8 @@ namespace EnergyManager {
 					randomize,
 					autosave,
 					slurm,
-					slurmArguments) {
+					slurmArguments,
+					ear) {
 			}
 		}
 	}

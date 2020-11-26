@@ -7,11 +7,11 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/EnergyManager/Resources/Test Results/database.sqlite</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="test-database.sqlite" uuid="0cd52f12-25e6-4964-852b-fad1761fe1dc">
+    <data-source source="LOCAL" name="TestDatabase.sqlite" uuid="0cd52f12-25e6-4964-852b-fad1761fe1dc">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/EnergyManager/Resources/Test Results/test-database.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/EnergyManager/Resources/Data/TestDatabase.sqlite</jdbc-url>
     </data-source>
   </component>
 </project>

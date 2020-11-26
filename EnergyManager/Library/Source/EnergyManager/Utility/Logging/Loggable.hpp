@@ -41,6 +41,13 @@ namespace EnergyManager {
 				void log(const Level& level, const std::vector<std::string>& headers, std::string format, ...) const;
 
 				/**
+				 * Logs a trace message.
+				 * @param format The format of the message.
+				 * @param ... The arguments to use.
+				 */
+				void logTrace(std::string format, ...) const;
+
+				/**
 				 * Logs a debug message.
 				 * @param format The format of the message.
 				 * @param ... The arguments to use.

@@ -26,6 +26,13 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
+			void Loggable::logTrace(std::string format, ...) const {
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::TRACE, getHeaders(), format, arguments);
+				va_end(arguments);
+			}
+
 			void Loggable::logDebug(std::string format, ...) const {
 				va_list arguments;
 				va_start(arguments, format);

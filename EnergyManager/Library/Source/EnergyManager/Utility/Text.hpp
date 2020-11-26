@@ -189,19 +189,19 @@ namespace EnergyManager {
 			/**
              * Splits a string to a map.
              * @param value The string to split.
-             * @param pairDelimiter The delimiter that delimits two map items.
-             * @param itemDelimiter The delimiter that delimits a key and a value.
+             * @param itemDelimiter The delimiter that delimits two map items.
+             * @param keyValueDelimiter The delimiter that delimits a key and a value.
              * @param trim Whether to trim the values in the map.
              * @return A string representation.
              */
-			static std::map<std::string, std::string> splitToMap(const std::string& value, const std::string& pairDelimiter, const std::string& itemDelimiter, const bool& trim = false) {
+			static std::map<std::string, std::string> splitToMap(const std::string& value, const std::string& itemDelimiter, const std::string& keyValueDelimiter, const bool& trim = false) {
 				// First extract the items
 				std::vector<std::string> items = splitToVector(value, itemDelimiter, trim);
 
 				// Then, for each item, extract the key and value and add them to the result
 				std::map<std::string, std::string> result;
 				for(const auto& item : items) {
-					std::vector<std::string> keyValue = splitToVector(item, pairDelimiter, trim);
+					std::vector<std::string> keyValue = splitToVector(item, keyValueDelimiter, trim);
 					result[keyValue[0]] = keyValue[1];
 				}
 
@@ -229,7 +229,8 @@ namespace EnergyManager {
              * @param format The format to use.
              * @return The formatted timestamp.
              */
-			static std::string formatTimestamp(const std::chrono::system_clock::time_point& timestamp, const std::string& format = "%Y-%m-%d %H:%M:%S") {
+			static std::string formatTimestamp(const std::chrono::system_clock::time_point& timestamp, std::string format = "%Y-%m-%d %H:%M:%S.%Ms") {
+				format = format.replace(format.find("%Ms"), 3, toString((std::chrono::duration_cast<std::chrono::milliseconds>(timestamp.time_since_epoch()) % std::chrono::seconds(1)).count()));
 				return formatTimestamp(std::chrono::system_clock::to_time_t(timestamp), format);
 			}
 
