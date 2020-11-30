@@ -11,6 +11,10 @@ namespace EnergyManager {
 					startEnergyConsumption_ = device_->getEnergyConsumption();
 				}
 
+				if(getName() == "CPUMonitor") {
+					logDebug("Found power consumption: %f", device_->getPowerConsumption().toValue());
+				}
+
 				std::map<std::string, std::string> results = {
 					{ "energyConsumption", std::to_string((device_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
 					{ "powerConsumption", std::to_string(device_->getPowerConsumption().toValue()) },

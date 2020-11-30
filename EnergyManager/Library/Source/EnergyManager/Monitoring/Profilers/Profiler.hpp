@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Hardware/Processor.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 #include "EnergyManager/Monitoring/Persistence/ProfilerSession.hpp"
@@ -51,7 +53,7 @@ namespace EnergyManager {
 				/**
 				 * Whether to automatically save profiler sessions.
 				 */
-				bool autosave_;
+				bool autoSave_;
 
 				/**
 				 * Whether to use SLURM.
@@ -64,6 +66,11 @@ namespace EnergyManager {
 				bool ear_;
 
 				/**
+				 * The interval at which to monitor EAR.
+				 */
+				std::chrono::system_clock::duration earMonitorInterval_;
+
+				/**
 				 * The arguments to use for SLURM.
 				 */
 				std::map<std::string, std::string> slurmArguments_;
@@ -73,6 +80,12 @@ namespace EnergyManager {
 				 * @param profile The profile.
 				 */
 				void runProfile(const std::map<std::string, std::string>& profile);
+
+				/**
+				 * Does one profiling run using SLURM.
+				 * @param profile The profile.
+				 */
+				void runSLURMProfile(const std::map<std::string, std::string>& profile);
 
 			protected:
 				std::vector<std::string> generateHeaders() const override;
@@ -127,7 +140,9 @@ namespace EnergyManager {
 				 * @return The frequency profiles.
 				 */
 				static std::vector<Utility::Units::Hertz>
-					generateFrequencyValueRange(const Utility::Units::Hertz& minimumClockRate, const Utility::Units::Hertz& maximumClockRate, const unsigned int& clockRatesToProfile);
+					generateFrequencyValueRange(const Utility::Units::Hertz& minimumClockRate, const Utility::Units::Hertz& maximumClockRate, const unsigned int& clockRatesToProfile) {
+					return generateValueRange<Utility::Units::Hertz>(minimumClockRate, maximumClockRate, clockRatesToProfile);
+				}
 
 				/**
 				 * Generates a bunch of profiles for each of the available processor frequencies specified.
@@ -135,7 +150,46 @@ namespace EnergyManager {
 				 * @param clockRatesToProfile The amount of profiles to test in between the minimum and maximum clock rate (inclusive).
 				 * @return The frequency profiles.
 				 */
-				static std::vector<Utility::Units::Hertz> generateFrequencyValueRange(const std::shared_ptr<Hardware::Processor>& processor, const unsigned int& clockRatesToProfile);
+				static std::vector<Utility::Units::Hertz> generateFrequencyValueRange(const std::shared_ptr<Hardware::Processor>& processor, const unsigned int& clockRatesToProfile) {
+					return generateFrequencyValueRange(processor->getMinimumCoreClockRate().toValue(), processor->getMaximumCoreClockRate().toValue(), clockRatesToProfile);
+				}
+
+				/**
+				 * Generates a copy of the provided profiles for every frequency combination.
+				 * @param profiles The profiles to use as input.
+				 * @param core The core to use.
+				 * @param coreClockRatesToProfile The amount of core clock rates to profile.
+				 * @param gpu The GPU to use.
+				 * @param gpuClockRatesToProfile The amount of GPU clock rates to profile.
+				 * @return The fixed frequency profiles.
+				 */
+				static std::vector<std::map<std::string, std::string>> generateFixedFrequencyProfiles(
+					const std::vector<std::map<std::string, std::string>>& profiles,
+					const std::shared_ptr<Hardware::CPU::Core>& core,
+					const unsigned int& coreClockRatesToProfile,
+					const std::shared_ptr<Hardware::GPU>& gpu,
+					const unsigned int& gpuClockRatesToProfile) {
+					std::vector<std::map<std::string, std::string>> results;
+					for(const auto& coreClockRate : Profiler::generateFrequencyValueRange(core, coreClockRatesToProfile)) {
+						for(const auto& gpuClockRate : Profiler::generateFrequencyValueRange(1000, gpu->getMaximumCoreClockRate(), gpuClockRatesToProfile)) {
+							for(const auto& profile : profiles) {
+								// Generate a new profile with the frequencies set
+								std::map<std::string, std::string> newProfile = {
+									{ "minimumCPUClockRate", Utility::Text::toString(coreClockRate) },
+									{ "maximumCPUClockRate", Utility::Text::toString(coreClockRate) },
+									{ "minimumGPUClockRate", Utility::Text::toString(gpuClockRate) },
+									{ "maximumGPUClockRate", Utility::Text::toString(gpuClockRate) },
+								};
+
+								// Append the current profile
+								newProfile.insert(profile.begin(), profile.end());
+								results.push_back(newProfile);
+							}
+						}
+					}
+
+					return results;
+				}
 
 				/**
 				 * Creates a new Profiler.
@@ -145,10 +199,11 @@ namespace EnergyManager {
 				 * @param runsPerProfile The amount of runs per profile.
 				 * @param iterationsPerRun The amount of iterations to do in a single run without restarting the Monitors.
 				 * @param randomize Whether to randomize profile evaluation order.
-				 * @param autosave Whether to automatically save profiler sessions.
+				 * @param autoSave Whether to automatically save profiler sessions.
 				 * @param slurm Whether to use SLURM.
 				 * @param slurmArguments The arguments to use for SLURM.
 				 * @param ear Whether to use EAR.
+				 * @param earMonitorInterval The interval at which to run the EAR monitor.
 				 */
 				explicit Profiler(
 					std::string profileName,
@@ -157,10 +212,19 @@ namespace EnergyManager {
 					const unsigned int& runsPerProfile = 1,
 					const unsigned int& iterationsPerRun = 1,
 					const bool& randomize = false,
-					const bool& autosave = false,
+					const bool& autoSave = false,
 					const bool& slurm = false,
 					const std::map<std::string, std::string>& slurmArguments = {},
-					const bool& ear = false);
+					const bool& ear = false,
+					const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::system_clock::duration(0));
+
+				/**
+				 * Creates a new Profiler from command line arguments.
+				 * @param profileName The name of the profile.
+				 * @param profiles The profiles to test.
+				 * @param arguments The command line arguments.
+				 */
+				explicit Profiler(const std::string& profileName, const std::vector<std::map<std::string, std::string>>& profiles, const std::map<std::string, std::string>& arguments);
 
 				/**
 				 * Gets the name of the profile.
@@ -228,9 +292,17 @@ namespace EnergyManager {
 				 */
 				void setRandomize(const bool& randomize);
 
-				bool getAutosave() const;
+				/**
+				 * Gets whether to automatically save the profiler sessions as they are generated.
+				 * @return Whether to auto save the profiler sessions.
+				 */
+				bool getAutoSave() const;
 
-				void setAutosave(const bool& autosave);
+				/**
+				 * Sets whether to automatically save the profiler sessions as they are generated.
+				 * @param autoSave Whether to auto save the profiler sessions.
+				 */
+				void setAutoSave(const bool& autoSave);
 			};
 		}
 	}

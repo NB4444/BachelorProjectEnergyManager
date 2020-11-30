@@ -1,7 +1,7 @@
 #include "./ApplicationTest.hpp"
 
 #include "EnergyManager/Monitoring/Monitors/ApplicationMonitor.hpp"
-#include "EnergyManager/Testing/Application.hpp"
+#include "EnergyManager/Utility/Application.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <regex>
@@ -35,7 +35,7 @@ namespace EnergyManager {
 
 			ApplicationTest::ApplicationTest(
 				const std::string& name,
-				const Application& application,
+				const Utility::Application& application,
 				std::map<std::string, std::string> results,
 				const std::chrono::system_clock::duration& applicationMonitorPollingInterval,
 				std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>> monitors)

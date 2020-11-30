@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
-#include "EnergyManager/Testing/Application.hpp"
+#include "EnergyManager/Utility//Application.hpp"
 
 #include <map>
 
@@ -15,7 +15,7 @@ namespace EnergyManager {
 				/**
 				 * The Application to monitor.
 				 */
-				const Testing::Application& application_;
+				const Utility::Application& application_;
 
 			protected:
 				std::map<std::string, std::string> onPoll() final;
@@ -26,7 +26,7 @@ namespace EnergyManager {
 				 * @param application The Application to monitor.
 				 * @param interval The interval at which to poll the monitored variables.
 				 */
-				explicit ApplicationMonitor(const Testing::Application& application, const std::chrono::system_clock::duration& interval);
+				explicit ApplicationMonitor(const Utility::Application& application, const std::chrono::system_clock::duration& interval);
 			};
 		}
 	}

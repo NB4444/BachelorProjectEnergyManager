@@ -45,7 +45,7 @@ namespace EnergyManager {
 			/**
 			 * The ID of the Entity in the database.
 			 */
-			unsigned long id_;
+			long id_ = -1;
 
 		protected:
 			/**
@@ -53,12 +53,6 @@ namespace EnergyManager {
 			 * Used to store the object's fields.
 			 */
 			virtual void onSave();
-
-			/**
-			 * Sets the ID of the Entity.
-			 * @param id The ID.
-			 */
-			void setID(const unsigned long& id);
 
 		public:
 			/**
@@ -94,7 +88,7 @@ namespace EnergyManager {
 			 * @param table The table.
 			 * @param rowColumnValues The values of the rows.
 			 */
-			static void insert(const std::string& table, const std::vector<std::map<std::string, std::string>>& rowColumnValues);
+			static void insert(const std::string& table, std::vector<std::map<std::string, std::string>> rowColumnValues);
 
 			/**
 			 * Inserts a row into a database table.
@@ -137,7 +131,13 @@ namespace EnergyManager {
 			 * Gets the ID of the Entity.
 			 * @return The ID.
 			 */
-			unsigned long getID() const;
+			long getID() const;
+
+			/**
+			 * Sets the ID of the Entity.
+			 * @param id The ID.
+			 */
+			void setID(const long& id);
 
 			/**
 			 * Saves the Entity to the database.

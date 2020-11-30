@@ -76,6 +76,10 @@ class ProfilerSession(Entity):
     def node_monitor(self):
         return self.get_monitor_session_by_monitor_name("NodeMonitor")[0]
 
+    @cached_property
+    def ear_monitor(self):
+        return self.get_monitor_session_by_monitor_name("EARMonitor")[0]
+
     @property
     def monitor_data_correlations_plot(self):
         return MonitorSession.correlations_plot(self.monitor_sessions)
@@ -160,6 +164,10 @@ class ProfilerSession(Entity):
                 f"GPU {gpu_id} Memory": gpu_monitor.get_values("memoryClockRate", int),
                 f"GPU {gpu_id} SM": gpu_monitor.get_values("streamingMultiprocessorClockRate", int)
             })
+
+        clock_rate.update({
+            "EAR CPU Clock Rate": self.ear_monitor.get_values("cpuCoreClockRate", float),
+        })
 
         return clock_rate
 
@@ -257,7 +265,10 @@ class ProfilerSession(Entity):
             gpu_id = gpu_monitor.get_value("id", int)
             energy_consumption.update({f"GPU {gpu_id}": gpu_monitor.get_values("energyConsumption", float, modifier)})
 
-        energy_consumption.update({"Node": self.node_monitor.get_values("energyConsumption", float, modifier)})
+        energy_consumption.update({
+            "Node": self.node_monitor.get_values("energyConsumption", float, modifier),
+            "EAR Node": self.ear_monitor.get_values("energyConsumption", float, modifier)
+        })
 
         return energy_consumption
 
@@ -265,9 +276,8 @@ class ProfilerSession(Entity):
         return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier),
                               y_label=f"Energy Consumption ({unit_string})")
 
-    @property
-    def total_energy_consumption(self):
-        return self.node_monitor.get_last_value("energyConsumption", float)
+    def total_energy_consumption(self, use_ear=False):
+        return (self.node_monitor if not use_ear else self.ear_monitor).get_last_value("energyConsumption", float)
 
     @property
     def fan_speed(self):
@@ -360,7 +370,10 @@ class ProfilerSession(Entity):
             gpu_id = gpu_monitor.get_value("id", int)
             power_consumption.update({f"GPU {gpu_id}": gpu_monitor.get_values("powerConsumption", float)})
 
-        power_consumption.update({"Node": self.node_monitor.get_values("powerConsumption", float)})
+        power_consumption.update({
+            "Node": self.node_monitor.get_values("powerConsumption", float),
+            "EAR Node Average": self.ear_monitor.get_values("averagePowerConsumption", float)
+        })
 
         return power_consumption
 
@@ -484,7 +497,10 @@ class ProfilerSession(Entity):
                                                                                  Plot.to_percentage)
             })
 
-        timespan.update({"Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s)})
+        timespan.update({
+            "Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s),
+            "EAR Runtime": self.ear_monitor.get_values("applicationRuntime", float, Plot.ns_to_s)
+        })
 
         return timespan
 

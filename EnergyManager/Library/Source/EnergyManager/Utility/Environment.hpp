@@ -3,6 +3,7 @@
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <string>
+#include <unistd.h>
 
 namespace EnergyManager {
 	namespace Utility {
@@ -29,6 +30,16 @@ namespace EnergyManager {
 			}
 
 			/**
+			 * Gets an environment variable unsigned integer.
+			 * @param name The name of the variable.
+			 * @return The variable value.
+			 */
+			template<>
+			unsigned int getVariable(const std::string& name) {
+				return std::stoul(getVariable<std::string>(name));
+			}
+
+			/**
 			 * Sets an environment variable.
 			 * @tparam Type The type of the variable.
 			 * @param name The name of the variable.
@@ -36,10 +47,31 @@ namespace EnergyManager {
 			 */
 			template<typename Type>
 			static void setVariable(const std::string& name, const Type& value) {
-				const auto environmentVariable = name + "=" + Text::toString(value);
-				char environmentVariableCString[environmentVariable.length() + 1];
-				strcpy(environmentVariableCString, environmentVariable.c_str());
-				putenv(environmentVariableCString);
+				setenv(name.c_str(), Text::toString(value).c_str(), 1);
+			}
+
+			/**
+			 * Gets the path to the current application.
+			 * @return The path.
+			 */
+			static std::string getApplicationPath() {
+				// Get the path to the application
+				char applicationPathBuffer[PATH_MAX];
+				if(readlink("/proc/self/exe", applicationPathBuffer, PATH_MAX) < 0) {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Invalid application path");
+				}
+				return std::string(applicationPathBuffer);
+			}
+
+			/**
+			 * Gets the current hostname.
+			 * @return The hostname.
+			 */
+			static std::string getHostname() {
+				char hostname[BUFSIZ];
+				gethostname(hostname, BUFSIZ);
+
+				return hostname;
 			}
 		}
 	}

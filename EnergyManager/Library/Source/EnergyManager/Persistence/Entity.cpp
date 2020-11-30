@@ -1,5 +1,6 @@
 #include "./Entity.hpp"
 
+#include "EnergyManager/Utility/Collections.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
 namespace EnergyManager {
@@ -23,10 +24,6 @@ namespace EnergyManager {
 		}
 
 		void Entity::onSave() {
-		}
-
-		void Entity::setID(const unsigned long& id) {
-			id_ = id;
 		}
 
 		void Entity::initialize(const std::string& databaseFile) {
@@ -64,39 +61,55 @@ namespace EnergyManager {
 			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL("CREATE TABLE " + table + "(" + Utility::Text::join(columnsWithAttributesSerialized, ",") + ");");
 		}
 
-		void Entity::insert(const std::string& table, const std::vector<std::map<std::string, std::string>>& rowColumnValues) {
+		void Entity::insert(const std::string& table, std::vector<std::map<std::string, std::string>> rowColumnValues) {
+			// If there are no rows we can just exit
 			if(rowColumnValues.empty()) {
 				return;
 			}
 
-			// Collect columns
-			std::set<std::string> columns;
-			for(const auto& columnValues : rowColumnValues) {
-				for(const auto& columnValue : columnValues) {
-					columns.insert(columnValue.first);
+			// Fetch the maximum row count in one operation
+			const auto compoundSelectLimit = sqlite3_limit(database_, SQLITE_LIMIT_COMPOUND_SELECT, -1);
+
+			// Check if we need to split the current operation
+			if(rowColumnValues.size() > compoundSelectLimit) {
+				Utility::Logging::logTrace("Row count of %d exceeds limit of %d for one insert operation, splitting operation into chunks...", rowColumnValues.size(), compoundSelectLimit);
+
+				// Chunk the rows
+				for(const auto& currentRowColumnValues : Utility::Collections::splitInChunks(rowColumnValues, compoundSelectLimit)) {
+					// Process the current chunk
+					insert(table, currentRowColumnValues);
 				}
-			}
-
-			// Collect values
-			std::vector<std::vector<std::string>> rowValues;
-			for(auto& columnValues : rowColumnValues) {
-				std::vector<std::string> insertValues;
-
-				for(const auto& column : columns) {
-					auto insertValue = columnValues.at(column);
-					insertValues.push_back(insertValue);
+			} else {
+				// Collect columns
+				std::set<std::string> columns;
+				for(const auto& columnValues : rowColumnValues) {
+					for(const auto& columnValue : columnValues) {
+						columns.insert(columnValue.first);
+					}
 				}
 
-				rowValues.push_back(insertValues);
+				// Collect values
+				std::vector<std::vector<std::string>> rowValues;
+				for(auto& columnValues : rowColumnValues) {
+					std::vector<std::string> insertValues;
+
+					for(const auto& column : columns) {
+						auto insertValue = columnValues.at(column);
+						insertValues.push_back(insertValue);
+					}
+
+					rowValues.push_back(insertValues);
+				}
+
+				std::vector<std::string> insertRows;
+				std::transform(rowValues.begin(), rowValues.end(), std::back_inserter(insertRows), [](const auto& item) {
+					return Utility::Text::join(item, ",");
+				});
+
+				// Store the results
+				ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL(
+					"INSERT OR REPLACE INTO " + table + "(" + Utility::Text::join(columns, ",") + ") VALUES(" + Utility::Text::join(insertRows, "),(") + ");");
 			}
-
-			std::vector<std::string> insertRows;
-			std::transform(rowValues.begin(), rowValues.end(), std::back_inserter(insertRows), [](const auto& item) {
-				return Utility::Text::join(item, ",");
-			});
-
-			// Store the results
-			ENERGY_MANAGER_PERSISTENCE_ENTITY_EXECUTE_SQL("INSERT INTO " + table + "(" + Utility::Text::join(columns, ",") + ") VALUES(" + Utility::Text::join(insertRows, "),(") + ");");
 		}
 
 		unsigned long Entity::insert(const std::string& table, const std::map<std::string, std::string>& columnValues) {
@@ -123,8 +136,12 @@ namespace EnergyManager {
 			return sql;
 		}
 
-		unsigned long Entity::getID() const {
+		long Entity::getID() const {
 			return id_;
+		}
+
+		void Entity::setID(const long& id) {
+			id_ = id;
 		}
 
 		void Entity::save() {

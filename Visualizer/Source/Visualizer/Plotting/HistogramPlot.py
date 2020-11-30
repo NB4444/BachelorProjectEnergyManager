@@ -25,5 +25,5 @@ class HistogramPlot(FigurePlot):
         # Set the labels
         axes.set(xlabel=self.x_label, ylabel="Frequency")
 
-        if len(self.values) > 0:
-            axes.hist(self.values, bins=self.bins)
+        # if len(self.values) > 0:
+        #     axes.hist(self.values, bins=self.bins)

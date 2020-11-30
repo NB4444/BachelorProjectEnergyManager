@@ -27,6 +27,7 @@ set_target_properties(
 target_include_directories(
         ${TARGET_NAME}
         PUBLIC "Source"
+#        PUBLIC "${MPI_INCLUDE_DIRECTORY}"
         PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
         PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"
@@ -41,6 +42,7 @@ target_include_directories(
 target_link_libraries(
         ${TARGET_NAME}
         "Threads::Threads"
+#        "${MPI_LIBRARY}"
         "${SQLITE_LIBRARY}"
         "cuda"
         "${CUDA_RUNTIME_LIBRARY}"
@@ -48,7 +50,7 @@ target_link_libraries(
         "${CUDA_CUPTI_LIBRARY}"
         "${CUDA_NVML_LIBRARY}"
         "nvidia-ml"
-#        "OpenMP::OpenMP_CXX"
+        #        "OpenMP::OpenMP_CXX"
         "${BOOST_LIBRARY}"
         "${OPENBLAS_LIBRARY}"
         "${ARMADILLO_LIBRARY}"

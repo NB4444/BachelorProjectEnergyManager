@@ -14,7 +14,7 @@ using EnergyManager::Monitoring::Persistence::ProfilerSession;
 using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler;
 using EnergyManager::Monitoring::Profilers::Profiler;
 using EnergyManager::Persistence::Entity;
-using EnergyManager::Testing::Application;
+using EnergyManager::Utility::Application;
 using namespace EnergyManager::Utility::Text;
 
 int main(int argumentCount, char* argumentValues[]) {

@@ -42,10 +42,26 @@ namespace EnergyManager {
 
 				/**
 				 * Logs a trace message.
+				 * @param headers The headers to use.
+				 * @param format The format of the message.
+				 * @param ... The arguments to use.
+				 */
+				void logTrace(const std::vector<std::string>& headers, std::string format, ...) const;
+
+				/**
+				 * Logs a trace message.
 				 * @param format The format of the message.
 				 * @param ... The arguments to use.
 				 */
 				void logTrace(std::string format, ...) const;
+
+				/**
+				 * Logs a debug message.
+				 * @param headers The headers to use.
+				 * @param format The format of the message.
+				 * @param ... The arguments to use.
+				 */
+				void logDebug(const std::vector<std::string>& headers, std::string format, ...) const;
 
 				/**
 				 * Logs a debug message.
@@ -56,6 +72,14 @@ namespace EnergyManager {
 
 				/**
 				 * Logs an informational message.
+				 * @param headers The headers to use.
+				 * @param format The format of the message.
+				 * @param ... The arguments to use.
+				 */
+				void logInformation(const std::vector<std::string>& headers, std::string format, ...) const;
+
+				/**
+				 * Logs an informational message.
 				 * @param format The format of the message.
 				 * @param ... The arguments to use.
 				 */
@@ -63,10 +87,28 @@ namespace EnergyManager {
 
 				/**
 				 * Logs a warning.
+				 * @param headers The headers to use.
+				 * @param format The format of the message.
+				 * @param ... The arguments to use.
+				 */
+				void logWarning(const std::vector<std::string>& headers, std::string format, ...) const;
+
+				/**
+				 * Logs a warning.
 				 * @param format The format of the message.
 				 * @param ... The arguments to use.
 				 */
 				void logWarning(std::string format, ...) const;
+
+				/**
+				 * Logs an error.
+				 * @param headers The headers to use.
+				 * @param format The format of the message.
+				 * @param file The file in which the error occurred.
+				 * @param line The line on which the error occurred.
+				 * @param ... The arguments to use.
+				 */
+				void logError(const std::vector<std::string>& headers, std::string format, std::string file, int line, ...) const;
 
 				/**
 				 * Logs an error.

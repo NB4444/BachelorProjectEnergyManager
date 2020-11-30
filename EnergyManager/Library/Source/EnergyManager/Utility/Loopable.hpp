@@ -22,7 +22,7 @@ namespace EnergyManager {
 			/**
 			 * Whether the object is currently still looping.
 			 */
-			bool isLooping_;
+			bool isLooping_ = true;
 
 			/**
 			 * The mutex that protects the looping state.

@@ -8,7 +8,7 @@
 #include <memory>
 
 std::shared_ptr<EnergyManager::EnergySaving::Models::DVFSModel> train(
-	EnergyManager::Testing::Application& application,
+	EnergyManager::Utility::Application& application,
 	const std::chrono::system_clock::duration& cpuTrainingMonitorInterval,
 	const std::chrono::system_clock::duration& gpuTrainingMonitorInterval,
 	const std::string& dvfsModelPath) {
@@ -43,7 +43,7 @@ int main(int argumentCount, char* argumentValues[]) {
 	const auto matrixAHeight = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--matrixAHeight", 32 * sizeMultiplier);
 	const auto matrixBWidth = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--matrixBWidth", 32 * sizeMultiplier);
 	const auto matrixBHeight = EnergyManager::Utility::Text::getArgument<unsigned long>(arguments, "--matrixBHeight", 32 * sizeMultiplier);
-	auto application = EnergyManager::Testing::Application(
+	auto application = EnergyManager::Utility::Application(
 		std::string(CUDA_SAMPLES_DIRECTORY) + "/0_Simple/matrixMul/matrixMul",
 		{ "-device=" + std::to_string(gpu->getID()),
 		  "-wA=" + std::to_string(matrixAWidth),

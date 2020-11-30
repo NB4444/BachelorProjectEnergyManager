@@ -14,7 +14,7 @@ namespace EnergyManager {
 				/**
 				 * The Application to test.
 				 */
-				Application application_;
+				Utility::Application application_;
 
 				/**
 				 * The results to parse from the Application's output.
@@ -35,7 +35,7 @@ namespace EnergyManager {
 				 */
 				ApplicationTest(
 					const std::string& name,
-					const Application& application,
+					const Utility::Application& application,
 					std::map<std::string, std::string> results,
 					const std::chrono::system_clock::duration& applicationMonitorPollingInterval,
 					std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>> monitors = {});

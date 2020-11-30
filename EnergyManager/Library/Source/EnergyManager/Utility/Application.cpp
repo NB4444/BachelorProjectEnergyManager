@@ -2,6 +2,7 @@
 
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 
 #include <iostream>
 #include <memory>
@@ -11,7 +12,7 @@
 #include <utility>
 
 namespace EnergyManager {
-	namespace Testing {
+	namespace Utility {
 		std::vector<std::string> Application::generateHeaders() const {
 			auto headers = Runnable::generateHeaders();
 			headers.push_back("Application " + getPath());
@@ -42,7 +43,7 @@ namespace EnergyManager {
 			executableOutput_ = "";
 
 			// Create communication pipes
-			logDebug("Setting up pipe to application...");
+			logTrace("Setting up pipe to application...");
 			int outputPipe[2]; // Pipe to transfer output from child to parent
 			if(pipe(outputPipe) == -1) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set up output pipe");
@@ -53,12 +54,11 @@ namespace EnergyManager {
 			}
 
 			// Fork the current process and open a set of pipes
-			logDebug("Forking current process...");
+			logTrace("Forking current process...");
 
 			// Flush all output buffers to prevent duplicate output caused by a double-flush
 			// This happens because the fork duplicates all output buffers
-			std::cout.flush();
-			std::cerr.flush();
+			Utility::Logging::flush();
 
 			if((processID_ = fork()) < 0) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not fork current process");
@@ -67,7 +67,7 @@ namespace EnergyManager {
 
 			// Set up the pipes
 			if(isParent) {
-				logDebug("Configuring pipe in parent process...");
+				logTrace("Configuring pipe in parent process...");
 				close(outputPipe[writePipe]);
 				close(startPipe[readPipe]);
 
@@ -82,13 +82,15 @@ namespace EnergyManager {
 				close(startPipe[writePipe]);
 
 				// Get a pointer to capture application output
-				logDebug("Capturing child output...");
+				logTrace("Capturing child output...");
 				FILE* filePointer = fdopen(outputPipe[readPipe], "r");
 				std::array<char, BUFSIZ> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), filePointer) != nullptr) {
 					auto output = std::string(outputBuffer.data());
 
-					logDebug("Processing child output: %s", Utility::Text::trim(output).c_str());
+					if(logOutput_) {
+						logInformation("Output: %s", Utility::Text::trim(output).c_str());
+					}
 					executableOutput_ += output;
 				}
 				close(outputPipe[readPipe]);
@@ -96,7 +98,7 @@ namespace EnergyManager {
 				// Clean up
 				fclose(filePointer);
 			} else {
-				logDebug("Configuring pipe in child process...");
+				logTrace("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
 
@@ -111,17 +113,15 @@ namespace EnergyManager {
 				//	command += " \"" + Utility::Text::join(parameters_, "\" \"") + "\"";
 				//}
 				//command += " 2>&1";
-				//logDebug("Starting application process with command %s...", command.c_str());
 
 				// Flush the buffers
-				std::cout.flush();
-				std::cerr.flush();
+				Utility::Logging::flush();
 
 				// Redirect the output
 				dup2(outputPipe[writePipe], STDOUT_FILENO);
 				dup2(outputPipe[writePipe], STDERR_FILENO);
 
-				// Start the application
+				// Prepare parameters
 				parameters_.insert(parameters_.begin(), path_);
 				std::vector<char*> cParameters;
 				cParameters.reserve(parameters_.size() + 1);
@@ -129,6 +129,9 @@ namespace EnergyManager {
 					return const_cast<char*>(string.data());
 				});
 				cParameters.push_back(nullptr);
+
+				// Start the application
+				logTrace("Starting application process with path %s and parameters %s...", path_.c_str(), Utility::Text::join(parameters_, " ").c_str());
 				execv(path_.c_str(), cParameters.data());
 
 				//std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
@@ -161,11 +164,17 @@ namespace EnergyManager {
 			}
 		}
 
-		Application::Application(std::string path, std::vector<std::string> parameters, std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity, std::shared_ptr<Hardware::GPU> gpu)
+		Application::Application(
+			std::string path,
+			std::vector<std::string> parameters,
+			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity,
+			std::shared_ptr<Hardware::GPU> gpu,
+			const bool& logOutput)
 			: path_(std::move(path))
 			, parameters_(std::move(parameters))
 			, affinity_(std::move(affinity))
-			, gpu_(std::move(gpu)) {
+			, gpu_(std::move(gpu))
+			, logOutput_(logOutput) {
 		}
 
 		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.affinity_, application.gpu_) {
@@ -228,7 +237,7 @@ namespace EnergyManager {
 
 			// Set the affinity
 			logDebug(
-				"Changing the applications affinity to %s...",
+				"Changing the application's affinity to %s...",
 				Utility::Text::join(
 					[&] {
 						std::vector<unsigned int> result;
@@ -251,6 +260,14 @@ namespace EnergyManager {
 
 		void Application::setGPU(const std::shared_ptr<Hardware::GPU>& gpu) {
 			gpu_ = gpu;
+		}
+
+		bool Application::getLogOutput() const {
+			return logOutput_;
+		}
+
+		void Application::setLogOutput(const bool& logOutput) {
+			logOutput_ = logOutput;
 		}
 
 		std::string Application::getExecutableOutput() const {

@@ -95,37 +95,35 @@ namespace EnergyManager {
 		}
 
 		Utility::Units::Joule Node::getEnergyConsumption() const {
+			double energyConsumption = 0.0;
+
 			// Collect CPU energy consumptions
-			std::vector<Utility::Units::Joule> cpuEnergyConsumptions;
-			std::transform(cpus_.begin(), cpus_.end(), std::back_inserter(cpuEnergyConsumptions), [](auto& cpu) {
-				return cpu->getEnergyConsumption();
-			});
+			for(auto& cpu : cpus_) {
+				energyConsumption += cpu->getEnergyConsumption().toValue();
+			}
 
 			// Collect GPU energy consumptions
-			std::vector<Utility::Units::Joule> gpuEnergyConsumptions;
-			std::transform(gpus_.begin(), gpus_.end(), std::back_inserter(gpuEnergyConsumptions), [](auto& gpu) {
-				return gpu->getEnergyConsumption();
-			});
+			for(auto& gpu : gpus_) {
+				energyConsumption += gpu->getEnergyConsumption().toValue();
+			}
 
-			return std::accumulate(cpuEnergyConsumptions.begin(), cpuEnergyConsumptions.end(), Utility::Units::Joule())
-				   + std::accumulate(gpuEnergyConsumptions.begin(), gpuEnergyConsumptions.end(), Utility::Units::Joule()) - startEnergyConsumption_;
+			return Utility::Units::Joule(energyConsumption) - startEnergyConsumption_;
 		}
 
 		Utility::Units::Watt Node::getPowerConsumption() const {
+			double powerConsumption = 0.0;
+
 			// Collect CPU power consumptions
-			std::vector<Utility::Units::Watt> cpuPowerConsumptions;
-			std::transform(cpus_.begin(), cpus_.end(), std::back_inserter(cpuPowerConsumptions), [](auto& cpu) {
-				return cpu->getPowerConsumption();
-			});
+			for(auto& cpu : cpus_) {
+				powerConsumption += cpu->getPowerConsumption().toValue();
+			}
 
 			// Collect GPU power consumptions
-			std::vector<Utility::Units::Watt> gpuPowerConsumptions;
-			std::transform(gpus_.begin(), gpus_.end(), std::back_inserter(gpuPowerConsumptions), [](auto& gpu) {
-				return gpu->getPowerConsumption();
-			});
+			for(auto& gpu : gpus_) {
+				powerConsumption += gpu->getPowerConsumption().toValue();
+			}
 
-			return std::accumulate(cpuPowerConsumptions.begin(), cpuPowerConsumptions.end(), Utility::Units::Watt())
-				   + std::accumulate(gpuPowerConsumptions.begin(), gpuPowerConsumptions.end(), Utility::Units::Watt());
+			return Utility::Units::Watt(powerConsumption);
 		}
 	}
 }

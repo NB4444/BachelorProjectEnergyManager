@@ -200,18 +200,30 @@ namespace EnergyManager {
 		}
 
 		void CPU::onLoop() {
+			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+
+			// Get the timestamp
 			auto currentTimestamp = std::chrono::system_clock::now();
 
-			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+			// Get the time since last poll in seconds, with decimals
+			auto pollingTimespan = std::chrono::duration<double>(currentTimestamp - lastMonitorTimestamp_).count();
 
 			// Get the current values
 			auto currentProcStatValues = getProcStatValuesPerCPU();
 			auto currentEnergyConsumption = getEnergyConsumption();
-			auto pollingTimespan = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastMonitorTimestamp_).count() / static_cast<float>(1000);
 
 			// Calculate the power consumption in Watts
-			auto divisor = (pollingTimespan == 0 ? 0.1 : pollingTimespan);
-			powerConsumption_ = (currentEnergyConsumption - lastEnergyConsumption_).toValue() / divisor;
+			if(pollingTimespan == 0) {
+				logWarning("Polling timespan equal to zero, can't measure power consumption");
+			} else {
+				auto energyConsumed = currentEnergyConsumption - lastEnergyConsumption_;
+				auto currentPowerConsumption = Utility::Units::Watt(energyConsumed.toValue() / pollingTimespan);
+
+				// FIXME: There can be some noise in the data so we filter out values that are too high
+				if(currentEnergyConsumption.toValue() < 300) {
+					powerConsumption_ = currentPowerConsumption;
+				}
+			}
 
 			// Calculate the core utilization rates
 			for(unsigned int core = 0; core < getCores().size(); ++core) {
@@ -237,9 +249,9 @@ namespace EnergyManager {
 			}
 
 			// Set the variables for the next poll cycle
+			lastMonitorTimestamp_ = currentTimestamp;
 			lastProcStatValues_ = currentProcStatValues;
 			lastEnergyConsumption_ = currentEnergyConsumption;
-			lastMonitorTimestamp_ = currentTimestamp;
 		}
 
 		std::vector<std::shared_ptr<Hardware::CPU>> CPU::parseCPUs(const std::string& cpuString) {
@@ -371,7 +383,7 @@ namespace EnergyManager {
 			std::ifstream inputStream("/sys/class/powercap/intel-rapl/intel-rapl:" + std::to_string(getID()) + "/energy_uj");
 			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 
-			return Utility::Units::Joule(std::stol(cpuInfo), Utility::Units::SIPrefix::MICRO) - startEnergyConsumption_;
+			return Utility::Units::Joule(std::stod(cpuInfo), Utility::Units::SIPrefix::MICRO) - startEnergyConsumption_;
 		}
 
 		Utility::Units::Hertz CPU::getMinimumCoreClockRate() const {

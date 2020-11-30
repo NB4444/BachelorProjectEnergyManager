@@ -23,7 +23,7 @@ namespace EnergyManager {
 				return applicationResults;
 			}
 
-			ApplicationMonitor::ApplicationMonitor(const Testing::Application& application, const std::chrono::system_clock::duration& interval)
+			ApplicationMonitor::ApplicationMonitor(const Utility::Application& application, const std::chrono::system_clock::duration& interval)
 				: Monitor("ApplicationMonitor " + application.getPath(), interval)
 				, application_(application) {
 			}

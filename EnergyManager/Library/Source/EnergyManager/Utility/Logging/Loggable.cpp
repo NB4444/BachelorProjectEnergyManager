@@ -26,10 +26,30 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
+			void Loggable::logTrace(const std::vector<std::string>& headers, std::string format, ...) const {
+				auto allHeaders = getHeaders();
+				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
+
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::TRACE, allHeaders, format, arguments);
+				va_end(arguments);
+			}
+
 			void Loggable::logTrace(std::string format, ...) const {
 				va_list arguments;
 				va_start(arguments, format);
 				vlog(Level::TRACE, getHeaders(), format, arguments);
+				va_end(arguments);
+			}
+
+			void Loggable::logDebug(const std::vector<std::string>& headers, std::string format, ...) const {
+				auto allHeaders = getHeaders();
+				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
+
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::DEBUG, allHeaders, format, arguments);
 				va_end(arguments);
 			}
 
@@ -40,6 +60,16 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
+			void Loggable::logInformation(const std::vector<std::string>& headers, std::string format, ...) const {
+				auto allHeaders = getHeaders();
+				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
+
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::INFORMATION, allHeaders, format, arguments);
+				va_end(arguments);
+			}
+
 			void Loggable::logInformation(std::string format, ...) const {
 				va_list arguments;
 				va_start(arguments, format);
@@ -47,10 +77,30 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
+			void Loggable::logWarning(const std::vector<std::string>& headers, std::string format, ...) const {
+				auto allHeaders = getHeaders();
+				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
+
+				va_list arguments;
+				va_start(arguments, format);
+				vlog(Level::WARNING, allHeaders, format, arguments);
+				va_end(arguments);
+			}
+
 			void Loggable::logWarning(std::string format, ...) const {
 				va_list arguments;
 				va_start(arguments, format);
 				vlog(Level::WARNING, getHeaders(), format, arguments);
+				va_end(arguments);
+			}
+
+			void Loggable::logError(const std::vector<std::string>& headers, std::string format, std::string file, int line, ...) const {
+				auto allHeaders = getHeaders();
+				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
+
+				va_list arguments;
+				va_start(arguments, line);
+				vlog(Level::ERROR, allHeaders, file + ":" + std::to_string(line) + ": " + format, arguments);
 				va_end(arguments);
 			}
 

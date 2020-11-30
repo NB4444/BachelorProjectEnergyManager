@@ -4,6 +4,23 @@ include(ExternalProject)
 find_package(Threads REQUIRED)
 message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
 
+## Configure MPI
+#find_path(
+#        MPI_INCLUDE_DIRECTORY
+#        NAMES mpi.h
+#        PATHS "/hpc/base/platform/mpi/8.1.1/include"
+#)
+#find_library(
+#        MPI_LIBRARY
+#        NAMES libmpi mpi
+#        PATHS "/hpc/base/platform/mpi/8.1.1/lib/linux_amd64"
+#)
+##find_package(MPI REQUIRED PATHS "/hpc/base/platform/mpi/8.1.1")
+##set(MPI_INCLUDE_DIRECTORY "${MPI_CXX_INCLUDE_DIRS}")
+##set(MPI_LIBRARY "${MPI_CXX_LIBRARIES}")
+#message(STATUS "MPI include directory: ${MPI_INCLUDE_DIRECTORY}")
+#message(STATUS "MPI library: ${MPI_LIBRARY}")
+
 # Set up CUDA paths
 find_package(CUDA 10.1 REQUIRED)
 set(CUDA_DIRECTORY "${CUDA_TOOLKIT_ROOT_DIR}")
@@ -57,3 +74,28 @@ message(STATUS "Rodinia data directory: ${RODINIA_DATA_DIRECTORY}")
 #        INSTALL_COMMAND ""
 #        INSTALL_DIR "${RODINIA_DIRECTORY}"
 #)
+
+# Configure SLURM
+find_program(SLURM_SACCT sacct)
+find_program(SLURM_SALLOC salloc)
+find_program(SLURM_SATTACH sattach)
+find_program(SLURM_SBATCH sbatch)
+find_program(SLURM_SRUN srun)
+find_program(SLURM_SCONTROL scontrol)
+add_compile_definitions(SLURM_SACCT="${SLURM_SACCT}")
+add_compile_definitions(SLURM_SALLOC="${SLURM_SALLOC}")
+add_compile_definitions(SLURM_SATTACH="${SLURM_SATTACH}")
+add_compile_definitions(SLURM_SBATCH="${SLURM_SBATCH}")
+add_compile_definitions(SLURM_SRUN="${SLURM_SRUN}")
+add_compile_definitions(SLURM_SCONTROL="${SLURM_SCONTROL}")
+message(STATUS "SLURM sacct: ${SLURM_SACCT}")
+message(STATUS "SLURM salloc: ${SLURM_SALLOC}")
+message(STATUS "SLURM sattach: ${SLURM_SATTACH}")
+message(STATUS "SLURM sbatch: ${SLURM_SBATCH}")
+message(STATUS "SLURM srun: ${SLURM_SRUN}")
+message(STATUS "SLURM scontrol: ${SLURM_SCONTROL}")
+
+# Configure EAR
+set(EAR_EACCT "/hpc/base/ctt/packages/EAR/ear/bin/eacct")
+add_compile_definitions(EAR_EACCT="${EAR_EACCT}")
+message(STATUS "EAR eacct: ${EAR_EACCT}")

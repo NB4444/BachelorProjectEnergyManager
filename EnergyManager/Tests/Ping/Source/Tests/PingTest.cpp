@@ -9,7 +9,7 @@ namespace Tests {
 		const std::vector<std::shared_ptr<EnergyManager::Monitoring::Monitors::Monitor>>& monitors)
 		: ApplicationTest(
 			name,
-			EnergyManager::Testing::Application("/bin/ping", { "-c " + std::to_string(times), host }, {}, nullptr),
+			EnergyManager::Utility::Application("/bin/ping", { "-c " + std::to_string(times), host }, {}, nullptr),
 			{
 				{ "Packets Transmitted", "(\\d+) packets transmitted" },
 				{ "Packets Received", "(\\d+) received" },

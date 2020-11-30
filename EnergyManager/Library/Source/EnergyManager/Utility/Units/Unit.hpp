@@ -274,6 +274,16 @@ namespace EnergyManager {
 				friend bool operator==(const Self& left, const Self& right) {
 					return left.toValue() == right.toValue();
 				}
+
+				/**
+				 * Determines if two Units are not equal.
+				 * @param left The left operand Unit.
+				 * @param right The right operand Unit.
+				 * @return Whether the Units are not equal.
+				 */
+				friend bool operator!=(const Self& left, const Self& right) {
+					return left.toValue() != right.toValue();
+				}
 			};
 		}
 	}

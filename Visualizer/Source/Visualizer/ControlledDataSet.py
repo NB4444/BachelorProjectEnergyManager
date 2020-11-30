@@ -20,22 +20,24 @@ class ControlledDataSet(object):
         self.data_set = data_set
         self.control_data_set = control_data_set
 
-    def energy_savings_vs_runtime_increase(self, control_comparison=ControlComparison.MEAN, normalized=True):
+    def energy_savings_vs_runtime_increase(self, control_comparison=ControlComparison.MEAN, normalized=True,
+                                           use_ear=False):
         control_energy_consumption = None
         control_runtime = None
         if control_comparison == ControlComparison.MEAN:
-            control_energy_consumption = self.control_data_set.mean_energy_consumption
+            control_energy_consumption = self.control_data_set.mean_energy_consumption(use_ear)
             control_runtime = self.control_data_set.mean_runtime
         elif control_comparison == ControlComparison.MEDIAN:
-            control_energy_consumption = self.control_data_set.median_energy_consumption
+            control_energy_consumption = self.control_data_set.median_energy_consumption(use_ear)
             control_runtime = self.control_data_set.median_runtime
         elif control_comparison == ControlComparison.OPTIMAL:
-            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption
+            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption(
+                use_ear)
             control_runtime = self.control_data_set.minimum_runtime_profiler_session.total_runtime
 
         data: OrderedDict[str, OrderedDict[Any, Any]] = collections.OrderedDict({})
         for profiler_session in self.data_set.data:
-            energy_savings = control_energy_consumption - profiler_session.total_energy_consumption
+            energy_savings = control_energy_consumption - profiler_session.total_energy_consumption(use_ear)
             runtime_increase = profiler_session.total_runtime - control_runtime
 
             profile = "Runs"
@@ -70,22 +72,24 @@ class ControlledDataSet(object):
             labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
         )
 
-    def energy_savings_vs_flops_decrease(self, control_comparison=ControlComparison.MEAN, normalized=True):
+    def energy_savings_vs_flops_decrease(self, control_comparison=ControlComparison.MEAN, normalized=True,
+                                         use_ear=False):
         control_energy_consumption = None
         control_flops = None
         if control_comparison == ControlComparison.MEAN:
-            control_energy_consumption = self.control_data_set.mean_energy_consumption
+            control_energy_consumption = self.control_data_set.mean_energy_consumption(use_ear)
             control_flops = self.control_data_set.mean_flops
         elif control_comparison == ControlComparison.MEDIAN:
-            control_energy_consumption = self.control_data_set.median_energy_consumption
+            control_energy_consumption = self.control_data_set.median_energy_consumption(use_ear)
             control_flops = self.control_data_set.median_flops
         elif control_comparison == ControlComparison.OPTIMAL:
-            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption
+            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption(
+                use_ear)
             control_flops = self.control_data_set.maximum_flops_profiler_session.total_flops
 
         data: OrderedDict[str, OrderedDict[Any, Any]] = collections.OrderedDict({})
         for profiler_session in self.data_set.data:
-            energy_savings = control_energy_consumption - profiler_session.total_energy_consumption
+            energy_savings = control_energy_consumption - profiler_session.total_energy_consumption(use_ear)
             flops_decrease = control_flops - profiler_session.total_flops
 
             profile = "Runs"
@@ -119,19 +123,21 @@ class ControlledDataSet(object):
             labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
         )
 
-    def core_clock_rate_vs_gpu_clock_rate_vs_energy_savings(self, control_comparison=ControlComparison.MEAN):
+    def core_clock_rate_vs_gpu_clock_rate_vs_energy_savings(self, control_comparison=ControlComparison.MEAN,
+                                                            use_ear=False):
         control_energy_consumption = None
         if control_comparison == ControlComparison.MEAN:
-            control_energy_consumption = self.control_data_set.mean_energy_consumption
+            control_energy_consumption = self.control_data_set.mean_energy_consumption(use_ear)
         elif control_comparison == ControlComparison.MEDIAN:
-            control_energy_consumption = self.control_data_set.median_energy_consumption
+            control_energy_consumption = self.control_data_set.median_energy_consumption(use_ear)
         elif control_comparison == ControlComparison.OPTIMAL:
-            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption
+            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption(
+                use_ear)
 
         data: OrderedDict[
             str, OrderedDict[int, OrderedDict[int, int]]] = collections.OrderedDict({})
         for profiler_session in self.data_set.data:
-            savings = control_energy_consumption - profiler_session.total_energy_consumption
+            savings = control_energy_consumption - profiler_session.total_energy_consumption(use_ear)
 
             profile = "Saves Energy" if savings >= 0 else "Costs Energy"
             if profile not in data:

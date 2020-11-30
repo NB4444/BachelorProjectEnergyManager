@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace EnergyManager {
-	namespace Testing {
+	namespace Utility {
 		/**
 		 * An executable application.
 		 */
@@ -43,6 +43,11 @@ namespace EnergyManager {
 			std::string executableOutput_ = "";
 
 			/**
+			 * Whether to log output.
+			 */
+			bool logOutput_;
+
+			/**
 			 * The pipe of the current executable.
 			 */
 			pid_t processID_;
@@ -61,12 +66,14 @@ namespace EnergyManager {
 			 * @param parameters The parameters to provide to the executable.
 			 * @param affinity The CPU affinity.
 			 * @param gpu The GPU to use.
+			 * @param logOutput Whether to log the output.
 			 */
 			explicit Application(
 				std::string path,
 				std::vector<std::string> parameters = {},
 				std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity = {},
-				std::shared_ptr<Hardware::GPU> gpu = nullptr);
+				std::shared_ptr<Hardware::GPU> gpu = nullptr,
+				const bool& logOutput = false);
 
 			/**
 			 * Copies the Application.
@@ -121,6 +128,18 @@ namespace EnergyManager {
 			 * @param gpu The GPU.
 			 */
 			void setGPU(const std::shared_ptr<Hardware::GPU>& gpu);
+
+			/**
+			 * Gets whether to log the output.
+			 * @return Whether to log the output.
+			 */
+			bool getLogOutput() const;
+
+			/**
+			 * Sets whether to log the output.
+			 * @param logOutput Whether to log the output.
+			 */
+			void setLogOutput(const bool& logOutput);
 
 			/**
 			 * Gets the Application's output.

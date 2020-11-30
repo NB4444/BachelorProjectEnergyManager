@@ -7,6 +7,7 @@
 #include <map>
 #include <mutex>
 #include <thread>
+#include <unistd.h>
 
 namespace EnergyManager {
 	namespace Utility {
@@ -14,16 +15,6 @@ namespace EnergyManager {
 		 * An object that can be executed.
 		 */
 		class Runnable : protected Logging::Loggable {
-			/**
-			 * Human-understandable thread IDs.
-			 */
-			static std::map<std::thread::id, unsigned int> threadIDs_;
-
-			/**
-			 * Keep track of the next thread ID.
-			 */
-			unsigned int nextThreadID_ = 0;
-
 			/**
 			 * The start timestamp.
 			 */
@@ -50,8 +41,6 @@ namespace EnergyManager {
 			std::condition_variable synchronizationCondition_;
 
 		protected:
-			std::vector<std::string> generateHeaders() const override;
-
 			/**
 			 * Executes just before the object starts running.
 			 */
@@ -69,10 +58,12 @@ namespace EnergyManager {
 
 		public:
 			/**
-			 * Gets the ID of the current thread.
-			 * @return The thread ID.
+			 * Suspends the current thread for the specified amount of time.
+			 * @param duration The time to sleep.
 			 */
-			static unsigned int getCurrentThreadID();
+			static void sleep(const std::chrono::system_clock::duration& duration) {
+				usleep(std::chrono::duration_cast<std::chrono::microseconds>(duration).count());
+			}
 
 			/**
 			 * Creates a new Runnable.
@@ -84,12 +75,6 @@ namespace EnergyManager {
 			 * @param runnable The object to copy.
 			 */
 			Runnable(const Runnable& runnable);
-
-			/**
-			 * Gets the ID of the associated thread.
-			 * @return The thread ID.
-			 */
-			unsigned int getThreadID() const;
 
 			/**
 			 * Gets whether the object is running.

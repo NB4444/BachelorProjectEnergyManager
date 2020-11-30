@@ -2,7 +2,7 @@
 
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 #include "EnergyManager/Monitoring/Profilers/Profiler.hpp"
-#include "EnergyManager/Testing/Application.hpp"
+#include "EnergyManager/Utility/Application.hpp"
 
 #include <map>
 #include <memory>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" promptOnRemoteOverwrite="CHECK_CONTENT" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" deleteMissingItems="true" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" promptOnRemoteOverwrite="CHECK_CONTENT" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" deleteMissingItems="true" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)">
         <serverdata>
@@ -47,6 +47,5 @@
         </serverdata>
       </paths>
     </serverData>
-    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

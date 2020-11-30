@@ -8,7 +8,11 @@ namespace EnergyManager {
 	namespace Monitoring {
 		namespace Persistence {
 			void ProfilerSession::onSave() {
-				setID(insert("ProfilerSession", { { "label", '\'' + filterSQL(getLabel()) + '\'' } }));
+				std::map<std::string, std::string> columnValues = { { "label", '\'' + filterSQL(getLabel()) + '\'' } };
+				if(getID() >= 0) {
+					columnValues["id"] = Utility::Text::toString(getID());
+				}
+				setID(insert("ProfilerSession", columnValues));
 
 				std::vector<std::map<std::string, std::string>> profileRows;
 				for(const auto& argument : getProfile()) {

@@ -1,16 +1,11 @@
 #include "./Runnable.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 namespace EnergyManager {
 	namespace Utility {
-		std::map<std::thread::id, unsigned int> Runnable::threadIDs_ = {};
-
-		std::vector<std::string> Runnable::generateHeaders() const {
-			return { "Thread " + Text::toString(getThreadID()) };
-		}
-
 		void Runnable::beforeRun() {
 		}
 
@@ -20,18 +15,10 @@ namespace EnergyManager {
 		void Runnable::afterRun() {
 		}
 
-		unsigned int Runnable::getCurrentThreadID() {
-			return threadIDs_.at(std::this_thread::get_id());
-		}
-
 		Runnable::Runnable(const Runnable& runnable) {
 			if(isRunning()) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Running objects cannot be copied");
 			}
-		}
-
-		unsigned int Runnable::getThreadID() const {
-			return threadIDs_[runThread_.get_id()];
 		}
 
 		bool Runnable::isRunning() const {
@@ -50,11 +37,13 @@ namespace EnergyManager {
 			logTrace("Running runnable" + std::string(asynchronous ? " asynchronously" : "") + "...");
 
 			auto operation = [&] {
+				// Lock synchronization
+				std::unique_lock<std::mutex> lock(synchronizationMutex_);
+
 				logTrace("Preparing run...");
 				beforeRun();
 
 				// Set up the running state and lock any waiting threads
-				std::unique_lock<std::mutex> lock(synchronizationMutex_);
 				isRunning_ = true;
 				startTimestamp_ = std::chrono::system_clock::now();
 
@@ -64,15 +53,17 @@ namespace EnergyManager {
 
 				// Release any waiting threads
 				isRunning_ = false;
-				lock.unlock();
-				synchronizationCondition_.notify_one();
 
 				logTrace("Finalizing run...");
 				afterRun();
+
+				// Unlock the waiting synchronization
+				lock.unlock();
+				synchronizationCondition_.notify_one();
 			};
 			if(asynchronous) {
 				runThread_ = std::thread(operation);
-				threadIDs_[runThread_.get_id()] = nextThreadID_++;
+				Logging::registerThread(runThread_);
 			} else {
 				operation();
 			}

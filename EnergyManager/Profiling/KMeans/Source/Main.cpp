@@ -14,7 +14,7 @@ using EnergyManager::Monitoring::Persistence::ProfilerSession;
 using EnergyManager::Monitoring::Profilers::FixedFrequencyProfiler;
 using EnergyManager::Monitoring::Profilers::Profiler;
 using EnergyManager::Persistence::Entity;
-using EnergyManager::Testing::Application;
+using EnergyManager::Utility::Application;
 using namespace EnergyManager::Utility::Text;
 
 int main(int argumentCount, char* argumentValues[]) {
@@ -49,7 +49,7 @@ int main(int argumentCount, char* argumentValues[]) {
 
 	// Define the workload
 	static const auto workload = [&](const std::map<std::string, std::string>& profile) {
-		EnergyManager::Testing::Application(std::string(RODINIA_BINARY_DIRECTORY) + "/linux/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core }, gpu).run();
+		EnergyManager::Utility::Application(std::string(RODINIA_BINARY_DIRECTORY) + "/linux/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core }, gpu).run();
 	};
 
 	// Check if we should generate the control data or not

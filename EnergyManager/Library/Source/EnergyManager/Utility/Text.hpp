@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <numeric>
 #include <regex>
@@ -61,6 +62,16 @@ namespace EnergyManager {
              */
 			template<>
 			std::string toString<long>(const long& value) {
+				return std::to_string(value);
+			}
+
+			/**
+             * Converts a double to a string.
+             * @param value The double.
+             * @return A string representation.
+             */
+			template<>
+			std::string toString<double>(const double& value) {
 				return std::to_string(value);
 			}
 
@@ -530,7 +541,7 @@ namespace EnergyManager {
 							argumentName = argumentValues[index];
 
 							// Set the default value
-							results[argumentName] = "";
+							results[argumentName] = "1";
 						} else {
 							// Processing a value
 							results[argumentName] = argumentValues[index];
@@ -548,6 +559,52 @@ namespace EnergyManager {
              */
 			static std::string serializeArgumentsMap(const std::map<std::string, std::string>& arguments) {
 				return join(arguments, " ", " ");
+			}
+
+			/**
+			 * Reads the entire contents of a file.
+			 * @param path The file to read.
+			 * @return The contents.
+			 */
+			static std::string readFile(const std::string& path) {
+				std::ifstream inputStream(path);
+				return std::string(std::istreambuf_iterator<char>(inputStream), std::istreambuf_iterator<char>());
+			}
+
+			/**
+			 * Parses a table file.
+			 * Assumes the first row is the header row.
+			 * @param table The table to parse.
+			 * @param rowDelimiter The delimiter between rows.
+			 * @param columnDelimiter The delimiter between columns.
+			 * @return The rows.
+			 */
+			static std::vector<std::map<std::string, std::string>> parseTable(const std::string& table, const std::string& rowDelimiter = "\n", const std::string& columnDelimiter = ",") {
+				std::vector<std::map<std::string, std::string>> result = {};
+
+				const auto rows = splitToVector(table, rowDelimiter);
+				std::vector<std::string> headers = {};
+				for(const auto& row : rows) {
+					const auto cells = splitToVector(row, columnDelimiter);
+
+					// Set the headers if not yet set
+					if(headers.empty()) {
+						headers = cells;
+					} else {
+						// Add the row
+						result.emplace_back();
+
+						// Add the cells
+						for(unsigned int cellIndex = 0; cellIndex < cells.size(); ++cellIndex) {
+							const auto& header = headers[cellIndex];
+							const auto& cell = cells[cellIndex];
+
+							result.back()[header] = cell;
+						}
+					}
+				}
+
+				return result;
 			}
 		}
 	}

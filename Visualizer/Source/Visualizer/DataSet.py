@@ -42,34 +42,34 @@ class DataSet(object):
                 title.endswith("coreClockRate") and title_filter in title]
 
     def utilization_rate_histogram_plots(self, bins=30, title_filter: str = ""):
-        return [HistogramPlot(title=title, values=[Plot.to_percentage(value) for value in values], bins=bins, x_label="Utilization Rate (%)") for title, values
+        return [HistogramPlot(title=title, values=[Plot.to_percentage(value) for value in values], bins=bins,
+                              x_label="Utilization Rate (%)") for title, values
                 in self.monitor_data.items() if
                 title.endswith("coreUtilizationRate") and title_filter in title]
 
-    def energy_consumption_histogram_plot(self, bins=30):
+    def energy_consumption_histogram_plot(self, bins=30, use_ear=False):
         return HistogramPlot(title="Energy Consumption",
-                             values=[profiler_session.total_energy_consumption for profiler_session in self.data],
+                             values=[profiler_session.total_energy_consumption(use_ear) for profiler_session in
+                                     self.data],
                              bins=bins, x_label="Energy Consumption (Joules)")
 
-    @cached_property
-    def minimum_energy_consumption_profiler_session(self):
+    def minimum_energy_consumption_profiler_session(self, use_ear=False):
         optimal_energy_consumption: ProfilerSession = None
 
         for profiler_session in self.data:
-            energy_consumption = profiler_session.total_energy_consumption
+            energy_consumption = profiler_session.total_energy_consumption(use_ear)
 
-            if optimal_energy_consumption is None or energy_consumption < optimal_energy_consumption.total_energy_consumption:
+            if optimal_energy_consumption is None or energy_consumption < optimal_energy_consumption.total_energy_consumption(
+                    use_ear):
                 optimal_energy_consumption = profiler_session
 
         return optimal_energy_consumption
 
-    @cached_property
-    def mean_energy_consumption(self):
-        return mean(array([profiler_session.total_energy_consumption for profiler_session in self.data]))
+    def mean_energy_consumption(self, use_ear=False):
+        return mean(array([profiler_session.total_energy_consumption(use_ear) for profiler_session in self.data]))
 
-    @cached_property
-    def median_energy_consumption(self):
-        return median(array([profiler_session.total_energy_consumption for profiler_session in self.data]))
+    def median_energy_consumption(self, use_ear=False):
+        return median(array([profiler_session.total_energy_consumption(use_ear) for profiler_session in self.data]))
 
     def runtime_histogram_plot(self, bins=30):
         return HistogramPlot(title="Runtime",
@@ -120,7 +120,7 @@ class DataSet(object):
     def median_flops(self):
         return median(array([profiler_session.total_flops for profiler_session in self.data]))
 
-    def runtime_vs_energy_consumption_vs_combined_clock_rates(self, normalized=True):
+    def runtime_vs_energy_consumption_vs_combined_clock_rates(self, normalized=True, use_ear=False):
         data: OrderedDict[str, OrderedDict[int, int]] = collections.OrderedDict({})
         for profiler_session in self.data:
             profile = "Runs"
@@ -129,9 +129,12 @@ class DataSet(object):
 
             if normalized:
                 data[profile][
-                    profiler_session.total_runtime / self.minimum_runtime_profiler_session.total_runtime * 100] = profiler_session.total_energy_consumption / self.minimum_energy_consumption_profiler_session.total_energy_consumption * 100
+                    profiler_session.total_runtime / self.minimum_runtime_profiler_session.total_runtime * 100] = profiler_session.total_energy_consumption(
+                    use_ear) / self.minimum_energy_consumption_profiler_session(
+                    use_ear).total_energy_consumption(use_ear) * 100
             else:
-                data[profile][Plot.ns_to_s(profiler_session.total_runtime)] = profiler_session.total_energy_consumption
+                data[profile][Plot.ns_to_s(profiler_session.total_runtime)] = profiler_session.total_energy_consumption(
+                    use_ear)
 
         return data
 
@@ -155,7 +158,7 @@ class DataSet(object):
             labels=[profiler_session.plot_label for profiler_session in self.data]
         )
 
-    def energy_consumption_vs_flops(self, normalized=True):
+    def energy_consumption_vs_flops(self, normalized=True, use_ear=False):
         data: OrderedDict[str, OrderedDict[int, int]] = collections.OrderedDict({})
         for profiler_session in self.data:
             profile = "Runs"
@@ -164,7 +167,8 @@ class DataSet(object):
 
             if normalized:
                 data[profile][
-                    profiler_session.total_flops / self.maximum_flops_profiler_session.total_flops * 100] = profiler_session.total_energy_consumption / self.minimum_energy_consumption_profiler_session.total_energy_consumption * 100
+                    profiler_session.total_flops / self.maximum_flops_profiler_session.total_flops * 100] = profiler_session.total_energy_consumption / self.minimum_energy_consumption_profiler_session(
+                    use_ear).total_energy_consumption * 100
             else:
                 data[profile][profiler_session.total_flops] = profiler_session.total_energy_consumption
 

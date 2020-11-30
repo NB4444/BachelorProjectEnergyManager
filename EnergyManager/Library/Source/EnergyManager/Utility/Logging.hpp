@@ -8,6 +8,7 @@
 #include <cstdarg>
 #include <ctime>
 #include <iomanip>
+#include <iostream>
 #include <string>
 
 #define ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR(FORMAT, ...) EnergyManager::Utility::Logging::logError(FORMAT, __FILE__, __LINE__, __VA_ARGS__)
@@ -15,6 +16,26 @@
 namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {
+			/**
+			 * Human-understandable thread IDs.
+			 */
+			static std::map<std::thread::id, unsigned int> threadIDs = {};
+
+			/**
+			 * The sizes of each header column.
+			 */
+			static std::map<unsigned int, unsigned int> headerColumnSizes = {};
+
+			/**
+			 * The maximum sizes for the header columns.
+			 */
+			static std::map<unsigned int, unsigned int> maximumHeaderColumnSizes = {};
+
+			/**
+			 * The default maximum column size.
+			 */
+			static unsigned int defaultMaximumHeaderColumnSize = 25;
+
 			/**
 			 * The logging levels.
 			 */
@@ -32,6 +53,41 @@ namespace EnergyManager {
 			};
 
 			/**
+			 * Registers a thread so that it's ID can be used.
+			 * @param threadID The thread to register.
+			 */
+			static void registerThread(const std::thread::id& threadID) {
+				// Ignore threads that have already been registered
+				if(threadIDs.find(threadID) != threadIDs.end()) {
+					return;
+				}
+
+				// Keep track of the next thread ID.
+				static unsigned int nextThreadID_ = 0;
+
+				// Register the ID
+				threadIDs[threadID] = nextThreadID_++;
+			}
+
+			/**
+			 * Registers a thread so that it's ID can be used.
+			 * @param thread The thread to register.
+			 */
+			static void registerThread(const std::thread& thread) {
+				registerThread(thread.get_id());
+			}
+
+			/**
+			 * Gets the ID of the current thread.
+			 * @return The thread ID.
+			 */
+			static unsigned int getCurrentThreadID() {
+				registerThread(std::this_thread::get_id());
+
+				return threadIDs.at(std::this_thread::get_id());
+			}
+
+			/**
 			 * Logs a message with a variable number of parameters.
 			 * @param level The logging level.
 			 * @param headers The log headers.
@@ -46,6 +102,9 @@ namespace EnergyManager {
 
 				// Add timestamp
 				headers.insert(headers.begin(), Text::formatTimestamp(std::chrono::system_clock::now()));
+
+				// Add thread
+				headers.insert(headers.begin() + 1, "Thread " + Text::toString(getCurrentThreadID()));
 
 				// Add level
 				std::string levelString;
@@ -69,13 +128,33 @@ namespace EnergyManager {
 				}
 				headers.push_back(levelString);
 
-				// Prepend headers
+				// Print the headers
 				if(!headers.empty()) {
-					format = "[" + Text::join(headers, "] [") + "] " + format + '\n';
+					for(unsigned int headerIndex = 0; headerIndex < headers.size(); ++headerIndex) {
+						auto header = headers[headerIndex];
+						const auto maximumColumnWidth
+							= maximumHeaderColumnSizes.find(headerIndex) == maximumHeaderColumnSizes.end() ? defaultMaximumHeaderColumnSize : maximumHeaderColumnSizes.at(headerIndex);
+
+						// Get the column size
+						if(headerColumnSizes.find(headerIndex) == headerColumnSizes.end() || headerColumnSizes.at(headerIndex) < header.length()) {
+							// Column not found or smaller than the current header
+							headerColumnSizes[headerIndex] = header.length() < maximumColumnWidth ? header.length() : maximumColumnWidth;
+						}
+						unsigned int headerColumnSize = headerColumnSizes[headerIndex];
+
+						// Trim the header if necessary
+						if(header.length() > headerColumnSize) {
+							header.resize(headerColumnSize - 3);
+							header += "...";
+						}
+
+						// Print the header
+						printf(("%-" + Text::toString(headerColumnSize) + "s   ").c_str(), header.c_str());
+					}
 				}
 
 				// Print the message
-				vprintf(format.c_str(), arguments);
+				vprintf((format + '\n').c_str(), arguments);
 			}
 
 			/**
@@ -152,6 +231,14 @@ namespace EnergyManager {
 				va_start(arguments, line);
 				vlog(Level::ERROR, {}, file + ":" + std::to_string(line) + ": " + format, arguments);
 				va_end(arguments);
+			}
+
+			/**
+			 * Flushes all buffers.
+			 */
+			static void flush() {
+				std::cout.flush();
+				std::cerr.flush();
 			}
 		}
 	}

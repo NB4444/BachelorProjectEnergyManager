@@ -235,7 +235,7 @@ namespace EnergyManager {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate));
 
-			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(coreClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		void GPU::setApplicationCoreClockRate(const Utility::Units::Hertz& rate) {
@@ -257,7 +257,7 @@ namespace EnergyManager {
 			unsigned int memoryClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate));
 
-			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(memoryClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		void GPU::setApplicationMemoryClockRate(const Utility::Units::Hertz& rate) {
@@ -339,7 +339,7 @@ namespace EnergyManager {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &coreClockRate));
 
-			return { coreClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(coreClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		Utility::Units::Hertz GPU::getCurrentMinimumCoreClockRate() const {
@@ -401,7 +401,7 @@ namespace EnergyManager {
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &maximumCoreClockRate));
 
-			return { maximumCoreClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(maximumCoreClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		Utility::Units::Percent GPU::getCoreUtilizationRate() const {
@@ -521,7 +521,7 @@ namespace EnergyManager {
 
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetMaxClockInfo(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &maximumMemoryClockRate));
 
-			return { maximumMemoryClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(maximumMemoryClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		Utility::Units::Byte GPU::getMemorySize() const {
@@ -553,7 +553,7 @@ namespace EnergyManager {
 			unsigned int memoryClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &memoryClockRate));
 
-			return { memoryClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(memoryClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		GPU::SynchronizationMode GPU::getSynchronizationMode() const {
@@ -644,7 +644,7 @@ namespace EnergyManager {
 			unsigned int streamingMultiprocessorClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetClock(device_, nvmlClockType_enum::NVML_CLOCK_SM, nvmlClockId_enum::NVML_CLOCK_ID_CURRENT, &streamingMultiprocessorClockRate));
 
-			return { streamingMultiprocessorClockRate, Utility::Units::SIPrefix::MEGA };
+			return { static_cast<double>(streamingMultiprocessorClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
 		Utility::Units::Celsius GPU::getTemperature() const {
