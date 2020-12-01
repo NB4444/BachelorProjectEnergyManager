@@ -53,11 +53,14 @@ class Entity(object):
 
             row_values.append(insert_values)
 
-        return cls._execute_sql(f"INSERT INTO {table}({','.join(columns)}) VALUES({'),('.join([','.join(row) for row in row_values])});")
+        return cls._execute_sql(
+            f"INSERT INTO {table}({','.join(columns)}) VALUES({'),('.join([','.join(row) for row in row_values])});")
 
     @classmethod
     def _select(cls, table: str, columns: List[str], conditions: str = None, order: str = None):
-        return cls._execute_sql(f"SELECT {','.join(columns)} FROM {table}" + (f" WHERE {conditions}" if conditions is not None else "") + (f" ORDER BY {order}" if order is not None else "") + ";")
+        return cls._execute_sql(
+            f"SELECT {','.join(columns)} FROM {table}" + (f" WHERE {conditions}" if conditions is not None else "") + (
+                f" ORDER BY {order}" if order is not None else "") + ";")
 
     def save(self):
         self._on_save()

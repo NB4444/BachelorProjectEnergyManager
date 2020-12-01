@@ -2,14 +2,12 @@
 
 This repository contains the files for the collaboration project between EAR and SARA on power saving methods for GPU kernels.
 
-## EnergyManager
+## Usage
 
-This is the research project that contains monitoring, profiling and energy saving strategies contained in a framework.
+To use the framework, build the project using cmake.
 
-## Visualizer
+```shell script
+cmake --build --target all
+```
 
-A project to visualize data generated using the EnergyManager.
-
-## cuda_monitor
-
-The CUDA monitor project from the EAR framework.
+Once built, the executable files will be present in the current directory.

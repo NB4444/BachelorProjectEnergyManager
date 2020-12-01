@@ -71,7 +71,9 @@ class MonitorSession(Entity):
 
     @cached_property
     def monitor_data_table(self):
-        return TablePlot(title="Monitor Data", table=[[self.monitor_name, timestamp, name, value] for timestamp, variables in self.monitor_data.items() for name, value in variables.items()],
+        return TablePlot(title="Monitor Data",
+                         table=[[self.monitor_name, timestamp, name, value] for timestamp, variables in
+                                self.monitor_data.items() for name, value in variables.items()],
                          columns=["Monitor Name", "Timestamp", "Name", "Value"])
 
     @cached_property
@@ -104,11 +106,13 @@ class MonitorSession(Entity):
         # Re-order the data
         combined_monitor_data = collections.OrderedDict(sorted(combined_monitor_data.items()))
 
-        columns = ["Timestamp"] + sorted(list(set([name for _, data in combined_monitor_data.items() for name, _ in data.items()])))
+        columns = ["Timestamp"] + sorted(
+            list(set([name for _, data in combined_monitor_data.items() for name, _ in data.items()])))
 
         return TablePlot(
             title="Monitor Data",
-            table=[[timestamp] + [data[column] if column in data else float("NaN") for column in columns[1:]] for timestamp, data in combined_monitor_data.items()],
+            table=[[timestamp] + [data[column] if column in data else float("NaN") for column in columns[1:]] for
+                   timestamp, data in combined_monitor_data.items()],
             columns=columns,
             interpolate=True
         )
@@ -117,7 +121,8 @@ class MonitorSession(Entity):
     def correlations_plot(cls, monitor_sessions: List["MonitorSession"]):
         horizontal_table = cls.horizontal_table(monitor_sessions)
 
-        return CorrelationsPlot(title="Monitor Variable Correlations", correlations=horizontal_table.pandas_table._get_numeric_data().corr())
+        return CorrelationsPlot(title="Monitor Variable Correlations",
+                                correlations=horizontal_table.pandas_table._get_numeric_data().corr())
 
     def get_values(self, name: str, type: Type, modifier=lambda value: value):
         values: OrderedDict[datetime, type] = collections.OrderedDict()
@@ -181,7 +186,9 @@ class MonitorSession(Entity):
 
         return series
 
-    def get_summarized_indexed_value_series(self, summarized_series_name: str, series_name_prefix: str, summarized_variable_name: str, variable_name: str, type: Type, modifier=lambda value: value):
+    def get_summarized_indexed_value_series(self, summarized_series_name: str, series_name_prefix: str,
+                                            summarized_variable_name: str, variable_name: str, type: Type,
+                                            modifier=lambda value: value):
         series = {f"{summarized_series_name}": self.get_values(summarized_variable_name, type, modifier)}
         series.update(self.get_indexed_value_series(series_name_prefix, variable_name, type, modifier))
 

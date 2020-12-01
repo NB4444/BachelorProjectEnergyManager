@@ -1,42 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$/EnergyManager">
-    <contentRoot DIR="$PROJECT_DIR$" />
-  </component>
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/EnergyManager/Console/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Library/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/All/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/BFS/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/CUBLAS/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/CUFFT/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/Jacobi/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/KMeans/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Profiling/MatrixMultiply/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/ActiveInactive/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/AllocateFree/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/LinearRegression/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/MatrixMultiply/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/Ping/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/VectorAdd/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Tests/VectorAddSubtract/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Training/KMeans/Source" />
-      <file path="$PROJECT_DIR$/EnergyManager/Training/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Library/Console/Source" />
+      <file path="$PROJECT_DIR$/Library/Source" />
+      <file path="$PROJECT_DIR$/Profiling/All/Source" />
+      <file path="$PROJECT_DIR$/Profiling/BFS/Source" />
+      <file path="$PROJECT_DIR$/Profiling/CUBLAS/Source" />
+      <file path="$PROJECT_DIR$/Profiling/CUFFT/Source" />
+      <file path="$PROJECT_DIR$/Profiling/Jacobi/Source" />
+      <file path="$PROJECT_DIR$/Profiling/KMeans/Source" />
+      <file path="$PROJECT_DIR$/Profiling/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Tests/ActiveInactive/Source" />
+      <file path="$PROJECT_DIR$/Tests/AllocateFree/Source" />
+      <file path="$PROJECT_DIR$/Tests/FixedFrequencyMatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Tests/LinearRegression/Source" />
+      <file path="$PROJECT_DIR$/Tests/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Tests/Ping/Source" />
+      <file path="$PROJECT_DIR$/Tests/VectorAdd/Source" />
+      <file path="$PROJECT_DIR$/Tests/VectorAddSubtract/Source" />
+      <file path="$PROJECT_DIR$/Training/KMeans/Source" />
+      <file path="$PROJECT_DIR$/Training/MatrixMultiply/Source" />
       <file path="$PROJECT_DIR$/Visualizer/Source" />
     </sourceRoots>
     <libraryRoots>
-      <file path="$PROJECT_DIR$/EnergyManager/Library/Libraries" />
-      <file path="$PROJECT_DIR$/EnergyManager/Resources/Libraries/Installations" />
+      <file path="$PROJECT_DIR$/Library/Library/Libraries" />
       <file path="$PROJECT_DIR$/Resources/Examples/cuda_monitor" />
       <file path="$PROJECT_DIR$/Resources/Examples/cuda_monitor/src" />
+      <file path="$PROJECT_DIR$/Resources/Examples/quincy_test" />
+      <file path="$PROJECT_DIR$/Resources/Libraries/Installations" />
       <file path="$PROJECT_DIR$/sqlite" />
     </libraryRoots>
     <excludeRoots>
-      <file path="$PROJECT_DIR$/EnergyManager/cmake-build-default" />
+      <file path="$PROJECT_DIR$/Library/cmake-build-default" />
       <file path="$PROJECT_DIR$/Visualizer/.idea" />
-      <file path="$PROJECT_DIR$/Visualizer/Resources" />
       <file path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
       <file path="$PROJECT_DIR$/Visualizer/venv" />
     </excludeRoots>

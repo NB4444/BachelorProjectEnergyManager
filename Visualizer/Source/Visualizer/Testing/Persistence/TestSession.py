@@ -36,7 +36,9 @@ class TestSession(Entity):
 
     @classmethod
     def table(cls, test_sessions: List["TestSession"]):
-        return TablePlot(title="Test Sessions", table=[[test_session.id, test_session.test_name, test_session.profiler_session.id] for test_session in test_sessions],
+        return TablePlot(title="Test Sessions",
+                         table=[[test_session.id, test_session.test_name, test_session.profiler_session.id] for
+                                test_session in test_sessions],
                          columns=["ID", "Test Name", "Profiler Session ID"])
 
     def __init__(self, database_file: str, id: int, test_name: str, profiler_session: ProfilerSession = None):
@@ -61,4 +63,5 @@ class TestSession(Entity):
         return test_results
 
     def test_results_table(self):
-        return TablePlot(title="Test Results", table=[[name, value] for name, value in self.test_results.items()], columns=["Name", "Value"])
+        return TablePlot(title="Test Results", table=[[name, value] for name, value in self.test_results.items()],
+                         columns=["Name", "Value"])

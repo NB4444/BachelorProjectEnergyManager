@@ -1,5 +1,5 @@
 #
-# Compiling and execution instructions
+#Compiling and execution instructions
 #
 
 There are two important files
@@ -25,7 +25,7 @@ output and the other one for the library/application output. As the example belo
 	LD_PRELOAD=./libmonitor.so $application_path/cuda_application &> app1.libmonitor.txt
 
 #
-# Additional comments
+#Additional comments
 #
 
 The monitor creates a pipe in the folder, ignore this. It is just old code

@@ -7,7 +7,8 @@ from Visualizer.Plotting.Plot import Plot
 
 
 class TablePlot(Plot):
-    def __init__(self, title: str, table: List[Any], columns: List[str], maximum_column_width: int = None, maximum_columns: int = None, minimum_rows: int = None, maximum_rows: int = 50,
+    def __init__(self, title: str, table: List[Any], columns: List[str], maximum_column_width: int = None,
+                 maximum_columns: int = None, minimum_rows: int = None, maximum_rows: int = 50,
                  interpolate: bool = False):
         super().__init__(title)
 

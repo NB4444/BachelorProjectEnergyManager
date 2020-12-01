@@ -29,7 +29,8 @@ class MultiPlot(FigurePlot):
         previous_axes = None
         for plot in self.plots:
             # Create the plot
-            axes = figure.add_subplot(grid_spec[index]) if previous_axes is None else figure.add_subplot(grid_spec[index], sharex=previous_axes)
+            axes = figure.add_subplot(grid_spec[index]) if previous_axes is None else figure.add_subplot(
+                grid_spec[index], sharex=previous_axes)
             index += 1
             previous_axes = axes
 

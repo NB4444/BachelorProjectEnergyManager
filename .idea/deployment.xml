@@ -8,7 +8,8 @@
             <mapping deploy="/home/xqbakker/EnergyManager" local="$PROJECT_DIR$" web="" />
           </mappings>
           <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
           </excludedPaths>
         </serverdata>
       </paths>

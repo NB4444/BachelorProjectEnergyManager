@@ -40,5 +40,8 @@ class FigurePlot(Plot):
 
         self.figure.canvas.draw()
 
-        return matplotlib.transforms.Bbox.union([element.get_window_extent() for element in elements if element is not None]).expanded(1.0 + padding[0], 1.0 + padding[1]).transformed(
+        return matplotlib.transforms.Bbox.union(
+            [element.get_window_extent() for element in elements if element is not None]).expanded(1.0 + padding[0],
+                                                                                                   1.0 + padding[
+                                                                                                       1]).transformed(
             self.figure.dpi_scale_trans.inverted())
