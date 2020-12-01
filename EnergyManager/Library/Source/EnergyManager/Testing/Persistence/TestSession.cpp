@@ -20,7 +20,7 @@ namespace EnergyManager {
 				getProfilingSession()->save();
 			}
 
-			TestSession::TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession)
+			TestSession::TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Profiling::Persistence::ProfilerSession> profilingSession)
 				: testName_(std::move(testName))
 				, testResults_(std::move(testResults))
 				, profilingSession_(std::move(profilingSession)) {
@@ -51,11 +51,11 @@ namespace EnergyManager {
 				testResults_ = testResults;
 			}
 
-			std::shared_ptr<Monitoring::Persistence::ProfilerSession> TestSession::getProfilingSession() const {
+			std::shared_ptr<Profiling::Persistence::ProfilerSession> TestSession::getProfilingSession() const {
 				return profilingSession_;
 			}
 
-			void TestSession::setProfilingSession(const std::shared_ptr<Monitoring::Persistence::ProfilerSession>& profilingSession) {
+			void TestSession::setProfilingSession(const std::shared_ptr<Profiling::Persistence::ProfilerSession>& profilingSession) {
 				profilingSession_ = profilingSession;
 			}
 		}

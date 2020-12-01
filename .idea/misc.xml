@@ -7,7 +7,11 @@
     <sourceRoots>
       <file path="$PROJECT_DIR$/EnergyManager/Console/Source" />
       <file path="$PROJECT_DIR$/EnergyManager/Library/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/All/Source" />
       <file path="$PROJECT_DIR$/EnergyManager/Profiling/BFS/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/CUBLAS/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/CUFFT/Source" />
+      <file path="$PROJECT_DIR$/EnergyManager/Profiling/Jacobi/Source" />
       <file path="$PROJECT_DIR$/EnergyManager/Profiling/KMeans/Source" />
       <file path="$PROJECT_DIR$/EnergyManager/Profiling/MatrixMultiply/Source" />
       <file path="$PROJECT_DIR$/EnergyManager/Tests/ActiveInactive/Source" />

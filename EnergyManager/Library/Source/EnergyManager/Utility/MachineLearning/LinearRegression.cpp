@@ -1,6 +1,7 @@
 #include "./LinearRegression.hpp"
 
-#include <EnergyManager/Utility/Logging.hpp>
+#include "EnergyManager/Utility/Logging.hpp"
+
 #include <ensmallen.hpp>
 #include <mlpack/core/data/load.hpp>
 #include <mlpack/core/data/save.hpp>

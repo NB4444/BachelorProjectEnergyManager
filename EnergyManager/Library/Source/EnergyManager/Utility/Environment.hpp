@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <string>

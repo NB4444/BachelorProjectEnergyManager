@@ -9,16 +9,16 @@ message(STATUS "Source files: ${SOURCE_FILES}")
 set(TARGET_NAME "${PROJECT_NAME}-Profiling-BFS")
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 set_target_properties(
-	${TARGET_NAME}
-	PROPERTIES
-	CUDA_SEPARABLE_COMPILATION ON
+        ${TARGET_NAME}
+        PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON
 )
 target_include_directories(
-	${TARGET_NAME}
-	PUBLIC Source
-	PUBLIC ../Library/Source
+        ${TARGET_NAME}
+        PUBLIC Source
+        PUBLIC ../Library/Source
 )
 target_link_libraries(
-	${TARGET_NAME}
-	${PROJECT_NAME}-Library
+        ${TARGET_NAME}
+        ${PROJECT_NAME}-Library
 )

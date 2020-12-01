@@ -28,8 +28,11 @@ namespace EnergyManager {
 			}
 
 			Test::Test(std::string name, const std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>>& monitors)
-				: Monitoring::Profilers::Profiler(name, { { { "", "" } } }, monitors)
+				: Profiling::Profilers::Profiler(name, { { { "", "" } } }, monitors)
 				, name_(std::move(name)) {
+			}
+
+			Test::Test(const std::string& name, const std::map<std::string, std::string>& arguments) : Profiling::Profilers::Profiler(name, { { { "", "" } } }, arguments) {
 			}
 
 			std::string Test::getName() const {

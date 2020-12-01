@@ -49,6 +49,11 @@ message(STATUS "CUDA compiler: ${CUDA_COMPILER}")
 set(CMAKE_CUDA_HOST_COMPILER "${GXX_COMPILER}")
 enable_language(CUDA)
 
+# Configure Nvidia Code Samples
+set(NVIDIA_CODE_SAMPLES_DIRECTORY "/home/xqbakker/code-samples")
+add_compile_definitions(NVIDIA_CODE_SAMPLES_DIRECTORY="${NVIDIA_CODE_SAMPLES_DIRECTORY}")
+message(STATUS "NVIDIA code samples directory: ${NVIDIA_CODE_SAMPLES_DIRECTORY}")
+
 # Configure Rodinia
 set(RODINIA_DIRECTORY "/home/xqbakker/rodinia_3.1")
 set(RODINIA_BINARY_DIRECTORY "${RODINIA_DIRECTORY}/bin")

@@ -2,7 +2,6 @@
 
 #include "EnergyManager/Hardware/CentralProcessor.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
-#include "EnergyManager/Persistence/Entity.hpp"
 #include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Runnable.hpp"
 

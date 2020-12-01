@@ -1,3 +1,7 @@
+add_subdirectory(All)
 add_subdirectory(BFS)
+add_subdirectory(CUBLAS)
+add_subdirectory(CUFFT)
+add_subdirectory(Jacobi)
 add_subdirectory(KMeans)
 add_subdirectory(MatrixMultiply)

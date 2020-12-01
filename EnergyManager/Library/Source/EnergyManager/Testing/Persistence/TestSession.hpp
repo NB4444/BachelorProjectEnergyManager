@@ -1,7 +1,7 @@
 #pragma once
 
-#include "EnergyManager/Monitoring/Persistence/ProfilerSession.hpp"
-#include "EnergyManager/Persistence/Entity.hpp"
+#include "EnergyManager/Profiling/Persistence/ProfilerSession.hpp"
+#include "EnergyManager/Utility/Persistence/Entity.hpp"
 
 #include <chrono>
 #include <map>
@@ -13,7 +13,7 @@ namespace EnergyManager {
 			/**
 			 * Stores the results of a profiling operation.
 			 */
-			class TestSession : public EnergyManager::Persistence::Entity {
+			class TestSession : public Utility::Persistence::Entity {
 				/**
 				 * The name of the Test that generated the results.
 				 */
@@ -27,7 +27,7 @@ namespace EnergyManager {
 				/**
 				 * The profiling session that ran during the Test.
 				 */
-				std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession_;
+				std::shared_ptr<Profiling::Persistence::ProfilerSession> profilingSession_;
 
 			protected:
 				void onSave() final;
@@ -39,7 +39,7 @@ namespace EnergyManager {
 				 * @param testResults The Test results.
 				 * @param profilingSession The profiling session that ran during the Test.
 				 */
-				explicit TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Monitoring::Persistence::ProfilerSession> profilingSession = nullptr);
+				explicit TestSession(std::string testName, std::map<std::string, std::string> testResults, std::shared_ptr<Profiling::Persistence::ProfilerSession> profilingSession = nullptr);
 
 				/**
 				 * Gets the name of the Test that generated the results.
@@ -69,13 +69,13 @@ namespace EnergyManager {
 				 * Gets the profiling session that ran during the Test.
 				 * @return The profiling session.
 				 */
-				std::shared_ptr<Monitoring::Persistence::ProfilerSession> getProfilingSession() const;
+				std::shared_ptr<Profiling::Persistence::ProfilerSession> getProfilingSession() const;
 
 				/**
 				 * Sets the profiling session that ran during the Test.
 				 * @param profilingSession The profiling session.
 				 */
-				void setProfilingSession(const std::shared_ptr<Monitoring::Persistence::ProfilerSession>& profilingSession);
+				void setProfilingSession(const std::shared_ptr<Profiling::Persistence::ProfilerSession>& profilingSession);
 			};
 		}
 	}

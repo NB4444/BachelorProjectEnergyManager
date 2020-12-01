@@ -1,20 +1,24 @@
 #pragma once
 
-#include "EnergyManager/Persistence/Entity.hpp"
+#include "EnergyManager/Utility/Persistence/Entity.hpp"
 
 #include <chrono>
 #include <map>
 #include <memory>
 
 namespace EnergyManager {
-	namespace Monitoring {
+	namespace Profiling {
 		namespace Persistence {
 			class ProfilerSession;
+		}
+	}
 
+	namespace Monitoring {
+		namespace Persistence {
 			/**
 			 * Stores the results of a profiling operation.
 			 */
-			class MonitorSession : public EnergyManager::Persistence::Entity {
+			class MonitorSession : public Utility::Persistence::Entity {
 				/**
 				 * The name of the Monitor that generated the data.
 				 */
@@ -28,7 +32,7 @@ namespace EnergyManager {
 				/**
 				 * The session that generated the data.
 				 */
-				std::shared_ptr<ProfilerSession> profilerSession_;
+				std::shared_ptr<Profiling::Persistence::ProfilerSession> profilerSession_;
 
 			protected:
 				void onSave() final;
@@ -43,7 +47,7 @@ namespace EnergyManager {
 				explicit MonitorSession(
 					std::string monitorName,
 					std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> monitorData,
-					std::shared_ptr<ProfilerSession> profilerSession = nullptr);
+					std::shared_ptr<Profiling::Persistence::ProfilerSession> profilerSession = nullptr);
 
 				/**
 				 * Gets the name of the Monitor that generated the data.
@@ -73,13 +77,13 @@ namespace EnergyManager {
 				 * Gets the session that generated the data.
 				 * @return The session.
 				 */
-				std::shared_ptr<ProfilerSession> getProfilerSession() const;
+				std::shared_ptr<Profiling::Persistence::ProfilerSession> getProfilerSession() const;
 
 				/**
 				 * Sets the session that generated the data.
 				 * @param profilerSession The session.
 				 */
-				void setProfilerSession(const std::shared_ptr<ProfilerSession>& profilerSession);
+				void setProfilerSession(const std::shared_ptr<Profiling::Persistence::ProfilerSession>& profilerSession);
 			};
 		}
 	}

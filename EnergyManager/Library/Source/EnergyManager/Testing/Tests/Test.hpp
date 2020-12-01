@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
-#include "EnergyManager/Monitoring/Profilers/Profiler.hpp"
+#include "EnergyManager/Profiling/Profilers/Profiler.hpp"
 #include "EnergyManager/Utility/Application.hpp"
 
 #include <map>
@@ -10,13 +10,11 @@
 
 namespace EnergyManager {
 	namespace Testing {
-		class TestResults;
-
 		namespace Tests {
 			/**
 			 * A test of an Application.
 			 */
-			class Test : public Monitoring::Profilers::Profiler {
+			class Test : public Profiling::Profilers::Profiler {
 				/**
 				 * The name of the Test.
 				 */
@@ -45,6 +43,13 @@ namespace EnergyManager {
 				 * @param monitors The monitors to run during the Test.
 				 */
 				explicit Test(std::string name, const std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>>& monitors);
+
+				/**
+				 * Creates a new Test.
+				 * @param name The name of the Test.
+				 * @param arguments The command line arguments.
+				 */
+				explicit Test(const std::string& name, const std::map<std::string, std::string>& arguments);
 
 				/**
 				 * Gets the name of the Test.

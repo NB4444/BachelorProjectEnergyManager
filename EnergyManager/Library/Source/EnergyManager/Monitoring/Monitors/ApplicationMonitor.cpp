@@ -1,6 +1,9 @@
 #include "./ApplicationMonitor.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Text.hpp"
+
+#include <algorithm>
 
 #define ENERGY_MANAGER_MONITORING_APPLICATION_MONITOR_ADD(KEY, VALUE) ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(applicationResults[KEY] = VALUE);
 

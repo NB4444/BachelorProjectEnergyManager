@@ -1,6 +1,6 @@
 #include "./MonitorSession.hpp"
 
-#include "EnergyManager/Monitoring/Persistence/ProfilerSession.hpp"
+#include "EnergyManager/Profiling/Persistence/ProfilerSession.hpp"
 
 #include <utility>
 
@@ -35,7 +35,7 @@ namespace EnergyManager {
 			MonitorSession::MonitorSession(
 				std::string monitorName,
 				std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> monitorData,
-				std::shared_ptr<ProfilerSession> profilerSession)
+				std::shared_ptr<Profiling::Persistence::ProfilerSession> profilerSession)
 				: monitorName_(std::move(monitorName))
 				, monitorData_(std::move(monitorData))
 				, profilerSession_(std::move(profilerSession)) {
@@ -73,11 +73,11 @@ namespace EnergyManager {
 				monitorData_ = monitorData;
 			}
 
-			std::shared_ptr<ProfilerSession> MonitorSession::getProfilerSession() const {
+			std::shared_ptr<Profiling::Persistence::ProfilerSession> MonitorSession::getProfilerSession() const {
 				return profilerSession_;
 			}
 
-			void MonitorSession::setProfilerSession(const std::shared_ptr<ProfilerSession>& profilerSession) {
+			void MonitorSession::setProfilerSession(const std::shared_ptr<Profiling::Persistence::ProfilerSession>& profilerSession) {
 				profilerSession_ = profilerSession;
 			}
 		}
