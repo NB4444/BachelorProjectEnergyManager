@@ -29,46 +29,45 @@
  */
 
 struct tp_select_s {
-  int core;
-  int l3;
-  int socket;
+	int core;
+	int l3;
+	int socket;
 } TPSelect __attribute__((weak)) = {
-    .core = 1,
-    .l3 = 2,
-    .socket = 3,
+	.core = 1,
+	.l3 = 2,
+	.socket = 3,
 };
 
 struct tp_group_s {
-  int value;
-  int merge;
+	int value;
+	int merge;
 } TPGroup __attribute__((weak)) = {
-    .value = 1,
-    .merge = 2,
+	.value = 1,
+	.merge = 2,
 };
 
 typedef struct core_s {
-  int id;
-  int is_thread;
-  int l3_id;
-  int sibling_id;
-  int socket_id;
-  ulong freq_base;
+	int id;
+	int is_thread;
+	int l3_id;
+	int sibling_id;
+	int socket_id;
+	ulong freq_base;
 } core_t;
 
 typedef struct topology_s {
-  core_t *cpus;
-  int cpu_count;
-  int thread_count;
-  int core_count;
-  int socket_count;
-  int threads_per_core;
-  int smt_enabled;
-  int l3_count;
+	core_t* cpus;
+	int cpu_count;
+	int thread_count;
+	int core_count;
+	int socket_count;
+	int threads_per_core;
+	int smt_enabled;
+	int l3_count;
 } topology_t;
 
-state_t topology_select(topology_t *t, topology_t *s, int component, int group,
-                        int val);
+state_t topology_select(topology_t* t, topology_t* s, int component, int group, int val);
 
-state_t topology_init(topology_t *topo);
+state_t topology_init(topology_t* topo);
 
-state_t topology_close(topology_t *topo);
+state_t topology_close(topology_t* topo);

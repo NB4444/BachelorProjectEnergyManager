@@ -39,40 +39,38 @@
 #define GPU_MAX_PROCS 160 // (5120 SPs (V100)) / (32 SPs per CU)
 
 typedef struct gpu_energy_s {
-  ulong samples;
-  timestamp_t time;
-  ulong freq_gpu_mhz;
-  ulong freq_mem_mhz;
-  ulong temp_gpu_cls; // celsius
-  ulong temp_mem_cls; // celsius
-  ulong procs_cur_n;  // n
-  ulong procs_tot_n;  // n
-  ulong procs_new_n;  // n
-  ulong util_gpu;     // percent
-  ulong util_mem;     // percent
-  double energy_j;
-  double power_w;
-  uint correct;
+	ulong samples;
+	timestamp_t time;
+	ulong freq_gpu_mhz;
+	ulong freq_mem_mhz;
+	ulong temp_gpu_cls; // celsius
+	ulong temp_mem_cls; // celsius
+	ulong procs_cur_n; // n
+	ulong procs_tot_n; // n
+	ulong procs_new_n; // n
+	ulong util_gpu; // percent
+	ulong util_mem; // percent
+	double energy_j;
+	double power_w;
+	uint correct;
 } gpu_energy_t;
 
-state_t energy_gpu_init(pcontext_t *c, suscription_t *s, uint loop_ms);
+state_t energy_gpu_init(pcontext_t* c, suscription_t* s, uint loop_ms);
 
-state_t energy_gpu_dispose(pcontext_t *c);
+state_t energy_gpu_dispose(pcontext_t* c);
 
-state_t energy_gpu_count(pcontext_t *c, uint *count);
+state_t energy_gpu_count(pcontext_t* c, uint* count);
 
-state_t energy_gpu_read(pcontext_t *c, gpu_energy_t *data_read);
+state_t energy_gpu_read(pcontext_t* c, gpu_energy_t* data_read);
 
-state_t energy_gpu_data_alloc(pcontext_t *c, gpu_energy_t **data_read);
+state_t energy_gpu_data_alloc(pcontext_t* c, gpu_energy_t** data_read);
 
-state_t energy_gpu_data_free(pcontext_t *c, gpu_energy_t **data_read);
+state_t energy_gpu_data_free(pcontext_t* c, gpu_energy_t** data_read);
 
-state_t energy_gpu_data_diff(pcontext_t *c, gpu_energy_t *data_read2,
-                             gpu_energy_t *data_read1);
+state_t energy_gpu_data_diff(pcontext_t* c, gpu_energy_t* data_read2, gpu_energy_t* data_read1);
 
-state_t energy_gpu_data_null(pcontext_t *c, gpu_energy_t *data_read);
+state_t energy_gpu_data_null(pcontext_t* c, gpu_energy_t* data_read);
 
-state_t energy_gpu_data_copy(pcontext_t *c, gpu_energy_t *data_dst,
-                             gpu_energy_t *data_src);
+state_t energy_gpu_data_copy(pcontext_t* c, gpu_energy_t* data_dst, gpu_energy_t* data_src);
 
 #endif

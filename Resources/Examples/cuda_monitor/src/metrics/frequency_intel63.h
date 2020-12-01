@@ -40,15 +40,15 @@
 #define MSR_IA32_MPERF 0x000000E7
 
 typedef struct frequency_effective_s {
-  void *data;
+	void* data;
 } frequency_effective_t;
 
-state_t freq_intel63_init(frequency_effective_t *ef, topology_t *tp);
+state_t freq_intel63_init(frequency_effective_t* ef, topology_t* tp);
 
-state_t freq_intel63_dispose(frequency_effective_t *ef);
+state_t freq_intel63_dispose(frequency_effective_t* ef);
 
-state_t freq_intel63_read(frequency_effective_t *ef, ulong *freq);
+state_t freq_intel63_read(frequency_effective_t* ef, ulong* freq);
 
-state_t freq_intel63_read_count(frequency_effective_t *ef, uint *count);
+state_t freq_intel63_read_count(frequency_effective_t* ef, uint* count);
 
 #endif // FREQUENCY_INTEL63_H

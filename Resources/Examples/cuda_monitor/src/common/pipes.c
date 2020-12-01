@@ -32,65 +32,64 @@
 
 static char buffer[4096];
 
-state_t pipes_open(pipe_t *p, const char *pathname, int type, int _open) {
-  if (_open) {
-    sprintf(buffer, "rm %s", pathname);
-    system(buffer);
+state_t pipes_open(pipe_t* p, const char* pathname, int type, int _open) {
+	if(_open) {
+		sprintf(buffer, "rm %s", pathname);
+		system(buffer);
 
-    if (mkfifo(pathname, 0700) < 0) {
-      return_msg(EAR_ERROR, strerror(errno));
-    }
-  }
+		if(mkfifo(pathname, 0700) < 0) {
+			return_msg(EAR_ERROR, strerror(errno));
+		}
+	}
 
-  p->fd = open(pathname, type | O_NONBLOCK);
+	p->fd = open(pathname, type | O_NONBLOCK);
 
-  if (p->fd < 0) {
-    return_msg(EAR_ERROR, strerror(errno));
-  }
+	if(p->fd < 0) {
+		return_msg(EAR_ERROR, strerror(errno));
+	}
 
-  chmod(pathname, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH | S_IWOTH);
-  p->connected = 1;
+	chmod(pathname, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH | S_IWOTH);
+	p->connected = 1;
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
-state_t pipes_close(pipe_t *p) {
-  close(p->fd);
-  return EAR_SUCCESS;
+state_t pipes_close(pipe_t* p) {
+	close(p->fd);
+	return EAR_SUCCESS;
 }
 
-state_t pipes_read(pipe_t *p, void *buffer, size_t size) {
-  size_t s;
+state_t pipes_read(pipe_t* p, void* buffer, size_t size) {
+	size_t s;
 
-  if ((s = read(p->fd, buffer, size)) != size) {
-    return_msg(EAR_ERROR, strerror(errno));
-  }
-  return EAR_SUCCESS;
+	if((s = read(p->fd, buffer, size)) != size) {
+		return_msg(EAR_ERROR, strerror(errno));
+	}
+	return EAR_SUCCESS;
 }
 
-state_t pipes_write(pipe_t *p, void *buffer, size_t size) {
-  size_t s;
-  if ((s = write(p->fd, buffer, size)) != size) {
-    return_msg(EAR_ERROR, strerror(errno));
-  }
-  return EAR_SUCCESS;
+state_t pipes_write(pipe_t* p, void* buffer, size_t size) {
+	size_t s;
+	if((s = write(p->fd, buffer, size)) != size) {
+		return_msg(EAR_ERROR, strerror(errno));
+	}
+	return EAR_SUCCESS;
 }
 
-state_t pipes_select(pipe_t *p, ulong timeout_ms) {
-  struct timeval timeout;
+state_t pipes_select(pipe_t* p, ulong timeout_ms) {
+	struct timeval timeout;
 
-  //
-  timeout.tv_sec = 0L;
-  timeout.tv_usec = timeout_ms * 1000L;
+	//
+	timeout.tv_sec = 0L;
+	timeout.tv_usec = timeout_ms * 1000L;
 
-  //
-  FD_ZERO(&p->fds_select);
-  FD_SET(p->fd, &p->fds_select);
+	//
+	FD_ZERO(&p->fds_select);
+	FD_SET(p->fd, &p->fds_select);
 
-  if ((p->state = select(p->fd + 1, &p->fds_select, NULL, NULL, &timeout)) ==
-      -1) {
-    return_msg(EAR_ERROR, strerror(errno));
-  }
+	if((p->state = select(p->fd + 1, &p->fds_select, NULL, NULL, &timeout)) == -1) {
+		return_msg(EAR_ERROR, strerror(errno));
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }

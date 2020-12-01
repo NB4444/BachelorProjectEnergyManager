@@ -27,7 +27,6 @@
  *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  *USA The GNU LEsser General Public License is contained in the file COPYING
  */
-#include "frequency_intel63.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -35,110 +34,109 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "frequency_intel63.h"
+
 #define debug(...) fprintf(stderr, __VA_ARGS__);
 
 static uint cpu_count;
 static topology_t tp;
 
 typedef struct aperf_intel63_s {
-  ulong freq_nominal;
-  ulong freq_aperf1;
-  ulong freq_aperf2;
-  ulong freq_mperf1;
-  ulong freq_mperf2;
-  uint snapped;
-  uint cpu_id;
-  uint error;
+	ulong freq_nominal;
+	ulong freq_aperf1;
+	ulong freq_aperf2;
+	ulong freq_mperf1;
+	ulong freq_mperf2;
+	uint snapped;
+	uint cpu_id;
+	uint error;
 } aperf_intel63_t;
 
-state_t freq_intel63_init(frequency_effective_t *ef, topology_t *_tp) {
-  size_t size = sizeof(aperf_intel63_t);
-  aperf_intel63_t *a;
-  state_t s;
-  int cpu;
+state_t freq_intel63_init(frequency_effective_t* ef, topology_t* _tp) {
+	size_t size = sizeof(aperf_intel63_t);
+	aperf_intel63_t* a;
+	state_t s;
+	int cpu;
 
-  // Static data
-  if (cpu_count == 0) {
-    cpu_count = _tp->core_count;
-  }
-  if (tp.cpus == NULL) {
-    if (xtate_fail(
-            s, topology_select(_tp, &tp, TPSelect.core, TPGroup.merge, 0))) {
-      return s;
-    }
-  }
+	// Static data
+	if(cpu_count == 0) {
+		cpu_count = _tp->core_count;
+	}
+	if(tp.cpus == NULL) {
+		if(xtate_fail(s, topology_select(_tp, &tp, TPSelect.core, TPGroup.merge, 0))) {
+			return s;
+		}
+	}
 
-  // Allocating space
-  if (posix_memalign((void **)&ef->data, 64, size * cpu_count) != 0) {
-    return EAR_ERROR;
-  }
+	// Allocating space
+	if(posix_memalign((void**) &ef->data, 64, size * cpu_count) != 0) {
+		return EAR_ERROR;
+	}
 
-  // Initialization
-  a = (aperf_intel63_t *)ef->data;
+	// Initialization
+	a = (aperf_intel63_t*) ef->data;
 
-  for (cpu = 0; cpu < cpu_count; ++cpu) {
-    a[cpu].cpu_id = tp.cpus[cpu].id;
-    a[cpu].freq_nominal = tp.cpus[cpu].freq_base;
+	for(cpu = 0; cpu < cpu_count; ++cpu) {
+		a[cpu].cpu_id = tp.cpus[cpu].id;
+		a[cpu].freq_nominal = tp.cpus[cpu].freq_base;
 
-    if (xtate_fail(s, msr_open(a[cpu].cpu_id))) {
-      return s;
-    }
-  }
-  return EAR_SUCCESS;
+		if(xtate_fail(s, msr_open(a[cpu].cpu_id))) {
+			return s;
+		}
+	}
+	return EAR_SUCCESS;
 }
 
-state_t freq_intel63_dispose(frequency_effective_t *ef) {
-  aperf_intel63_t *a = ef->data;
-  int cpu;
+state_t freq_intel63_dispose(frequency_effective_t* ef) {
+	aperf_intel63_t* a = ef->data;
+	int cpu;
 
-  for (cpu = 0; cpu < cpu_count; ++cpu) {
-    msr_close(a[cpu].cpu_id);
-  }
+	for(cpu = 0; cpu < cpu_count; ++cpu) {
+		msr_close(a[cpu].cpu_id);
+	}
 
-  free(a);
+	free(a);
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
-state_t freq_intel63_read(frequency_effective_t *ef, ulong *freq) {
-  ulong mperf_diff, aperf_diff, aperf_pcnt;
-  aperf_intel63_t *a = ef->data;
-  state_t result1, result2;
-  int cpu;
+state_t freq_intel63_read(frequency_effective_t* ef, ulong* freq) {
+	ulong mperf_diff, aperf_diff, aperf_pcnt;
+	aperf_intel63_t* a = ef->data;
+	state_t result1, result2;
+	int cpu;
 
-  for (cpu = 0; cpu < cpu_count; ++cpu) {
-    //
-    a[cpu].freq_mperf1 = a[cpu].freq_mperf2;
-    a[cpu].freq_aperf1 = a[cpu].freq_aperf2;
-    //
-    result1 = msr_read(a[cpu].cpu_id, &a[cpu].freq_mperf2, sizeof(ulong),
-                       MSR_IA32_MPERF);
-    result2 = msr_read(a[cpu].cpu_id, &a[cpu].freq_aperf2, sizeof(ulong),
-                       MSR_IA32_APERF);
-    //
-    mperf_diff = a[cpu].freq_mperf2 - a[cpu].freq_mperf1;
-    aperf_diff = a[cpu].freq_aperf2 - a[cpu].freq_aperf1;
-    //
-    if (((ulong)(-1LU) / 100LU) < aperf_diff) {
-      aperf_diff >>= 7;
-      mperf_diff >>= 7;
-    }
-    aperf_pcnt = (aperf_diff * 100LU) / mperf_diff;
-    //
-    a[cpu].snapped = !(result1 != EAR_SUCCESS || result2 != EAR_SUCCESS);
-    a[cpu].error = !(a[cpu].snapped);
-    //
-    freq[cpu] = (a[cpu].freq_nominal * aperf_pcnt) / 100LU;
+	for(cpu = 0; cpu < cpu_count; ++cpu) {
+		//
+		a[cpu].freq_mperf1 = a[cpu].freq_mperf2;
+		a[cpu].freq_aperf1 = a[cpu].freq_aperf2;
+		//
+		result1 = msr_read(a[cpu].cpu_id, &a[cpu].freq_mperf2, sizeof(ulong), MSR_IA32_MPERF);
+		result2 = msr_read(a[cpu].cpu_id, &a[cpu].freq_aperf2, sizeof(ulong), MSR_IA32_APERF);
+		//
+		mperf_diff = a[cpu].freq_mperf2 - a[cpu].freq_mperf1;
+		aperf_diff = a[cpu].freq_aperf2 - a[cpu].freq_aperf1;
+		//
+		if(((ulong)(-1LU) / 100LU) < aperf_diff) {
+			aperf_diff >>= 7;
+			mperf_diff >>= 7;
+		}
+		aperf_pcnt = (aperf_diff * 100LU) / mperf_diff;
+		//
+		a[cpu].snapped = !(result1 != EAR_SUCCESS || result2 != EAR_SUCCESS);
+		a[cpu].error = !(a[cpu].snapped);
+		//
+		freq[cpu] = (a[cpu].freq_nominal * aperf_pcnt) / 100LU;
 
-    if (a[cpu].error) {
-      freq[cpu] = 0LU;
-    }
-  }
+		if(a[cpu].error) {
+			freq[cpu] = 0LU;
+		}
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
-state_t freq_intel63_read_count(frequency_effective_t *ef, uint *count) {
-  *count = cpu_count;
-  return EAR_SUCCESS;
+state_t freq_intel63_read_count(frequency_effective_t* ef, uint* count) {
+	*count = cpu_count;
+	return EAR_SUCCESS;
 }

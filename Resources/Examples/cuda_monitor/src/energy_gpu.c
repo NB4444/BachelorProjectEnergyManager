@@ -33,80 +33,80 @@
 #include <metrics/energy_gpu_nvml.h>
 
 struct energy_gpu_ops {
-  state_t (*init)(pcontext_t *c);
-  state_t (*dispose)(pcontext_t *c);
-  state_t (*count)(pcontext_t *c, uint *count);
-  state_t (*read)(pcontext_t *c, gpu_energy_t *dr);
-  state_t (*data_alloc)(pcontext_t *c, gpu_energy_t **dr);
-  state_t (*data_free)(pcontext_t *c, gpu_energy_t **dr);
-  state_t (*data_null)(pcontext_t *c, gpu_energy_t *dr);
-  state_t (*data_diff)(pcontext_t *c, gpu_energy_t *dr2, gpu_energy_t *dr1);
-  state_t (*data_copy)(pcontext_t *c, gpu_energy_t *dst, gpu_energy_t *src);
+	state_t (*init)(pcontext_t* c);
+	state_t (*dispose)(pcontext_t* c);
+	state_t (*count)(pcontext_t* c, uint* count);
+	state_t (*read)(pcontext_t* c, gpu_energy_t* dr);
+	state_t (*data_alloc)(pcontext_t* c, gpu_energy_t** dr);
+	state_t (*data_free)(pcontext_t* c, gpu_energy_t** dr);
+	state_t (*data_null)(pcontext_t* c, gpu_energy_t* dr);
+	state_t (*data_diff)(pcontext_t* c, gpu_energy_t* dr2, gpu_energy_t* dr1);
+	state_t (*data_copy)(pcontext_t* c, gpu_energy_t* dst, gpu_energy_t* src);
 } ops;
 
-state_t energy_gpu_init(pcontext_t *c, suscription_t *s, uint loop_ms) {
-  state_t r;
+state_t energy_gpu_init(pcontext_t* c, suscription_t* s, uint loop_ms) {
+	state_t r;
 
-  if (state_ok(nvml_status())) {
-    ops.init = nvml_init;
-    ops.dispose = nvml_dispose;
-    ops.read = nvml_read;
-    ops.count = nvml_count;
-    ops.data_alloc = nvml_data_alloc;
-    ops.data_free = nvml_data_free;
-    ops.data_null = nvml_data_null;
-    ops.data_diff = nvml_data_diff;
-    ops.data_copy = nvml_data_copy;
-  } else {
-    return_msg(EAR_ERROR, "no energy GPU API available");
-  }
+	if(state_ok(nvml_status())) {
+		ops.init = nvml_init;
+		ops.dispose = nvml_dispose;
+		ops.read = nvml_read;
+		ops.count = nvml_count;
+		ops.data_alloc = nvml_data_alloc;
+		ops.data_free = nvml_data_free;
+		ops.data_null = nvml_data_null;
+		ops.data_diff = nvml_data_diff;
+		ops.data_copy = nvml_data_copy;
+	} else {
+		return_msg(EAR_ERROR, "no energy GPU API available");
+	}
 
-  if (xtate_fail(r, ops.init(c))) {
-    return r;
-  }
+	if(xtate_fail(r, ops.init(c))) {
+		return r;
+	}
 
-  if (s != NULL) {
-    ops.data_alloc(c, (gpu_energy_t **)&s->api_memm);
-    s->api_call = (void *)ops.read;
-    s->api_time = loop_ms;
-    s->api_cntx = c;
-    return s->suscribe(s);
-  }
+	if(s != NULL) {
+		ops.data_alloc(c, (gpu_energy_t**) &s->api_memm);
+		s->api_call = (void*) ops.read;
+		s->api_time = loop_ms;
+		s->api_cntx = c;
+		return s->suscribe(s);
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
-state_t energy_gpu_dispose(pcontext_t *c) { preturn(ops.dispose, c); }
-
-state_t energy_gpu_read(pcontext_t *c, gpu_energy_t *data_read) {
-  if (suscribed(c)) {
-    return energy_gpu_data_copy(c, data_read, sus(c)->api_memm);
-  }
-  preturn(ops.read, c, data_read);
+state_t energy_gpu_dispose(pcontext_t* c) {
+	preturn(ops.dispose, c);
 }
 
-state_t energy_gpu_count(pcontext_t *c, uint *count) {
-  preturn(ops.count, c, count);
+state_t energy_gpu_read(pcontext_t* c, gpu_energy_t* data_read) {
+	if(suscribed(c)) {
+		return energy_gpu_data_copy(c, data_read, sus(c)->api_memm);
+	}
+	preturn(ops.read, c, data_read);
 }
 
-state_t energy_gpu_data_alloc(pcontext_t *c, gpu_energy_t **data_read) {
-  preturn(ops.data_alloc, c, data_read);
+state_t energy_gpu_count(pcontext_t* c, uint* count) {
+	preturn(ops.count, c, count);
 }
 
-state_t energy_gpu_data_free(pcontext_t *c, gpu_energy_t **data_read) {
-  preturn(ops.data_free, c, data_read);
+state_t energy_gpu_data_alloc(pcontext_t* c, gpu_energy_t** data_read) {
+	preturn(ops.data_alloc, c, data_read);
 }
 
-state_t energy_gpu_data_null(pcontext_t *c, gpu_energy_t *data_read) {
-  preturn(ops.data_null, c, data_read);
+state_t energy_gpu_data_free(pcontext_t* c, gpu_energy_t** data_read) {
+	preturn(ops.data_free, c, data_read);
 }
 
-state_t energy_gpu_data_diff(pcontext_t *c, gpu_energy_t *data_read2,
-                             gpu_energy_t *data_read1) {
-  preturn(ops.data_diff, c, data_read2, data_read1);
+state_t energy_gpu_data_null(pcontext_t* c, gpu_energy_t* data_read) {
+	preturn(ops.data_null, c, data_read);
 }
 
-state_t energy_gpu_data_copy(pcontext_t *c, gpu_energy_t *data_dst,
-                             gpu_energy_t *data_src) {
-  preturn(ops.data_copy, c, data_dst, data_src);
+state_t energy_gpu_data_diff(pcontext_t* c, gpu_energy_t* data_read2, gpu_energy_t* data_read1) {
+	preturn(ops.data_diff, c, data_read2, data_read1);
+}
+
+state_t energy_gpu_data_copy(pcontext_t* c, gpu_energy_t* data_dst, gpu_energy_t* data_src) {
+	preturn(ops.data_copy, c, data_dst, data_src);
 }

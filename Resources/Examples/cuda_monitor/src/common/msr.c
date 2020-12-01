@@ -28,9 +28,6 @@
  *USA The GNU LEsser General Public License is contained in the file COPYING
  */
 
-#include "msr.h"
-#include "sizes.h"
-#include "states.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,81 +36,85 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "msr.h"
+#include "sizes.h"
+#include "states.h"
+
 #define MSR_MAX 4096
 static int counters[MSR_MAX];
 static int fds[MSR_MAX];
 
 /* */
 state_t msr_open(uint cpu) {
-  char msr_file_name[SZ_PATH_KERNEL];
+	char msr_file_name[SZ_PATH_KERNEL];
 
-  if (cpu >= MSR_MAX) {
-    return EAR_BAD_ARGUMENT;
-  }
+	if(cpu >= MSR_MAX) {
+		return EAR_BAD_ARGUMENT;
+	}
 
-  if (counters[cpu] == 0) {
-    sprintf(msr_file_name, "/dev/cpu/%d/msr", cpu);
-    fds[cpu] = open(msr_file_name, O_RDWR);
-  }
+	if(counters[cpu] == 0) {
+		sprintf(msr_file_name, "/dev/cpu/%d/msr", cpu);
+		fds[cpu] = open(msr_file_name, O_RDWR);
+	}
 
-  if (fds[cpu] < 0) {
-    return EAR_OPEN_ERROR;
-  }
+	if(fds[cpu] < 0) {
+		return EAR_OPEN_ERROR;
+	}
 
-  counters[cpu] += 1;
+	counters[cpu] += 1;
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
 /* */
 state_t msr_close(uint cpu) {
-  if (cpu >= MSR_MAX) {
-    return EAR_BAD_ARGUMENT;
-  }
+	if(cpu >= MSR_MAX) {
+		return EAR_BAD_ARGUMENT;
+	}
 
-  if (counters[cpu] == 0) {
-    return EAR_ALREADY_CLOSED;
-  }
+	if(counters[cpu] == 0) {
+		return EAR_ALREADY_CLOSED;
+	}
 
-  counters[cpu] -= 1;
+	counters[cpu] -= 1;
 
-  if (counters[cpu] == 0) {
-    close(fds[cpu]);
-  }
+	if(counters[cpu] == 0) {
+		close(fds[cpu]);
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
 /* */
-state_t msr_read(uint cpu, void *buffer, size_t size, off_t offset) {
-  if (cpu >= MSR_MAX) {
-    return EAR_BAD_ARGUMENT;
-  }
+state_t msr_read(uint cpu, void* buffer, size_t size, off_t offset) {
+	if(cpu >= MSR_MAX) {
+		return EAR_BAD_ARGUMENT;
+	}
 
-  if (counters[cpu] == 0) {
-    return EAR_NOT_INITIALIZED;
-  }
+	if(counters[cpu] == 0) {
+		return EAR_NOT_INITIALIZED;
+	}
 
-  if (pread(fds[cpu], buffer, size, offset) != size) {
-    return EAR_READ_ERROR;
-  }
+	if(pread(fds[cpu], buffer, size, offset) != size) {
+		return EAR_READ_ERROR;
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }
 
 /* */
-state_t msr_write(uint cpu, const void *buffer, size_t size, off_t offset) {
-  if (cpu >= MSR_MAX) {
-    return EAR_BAD_ARGUMENT;
-  }
+state_t msr_write(uint cpu, const void* buffer, size_t size, off_t offset) {
+	if(cpu >= MSR_MAX) {
+		return EAR_BAD_ARGUMENT;
+	}
 
-  if (counters[cpu] == 0) {
-    return EAR_NOT_INITIALIZED;
-  }
+	if(counters[cpu] == 0) {
+		return EAR_NOT_INITIALIZED;
+	}
 
-  if (pwrite(fds[cpu], buffer, size, offset) != size) {
-    return EAR_ERROR;
-  }
+	if(pwrite(fds[cpu], buffer, size, offset) != size) {
+		return EAR_ERROR;
+	}
 
-  return EAR_SUCCESS;
+	return EAR_SUCCESS;
 }

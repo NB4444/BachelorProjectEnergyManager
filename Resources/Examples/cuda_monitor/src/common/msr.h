@@ -31,9 +31,10 @@
 #ifndef EAR_MSR_H
 #define EAR_MSR_H
 
+#include <unistd.h>
+
 #include "states.h"
 #include "types.h"
-#include <unistd.h>
 
 #define msr_clean(fd) *fd = -1
 
@@ -44,9 +45,9 @@ state_t msr_open(uint cpu);
 state_t msr_close(uint cpu);
 
 /* */
-state_t msr_read(uint cpu, void *buffer, size_t count, off_t offset);
+state_t msr_read(uint cpu, void* buffer, size_t count, off_t offset);
 
 /* */
-state_t msr_write(uint cpu, const void *buffer, size_t count, off_t offset);
+state_t msr_write(uint cpu, const void* buffer, size_t count, off_t offset);
 
 #endif // EAR_MSR_H

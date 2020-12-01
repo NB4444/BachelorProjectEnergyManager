@@ -28,8 +28,6 @@
  *USA The GNU LEsser General Public License is contained in the file COPYING
  */
 
-#include "states.h"
-#include "time.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,11 +36,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "states.h"
+#include "time.h"
+
 typedef struct pipe_s {
-  fd_set fds_select;
-  int connected;
-  int state;
-  int fd;
+	fd_set fds_select;
+	int connected;
+	int state;
+	int fd;
 } pipe_t;
 
 #define PIPES_RO O_RDONLY
@@ -51,12 +52,12 @@ typedef struct pipe_s {
 
 #define pipes_ready(p) p.state == 1
 
-state_t pipes_open(pipe_t *p, const char *pathname, int type, int open);
+state_t pipes_open(pipe_t* p, const char* pathname, int type, int open);
 
-state_t pipes_close(pipe_t *p);
+state_t pipes_close(pipe_t* p);
 
-state_t pipes_read(pipe_t *p, void *buffer, size_t size);
+state_t pipes_read(pipe_t* p, void* buffer, size_t size);
 
-state_t pipes_write(pipe_t *p, void *buffer, size_t size);
+state_t pipes_write(pipe_t* p, void* buffer, size_t size);
 
-state_t pipes_select(pipe_t *p, ulong timeout_s);
+state_t pipes_select(pipe_t* p, ulong timeout_s);

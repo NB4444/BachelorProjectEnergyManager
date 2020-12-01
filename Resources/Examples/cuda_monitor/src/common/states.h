@@ -49,7 +49,7 @@
 typedef int state_t;
 
 /* global data */
-const char *state_msg;
+const char* state_msg;
 
 #define state_ok(state) state == EAR_SUCCESS
 
@@ -57,11 +57,11 @@ const char *state_msg;
 
 #define state_is(state1, state2) state1 == state2
 
-#define return_msg(no, msg)                                                    \
-  {                                                                            \
-    state_msg = msg;                                                           \
-    return no;                                                                 \
-  }
+#define return_msg(no, msg) \
+	{ \
+		state_msg = msg; \
+		return no; \
+	}
 
 #define xtate_fail(s, function) (s = function) != EAR_SUCCESS
 
@@ -103,9 +103,9 @@ int intern_error_num;
 
 #define state_return(state) return state;
 
-#define state_return_msg(state, error_num, error_str)                          \
-  intern_error_num = error_num;                                                \
-  intern_error_str = error_str;                                                \
-  return state;
+#define state_return_msg(state, error_num, error_str) \
+	intern_error_num = error_num; \
+	intern_error_str = error_str; \
+	return state;
 
 #endif // STATES_H

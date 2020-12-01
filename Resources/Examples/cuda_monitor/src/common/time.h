@@ -31,8 +31,9 @@
 #ifndef EAR_COMMON_TIME_H
 #define EAR_COMMON_TIME_H
 
-#include "types.h"
 #include <time.h>
+
+#include "types.h"
 
 // Time units
 #define TIME_SECS 1000000000
@@ -49,37 +50,37 @@ typedef struct timespec timestamp_t;
  *	- The monotonic timestamp is used to measure the elapsed time. Its value
  *is related with the system boot time, not to the system date.
  */
-void timestamp_get(timestamp *ts);
+void timestamp_get(timestamp* ts);
 
 /* Returns a monotonic timestamp
  * 	- precision: ns
  * 	- resolution: 1ns
  */
-void timestamp_getprecise(timestamp *ts);
+void timestamp_getprecise(timestamp* ts);
 
 /* Returns a monotonic timestamp
  * 	- precision: ns
  * 	- resolution: 1-4ms
  * 	- Performance: 5x faster than 'time_gettimestamp_precise'
  */
-void timestamp_getfast(timestamp *ts);
+void timestamp_getfast(timestamp* ts);
 
 /* Realtime timestamp
  *	- Used to get the system time (or date) in timestamp format.
  */
-void timestamp_getreal(timestamp *ts);
+void timestamp_getreal(timestamp* ts);
 
 /* A combination of getfast and convert. */
-ullong timestamp_getfast_convert(timestamp_t *ts, ullong time_unit);
+ullong timestamp_getfast_convert(timestamp_t* ts, ullong time_unit);
 
 /* Converts timestamp_t format to ullong in the selected time units. */
-ullong timestamp_convert(timestamp *ts, ullong time_unit);
+ullong timestamp_convert(timestamp* ts, ullong time_unit);
 
 /* Converts ullong raw format to timestamp_t in the selected time units. */
-void timestamp_revert(timestamp *ts, ullong *tr, ullong time_unit);
+void timestamp_revert(timestamp* ts, ullong* tr, ullong time_unit);
 
 /* Computes the difference between two timestamp_t values (ts2-ts1) and converts
  * to the selected time units. time_unit=1 means ns. */
-ullong timestamp_diff(timestamp *ts2, timestamp *ts1, ullong time_unit);
+ullong timestamp_diff(timestamp* ts2, timestamp* ts1, ullong time_unit);
 
 #endif // EAR_COMMON_TIME_H

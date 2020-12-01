@@ -35,34 +35,34 @@
 #include "common/states.h"
 #include "common/types.h"
 
-#define sus(context) ((suscription_t *)context->suscription)
+#define sus(context) ((suscription_t*) context->suscription)
 
 #define suscribed(context) context->suscribed == 1
 
-typedef state_t (*read_f)(api_ctx_t *, void *);
-typedef state_t (*suscription_f)(void *);
+typedef state_t (*read_f)(api_ctx_t*, void*);
+typedef state_t (*suscription_f)(void*);
 
 typedef struct suscription_s {
-  suscription_f suscribe;
-  api_ctx_t *api_cntx;
-  read_f api_call;
-  void *api_memm;
-  uint api_time;
-  uint id;
+	suscription_f suscribe;
+	api_ctx_t* api_cntx;
+	read_f api_call;
+	void* api_memm;
+	uint api_time;
+	uint id;
 } suscription_t;
 
 state_t suscriptor_init();
 
-state_t suscriptor_suscribe(void *suscription);
+state_t suscriptor_suscribe(void* suscription);
 
-state_t suscriptor_burst(void *suscription, ullong time_ms);
+state_t suscriptor_burst(void* suscription, ullong time_ms);
 
-state_t suscriptor_relax(void *suscription);
+state_t suscriptor_relax(void* suscription);
 
-suscription_t *suscription();
+suscription_t* suscription();
 
 struct monitor_s {
-  suscription_t *(*suscription)();
-} Monitor __attribute__((weak)) = {.suscription = suscription};
+	suscription_t* (*suscription)();
+} Monitor __attribute__((weak)) = { .suscription = suscription };
 
 #endif // EAR_STASH_MONITOR_H

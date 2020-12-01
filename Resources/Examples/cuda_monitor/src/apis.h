@@ -34,18 +34,18 @@
 #define pcontext_t api_ctx_t
 
 typedef struct api_ctx_s {
-  void *context;
-  void *suscription;
-  int initialized;
-  int suscribed;
+	void* context;
+	void* suscription;
+	int initialized;
+	int suscribed;
 } api_ctx_t;
 
-#define api_clean(ctx) ctx = (api_ctx_t){0};
+#define api_clean(ctx) ctx = (api_ctx_t) { 0 };
 
-#define preturn(call, ...)                                                     \
-  if (call == NULL) {                                                          \
-    return EAR_UNDEFINED;                                                      \
-  }                                                                            \
-  return call(__VA_ARGS__);
+#define preturn(call, ...) \
+	if(call == NULL) { \
+		return EAR_UNDEFINED; \
+	} \
+	return call(__VA_ARGS__);
 
 #endif // COMMON_APIS_H

@@ -28,146 +28,155 @@
  *USA The GNU LEsser General Public License is contained in the file COPYING
  */
 
-#include "apis_suscriptor.h"
-#include "common/pipes.h"
-#include "common/string_enhanced.h"
-#include "energy_gpu.h"
-#include "metrics/frequency_intel63.h"
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#define test(f)                                                                \
-  if (state_fail(s)) {                                                         \
-    printf("%s: %d (%s)\n", f, s, state_msg);                                  \
-    exit(-1);                                                                  \
-  }
+#include "apis_suscriptor.h"
+#include "common/pipes.h"
+#include "common/string_enhanced.h"
+#include "energy_gpu.h"
+#include "metrics/frequency_intel63.h"
 
-int main(int argc, char *argv[]) {
-  frequency_effective_t data_fe;
-  gpu_energy_t *data_aux1;
-  gpu_energy_t *data_aux2;
-  topology_t data_tp1;
-  topology_t data_tp2;
-  api_ctx_t ctx_gpu;
-  ulong freqs[1024];
-  ulong timeout_ms;
-  uint gpu_count;
-  uint cpu_count;
-  uint message;
-  pipe_t pipes;
-  uint burst;
-  uint procs;
-  state_t s;
-  int i;
-  int j;
+#define test(f) \
+	if(state_fail(s)) { \
+		printf("%s: %d (%s)\n", f, s, state_msg); \
+		exit(-1); \
+	}
 
-  //
-  api_clean(ctx_gpu);
-  // GPU
-  s = energy_gpu_init(&ctx_gpu, Monitor.suscription(), 1000);
-  test("energy_gpu_init");
-  s = energy_gpu_data_alloc(&ctx_gpu, &data_aux1);
-  test("energy_gpu_data_alloc");
-  s = energy_gpu_data_alloc(&ctx_gpu, &data_aux2);
-  test("energy_gpu_data_alloc");
-  s = energy_gpu_count(&ctx_gpu, &gpu_count);
-  test("energy_gpu_count");
-  // CPU Topology
-  s = topology_init(&data_tp1);
-  test("topology_init");
-  // CPU Effective frequency
-  s = freq_intel63_init(&data_fe, &data_tp1);
-  test("freq_intel63_init");
-  s = freq_intel63_read_count(&data_fe, &cpu_count);
-  test("freq_intel63_read_count");
-  s = topology_select(&data_tp1, &data_tp2, TPSelect.core, TPGroup.merge, 0);
-  test("topology_select");
-  // Suscriptor
-  s = suscriptor_init();
-  test("suscriptor_init");
-  // Pipes
-  s = pipes_open(&pipes, "./gpus.pipe", PIPES_RW, 1);
-  test("pipes_init");
+int main(int argc, char* argv[]) {
+	frequency_effective_t data_fe;
+	gpu_energy_t* data_aux1;
+	gpu_energy_t* data_aux2;
+	topology_t data_tp1;
+	topology_t data_tp2;
+	api_ctx_t ctx_gpu;
+	ulong freqs[1024];
+	ulong timeout_ms;
+	uint gpu_count;
+	uint cpu_count;
+	uint message;
+	pipe_t pipes;
+	uint burst;
+	uint procs;
+	state_t s;
+	int i;
+	int j;
 
-  //
-  timeout_ms = 1000LU;
-  timestamp_t t2;
-  ulong ts;
+	//
+	api_clean(ctx_gpu);
+	// GPU
+	s = energy_gpu_init(&ctx_gpu, Monitor.suscription(), 1000);
+	test("energy_gpu_init");
+	s = energy_gpu_data_alloc(&ctx_gpu, &data_aux1);
+	test("energy_gpu_data_alloc");
+	s = energy_gpu_data_alloc(&ctx_gpu, &data_aux2);
+	test("energy_gpu_data_alloc");
+	s = energy_gpu_count(&ctx_gpu, &gpu_count);
+	test("energy_gpu_count");
+	// CPU Topology
+	s = topology_init(&data_tp1);
+	test("topology_init");
+	// CPU Effective frequency
+	s = freq_intel63_init(&data_fe, &data_tp1);
+	test("freq_intel63_init");
+	s = freq_intel63_read_count(&data_fe, &cpu_count);
+	test("freq_intel63_read_count");
+	s = topology_select(&data_tp1, &data_tp2, TPSelect.core, TPGroup.merge, 0);
+	test("topology_select");
+	// Suscriptor
+	s = suscriptor_init();
+	test("suscriptor_init");
+	// Pipes
+	s = pipes_open(&pipes, "./gpus.pipe", PIPES_RW, 1);
+	test("pipes_init");
 
-  tprintf_init(fderr, STR_MODE_DEF, "5 12 8 8 7 6 5 5 5 4 4 4 4 4");
+	//
+	timeout_ms = 1000LU;
+	timestamp_t t2;
+	ulong ts;
 
-  while (1) {
-    s = energy_gpu_read(&ctx_gpu, data_aux1);
-    test("energy_gpu_read");
+	tprintf_init(fderr, STR_MODE_DEF, "5 12 8 8 7 6 5 5 5 4 4 4 4 4");
 
-    // Select
-    s = pipes_select(&pipes, timeout_ms);
-    test("pipes_select");
+	while(1) {
+		s = energy_gpu_read(&ctx_gpu, data_aux1);
+		test("energy_gpu_read");
 
-    if (pipes_ready(pipes)) {
-      s = pipes_read(&pipes, &message, sizeof(uint));
-      test("pipes_read");
+		// Select
+		s = pipes_select(&pipes, timeout_ms);
+		test("pipes_select");
 
-      printf("MESSAGE: GPUs are running (%d)\n", message);
-      s = suscriptor_burst(ctx_gpu.suscription, 100);
-      test("suscriptor_burst");
-      timeout_ms = 200LU;
-      burst = message;
-    }
+		if(pipes_ready(pipes)) {
+			s = pipes_read(&pipes, &message, sizeof(uint));
+			test("pipes_read");
 
-    s = energy_gpu_read(&ctx_gpu, data_aux2);
-    test("energy_gpu_read");
-    s = energy_gpu_data_diff(&ctx_gpu, data_aux2, data_aux1);
-    test("energy_gpu_data_diff");
+			printf("MESSAGE: GPUs are running (%d)\n", message);
+			s = suscriptor_burst(ctx_gpu.suscription, 100);
+			test("suscriptor_burst");
+			timeout_ms = 200LU;
+			burst = message;
+		}
 
-    // Counting GPU processes
-    procs = 0;
+		s = energy_gpu_read(&ctx_gpu, data_aux2);
+		test("energy_gpu_read");
+		s = energy_gpu_data_diff(&ctx_gpu, data_aux2, data_aux1);
+		test("energy_gpu_data_diff");
 
-    for (i = 0; i < gpu_count; ++i) {
-      if (data_aux2[i].samples > 0) {
-        ts = timestamp_getfast_convert(&t2, TIME_MSECS);
+		// Counting GPU processes
+		procs = 0;
 
-        // tprintf("gpu%u||%lu||%0.2lf||%0.2lf||%lu||%lu||%2lu%%||%lu%%||%lu||%lu||%lu||%lu||%lu||%lu",
-        fprintf(
-            stderr,
-            "gpu%u;%lu;%0.2lf;%0.2lf;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu\n",
-            i, ts, data_aux2[i].energy_j, data_aux2[i].power_w,
-            data_aux2[i].freq_gpu_mhz, data_aux2[i].freq_mem_mhz,
-            data_aux2[i].util_gpu, data_aux2[i].util_mem,
-            data_aux2[i].temp_gpu_cls, data_aux2[i].temp_mem_cls,
-            data_aux2[i].procs_new_n, data_aux2[i].procs_cur_n,
-            data_aux2[i].procs_tot_n, data_aux2[i].samples);
+		for(i = 0; i < gpu_count; ++i) {
+			if(data_aux2[i].samples > 0) {
+				ts = timestamp_getfast_convert(&t2, TIME_MSECS);
 
-        procs += data_aux2[i].procs_cur_n;
-      }
-    }
+				// tprintf("gpu%u||%lu||%0.2lf||%0.2lf||%lu||%lu||%2lu%%||%lu%%||%lu||%lu||%lu||%lu||%lu||%lu",
+				fprintf(
+					stderr,
+					"gpu%u;%lu;%0.2lf;%0.2lf;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu;%lu\n",
+					i,
+					ts,
+					data_aux2[i].energy_j,
+					data_aux2[i].power_w,
+					data_aux2[i].freq_gpu_mhz,
+					data_aux2[i].freq_mem_mhz,
+					data_aux2[i].util_gpu,
+					data_aux2[i].util_mem,
+					data_aux2[i].temp_gpu_cls,
+					data_aux2[i].temp_mem_cls,
+					data_aux2[i].procs_new_n,
+					data_aux2[i].procs_cur_n,
+					data_aux2[i].procs_tot_n,
+					data_aux2[i].samples);
 
-    if (procs == 0 && burst == 1) {
-      s = suscriptor_relax(ctx_gpu.suscription);
-      test("suscriptor_relax");
-      timeout_ms = 1000LU;
-      burst = 0;
-    } else if (procs > 0 && burst == 0) {
-      s = suscriptor_burst(ctx_gpu.suscription, 100);
-      test("suscriptor_burst");
-      timeout_ms = 200LU;
-      burst = 1;
-    }
+				procs += data_aux2[i].procs_cur_n;
+			}
+		}
 
-    // Frequencies
-    s = freq_intel63_read(&data_fe, freqs);
-    test("freq_intel63_read");
+		if(procs == 0 && burst == 1) {
+			s = suscriptor_relax(ctx_gpu.suscription);
+			test("suscriptor_relax");
+			timeout_ms = 1000LU;
+			burst = 0;
+		} else if(procs > 0 && burst == 0) {
+			s = suscriptor_burst(ctx_gpu.suscription, 100);
+			test("suscriptor_burst");
+			timeout_ms = 200LU;
+			burst = 1;
+		}
 
-    for (j = 0; j < data_tp2.socket_count; ++j) {
-      fprintf(stderr, "soc%d;%lu", j, ts);
-      for (i = 0; i < cpu_count; ++i) {
-        fprintf(stderr, ";%1.1lf", ((double)freqs[i]) / 1000000.0);
-      }
-      fprintf(stderr, "\n");
-    }
-  }
+		// Frequencies
+		s = freq_intel63_read(&data_fe, freqs);
+		test("freq_intel63_read");
 
-  return s;
+		for(j = 0; j < data_tp2.socket_count; ++j) {
+			fprintf(stderr, "soc%d;%lu", j, ts);
+			for(i = 0; i < cpu_count; ++i) {
+				fprintf(stderr, ";%1.1lf", ((double) freqs[i]) / 1000000.0);
+			}
+			fprintf(stderr, "\n");
+		}
+	}
+
+	return s;
 }

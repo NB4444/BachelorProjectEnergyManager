@@ -55,12 +55,12 @@
 char tprintf_ibuf[STR_SIZE_BUFFER];
 char tprintf_obuf[STR_SIZE_BUFFER];
 
-#define tprintf(...)                                                           \
-  snprintf(tprintf_ibuf, STR_SIZE_BUFFER - 1, __VA_ARGS__);                    \
-  tprintf_format();
+#define tprintf(...) \
+	snprintf(tprintf_ibuf, STR_SIZE_BUFFER - 1, __VA_ARGS__); \
+	tprintf_format();
 
 /** **/
-int tprintf_init(int fd, int mode, char *format);
+int tprintf_init(int fd, int mode, char* format);
 
 /** **/
 int tprintf_format();
@@ -69,19 +69,19 @@ int tprintf_format();
 void tprintf_close();
 
 /** Cleans the character pointed by 'chr', adding an '\0' in its position. */
-char *strclean(char *string, char chr);
+char* strclean(char* string, char chr);
 
 /** Converts a string to lower case. */
-void strtolow(char *string);
+void strtolow(char* string);
 
 /** Converts a string to upper case. */
-void strtoup(char *string);
+void strtoup(char* string);
 
 /** Compares if the string2 is included in the string 1 regardless they are
  * upper or lowercase */
-int strinc(const char *string1, const char *string2);
+int strinc(const char* string1, const char* string2);
 
 /** Removes characters c from string s. */
-void remove_chars(char *s, char c);
+void remove_chars(char* s, char c);
 
 #endif
