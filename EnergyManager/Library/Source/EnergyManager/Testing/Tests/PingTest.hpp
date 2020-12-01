@@ -2,8 +2,8 @@
 
 #include "EnergyManager/Testing/Tests/ApplicationTest.hpp"
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace EnergyManager {
 	namespace Testing {
