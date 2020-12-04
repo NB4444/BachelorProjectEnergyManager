@@ -4,6 +4,7 @@
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 
 namespace EnergyManager {
@@ -73,6 +74,16 @@ namespace EnergyManager {
 				gethostname(hostname, BUFSIZ);
 
 				return hostname;
+			}
+
+			/**
+			 * Checks if a file exists.
+			 * @param path The path to the file.
+			 * @return Whether the file exists.
+			 */
+			static bool fileExists(const std::string& path) {
+				struct stat buffer {};
+				return (stat(path.c_str(), &buffer) == 0);
 			}
 		}
 	}

@@ -17,6 +17,7 @@ namespace EnergyManager {
 											   "-hB=" + profile.at("matrixBHeight") },
 					{ core_ },
 					gpu_,
+					true,
 					true)
 					.run();
 			}

@@ -15,6 +15,7 @@ include(Dependencies.cmake)
 # Add targets
 add_subdirectory(Library)
 add_subdirectory(Profiling)
+add_subdirectory(Reporter)
 add_subdirectory(Tests)
 add_subdirectory(Training)
 add_subdirectory(Visualizer)

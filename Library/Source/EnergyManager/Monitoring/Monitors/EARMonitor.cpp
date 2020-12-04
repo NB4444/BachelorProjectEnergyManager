@@ -10,7 +10,11 @@
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
+			std::mutex EARMonitor::mutex_;
+
 			std::map<std::string, std::string> EARMonitor::getEARValues() const {
+				std::lock_guard<std::mutex> lock(mutex_);
+
 				if(slurmJobID_ < 0) {
 					return {};
 				}
@@ -18,22 +22,22 @@ namespace EnergyManager {
 				const auto csvFileName = "ear.csv.tmp";
 
 				// Contact the EAR accounting tool and store the data in CSV format
-				logTrace("Looking for EAR job with ID %d.%d", slurmJobID_, slurmStepID_);
+				logDebug("Looking for EAR job with ID %d.%d", slurmJobID_, slurmStepID_);
 				Utility::Application earAccountingTool(EAR_EACCT, { "-j", Utility::Text::toString(slurmJobID_) + "." + Utility::Text::toString(slurmStepID_), "-c", csvFileName });
 				earAccountingTool.run(false);
 				auto output = Utility::Text::trim(earAccountingTool.getExecutableOutput());
 
 				if(output == "No jobs found.") {
-					logTrace("No data available yet");
+					logDebug("No data available yet");
 					return {};
 				} else {
-					logTrace("Found EAR data, loading...");
+					logDebug("Found EAR data, loading...");
 					const auto earData = Utility::Text::readFile(csvFileName);
 
-					logTrace("Parsing EAR data...");
+					logDebug("Parsing EAR data...");
 					const auto data = Utility::Text::parseTable(earData, "\n", ";");
 
-					logTrace("EAR data: {%s}", Utility::Text::join(data[0], ", ", ": ").c_str());
+					logDebug("EAR data: {%s}", Utility::Text::join(data[0], ", ", ": ").c_str());
 
 					return data[0];
 				}

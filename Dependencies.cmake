@@ -4,41 +4,31 @@ include(ExternalProject)
 find_package(Threads REQUIRED)
 message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
 
-## Configure MPI
-#find_path(
-#        MPI_INCLUDE_DIRECTORY
-#        NAMES mpi.h
-#        PATHS "/hpc/base/platform/mpi/8.1.1/include"
-#)
-#find_library(
-#        MPI_LIBRARY
-#        NAMES libmpi mpi
-#        PATHS "/hpc/base/platform/mpi/8.1.1/lib/linux_amd64"
-#)
-##find_package(MPI REQUIRED PATHS "/hpc/base/platform/mpi/8.1.1")
-##set(MPI_INCLUDE_DIRECTORY "${MPI_CXX_INCLUDE_DIRS}")
-##set(MPI_LIBRARY "${MPI_CXX_LIBRARIES}")
-#message(STATUS "MPI include directory: ${MPI_INCLUDE_DIRECTORY}")
-#message(STATUS "MPI library: ${MPI_LIBRARY}")
-
-# Set up CUDA paths
+# Set up CUDA
 find_package(CUDA 10.1 REQUIRED)
 set(CUDA_DIRECTORY "${CUDA_TOOLKIT_ROOT_DIR}")
 set(CUDA_BINARY_DIRECTORY "${CUDA_DIRECTORY}/bin")
 #set(CUDA_SAMPLES_DIRECTORY "${CUDA_DIRECTORY}/samples")
 set(CUDA_SAMPLES_DIRECTORY "/home/xqbakker/cuda-10.1/samples")
+set(CUDA_CUPTI_SAMPLES_DIRECTORY "/home/xqbakker/cuda-10.1/extras/CUPTI/samples")
+find_library(CUDA_LIBRARY cuda PATHS "${CUDA_DIRECTORY}/lib64/stubs" "${CUDA_DIRECTORY}/lib/stubs")
 set(CUDA_NVML_LIBRARY "${CUDA_DIRECTORY}/lib64/stubs/libnvidia-ml.so")
-set(CUDA_RUNTIME_LIBRARY "${CMAKE_CUDA_RUNTIME_LIBRARY}")
-set(CUDA_STATIC_RUNTIME_LIBRARY "${CUDA_DIRECTORY}/lib64/libcudart.so")
-set(CUDA_CUPTI_LIBRARY "${CUDA_cupti_LIBRARY}")
+set(CUDA_RUNTIME_LIBRARY "${CUDA_LIBRARIES}")
+#set(CUDA_STATIC_RUNTIME_LIBRARY "${CUDA_DIRECTORY}/lib64/libcudart.so")
+set(CUDA_STATIC_RUNTIME_LIBRARY "${CUDA_cudart_static_LIBRARY}")
 set(CUDA_CUPTI_INCLUDE_DIRECTORY "${CUDA_DIRECTORY}/extras/CUPTI/include")
+set(CUDA_CUPTI_LIBRARY_DIRECTORY "${CUDA_DIRECTORY}/extras/CUPTI/lib64")
+set(CUDA_CUPTI_LIBRARY "${CUDA_cupti_LIBRARY}" "${CUDA_CUPTI_LIBRARY_DIRECTORY}/libnvperf_host.so" "${CUDA_CUPTI_LIBRARY_DIRECTORY}/libnvperf_target.so")
 find_program(CUDA_COMPILER "nvcc" PATHS "${CUDA_BINARY_DIRECTORY}")
 add_compile_definitions(CUDA_SAMPLES_DIRECTORY="${CUDA_SAMPLES_DIRECTORY}")
+add_compile_definitions(CUDA_CUPTI_SAMPLES_DIRECTORY="${CUDA_CUPTI_SAMPLES_DIRECTORY}")
 message(STATUS "CUDA directory: ${CUDA_DIRECTORY}")
 message(STATUS "CUDA binary directory: ${CUDA_BINARY_DIRECTORY}")
+message(STATUS "CUDA library: ${CUDA_LIBRARY}")
 message(STATUS "CUDA NVML library: ${CUDA_NVML_LIBRARY}")
 message(STATUS "CUDA runtime library: ${CUDA_RUNTIME_LIBRARY}")
 message(STATUS "CUDA static runtime library: ${CUDA_STATIC_RUNTIME_LIBRARY}")
+message(STATUS "CUDA CUPTI library directory: ${CUDA_CUPTI_LIBRARY_DIRECTORY}")
 message(STATUS "CUDA CUPTI library: ${CUDA_CUPTI_LIBRARY}")
 message(STATUS "CUDA compiler: ${CUDA_COMPILER}")
 message(STATUS "CUDA samples directory: ${CUDA_SAMPLES_DIRECTORY}")
@@ -48,6 +38,11 @@ set(CMAKE_CUDA_COMPILER "${CUDA_COMPILER}")
 message(STATUS "CUDA compiler: ${CUDA_COMPILER}")
 set(CMAKE_CUDA_HOST_COMPILER "${GXX_COMPILER}")
 enable_language(CUDA)
+
+# Integrate CUPTI with the reporter
+set(REPORTER_LIBRARY_DEPENDENCIES "${CUDA_CUPTI_LIBRARY_DIRECTORY}")
+add_compile_definitions(REPORTER_LIBRARY_DEPENDENCIES="${REPORTER_LIBRARY_DEPENDENCIES}")
+message(STATUS "Reporter library dependencies: ${REPORTER_LIBRARY_DEPENDENCIES}")
 
 # Configure Nvidia Code Samples
 set(NVIDIA_CODE_SAMPLES_DIRECTORY "/home/xqbakker/code-samples")

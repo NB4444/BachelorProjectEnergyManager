@@ -26,6 +26,16 @@ namespace EnergyManager {
 			}
 
 			/**
+             * Converts a bool to a string.
+             * @param value The bool.
+             * @return A string representation.
+             */
+			template<>
+			std::string toString<bool>(const bool& value) {
+				return std::to_string(value);
+			}
+
+			/**
              * Converts an unsigned int to a string.
              * @param value The unsigned int.
              * @return A string representation.
@@ -73,6 +83,35 @@ namespace EnergyManager {
 			template<>
 			std::string toString<double>(const double& value) {
 				return std::to_string(value);
+			}
+
+			/**
+             * Converts a duration to a string.
+             * @param value The duration.
+             * @return A string representation.
+             */
+			template<>
+			std::string toString<std::chrono::system_clock::duration>(const std::chrono::system_clock::duration& value) {
+				return std::to_string(value.count());
+			}
+
+			/**
+             * Converts a time point to a string.
+             * @param value The time point.
+             * @return A string representation.
+             */
+			template<>
+			std::string toString<std::chrono::system_clock::time_point>(const std::chrono::system_clock::time_point& value) {
+				return std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(value.time_since_epoch()).count());
+			}
+
+			/**
+			 * Converts a string to a time point.
+			 * @param value The string.
+			 * @return A time point representation.
+			 */
+			static std::chrono::system_clock::time_point timestampFromString(const std::string& value) {
+				return std::chrono::system_clock::time_point(std::chrono::nanoseconds(std::stoull(value)));
 			}
 
 			/**
@@ -585,21 +624,24 @@ namespace EnergyManager {
 				const auto rows = splitToVector(table, rowDelimiter);
 				std::vector<std::string> headers = {};
 				for(const auto& row : rows) {
-					const auto cells = splitToVector(row, columnDelimiter);
+					// Only process rows that contain data
+					if(!row.empty()) {
+						const auto cells = splitToVector(row, columnDelimiter);
 
-					// Set the headers if not yet set
-					if(headers.empty()) {
-						headers = cells;
-					} else {
-						// Add the row
-						result.emplace_back();
+						// Set the headers if not yet set
+						if(headers.empty()) {
+							headers = cells;
+						} else {
+							// Add the row
+							result.emplace_back();
 
-						// Add the cells
-						for(unsigned int cellIndex = 0; cellIndex < cells.size(); ++cellIndex) {
-							const auto& header = headers[cellIndex];
-							const auto& cell = cells[cellIndex];
+							// Add the cells
+							for(unsigned int cellIndex = 0; cellIndex < cells.size(); ++cellIndex) {
+								const auto& header = headers[cellIndex];
+								const auto& cell = cells[cellIndex];
 
-							result.back()[header] = cell;
+								result.back()[header] = cell;
+							}
 						}
 					}
 				}

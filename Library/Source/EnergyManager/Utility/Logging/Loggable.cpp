@@ -94,7 +94,7 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
-			void Loggable::logError(const std::vector<std::string>& headers, std::string format, std::string file, int line, ...) const {
+			void Loggable::logError(const std::vector<std::string>& headers, const std::string& format, const std::string& file, int line, ...) const {
 				auto allHeaders = getHeaders();
 				allHeaders.insert(allHeaders.end(), headers.begin(), headers.end());
 
@@ -104,7 +104,7 @@ namespace EnergyManager {
 				va_end(arguments);
 			}
 
-			void Loggable::logError(std::string format, std::string file, int line, ...) const {
+			void Loggable::logError(const std::string& format, const std::string& file, int line, ...) const {
 				va_list arguments;
 				va_start(arguments, line);
 				vlog(Level::ERROR, getHeaders(), file + ":" + std::to_string(line) + ": " + format, arguments);

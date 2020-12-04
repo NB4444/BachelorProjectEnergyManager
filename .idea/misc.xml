@@ -5,6 +5,7 @@
     <sourceRoots>
       <file path="$PROJECT_DIR$/Library/Console/Source" />
       <file path="$PROJECT_DIR$/Library/Source" />
+      <file path="$PROJECT_DIR$/Profiling/ActivityTrace/Source" />
       <file path="$PROJECT_DIR$/Profiling/All/Source" />
       <file path="$PROJECT_DIR$/Profiling/BFS/Source" />
       <file path="$PROJECT_DIR$/Profiling/CUBLAS/Source" />

@@ -1,5 +1,25 @@
 include(ExternalProject)
 
+# Configure MPI
+#find_path(
+#        MPI_INCLUDE_DIRECTORY
+#        NAMES mpi.h
+#        PATHS "/hpc/base/platform/mpi/8.1.1/include"
+#)
+#find_library(
+#        MPI_LIBRARY
+#        NAMES libmpi mpi
+#        PATHS "/hpc/base/platform/mpi/8.1.1/lib/linux_amd64"
+#)
+find_package(MPI REQUIRED)
+set(MPI_INCLUDE_DIRECTORY "${MPI_CXX_INCLUDE_DIRS}")
+set(MPI_LIBRARY "${MPI_CXX_LIBRARIES}")
+find_program(MPI_MPIEXEC mpiexec)
+add_compile_definitions(MPI_MPIEXEC="${MPI_MPIEXEC}")
+message(STATUS "MPI include directory: ${MPI_INCLUDE_DIRECTORY}")
+message(STATUS "MPI library: ${MPI_LIBRARY}")
+message(STATUS "MPI mpiexec: ${MPI_MPIEXEC}")
+
 # Configure SQLite
 find_package(SQLite3 REQUIRED)
 set(SQLITE_INCLUDE_DIRECTORIES "${SQLite3_INCLUDE_DIRS}")

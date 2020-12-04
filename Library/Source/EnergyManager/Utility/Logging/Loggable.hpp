@@ -108,7 +108,7 @@ namespace EnergyManager {
 				 * @param line The line on which the error occurred.
 				 * @param ... The arguments to use.
 				 */
-				void logError(const std::vector<std::string>& headers, std::string format, std::string file, int line, ...) const;
+				void logError(const std::vector<std::string>& headers, const std::string& format, const std::string& file, int line, ...) const;
 
 				/**
 				 * Logs an error.
@@ -117,7 +117,7 @@ namespace EnergyManager {
 				 * @param line The line on which the error occurred.
 				 * @param ... The arguments to use.
 				 */
-				void logError(std::string format, std::string file, int line, ...) const;
+				void logError(const std::string& format, const std::string& file, int line, ...) const;
 			};
 		}
 	}

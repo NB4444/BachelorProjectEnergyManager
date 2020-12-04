@@ -12,7 +12,7 @@ namespace EnergyManager {
 
 				std::vector<std::map<std::string, std::string>> monitorData;
 				for(const auto& currentMonitorData : getMonitorData()) {
-					std::string timestamp = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(currentMonitorData.first.time_since_epoch()).count());
+					std::string timestamp = Utility::Text::toString(currentMonitorData.first);
 
 					for(const auto& variableValue : currentMonitorData.second) {
 						std::string name = variableValue.first;

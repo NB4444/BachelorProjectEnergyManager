@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Any, OrderedDict
 
 from matplotlib import pyplot
@@ -7,7 +8,7 @@ from Visualizer.Plotting.Plot import Plot
 
 
 class TimeseriesPlot(LinePlot):
-    def __init__(self, title: str, plot_series: OrderedDict[str, Dict[Any, Any]], y_label: str = "y",
+    def __init__(self, title: str, plot_series: OrderedDict[str, OrderedDict[Any, Any]], y_label: str = "y",
                  legend: bool = True, grid: bool = True,
                  show_final_values: bool = True, random_colors: bool = False):
         super().__init__(title=title, plot_series=plot_series, x_label="Timestamp", y_label=y_label, legend=legend,

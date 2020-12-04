@@ -2,6 +2,7 @@
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging/Loggable.hpp"
+#include "EnergyManager/Utility/StaticInitializer.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <algorithm>
@@ -27,6 +28,11 @@ namespace EnergyManager {
 				 * The database to use.
 				 */
 				static sqlite3* database_;
+
+				/**
+				 * Initializes the database.
+				 */
+				static StaticInitializer databaseInitializer_;
 
 				/**
 				 * The rows returned by the latest operation.
@@ -56,12 +62,6 @@ namespace EnergyManager {
 				virtual void onSave();
 
 			public:
-				/**
-				 * Initializes the database.
-				 * @param databaseFile The file to load.
-				 */
-				static void initialize(const std::string& databaseFile);
-
 				/**
 				 * Executes the SQL statement.
 				 * @param statement The statement to execute.

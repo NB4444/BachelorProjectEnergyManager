@@ -31,6 +31,11 @@ namespace EnergyManager {
 				: public std::runtime_error
 				, protected Logging::Loggable {
 				/**
+				 * The message that describes the error.
+				 */
+				std::string message_;
+
+				/**
 				 * The source file in which the error occurred.
 				 */
 				std::string file_;

@@ -8,6 +8,7 @@ from scipy.stats import mode
 
 from Visualizer.Persistence.Entity import Entity
 from Visualizer.Plotting.CorrelationsPlot import CorrelationsPlot
+from Visualizer.Plotting.Plot import Plot
 from Visualizer.Plotting.TablePlot import TablePlot
 from Visualizer.Utility.Parsing import determine_type
 
@@ -58,7 +59,7 @@ class MonitorSession(Entity):
         monitor_data: OrderedDict[datetime, Dict[Any, Any]] = collections.OrderedDict()
 
         for row in self._select("MonitorData", ["timestamp", "name", "value"], f"monitorSessionID = {self.id}"):
-            timestamp = datetime.fromtimestamp(float(row[0]) / 1000.0)
+            timestamp = datetime.fromtimestamp(Plot.ns_to_s(float(row[0])))
             name = row[1]
             value = row[2]
 

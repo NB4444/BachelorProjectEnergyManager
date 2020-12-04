@@ -32,6 +32,209 @@ namespace EnergyManager {
 			: public Processor
 			, private Utility::Loopable {
 			/**
+			 * Represents a kernel executing on the GPU.
+			 */
+			class Kernel {
+				/**
+				 * The name of the kernel.
+				 * This name is shared across all activity records representing the same kernel, and so should not be modified.
+				 */
+				std::string name_;
+
+				/**
+				 * The X-dimension grid size for the kernel.
+				 */
+				int gridX_;
+
+				/**
+				 * The Y-dimension grid size for the kernel.
+				 */
+				int gridY_;
+
+				/**
+				 * The Z-dimension grid size for the kernel.
+				 */
+				int gridZ_;
+
+				/**
+				 * The X-dimension block size for the kernel.
+				 */
+				int blockX_;
+
+				/**
+				 * The Y-dimension block size for the kernel.
+				 */
+				int blockY_;
+
+				/**
+				 * The Z-dimension block size for the kernel.
+				 */
+				int blockZ_;
+
+				/**
+				 * The ID of the context where the kernel is executing.
+				 */
+				unsigned int contextID_;
+
+				/**
+				 * The correlation ID of the kernel.
+				 * Each kernel execution is assigned a unique correlation ID that is identical to the correlation ID in the driver or runtime API activity record that launched the kernel.
+				 */
+				unsigned int correlationID_;
+
+				/**
+				 * The ID of the stream where the kernel is executing.
+				 */
+				unsigned int streamID_;
+
+				/**
+				 * The start timestamp for the kernel execution, in ns.
+				 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
+				 */
+				std::chrono::system_clock::time_point startTimestamp_;
+
+				/**
+				 * The end timestamp for the kernel execution, in ns.
+				 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
+				 */
+				std::chrono::system_clock::time_point endTimestamp_;
+
+				/**
+				 * The dynamic shared memory reserved for the kernel, in bytes.
+				 */
+				Utility::Units::Byte dynamicSharedMemorySize_;
+
+				/**
+				 * The static shared memory allocated for the kernel, in bytes.
+				 */
+				Utility::Units::Byte staticSharedMemorySize_;
+
+			public:
+				/**
+				 * Creates a new Kernel.
+				 * @param name The name.
+				 * @param gridX The grid x position.
+				 * @param gridY The grid y position.
+				 * @param gridZ The grid z position.
+				 * @param blockX The block x position.
+				 * @param blockY The block y position.
+				 * @param blockZ The block z position.
+				 * @param contextID The context ID.
+				 * @param correlationID The correlation ID.
+				 * @param streamID The stream ID.
+				 * @param startTimestamp The start timestamp.
+				 * @param endTimestamp The end timestamp.
+				 * @param dynamicSharedMemorySize The amount of dynamic shared memory.
+				 * @param staticSharedMemorySize The amount of static shared memory.
+				 */
+				Kernel(
+					std::string name,
+					const int& gridX,
+					const int& gridY,
+					const int& gridZ,
+					const int& blockX,
+					const int& blockY,
+					const int& blockZ,
+					const unsigned int& contextID,
+					const unsigned int& correlationID,
+					const unsigned int& streamID,
+					const std::chrono::system_clock::time_point& startTimestamp,
+					const std::chrono::system_clock::time_point& endTimestamp,
+					Utility::Units::Byte dynamicSharedMemorySize,
+					Utility::Units::Byte staticSharedMemorySize);
+
+				/**
+				 * Creates a new Kernel.
+				 * @param kernelActivity The CUPTI kernel activity.
+				 */
+				Kernel(const CUpti_ActivityKernel4& kernelActivity);
+
+				/**
+				 * Gets the kernel name.
+				 * @return The name.
+				 */
+				const std::string& getName() const;
+
+				/**
+				 * Gets the kernel x position.
+				 * @return The x position.
+				 */
+				int getGridX() const;
+
+				/**
+				 * Gets the kernel y position.
+				 * @return The y position.
+				 */
+				int getGridY() const;
+
+				/**
+				 * Gets the kernel z position.
+				 * @return The z position.
+				 */
+				int getGridZ() const;
+
+				/**
+				 * Gets the block x position.
+				 * @return The block x position.
+				 */
+				int getBlockX() const;
+
+				/**
+				 * Gets the block y position.
+				 * @return The block y position.
+				 */
+				int getBlockY() const;
+
+				/**
+				 * Gets the block z position.
+				 * @return The block z position.
+				 */
+				int getBlockZ() const;
+
+				/**
+				 * Gets the context ID.
+				 * @return The context ID.
+				 */
+				unsigned int getContextID() const;
+
+				/**
+				 * Gets the correlation ID.
+				 * @return The correlation ID.
+				 */
+				unsigned int getCorrelationID() const;
+
+				/**
+				 * Gets the stream ID.
+				 * @return The stream ID.
+				 */
+				unsigned int getStreamID() const;
+
+				/**
+				 * Gets the start timestamp.
+				 * @return The start timestamp.
+				 */
+				const std::chrono::system_clock::time_point& getStartTimestamp() const;
+
+				/**
+				 * Gets the end timestamp.
+				 * @return The end timestamp.
+				 */
+				const std::chrono::system_clock::time_point& getEndTimestamp() const;
+
+				/**
+				 * Gets the amount of dynamic shared memory.
+				 * @return The amount of dynamic shared memory.
+				 */
+				const Utility::Units::Byte& getDynamicSharedMemorySize() const;
+
+				/**
+				 * Gets the amount of static shared memory.
+				 * @return The amount of static shared memory.
+				 */
+				const Utility::Units::Byte& getStaticSharedMemorySize() const;
+			};
+
+			/**
 			 * Initializes the APIs.
 			 */
 			static Utility::StaticInitializer initializer_;
@@ -40,6 +243,26 @@ namespace EnergyManager {
 			 * The mutex used to access variables that are recorded by the monitor thread.
 			 */
 			static std::mutex monitorThreadMutex_;
+
+			/**
+			 * The kernels that have been run on this GPU.
+			 */
+			static std::vector<Kernel> kernels_;
+
+			/**
+			 * Initializes the CUDA API.
+			 */
+			static void initializeCUDA();
+
+			/**
+			 * Initializes the NVML API.
+			 */
+			static void initializeNVML();
+
+			/**
+			 * Initializes the CUPTI API.
+			 */
+			static void initializeCUPTI();
 
 			/**
 			 * Aligns the buffer with the configured parameters.
@@ -92,80 +315,6 @@ namespace EnergyManager {
 			 * The global memory bandwidth available on the device, in kBytes/sec.
 			 */
 			Utility::Units::Bandwidth memoryBandwidth_;
-
-			/**
-			 * The X-dimension block size for the kernel.
-			 */
-			int kernelBlockX_;
-
-			/**
-			 * The Y-dimension block size for the kernel.
-			 */
-			int kernelBlockY_;
-
-			/**
-			 * The Z-dimension block size for the kernel.
-			 */
-			int kernelBlockZ_;
-
-			/**
-			 * The ID of the context where the kernel is executing.
-			 */
-			unsigned int kernelContextID_;
-
-			/**
-			 * The correlation ID of the kernel.
-			 * Each kernel execution is assigned a unique correlation ID that is identical to the correlation ID in the driver or runtime API activity record that launched the kernel.
-			 */
-			unsigned int kernelCorrelationID_;
-
-			/**
-			 * The dynamic shared memory reserved for the kernel, in bytes.
-			 */
-			Utility::Units::Byte kernelDynamicSharedMemory_;
-
-			/**
-			 * The end timestamp for the kernel execution, in ns.
-			 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
-			 */
-			unsigned long kernelEndTimestamp_;
-
-			/**
-			 * The X-dimension grid size for the kernel.
-			 */
-			int kernelGridX_;
-
-			/**
-			 * The Y-dimension grid size for the kernel.
-			 */
-			int kernelGridY_;
-
-			/**
-			 * The Z-dimension grid size for the kernel.
-			 */
-			int kernelGridZ_;
-
-			/**
-			 * The name of the kernel.
-			 * This name is shared across all activity records representing the same kernel, and so should not be modified.
-			 */
-			std::string kernelName_;
-
-			/**
-			 * The start timestamp for the kernel execution, in ns.
-			 * A value of 0 for both the start and end timestamps indicates that timestamp information could not be collected for the kernel.
-			 */
-			unsigned long kernelStartTimestamp_;
-
-			/**
-			 * The static shared memory allocated for the kernel, in bytes.
-			 */
-			Utility::Units::Byte kernelStaticSharedMemory_;
-
-			/**
-			 * The ID of the stream where the kernel is executing.
-			 */
-			unsigned int kernelStreamID_;
 
 			/**
 			 * Number of multiprocessors on the device.
@@ -235,6 +384,11 @@ namespace EnergyManager {
 				 */
 				BLOCKING
 			};
+
+			/**
+			 * The site an event occurred at in the API function hook.
+			 */
+			enum class EventSite { ENTER, EXIT };
 
 			/**
 			 * Handles the results of a call to the CUDA driver.
@@ -429,88 +583,10 @@ namespace EnergyManager {
 			Utility::Units::Percent getFanSpeed(const unsigned int& fan) const;
 
 			/**
-			 * @copydoc GPU::kernelBlockX_
-			 * @return The kernel block X coordinate.
+			 * Gets the kernels.
+			 * @return The kernels.
 			 */
-			int getKernelBlockX() const;
-
-			/**
-			 * @copydoc GPU::kernelBlockY_
-			 * @return The kernel block Y coordinate.
-			 */
-			int getKernelBlockY() const;
-
-			/**
-			 * @copydoc GPU::kernelBlockZ_
-			 * @return The kernel block Z coordinate.
-			 */
-			int getKernelBlockZ() const;
-
-			/**
-			 * @copydoc GPU::kernelContextID_
-			 * @return The kernel context ID.
-			 */
-			unsigned int getKernelContextID() const;
-
-			/**
-			 * @copydoc GPU::kernelCorrelationID_
-			 * @return The kernel correlation ID.
-			 */
-			unsigned int getKernelCorrelationID() const;
-
-			/**
-			 * @copydoc GPU::kernelDynamicSharedMemory_
-			 * @return The kernel dynamic shared memory.
-			 */
-			Utility::Units::Byte getKernelDynamicSharedMemorySize() const;
-
-			/**
-			 * @copydoc GPU::kernelEndTimestamp_
-			 * @return The kernel end timestamp.
-			 */
-			unsigned long getKernelEndTimestamp() const;
-
-			/**
-			 * @copydoc GPU::kernelGridX_
-			 * @return The kernel grid X coordinate.
-			 */
-			int getKernelGridX() const;
-
-			/**
-			 * @copydoc GPU::kernelGridY_
-			 * @return The kernel grid Y coordinate.
-			 */
-			int getKernelGridY() const;
-
-			/**
-			 * @copydoc GPU::kernelGridZ_
-			 * @return The kernel grid Z coordinate.
-			 */
-			int getKernelGridZ() const;
-
-			/**
-			 * @copydoc GPU::kernelName_
-			 * @return The kernel name.
-			 */
-			std::string getKernelName() const;
-
-			/**
-			 * @copydoc GPU::kernelStartTimestamp_
-			 * @return The kernel start timestamp.
-			 */
-			unsigned long getKernelStartTimestamp() const;
-
-			/**
-			 * @copydoc GPU::kernelStaticSharedMemory_
-			 * @return The kernel static shared memory.
-			 */
-			Utility::Units::Byte getKernelStaticSharedMemorySize() const;
-
-			/**
-			 * @copydoc GPU::kernelStreamID_
-			 * @return The kernel stream ID.
-			 */
-			unsigned int getKernelStreamID() const;
+			std::vector<Kernel> getKernels() const;
 
 			/**
 			 * Retrieves the maximum clock speeds for the device.
@@ -598,6 +674,12 @@ namespace EnergyManager {
 			Utility::Units::Hertz getStreamingMultiprocessorClockRate() const;
 
 			Utility::Units::Celsius getTemperature() const final;
+
+			/**
+			 * Gets the events that have occurred on the GPU.
+			 * @return The events.
+			 */
+			std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> getEvents() const;
 
 			/**
 			 * Resets any flags set for the device.

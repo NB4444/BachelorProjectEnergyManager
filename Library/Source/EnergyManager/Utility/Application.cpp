@@ -1,6 +1,7 @@
 #include "./Application.hpp"
 
 #include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Utility/Environment.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
@@ -10,6 +11,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <utility>
+#include <wait.h>
 
 namespace EnergyManager {
 	namespace Utility {
@@ -67,7 +69,7 @@ namespace EnergyManager {
 
 			// Set up the pipes
 			if(isParent) {
-				logTrace("Configuring pipe in parent process...");
+				logDebug("Configuring pipe in parent process...");
 				close(outputPipe[writePipe]);
 				close(startPipe[readPipe]);
 
@@ -82,7 +84,7 @@ namespace EnergyManager {
 				close(startPipe[writePipe]);
 
 				// Get a pointer to capture application output
-				logTrace("Capturing child output...");
+				logDebug("Capturing child output...");
 				FILE* filePointer = fdopen(outputPipe[readPipe], "r");
 				std::array<char, BUFSIZ> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), filePointer) != nullptr) {
@@ -97,8 +99,15 @@ namespace EnergyManager {
 
 				// Clean up
 				fclose(filePointer);
+
+				// Wait for the child to finish
+				int status;
+				if(waitpid(processID_, &status, 0) == -1) {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Error processing return code");
+				}
+				logDebug("Application returned exit code %d", status);
 			} else {
-				logTrace("Configuring pipe in child process...");
+				logDebug("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
 
@@ -131,8 +140,33 @@ namespace EnergyManager {
 				cParameters.push_back(nullptr);
 
 				// Start the application
-				logTrace("Starting application process with path %s and parameters %s...", path_.c_str(), Utility::Text::join(parameters_, " ").c_str());
-				execv(path_.c_str(), cParameters.data());
+				if(injectReporter_) {
+					// Prepare environment
+					std::vector<std::string> environment = {};
+					if(injectReporter_) {
+						logDebug("Injecting reporter...");
+						environment = std::vector<std::string> { //"PATH=" + Environment::getVariable<std::string>("PATH"),
+																 "LD_LIBRARY_PATH=" + Environment::getVariable<std::string>("LD_LIBRARY_PATH") /* + ":" + std::string(REPORTER_LIBRARY_DEPENDENCIES)*/,
+																 "LD_PRELOAD=" + Text::toString(REPORTER_LIBRARY)
+						};
+					}
+					std::vector<char*> cEnvironment;
+					cEnvironment.reserve(environment.size() + 1);
+					std::transform(environment.begin(), environment.end(), std::back_inserter(cEnvironment), [](std::string& string) {
+						return const_cast<char*>(string.data());
+					});
+					cEnvironment.push_back(nullptr);
+
+					logDebug(
+						"Starting application process with path %s, parameters %s and environment %s...",
+						path_.c_str(),
+						Text::join(parameters_, " ").c_str(),
+						Text::join(environment, " ").c_str());
+					execve(path_.c_str(), cParameters.data(), cEnvironment.data());
+				} else {
+					logDebug("Starting application process with path %s and parameters %s...", path_.c_str(), Text::join(parameters_, " ").c_str());
+					execv(path_.c_str(), cParameters.data());
+				}
 
 				//std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
 				//	const auto rawReturnCode = pclose(file);
@@ -169,12 +203,14 @@ namespace EnergyManager {
 			std::vector<std::string> parameters,
 			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity,
 			std::shared_ptr<Hardware::GPU> gpu,
-			const bool& logOutput)
+			const bool& logOutput,
+			const bool& injectReporter)
 			: path_(std::move(path))
 			, parameters_(std::move(parameters))
 			, affinity_(std::move(affinity))
 			, gpu_(std::move(gpu))
-			, logOutput_(logOutput) {
+			, logOutput_(logOutput)
+			, injectReporter_(injectReporter) {
 		}
 
 		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.affinity_, application.gpu_) {
@@ -252,6 +288,7 @@ namespace EnergyManager {
 			if(sched_setaffinity(processID_, sizeof(mask), &mask) != 0) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set affinity");
 			}
+			logDebug("Successfully changed affinity");
 		}
 
 		std::shared_ptr<Hardware::GPU> Application::getGPU() const {

@@ -4,6 +4,8 @@
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 #include "EnergyManager/Utility/Units/Joule.hpp"
 
+#include <mutex>
+
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
@@ -11,6 +13,11 @@ namespace EnergyManager {
 			 * Monitors a Node.
 			 */
 			class EARMonitor : public Monitor {
+				/**
+				 * The mutex used for the monitor.
+				 */
+				static std::mutex mutex_;
+
 				/**
 				 * The ID of the SLURM job to monitor.
 				 */

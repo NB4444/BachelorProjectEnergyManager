@@ -15,6 +15,11 @@ namespace EnergyManager {
 				 */
 				std::shared_ptr<Hardware::GPU> gpu_;
 
+				/**
+				 * The timestamp of the last event that was processed.
+				 */
+				std::chrono::system_clock::time_point lastEventTimestamp_ = std::chrono::system_clock::now();
+
 			protected:
 				std::map<std::string, std::string> onPollProcessor() final;
 

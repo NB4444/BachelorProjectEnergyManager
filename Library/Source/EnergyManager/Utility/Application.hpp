@@ -47,6 +47,11 @@ namespace EnergyManager {
 			bool logOutput_;
 
 			/**
+			 * Whether to inject the reporter application.
+			 */
+			bool injectReporter_;
+
+			/**
 			 * The pipe of the current executable.
 			 */
 			pid_t processID_;
@@ -66,13 +71,15 @@ namespace EnergyManager {
 			 * @param affinity The CPU affinity.
 			 * @param gpu The GPU to use.
 			 * @param logOutput Whether to log the output.
+			 * @param injectReporter Whether to inject the reporter application.
 			 */
 			explicit Application(
 				std::string path,
 				std::vector<std::string> parameters = {},
 				std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity = {},
 				std::shared_ptr<Hardware::GPU> gpu = nullptr,
-				const bool& logOutput = false);
+				const bool& logOutput = false,
+				const bool& injectReporter = false);
 
 			/**
 			 * Copies the Application.

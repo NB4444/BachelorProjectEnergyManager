@@ -12,6 +12,11 @@ namespace EnergyManager {
 	namespace Utility {
 		namespace SLURM {
 			/**
+			 * The mutex used for job executions.
+			 */
+			static std::mutex mutex;
+
+			/**
 			 * Gets the ID of the current job.
 			 * @return The ID.
 			 */
@@ -128,16 +133,19 @@ namespace EnergyManager {
 				const Units::Hertz& maximumCPUFrequency = Units::Hertz(),
 				const Units::Hertz& gpuFrequency = Units::Hertz(),
 				const bool& ear = false,
-				const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::milliseconds(50)) {
+				const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::milliseconds(50),
+				const bool& verbose = false) {
+				std::lock_guard<std::mutex> lock(mutex);
+
 				Logging::logDebug("Creating SLURM job...");
 
 				// Write the job script
 				std::string command
 					= "#!/bin/bash\n"
-					  "#SBATCH --output log.%J.out\n"
-					  "#SBATCH --error log.%J.out\n"
-					  "#SBATCH --verbose\n"
-					  "#SBATCH --job-name EnergyManager-JobRunner\n"
+					  "#SBATCH --output log.%J\n"
+					  "#SBATCH --error log.%J\n"
+					  + std::string(verbose ? "#SBATCH --verbose\n" : "")
+					  + "#SBATCH --job-name EnergyManager-JobRunner\n"
 					  "#SBATCH --account COLBSC\n"
 					  "#SBATCH --partition standard\n"
 					  "#SBATCH --time 1:00:00\n"
@@ -165,7 +173,7 @@ namespace EnergyManager {
 					  // Set the GPU frequency if necessary
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
-						 : "export SLURM_EAR_GPU_DEF_FREQ=\"$3\"\n")
+						 : "export SLURM_EAR_GPU_DEF_FREQ=\"" + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA)) + "\"\n")
 
 					  + "srun"
 					  + (maximumCPUFrequency == Units::Hertz()
@@ -176,8 +184,8 @@ namespace EnergyManager {
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
 						 : (" --gpu-freq " + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))))
-					  + " --verbose"
-					  " --job-name EnergyManager"
+					  + (verbose ? " --verbose" : "")
+					  + " --job-name EnergyManager"
 					  " --ear-verbose 1"
 					  " --ear-policy monitoring"
 					  " \"" + applicationPath + "\""
@@ -202,11 +210,18 @@ namespace EnergyManager {
 
 					Logging::logDebug("Found SLURM job ID %d", jobID);
 				} else {
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Job ID not found");
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Job ID not found in executable output:\n" + sbatchOutput);
 				}
 
 				// Capture the output
-				auto jobOutput = Text::readFile("log." + Text::toString(jobID) + ".out");
+				std::string jobOutput;
+				for(unsigned int attempt = 0; attempt < 10; ++attempt) {
+					if(jobOutput.empty()) {
+						jobOutput = Text::readFile("log." + Text::toString(jobID));
+					} else {
+						break;
+					}
+				}
 				Logging::logTrace("SLURM job output: %s", jobOutput.c_str());
 
 				// Return the results

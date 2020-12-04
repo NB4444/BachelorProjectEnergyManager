@@ -7,7 +7,14 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void KMeansProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				EnergyManager::Utility::Application(std::string(RODINIA_BINARY_DIRECTORY) + "/cuda/kmeans", std::vector<std::string> { "-i \"" + profile.at("file") + '"' }, { core_ }, gpu_).run();
+				EnergyManager::Utility::Application(
+					std::string(RODINIA_BINARY_DIRECTORY) + "/cuda/kmeans",
+					std::vector<std::string> { "-i \"" + profile.at("file") + '"' },
+					{ core_ },
+					gpu_,
+					true,
+					true)
+					.run();
 			}
 
 			KMeansProfiler::KMeansProfiler(const std::map<std::string, std::string>& arguments)

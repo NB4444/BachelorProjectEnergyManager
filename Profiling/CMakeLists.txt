@@ -1,3 +1,4 @@
+add_subdirectory(ActivityTrace)
 add_subdirectory(All)
 add_subdirectory(BFS)
 add_subdirectory(CUBLAS)

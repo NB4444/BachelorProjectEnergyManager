@@ -4,7 +4,7 @@ from Visualizer.Plotting.AxesPlot import AxesPlot
 
 
 class LinePlot(AxesPlot):
-    def __init__(self, title: str, plot_series: OrderedDict[str, Dict[Any, Any]], x_label: str = "x",
+    def __init__(self, title: str, plot_series: OrderedDict[str, OrderedDict[Any, Any]], x_label: str = "x",
                  y_label: str = "y", legend: bool = True, grid: bool = True, format_x_as_date=False,
                  random_colors: bool = False):
         super().__init__(title=title, plot_series=plot_series, x_label=x_label, y_label=y_label, legend=legend,

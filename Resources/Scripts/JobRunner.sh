@@ -1,11 +1,10 @@
 #!/bin/bash
-#SBATCH --output log.%J.out
-#SBATCH --error log.%J.err
-#SBATCH --verbose
+#SBATCH --output log.%J
+#SBATCH --error log.%J
 #SBATCH --job-name EnergyManager-JobRunner
 #SBATCH --account COLBSC
 #SBATCH --partition standard
-#SBATCH --time 1:00:00
+#SBATCH --time 8:00:00
 #SBATCH --constraint V100_16GB&NUMGPU2&rack26&EDR
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
@@ -26,26 +25,8 @@ module load ear/ear
 export LD_PRELOAD=${EAR_INSTALL_PATH}/lib/libear.seq.so
 export SLURM_HACK_LIBRARY_FILE=${EAR_INSTALL_PATH}/lib/libear.seq.so
 
-# Define the arguments
-arguments=()
-
-# Set the CPU frequency if necessary
-if [ -n "$2" ]; then
-  arguments+=("--cpu-freq")
-  arguments+=("$2")
-fi
-
-# Set the GPU frequency if necessary
-if [ -n "$3" ]; then
-  export SLURM_EAR_GPU_DEF_FREQ="$3"
-  arguments+=("--gpu-freq")
-  arguments+=("$3")
-fi
-
 srun \
-  --verbose \
   --job-name EnergyManager \
   --ear-verbose 1 \
   --ear-policy monitoring \
-  "${arguments[@]}" \
-  "$1"
+  "$@"

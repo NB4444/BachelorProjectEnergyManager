@@ -43,6 +43,14 @@ namespace EnergyManager {
 				 */
 				virtual void onReset();
 
+				/**
+				 * Sets a variable value.
+				 * @param timestamp The timestamp to use.
+				 * @param name The name of the variable.
+				 * @param value The value.
+				 */
+				void setVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name, const std::string& value);
+
 			public:
 				/**
 				 * Gets a list of monitors for all available devices.
@@ -78,6 +86,22 @@ namespace EnergyManager {
 				 * @return The variable values.
 				 */
 				std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> getVariableValues() const;
+
+				/**
+				 * Determines if the specified variable is defined.
+				 * @param timestamp The timestamp.
+				 * @param name The name of the variable.
+				 * @return Whether the variable is defined.
+				 */
+				bool hasVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name) const;
+
+				/**
+				 * Gets the specified variable at the specified timestamp.
+				 * @param timestamp The timestamp.
+				 * @param name The name of the variable.
+				 * @return The variable values.
+				 */
+				std::string getVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name) const;
 
 				/**
 				 * Removes all recorded data and resets the monitor.

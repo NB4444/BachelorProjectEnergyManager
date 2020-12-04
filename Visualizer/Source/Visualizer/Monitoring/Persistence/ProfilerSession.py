@@ -1,8 +1,11 @@
+from datetime import datetime
 from functools import cached_property
+from typing import Dict, List, Tuple
 
 from Visualizer.Monitoring.Persistence.MonitorSession import MonitorSession
 from Visualizer.Persistence.Entity import Entity
 from Visualizer.Plotting.DictionaryPlot import DictionaryPlot
+from Visualizer.Plotting.EventPlot import EventPlot
 from Visualizer.Plotting.MultiPlot import MultiPlot
 from Visualizer.Plotting.Plot import Plot
 from Visualizer.Plotting.TimeseriesPlot import TimeseriesPlot
@@ -278,6 +281,44 @@ class ProfilerSession(Entity):
 
     def total_energy_consumption(self, use_ear=False):
         return (self.node_monitor if not use_ear else self.ear_monitor).get_last_value("energyConsumption", float)
+
+    @property
+    def events(self):
+        """
+        Gets the events per GPU monitor.
+        :return: The events.
+        """
+        events: Dict[MonitorSession, List[Tuple[str, datetime, datetime]]] = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            events[gpu_monitor] = []
+
+            # Process the event lists
+            event_items = list(gpu_monitor.get_values("events", str).items())
+            for index, (timestamp, event_list) in enumerate(event_items):
+                for event in event_list.split(","):
+                    event_name = event.split("(")[0]
+                    event_type = event.split("(")[1].split(")")[0]
+
+                    def find_exit():
+                        if event_type == "ENTER":
+                            # Find the matching exit event
+                            for exit_index, (exit_timestamp, exit_event_list) in enumerate(event_items[index + 1:]):
+                                for exit_event in exit_event_list.split(","):
+                                    exit_event_name = exit_event.split("(")[0]
+                                    exit_event_type = exit_event.split("(")[1].split(")")[0]
+
+                                    if exit_event_name == event_name and exit_event_type == "EXIT":
+                                        events[gpu_monitor].append((event_name, timestamp, exit_timestamp))
+                                        return
+
+                    find_exit()
+
+        return events
+
+    def events_event_plot(self):
+        return [EventPlot(title=f"Events (GPU {gpu_monitor.get_value('id', int)})", events=events) for
+                gpu_monitor, events in self.events.items()]
 
     @property
     def fan_speed(self):

@@ -17,6 +17,11 @@ namespace EnergyManager {
 	namespace Utility {
 		namespace Logging {
 			/**
+			 * Whether to flush all log statements immediately.
+			 */
+			static bool flushAll = true;
+
+			/**
 			 * Human-understandable thread IDs.
 			 */
 			static std::map<std::thread::id, unsigned int> threadIDs = {};
@@ -40,6 +45,14 @@ namespace EnergyManager {
 			 * The logging levels.
 			 */
 			enum class Level { TRACE, DEBUG, INFORMATION, WARNING, ERROR };
+
+			/**
+			 * Flushes all buffers.
+			 */
+			static void flush() {
+				std::cout.flush();
+				std::cerr.flush();
+			}
 
 			/**
 			 * The logging levels that are enabled.
@@ -155,6 +168,11 @@ namespace EnergyManager {
 
 				// Print the message
 				vprintf((format + '\n').c_str(), arguments);
+
+				// Flush if necessary
+				if(flushAll) {
+					flush();
+				}
 			}
 
 			/**
@@ -231,14 +249,6 @@ namespace EnergyManager {
 				va_start(arguments, line);
 				vlog(Level::ERROR, {}, file + ":" + std::to_string(line) + ": " + format, arguments);
 				va_end(arguments);
-			}
-
-			/**
-			 * Flushes all buffers.
-			 */
-			static void flush() {
-				std::cout.flush();
-				std::cerr.flush();
 			}
 		}
 	}

@@ -14,6 +14,7 @@ message(STATUS "Source files: ${SOURCE_FILES}")
 # Add and configure target
 set(TARGET_NAME "${PROJECT_NAME}-Library")
 add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
+set_property(TARGET ${PROJECT_NAME}-Library PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_dependencies(
         ${TARGET_NAME}
         ensmallen
@@ -31,7 +32,7 @@ target_include_directories(
         PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
         PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"
-        PUBLIC "${BOOST_INCLUDE_DIRECTORY}"
+        #        PUBLIC "${BOOST_INCLUDE_DIRECTORY}"
         # FIXME: Quick fix to fix the wrong boost includes from being used
         PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
         PUBLIC "${OPENBLAS_INCLUDE_DIRECTORY}"
@@ -39,18 +40,31 @@ target_include_directories(
         PUBLIC "${ENSMALLEN_INCLUDE_DIRECTORY}"
         PUBLIC "${MLPACK_INCLUDE_DIRECTORY}"
 )
+#target_link_libraries(
+#        ${TARGET_NAME}
+#        "Threads::Threads"
+#        imf
+#        #        "${MPI_LIBRARY}"
+#        "${SQLITE_LIBRARY}"
+#        "${CUDA_LIBRARY}"
+#        "${CUDA_RUNTIME_LIBRARY}"
+#        #        "${CUDA_STATIC_RUNTIME_LIBRARY}"
+#        "${CUDA_CUPTI_LIBRARY}"
+#        #        "${CUDA_NVML_LIBRARY}"
+#        "nvidia-ml"
+#        #        "OpenMP::OpenMP_CXX"
+#        "${BOOST_LIBRARY}"
+#        "${OPENBLAS_LIBRARY}"
+#        "${ARMADILLO_LIBRARY}"
+#        "${MLPACK_LIBRARY}"
+#)
 target_link_libraries(
         ${TARGET_NAME}
         "Threads::Threads"
-        #        "${MPI_LIBRARY}"
         "${SQLITE_LIBRARY}"
         "cuda"
-        "${CUDA_RUNTIME_LIBRARY}"
-        "${CUDA_STATIC_RUNTIME_LIBRARY}"
         "${CUDA_CUPTI_LIBRARY}"
-        "${CUDA_NVML_LIBRARY}"
         "nvidia-ml"
-        #        "OpenMP::OpenMP_CXX"
         "${BOOST_LIBRARY}"
         "${OPENBLAS_LIBRARY}"
         "${ARMADILLO_LIBRARY}"

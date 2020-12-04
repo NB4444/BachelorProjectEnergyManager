@@ -30,6 +30,16 @@ namespace EnergyManager {
 			void Monitor::onReset() {
 			}
 
+			void Monitor::setVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name, const std::string& value) {
+				// Insert the map if it does not exist
+				if(variableValues_.find(timestamp) == variableValues_.end()) {
+					variableValues_[timestamp] = {};
+				}
+
+				// Set the variable
+				variableValues_[timestamp][name] = value;
+			}
+
 			std::vector<std::shared_ptr<Monitor>> Monitor::getMonitorsForAllDevices(
 				const std::chrono::system_clock::duration& applicationMonitorInterval,
 				const std::chrono::system_clock::duration& nodeMonitorInterval,
@@ -60,6 +70,20 @@ namespace EnergyManager {
 
 			std::map<std::chrono::system_clock::time_point, std::map<std::string, std::string>> Monitor::getVariableValues() const {
 				return variableValues_;
+			}
+
+			bool Monitor::hasVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name) const {
+				if(variableValues_.find(timestamp) == variableValues_.end()) {
+					return false;
+				} else {
+					const auto& values = variableValues_.at(timestamp);
+
+					return values.find(name) != values.end();
+				}
+			}
+
+			std::string Monitor::getVariable(const std::chrono::system_clock::time_point& timestamp, const std::string& name) const {
+				return variableValues_.at(timestamp).at(name);
 			}
 
 			void Monitor::reset() {
