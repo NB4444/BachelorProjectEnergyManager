@@ -11,7 +11,7 @@ namespace EnergyManager {
 			/**
 			 * Represents a transfer speed and amount.
 			 */
-			class Bandwidth : public PerUnit<Byte, std::chrono::system_clock::duration, double> {
+			class Bandwidth : public PerUnit<Bandwidth, Byte, std::chrono::system_clock::duration, double> {
 			public:
 				/**
 				 * Creates a new Bandwidth.

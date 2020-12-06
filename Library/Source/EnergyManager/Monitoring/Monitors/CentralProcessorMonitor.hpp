@@ -68,17 +68,12 @@ namespace EnergyManager {
 				 */
 				std::chrono::system_clock::duration startGuestNiceTimespan_;
 
-				/**
-				 * Whether the initial timespans have been measured yet.
-				 */
-				bool startTimespansMeasured_;
-
 			protected:
 				std::map<std::string, std::string> onPollProcessor() final;
 
-				virtual std::map<std::string, std::string> onPollCentralProcessor();
+				void beforeLoopStart() override;
 
-				void onResetDevice() final;
+				virtual std::map<std::string, std::string> onPollCentralProcessor();
 
 			public:
 				/**

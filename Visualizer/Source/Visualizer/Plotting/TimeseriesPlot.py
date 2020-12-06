@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Dict, Any, OrderedDict
+from typing import Any, OrderedDict
 
 from matplotlib import pyplot
 

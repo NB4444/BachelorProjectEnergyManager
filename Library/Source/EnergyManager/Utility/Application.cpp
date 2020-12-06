@@ -1,6 +1,7 @@
 #include "./Application.hpp"
 
 #include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Utility/Environment.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
@@ -69,7 +70,7 @@ namespace EnergyManager {
 
 			// Set up the pipes
 			if(isParent) {
-				logDebug("Configuring pipe in parent process...");
+				logTrace("Configuring pipe in parent process...");
 				close(outputPipe[writePipe]);
 				close(startPipe[readPipe]);
 
@@ -84,7 +85,7 @@ namespace EnergyManager {
 				close(startPipe[writePipe]);
 
 				// Get a pointer to capture application output
-				logDebug("Capturing child output...");
+				logTrace("Capturing child output...");
 				FILE* filePointer = fdopen(outputPipe[readPipe], "r");
 				std::array<char, BUFSIZ> outputBuffer {};
 				while(fgets(outputBuffer.data(), outputBuffer.size(), filePointer) != nullptr) {
@@ -105,9 +106,13 @@ namespace EnergyManager {
 				if(waitpid(processID_, &status, 0) == -1) {
 					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Error processing return code");
 				}
-				logDebug("Application returned exit code %d", status);
+				if(status != 0) {
+					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Application did not complete successfuly and returned exit code " + Text::toString(status));
+				} else {
+					logTrace("Application ran successfully");
+				}
 			} else {
-				logDebug("Configuring pipe in child process...");
+				logTrace("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
 
@@ -115,13 +120,6 @@ namespace EnergyManager {
 				std::array<char, 128> startBuffer {};
 				read(startPipe[readPipe], startBuffer.data(), startBuffer.size());
 				close(startPipe[readPipe]);
-
-				//// Start the child process
-				//std::string command = "\"" + path_ + "\"";
-				//if(!parameters_.empty()) {
-				//	command += " \"" + Utility::Text::join(parameters_, "\" \"") + "\"";
-				//}
-				//command += " 2>&1";
 
 				// Flush the buffers
 				Utility::Logging::flush();
@@ -132,6 +130,8 @@ namespace EnergyManager {
 
 				// Prepare parameters
 				parameters_.insert(parameters_.begin(), path_);
+
+				// Transform to the correct format for the function
 				std::vector<char*> cParameters;
 				cParameters.reserve(parameters_.size() + 1);
 				std::transform(parameters_.begin(), parameters_.end(), std::back_inserter(cParameters), [](std::string& string) {
@@ -140,16 +140,29 @@ namespace EnergyManager {
 				cParameters.push_back(nullptr);
 
 				// Start the application
-				if(injectReporter_) {
+				if(injectReporter_ || injectEAR_) {
+					logTrace("Injecting libraries...");
+					std::vector<std::string> librariesToInject = {};
+					if(injectReporter_) {
+						librariesToInject.push_back(REPORTER_LIBRARY);
+					}
+					if(injectEAR_) {
+						librariesToInject.push_back(EAR_LIBRARY);
+						librariesToInject.push_back(EAR_LIBRARY_DAEMON);
+					}
+
 					// Prepare environment
 					std::vector<std::string> environment = {};
-					if(injectReporter_) {
-						logDebug("Injecting reporter...");
-						environment = std::vector<std::string> { //"PATH=" + Environment::getVariable<std::string>("PATH"),
-																 "LD_LIBRARY_PATH=" + Environment::getVariable<std::string>("LD_LIBRARY_PATH") /* + ":" + std::string(REPORTER_LIBRARY_DEPENDENCIES)*/,
-																 "LD_PRELOAD=" + Text::toString(REPORTER_LIBRARY)
-						};
+
+					// Copy current environment over to the new process
+					for(char** current = environ; *current; current++) {
+						environment.push_back(*current);
 					}
+
+					// Append the libraries to inject
+					environment.push_back("LD_PRELOAD=" + Text::join(librariesToInject, ":"));
+
+					// Transform to the correct format for the function
 					std::vector<char*> cEnvironment;
 					cEnvironment.reserve(environment.size() + 1);
 					std::transform(environment.begin(), environment.end(), std::back_inserter(cEnvironment), [](std::string& string) {
@@ -157,41 +170,17 @@ namespace EnergyManager {
 					});
 					cEnvironment.push_back(nullptr);
 
-					logDebug(
+					logTrace(
 						"Starting application process with path %s, parameters %s and environment %s...",
 						path_.c_str(),
 						Text::join(parameters_, " ").c_str(),
 						Text::join(environment, " ").c_str());
 					execve(path_.c_str(), cParameters.data(), cEnvironment.data());
 				} else {
-					logDebug("Starting application process with path %s and parameters %s...", path_.c_str(), Text::join(parameters_, " ").c_str());
+					logTrace("Starting application process with path %s and parameters %s...", path_.c_str(), Text::join(parameters_, " ").c_str());
 					execv(path_.c_str(), cParameters.data());
 				}
 
-				//std::unique_ptr<FILE, decltype(&pclose)> childPipe(popen(command.c_str(), "r"), [](FILE* file) {
-				//	const auto rawReturnCode = pclose(file);
-				//	const auto returnCode = WEXITSTATUS(rawReturnCode);
-				//
-				//	if(returnCode != 0) {
-				//		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Application threw an error");
-				//	} else {
-				//		return returnCode;
-				//	}
-				//});
-				//if(!childPipe) {
-				//	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set up child pipe");
-				//}
-				//
-				//// Receive output
-				//logDebug("Capturing application output...");
-				//std::array<char, 128> outputBuffer {};
-				//while(fgets(outputBuffer.data(), outputBuffer.size(), childPipe.get()) != nullptr) {
-				//	auto output = std::string(outputBuffer.data());
-				//
-				//	// Send output to parent
-				//	//logDebug("Processing application output: %s", Utility::Text::trim(output).c_str());
-				//	write(outputPipe[writePipe], output.c_str(), output.size());
-				//}
 				close(outputPipe[writePipe]);
 
 				exit(0);
@@ -204,13 +193,15 @@ namespace EnergyManager {
 			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity,
 			std::shared_ptr<Hardware::GPU> gpu,
 			const bool& logOutput,
-			const bool& injectReporter)
+			const bool& injectReporter,
+			const bool& injectEAR)
 			: path_(std::move(path))
 			, parameters_(std::move(parameters))
 			, affinity_(std::move(affinity))
 			, gpu_(std::move(gpu))
 			, logOutput_(logOutput)
-			, injectReporter_(injectReporter) {
+			, injectReporter_(injectReporter)
+			, injectEAR_(injectEAR) {
 		}
 
 		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.affinity_, application.gpu_) {

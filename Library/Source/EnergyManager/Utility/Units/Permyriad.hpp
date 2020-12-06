@@ -8,7 +8,7 @@ namespace EnergyManager {
 			/**
 			 * Represents an amount per ten thousand.
 			 */
-			class Permyriad : public PerUnit<double, unsigned long, double> {
+			class Permyriad : public PerUnit<Permyriad, double, unsigned long, double> {
 			public:
 				/**
 				 * Creates a new Permyriad.

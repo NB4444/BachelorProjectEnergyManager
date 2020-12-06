@@ -499,17 +499,17 @@ class ProfilerSession(Entity):
         for cpu_monitor in self.cpu_monitors:
             cpu_id = cpu_monitor.get_value("id", int)
             timespan.update({
-                f"CPU {cpu_id} Guest Nice": cpu_monitor.get_values("guestNiceTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Guest": cpu_monitor.get_values("guestTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} IO Wait": cpu_monitor.get_values("ioWaitTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Idle": cpu_monitor.get_values("idleTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Interrupts": cpu_monitor.get_values("interruptsTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} Nice": cpu_monitor.get_values("niceTimespan", float, Plot.to_percentage),
+                f"CPU {cpu_id} Guest Nice": cpu_monitor.get_values("guestNiceTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} Guest": cpu_monitor.get_values("guestTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} IO Wait": cpu_monitor.get_values("ioWaitTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} Idle": cpu_monitor.get_values("idleTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} Interrupts": cpu_monitor.get_values("interruptsTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} Nice": cpu_monitor.get_values("niceTimespan", float, Plot.ns_to_s),
                 f"CPU {cpu_id} Soft Interrupts": cpu_monitor.get_values("softInterruptsTimespan", float,
-                                                                        Plot.to_percentage),
-                f"CPU {cpu_id} Steal": cpu_monitor.get_values("stealTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} System": cpu_monitor.get_values("systemTimespan", float, Plot.to_percentage),
-                f"CPU {cpu_id} User": cpu_monitor.get_values("userTimespan", float, Plot.to_percentage)
+                                                                        Plot.ns_to_s),
+                f"CPU {cpu_id} Steal": cpu_monitor.get_values("stealTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} System": cpu_monitor.get_values("systemTimespan", float, Plot.ns_to_s),
+                f"CPU {cpu_id} User": cpu_monitor.get_values("userTimespan", float, Plot.ns_to_s)
             })
 
         for cpu_core_monitor in self.cpu_core_monitors:
@@ -517,25 +517,25 @@ class ProfilerSession(Entity):
             core_id = cpu_core_monitor.get_value("coreID", int)
             timespan.update({
                 f"CPU {cpu_id} Core {core_id} Guest Nice": cpu_core_monitor.get_values("guestNiceTimespan", float,
-                                                                                       Plot.to_percentage),
+                                                                                       Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Guest": cpu_core_monitor.get_values("guestTimespan", float,
-                                                                                  Plot.to_percentage),
+                                                                                  Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} IO Wait": cpu_core_monitor.get_values("ioWaitTimespan", float,
-                                                                                    Plot.to_percentage),
+                                                                                    Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Idle": cpu_core_monitor.get_values("idleTimespan", float,
-                                                                                 Plot.to_percentage),
+                                                                                 Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Interrupts": cpu_core_monitor.get_values("interruptsTimespan", float,
-                                                                                       Plot.to_percentage),
+                                                                                       Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Nice": cpu_core_monitor.get_values("niceTimespan", float,
-                                                                                 Plot.to_percentage),
+                                                                                 Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Soft Interrupts": cpu_core_monitor.get_values("softInterruptsTimespan",
-                                                                                            float, Plot.to_percentage),
+                                                                                            float, Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} Steal": cpu_core_monitor.get_values("stealTimespan", float,
-                                                                                  Plot.to_percentage),
+                                                                                  Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} System": cpu_core_monitor.get_values("systemTimespan", float,
-                                                                                   Plot.to_percentage),
+                                                                                   Plot.ns_to_s),
                 f"CPU {cpu_id} Core {core_id} User": cpu_core_monitor.get_values("userTimespan", float,
-                                                                                 Plot.to_percentage)
+                                                                                 Plot.ns_to_s)
             })
 
         timespan.update({

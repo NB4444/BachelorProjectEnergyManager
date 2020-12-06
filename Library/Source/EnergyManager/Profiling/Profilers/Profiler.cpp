@@ -1,174 +1,165 @@
 #include "./Profiler.hpp"
 
-#include "EnergyManager/Hardware/CPU.hpp"
-#include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Monitors/EARMonitor.hpp"
 #include "EnergyManager/Monitoring/Persistence/MonitorSession.hpp"
-#include "EnergyManager/Utility/Application.hpp"
 #include "EnergyManager/Utility/Environment.hpp"
+#include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/SLURM.hpp"
 
 #include <algorithm>
-#include <cstdlib>
 #include <random>
-#include <unistd.h>
 #include <utility>
 
 namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
-			void Profiler::runProfile(const std::map<std::string, std::string>& profile) {
-				const unsigned int attempts = 3;
+			void Profiler::runProfile(const std::map<std::string, std::string>& profile, const unsigned int& attempts) {
+				// This is the child
+				logDebug("Preparing profiler execution...");
+				beforeProfile(profile);
 
-				// Retry if the profiler fails
-				for(unsigned int attempt = 1; attempt <= attempts; ++attempt) {
-					// This is the child
-					logDebug("Preparing profiler execution...");
-					beforeProfile(profile);
+				// Set up devices
+				logDebug("Setting device parameters...");
+				std::shared_ptr<Hardware::Core> core;
+				if(profile.find("core") != profile.end()) {
+					core = Hardware::Core::getCore(std::stoi(profile.at("core")));
 
-					// Set up devices
-					logDebug("Setting device parameters...");
-					std::shared_ptr<Hardware::CPU::Core> core;
-					if(profile.find("core") != profile.end()) {
-						core = Hardware::CPU::Core::getCore(std::stoi(profile.at("core")));
-
-						// Set up the defaults
-						if(!slurm_) {
-							core->resetCoreClockRate();
-							core->getCPU()->setTurboEnabled(true);
-							core->getCPU()->resetCoreClockRate();
-						}
-
-						// Apply custom configurations
-						if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
-							if(!slurm_) {
-								core->getCPU()->setTurboEnabled(false);
-								core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
-							}
-						}
-					}
-
-					std::shared_ptr<Hardware::GPU> gpu;
-					if(profile.find("gpu") != profile.end()) {
-						gpu = Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
-
-						// Set up the defaults
-						gpu->makeActive();
-						if(!slurm_ && !ear_) {
-							gpu->reset();
-							//gpu->setAutoBoostedClocksEnabled(true);
-							gpu->resetCoreClockRate();
-						}
-
-						// Apply custom configurations
-						if(!slurm_ && !ear_ && profile.find("gpuSynchronizationMode") != profile.end()) {
-							const auto synchronizationMode = profile.at("gpuSynchronizationMode");
-							if(synchronizationMode == "AUTOMATIC") {
-								gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::AUTOMATIC);
-							} else if(synchronizationMode == "SPIN") {
-								gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::SPIN);
-							} else if(synchronizationMode == "YIELD") {
-								gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::YIELD);
-							} else if(synchronizationMode == "BLOCKING") {
-								gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::BLOCKING);
-							}
-						}
-
-						if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
-							if(!slurm_ && !ear_) {
-								//gpu->setAutoBoostedClocksEnabled(false);
-								gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
-							}
-						}
-					}
-
-					// Start the monitor threads
-					for(auto& monitor : monitors_) {
-						logDebug("Starting monitor %s thread...", monitor->getName().c_str());
-						monitor->reset();
-						monitor->run(true);
-					}
-
-					// Profile the workload
-					bool succeeded = false;
-					try {
-						logDebug("Profiling workload...");
-						for(unsigned int iterationIndex = 0; iterationIndex < getIterationsPerRun(); ++iterationIndex) {
-							onProfile(profile);
-						}
-
-						succeeded = true;
-					} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
-						logWarning("Failed to profile (attempt %d/%d):", attempt, attempts);
-						exception.log();
-					} catch(const std::exception& exception) {
-						logWarning("Failed to profile (attempt %d/%d):", attempt, attempts);
-						EnergyManager::Utility::Exceptions::Exception(exception.what(), __FILE__, __LINE__).log();
-					} catch(...) {
-						logWarning("Failed to profile (attempt %d/%d)", attempt, attempts);
-					}
-
-					// Stop all monitors threads
-					for(auto& monitor : monitors_) {
-						logDebug("Stopping monitor %s...", monitor->getName().c_str());
-						monitor->stop();
-					}
-
-					// Wait for the monitors to finish
-					for(auto& monitor : monitors_) {
-						monitor->synchronize();
-					}
-
-					// Reset the devices
-					logDebug("Resetting device parameters...");
-					if(!slurm_ && !ear_ && core != nullptr) {
-						core->getCPU()->resetCoreClockRate();
+					// Set up the defaults
+					if(!slurm_) {
+						core->resetCoreClockRate();
 						core->getCPU()->setTurboEnabled(true);
+						core->getCPU()->resetCoreClockRate();
 					}
 
-					if(!slurm_ && !ear_ && gpu != nullptr) {
-						gpu->resetCoreClockRate();
-						//gpu->setAutoBoostedClocksEnabled(true);
+					// Apply custom configurations
+					if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
+						if(!slurm_) {
+							core->getCPU()->setTurboEnabled(false);
+							core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
+						}
+					}
+				}
+
+				std::shared_ptr<Hardware::GPU> gpu;
+				if(profile.find("gpu") != profile.end()) {
+					gpu = Hardware::GPU::getGPU(std::stoi(profile.at("gpu")));
+
+					// Set up the defaults
+					gpu->makeActive();
+					if(!slurm_ && !ear_) {
 						gpu->reset();
+						//gpu->setAutoBoostedClocksEnabled(true);
+						gpu->resetCoreClockRate();
 					}
 
-					if(succeeded) {
-						logDebug("Setting up profiler session...");
-
-						// Set up the session
-						auto profilerSession = std::make_shared<Persistence::ProfilerSession>(getProfileName(), profile);
-
-						logDebug("Collecting profiler session data...");
-
-						// Get the monitor data and add it to the session
-						std::vector<std::shared_ptr<Monitoring::Persistence::MonitorSession>> monitorSessions;
-						for(auto& monitor : monitors_) {
-							logDebug("Adding monitor data...");
-
-							monitorSessions.push_back(std::make_shared<Monitoring::Persistence::MonitorSession>(monitor->getName(), monitor->getVariableValues(), profilerSession));
+					// Apply custom configurations
+					if(!slurm_ && !ear_ && profile.find("gpuSynchronizationMode") != profile.end()) {
+						const auto synchronizationMode = profile.at("gpuSynchronizationMode");
+						if(synchronizationMode == "AUTOMATIC") {
+							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::AUTOMATIC);
+						} else if(synchronizationMode == "SPIN") {
+							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::SPIN);
+						} else if(synchronizationMode == "YIELD") {
+							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::YIELD);
+						} else if(synchronizationMode == "BLOCKING") {
+							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::BLOCKING);
 						}
-						profilerSession->setMonitorSessions(monitorSessions);
-
-						logDebug("Finalizing profiler execution...");
-						afterProfile(profile, profilerSession);
-
-						// Save the data
-						if(getAutoSave()) {
-							profilerSession->save();
-						}
-
-						// Add the session to the collection
-						profilerSessions_.push_back(profilerSession);
-
-						// Break out of the retry loop
-						return;
 					}
+
+					if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
+						if(!slurm_ && !ear_) {
+							//gpu->setAutoBoostedClocksEnabled(false);
+							gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
+						}
+					}
+				}
+
+				// Start the monitor threads
+				for(auto& monitor : monitors_) {
+					logDebug("Starting monitor %s thread...", monitor->getName().c_str());
+					monitor->reset();
+					monitor->run(true);
+				}
+
+				// Profile the workload
+				bool succeeded = false;
+				try {
+					logDebug("Profiling workload...");
+					for(unsigned int iterationIndex = 0; iterationIndex < getIterationsPerRun(); ++iterationIndex) {
+						onProfile(profile);
+					}
+
+					succeeded = true;
+				} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
+					exception.log();
+					logWarning("Failed to profile");
+				} catch(const std::exception& exception) {
+					EnergyManager::Utility::Exceptions::Exception(exception.what(), __FILE__, __LINE__).log();
+					logWarning("Failed to profile");
+				} catch(...) {
+					logWarning("Failed to profile");
+				}
+
+				// Stop all monitors threads
+				for(auto& monitor : monitors_) {
+					logDebug("Stopping monitor %s...", monitor->getName().c_str());
+					monitor->stop();
+				}
+
+				// Wait for the monitors to finish
+				for(auto& monitor : monitors_) {
+					monitor->synchronize();
+				}
+
+				// Reset the devices
+				logDebug("Resetting device parameters...");
+				if(!slurm_ && !ear_ && core != nullptr) {
+					core->getCPU()->resetCoreClockRate();
+					core->getCPU()->setTurboEnabled(true);
+				}
+
+				if(!slurm_ && !ear_ && gpu != nullptr) {
+					gpu->resetCoreClockRate();
+					//gpu->setAutoBoostedClocksEnabled(true);
+					gpu->reset();
+				}
+
+				if(succeeded) {
+					logDebug("Setting up profiler session...");
+
+					// Set up the session
+					auto profilerSession = std::make_shared<Persistence::ProfilerSession>(getProfileName(), profile);
+
+					logTrace("Collecting profiler session data...");
+
+					// Get the monitor data and add it to the session
+					std::vector<std::shared_ptr<Monitoring::Persistence::MonitorSession>> monitorSessions;
+					for(auto& monitor : monitors_) {
+						logTrace("Adding monitor data...");
+
+						monitorSessions.push_back(std::make_shared<Monitoring::Persistence::MonitorSession>(monitor->getName(), monitor->getVariableValues(), profilerSession));
+					}
+					profilerSession->setMonitorSessions(monitorSessions);
+
+					logDebug("Finalizing profiler execution...");
+					afterProfile(profile, profilerSession);
+
+					// Save the data
+					if(getAutoSave()) {
+						profilerSession->save();
+					}
+
+					// Add the session to the collection
+					profilerSessions_.push_back(profilerSession);
+
+					// Break out of the retry loop
+					return;
 				}
 
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Profiler failed to profile");
 			}
 
-			void Profiler::runSLURMProfile(const std::map<std::string, std::string>& profile) {
+			void Profiler::runSLURMProfile(const std::map<std::string, std::string>& profile, const unsigned int& attempts) {
 				logDebug("SLURM enabled, starting child SLURM process...");
 
 				// Prepare application parameters
@@ -184,66 +175,91 @@ namespace EnergyManager {
 				applicationParameters.push_back(Utility::Text::join(profile, ", ", ": "));
 
 				// Create and run the SLURM job
-				logDebug("Running SLURM job...");
-				auto jobResults = Utility::SLURM::runJob(
-					Utility::Environment::getApplicationPath(),
-					applicationParameters,
-					"EnergyManager-Profiler",
-					1,
-					1,
-					"V100_16GB&NUMGPU2&rack26&EDR",
-					true,
-					profile.find("minimumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("minimumCPUClockRate"))),
-					profile.find("maximumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumCPUClockRate"))),
-					profile.find("maximumGPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumGPUClockRate"))),
-					true);
+				auto applicationPath = Utility::Environment::getApplicationPath();
+				bool succeeded = false;
+				unsigned int jobID;
+				std::string output;
+				try {
+					logDebug("Running SLURM job...");
+					auto jobResults = Utility::SLURM::runJob(
+						applicationPath,
+						applicationParameters,
+						"EnergyManager-Profiler",
+						1,
+						1,
+						"V100_16GB&NUMGPU2&rack26&EDR",
+						true,
+						profile.find("minimumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("minimumCPUClockRate"))),
+						profile.find("maximumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumCPUClockRate"))),
+						profile.find("maximumGPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumGPUClockRate"))),
+						true);
+					jobID = jobResults.jobID;
+					output = jobResults.output;
 
-				// Start the monitor
-				std::shared_ptr<Monitoring::Monitors::EARMonitor> earMonitor;
-				if(ear_) {
-					logDebug("Starting EAR monitor...");
-					earMonitor = std::make_shared<Monitoring::Monitors::EARMonitor>(jobResults.jobID, 0, earMonitorInterval_);
-					earMonitor->run(true);
+					succeeded = true;
+				} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
+					exception.log();
+					logWarning("Failed to profile");
+				} catch(const std::exception& exception) {
+					EnergyManager::Utility::Exceptions::Exception(exception.what(), __FILE__, __LINE__).log();
+					logWarning("Failed to profile");
+				} catch(...) {
+					logWarning("Failed to profile");
 				}
 
-				logTrace("Job output: %s", jobResults.output.c_str());
-
-				// Load the profiler session (partially, for now)
-				const auto profilerSession = std::make_shared<Profiling::Persistence::ProfilerSession>(getProfileName(), std::map<std::string, std::string> {});
-				std::regex regex("Profiler session ID: (\\d+)");
-				std::smatch match;
-				if(std::regex_search(jobResults.output, match, regex)) {
-					unsigned int profilerSessionID = std::stoul(match.str(1));
-
-					logDebug("Found profiler session ID: %d", profilerSessionID);
-
-					// Add the session
-					profilerSession->setID(profilerSessionID);
-				} else {
-					logWarning("Could not retrieve session ID from output, EAR data will not be included");
-				}
-				profilerSessions_.push_back(profilerSession);
-
-				// Stop the EAR monitor
-				if(ear_) {
-					logDebug("Stopping EAR monitor...");
-					earMonitor->stop(true);
-
-					// Append the monitor data to the session
-					logDebug("Getting profiler session...");
-					auto& profilerSession = profilerSessions_.back();
-
-					logDebug("Accessing profiler session...");
-					if(profilerSession->getID() >= 0) {
-						logDebug("Storing EAR monitor data in profiler session %d...", profilerSession->getID());
-
-						// Get the monitor data and add it to the session
-						profilerSession->setMonitorSessions({ std::make_shared<Monitoring::Persistence::MonitorSession>(earMonitor->getName(), earMonitor->getVariableValues(), profilerSession) });
-
-						// Save the updated session
-						profilerSession->save();
+				if(succeeded) {
+					// Start the monitor
+					std::shared_ptr<Monitoring::Monitors::EARMonitor> earMonitor;
+					if(ear_) {
+						logDebug("Starting EAR monitor...");
+						earMonitor = std::make_shared<Monitoring::Monitors::EARMonitor>(jobID, 0, earMonitorInterval_);
+						earMonitor->run(true);
 					}
+
+					logTrace("Job output: %s", output.c_str());
+
+					// Load the profiler session (partially, for now)
+					const auto profilerSession = std::make_shared<Profiling::Persistence::ProfilerSession>(getProfileName(), std::map<std::string, std::string> {});
+					std::regex regex("Profiler session ID: (\\d+)");
+					std::smatch match;
+					if(std::regex_search(output, match, regex)) {
+						unsigned int profilerSessionID = std::stoul(match.str(1));
+
+						logDebug("Found profiler session ID: %d", profilerSessionID);
+
+						// Add the session
+						profilerSession->setID(profilerSessionID);
+					} else {
+						logWarning("Could not retrieve session ID from output, EAR data will not be included");
+					}
+					profilerSessions_.push_back(profilerSession);
+
+					// Stop the EAR monitor
+					if(ear_) {
+						logDebug("Stopping EAR monitor...");
+						earMonitor->stop(true);
+
+						// Append the monitor data to the session
+						logDebug("Getting profiler session...");
+						auto& profilerSession = profilerSessions_.back();
+
+						logDebug("Accessing profiler session...");
+						if(profilerSession->getID() >= 0) {
+							logDebug("Storing EAR monitor data in profiler session %d...", profilerSession->getID());
+
+							// Get the monitor data and add it to the session
+							profilerSession->setMonitorSessions({ std::make_shared<Monitoring::Persistence::MonitorSession>(earMonitor->getName(), earMonitor->getVariableValues(), profilerSession) });
+
+							// Save the updated session
+							profilerSession->save();
+						}
+					}
+
+					// Break out of the retry loop
+					return;
 				}
+
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Profiler failed to profile through SLURM");
 			}
 
 			std::vector<std::string> Profiler::generateHeaders() const {
@@ -266,23 +282,6 @@ namespace EnergyManager {
 
 				// Check if this is the parent process
 				if(slurmArguments_.find("--slurmRunner") == slurmArguments_.end()) { // This is the parent
-					//// Define and keep track of SLURM run tasks
-					//class SLURMProfileRunner : public Utility::Runnable {
-					//	Profiler* profiler_;
-					//
-					//	std::map<std::string, std::string> profile_;
-					//
-					//protected:
-					//	void onRun() override {
-					//		profiler_->runSLURMProfile(profile_);
-					//	}
-					//
-					//public:
-					//	SLURMProfileRunner(Profiler* profiler, const std::map<std::string, std::string>& profile) : profiler_(profiler), profile_(profile) {
-					//	}
-					//};
-					//static std::stack<std::shared_ptr<SLURMProfileRunner>> slurmProfileRunners = {};
-
 					// Copy the profiles
 					std::vector<std::map<std::string, std::string>> profiles = getProfiles();
 
@@ -317,31 +316,19 @@ namespace EnergyManager {
 								logInformation("ETA: %s", Utility::Text::formatTimestamp(endTime).c_str());
 							}
 
-							if(slurm_) {
-								//// Limit amount of SLURM jobs
-								//while(slurmProfileRunners.size() >= 2) {
-								//	logDebug("SLURM job queue full, waiting for space...");
-								//	slurmProfileRunners.top()->synchronize();
-								//	slurmProfileRunners.pop();
-								//}
-								//
-								//// Run the profile
-								//auto slurmProfileRunner = std::make_shared<SLURMProfileRunner>(this, profile);
-								//slurmProfileRunners.push(slurmProfileRunner);
-								//slurmProfileRunner->run(true);
-								runSLURMProfile(profile);
-							} else {
-								// Simply run the profile if slurm is disabled
-								runProfile(profile);
-							}
+							// Retry if the profiler fails
+							Utility::Exceptions::Exception::retry(
+								[&] {
+									if(slurm_) {
+										runSLURMProfile(profile);
+									} else {
+										// Simply run the profile if slurm is disabled
+										runProfile(profile);
+									}
+								},
+								retriesPerRun_);
 						}
 					}
-
-					//// Wait for all SLURM tasks to complete
-					//while(!slurmProfileRunners.empty()) {
-					//	slurmProfileRunners.top()->synchronize();
-					//	slurmProfileRunners.pop();
-					//}
 				} else {
 					logDebug("Initializing SLURM runner...");
 
@@ -380,12 +367,50 @@ namespace EnergyManager {
 			void Profiler::afterProfile(const std::map<std::string, std::string>& profile, const std::shared_ptr<Persistence::ProfilerSession>& profilerSession) {
 			}
 
+			std::vector<Utility::Units::Hertz>
+				Profiler::generateFrequencyValueRange(const Utility::Units::Hertz& minimumClockRate, const Utility::Units::Hertz& maximumClockRate, const unsigned int& clockRatesToProfile) {
+				return generateValueRange<Utility::Units::Hertz>(minimumClockRate, maximumClockRate, clockRatesToProfile);
+			}
+
+			std::vector<Utility::Units::Hertz> Profiler::generateFrequencyValueRange(const std::shared_ptr<Hardware::Processor>& processor, const unsigned int& clockRatesToProfile) {
+				return generateFrequencyValueRange(processor->getMinimumCoreClockRate().toValue(), processor->getMaximumCoreClockRate().toValue(), clockRatesToProfile);
+			}
+
+			std::vector<std::map<std::string, std::string>> Profiler::generateFixedFrequencyProfiles(
+				const std::vector<std::map<std::string, std::string>>& profiles,
+				const std::shared_ptr<Hardware::Core>& core,
+				const unsigned int& coreClockRatesToProfile,
+				const std::shared_ptr<Hardware::GPU>& gpu,
+				const unsigned int& gpuClockRatesToProfile) {
+				std::vector<std::map<std::string, std::string>> results;
+				for(const auto& coreClockRate : Profiler::generateFrequencyValueRange(core, coreClockRatesToProfile)) {
+					for(const auto& gpuClockRate : Profiler::generateFrequencyValueRange(1000, gpu->getMaximumCoreClockRate(), gpuClockRatesToProfile)) {
+						for(const auto& profile : profiles) {
+							// Generate a new profile with the frequencies set
+							std::map<std::string, std::string> newProfile = {
+								{ "minimumCPUClockRate", Utility::Text::toString(coreClockRate) },
+								{ "maximumCPUClockRate", Utility::Text::toString(coreClockRate) },
+								{ "minimumGPUClockRate", Utility::Text::toString(gpuClockRate) },
+								{ "maximumGPUClockRate", Utility::Text::toString(gpuClockRate) },
+							};
+
+							// Append the current profile
+							newProfile.insert(profile.begin(), profile.end());
+							results.push_back(newProfile);
+						}
+					}
+				}
+
+				return results;
+			}
+
 			Profiler::Profiler(
 				std::string profileName,
 				std::vector<std::map<std::string, std::string>> profiles,
 				std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>> monitors,
 				const unsigned int& runsPerProfile,
 				const unsigned int& iterationsPerRun,
+				const unsigned int& retriesPerRun,
 				const bool& randomize,
 				const bool& autoSave,
 				const bool& slurm,
@@ -396,6 +421,7 @@ namespace EnergyManager {
 				, profiles_(std::move(profiles))
 				, runsPerProfile_(runsPerProfile)
 				, iterationsPerRun_(iterationsPerRun)
+				, retriesPerRun_(retriesPerRun)
 				, monitors_(std::move(monitors))
 				, randomize_(randomize)
 				, autoSave_(autoSave)
@@ -408,17 +434,18 @@ namespace EnergyManager {
 			Profiler::Profiler(const std::string& profileName, const std::vector<std::map<std::string, std::string>>& profiles, const std::map<std::string, std::string>& arguments)
 				: runsPerProfile_(Utility::Text::getArgument<unsigned int>(arguments, "--runsPerProfile", 1))
 				, iterationsPerRun_(Utility::Text::getArgument<unsigned int>(arguments, "--iterationsPerRun", 1))
+				, retriesPerRun_(Utility::Text::getArgument<unsigned int>(arguments, "--retriesPerRun", 10))
 				, randomize_(Utility::Text::getArgument<bool>(arguments, "--randomize", true))
 				, autoSave_(Utility::Text::getArgument<bool>(arguments, "--autoSave", true))
 				, slurm_(Utility::Text::getArgument<bool>(arguments, "--slurm", true))
 				, slurmArguments_(arguments)
 				, ear_(Utility::Text::getArgument<bool>(arguments, "--ear", true)) {
 				// Get hardware
-				static const auto core = Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+				static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 				static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 				// Configure monitors
-				static const auto monitorInterval = Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(100));
+				static const auto monitorInterval = Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(250));
 
 				// Determine if the profiles should be profiled using a set of CPU and GPU frequencies
 				static const auto fixedClockRates = Utility::Text::getArgument<bool>(arguments, "--fixedClockRates", false);

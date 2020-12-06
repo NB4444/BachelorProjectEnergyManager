@@ -8,7 +8,7 @@ namespace EnergyManager {
 			/**
 			 * Represents an amount per hundred thousand.
 			 */
-			class Percentmille : public PerUnit<double, unsigned long, double> {
+			class Percentmille : public PerUnit<Percentmille, double, unsigned long, double> {
 			public:
 				/**
 				 * Creates a new Percentmille.

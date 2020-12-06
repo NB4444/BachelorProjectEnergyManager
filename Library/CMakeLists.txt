@@ -14,7 +14,7 @@ message(STATUS "Source files: ${SOURCE_FILES}")
 # Add and configure target
 set(TARGET_NAME "${PROJECT_NAME}-Library")
 add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
-set_property(TARGET ${PROJECT_NAME}-Library PROPERTY POSITION_INDEPENDENT_CODE ON)
+#set_property(TARGET ${PROJECT_NAME}-Library PROPERTY POSITION_INDEPENDENT_CODE OFF)
 add_dependencies(
         ${TARGET_NAME}
         ensmallen
@@ -65,6 +65,7 @@ target_link_libraries(
         "cuda"
         "${CUDA_CUPTI_LIBRARY}"
         "nvidia-ml"
+        "dl"
         "${BOOST_LIBRARY}"
         "${OPENBLAS_LIBRARY}"
         "${ARMADILLO_LIBRARY}"

@@ -68,7 +68,7 @@ namespace EnergyManager {
 			 * Percent of time over the past sample period during which the core was active.
 			 * @return The core utilization rate.
 			 */
-			virtual Utility::Units::Percent getCoreUtilizationRate() const = 0;
+			virtual Utility::Units::Percent getCoreUtilizationRate() = 0;
 
 			/**
 			 * Gets the minimum supported clock rate.

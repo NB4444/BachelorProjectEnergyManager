@@ -12,9 +12,9 @@ int main(int argumentCount, char* argumentValues[]) {
 
 	// Run the profilers
 	EnergyManager::Profiling::Profilers::MatrixMultiplyProfiler(arguments).run();
-	EnergyManager::Profiling::Profilers::KMeansProfiler(arguments).run();
-	EnergyManager::Profiling::Profilers::BFSProfiler(arguments).run();
-	EnergyManager::Profiling::Profilers::CUBLASProfiler(arguments).run();
-	EnergyManager::Profiling::Profilers::CUFFTProfiler(arguments).run();
-	EnergyManager::Profiling::Profilers::JacobiProfiler(arguments).run();
+	//EnergyManager::Profiling::Profilers::KMeansProfiler(arguments).run();
+	//EnergyManager::Profiling::Profilers::BFSProfiler(arguments).run();
+	//EnergyManager::Profiling::Profilers::CUBLASProfiler(arguments).run();
+	//EnergyManager::Profiling::Profilers::CUFFTProfiler(arguments).run();
+	//EnergyManager::Profiling::Profilers::JacobiProfiler(arguments).run();
 }

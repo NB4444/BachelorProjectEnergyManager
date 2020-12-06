@@ -5,6 +5,7 @@
 #include "EnergyManager/Utility/SLURM.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
+#include <boost/filesystem.hpp>
 #include <utility>
 
 namespace EnergyManager {
@@ -22,32 +23,47 @@ namespace EnergyManager {
 				const auto csvFileName = "ear.csv.tmp";
 
 				// Contact the EAR accounting tool and store the data in CSV format
-				logDebug("Looking for EAR job with ID %d.%d", slurmJobID_, slurmStepID_);
+				logTrace("Looking for EAR job with ID %d.%d", slurmJobID_, slurmStepID_);
 				Utility::Application earAccountingTool(EAR_EACCT, { "-j", Utility::Text::toString(slurmJobID_) + "." + Utility::Text::toString(slurmStepID_), "-c", csvFileName });
 				earAccountingTool.run(false);
 				auto output = Utility::Text::trim(earAccountingTool.getExecutableOutput());
 
-				if(output == "No jobs found.") {
-					logDebug("No data available yet");
-					return {};
-				} else {
-					logDebug("Found EAR data, loading...");
-					const auto earData = Utility::Text::readFile(csvFileName);
+				if(output != "No jobs found.") {
+					logTrace("Found EAR job, loading...");
+					if(boost::filesystem::exists(csvFileName)) {
+						logTrace("Found EAR data, loading...");
+						const auto earData = Utility::Text::readFile(csvFileName);
 
-					logDebug("Parsing EAR data...");
-					const auto data = Utility::Text::parseTable(earData, "\n", ";");
+						if(!earData.empty()) {
+							logTrace("Parsing EAR data...");
+							const auto data = Utility::Text::parseTable(earData, "\n", ";");
 
-					logDebug("EAR data: {%s}", Utility::Text::join(data[0], ", ", ": ").c_str());
+							if(!data.empty()) {
+								logTrace("EAR data: {%s}", Utility::Text::join(data[0], ", ", ": ").c_str());
 
-					return data[0];
+								return data[0];
+							} else {
+								logWarning("EAR was not able to collect data");
+
+								return {};
+							}
+						}
+					}
 				}
+
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("No ear data available");
 			}
 
-			void EARMonitor::beforeRun() {
+			void EARMonitor::beforeLoopStart() {
+				logDebug("Waiting for EAR data to become available...");
+
 				// Wait for the job and step to show up in EAR
-				while(getEARValues().empty()) {
-					sleep(std::chrono::milliseconds(10));
-				}
+				Utility::Exceptions::Exception::retry(
+					[&] {
+						getEARValues();
+					},
+					0,
+					std::chrono::seconds(1));
 
 				logDebug("EAR data available, starting polling loop...");
 			}

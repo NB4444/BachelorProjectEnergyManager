@@ -1,15 +1,14 @@
 #pragma once
 
 #include "EnergyManager/Hardware/Processor.hpp"
-#include "EnergyManager/Utility/Units/Joule.hpp"
-#include "EnergyManager/Utility/Units/Percent.hpp"
-#include "EnergyManager/Utility/Units/Watt.hpp"
 
+#include <fstream>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 namespace EnergyManager {
@@ -19,29 +18,31 @@ namespace EnergyManager {
 		 */
 		class CentralProcessor : public Processor {
 			using Processor::Processor;
+
+		protected:
 			/**
-			 * Gets the current `/proc/CentralProcessorinfo` values of all available CentralProcessor processors.
+			 * Gets the current `/proc/cpuinfo` values of all available processors.
 			 * @return The current values.
 			 */
-			static std::map<unsigned int, std::map<std::string, std::string>> getProcCentralProcessorInfoValuesPerProcessor();
+			static std::map<unsigned int, std::map<std::string, std::string>> getProcCPUInfoValuesPerProcessor();
 
 			/**
-			 * Gets the current `/proc/CentralProcessorinfo` values of all available CentralProcessors.
+			 * Gets the current `/proc/cpuinfo` values of all available processors.
 			 * @return The current values.
 			 */
-			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> getProcCentralProcessorInfoValuesPerCentralProcessor();
+			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> getProcCPUInfoValuesPerCPU();
 
 			/**
-			 * Gets the current `/proc/stat` values of all available CentralProcessor processors.
+			 * Gets the current `/proc/stat` values of all available processors.
 			 * @return The current values.
 			 */
 			static std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> getProcStatValuesPerProcessor();
 
 			/**
-			 * Gets the current `/proc/stat` values of all available CentralProcessors.
+			 * Gets the current `/proc/stat` values of all available processors.
 			 * @return The current values.
 			 */
-			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> getProcStatValuesPerCentralProcessor();
+			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> getProcStatValuesPerCPU();
 
 		public:
 			/**

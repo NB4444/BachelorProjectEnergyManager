@@ -57,12 +57,18 @@ namespace EnergyManager {
 			 * @return The path.
 			 */
 			static std::string getApplicationPath() {
-				// Get the path to the application
-				char applicationPathBuffer[PATH_MAX];
-				if(readlink("/proc/self/exe", applicationPathBuffer, PATH_MAX) < 0) {
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Invalid application path");
-				}
-				return std::string(applicationPathBuffer);
+				// Cache the path
+				static std::string path = [] {
+					// Get the path to the application
+					char applicationPathBuffer[PATH_MAX];
+					if(readlink("/proc/self/exe", applicationPathBuffer, PATH_MAX) < 0) {
+						ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Invalid application path");
+					}
+
+					return std::string(applicationPathBuffer);
+				}();
+
+				return path;
 			}
 
 			/**

@@ -611,6 +611,16 @@ namespace EnergyManager {
 			}
 
 			/**
+			 * Writes a file.
+			 * @param path The path to the file.
+			 * @param value The value to write.
+			 */
+			static void writeFile(const std::string& path, const std::string& value) {
+				std::ofstream maximumRateStream(path);
+				maximumRateStream << value;
+			}
+
+			/**
 			 * Parses a table file.
 			 * Assumes the first row is the header row.
 			 * @param table The table to parse.

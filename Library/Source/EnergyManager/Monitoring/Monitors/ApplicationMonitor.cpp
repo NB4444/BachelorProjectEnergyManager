@@ -21,6 +21,7 @@ namespace EnergyManager {
 					});
 					ENERGY_MANAGER_MONITORING_APPLICATION_MONITOR_ADD("cpuAffinity", Utility::Text::join(cpuIDs, ","));
 				} catch(const Utility::Exceptions::Exception& exception) {
+					exception.log();
 				}
 
 				return applicationResults;

@@ -10,6 +10,9 @@ namespace EnergyManager {
 
 			StaticInitializer Entity::databaseInitializer_ = StaticInitializer(
 				[] {
+					static std::mutex mutex;
+					std::lock_guard<std::mutex> guard(mutex);
+
 					auto databaseFile = std::string(PROJECT_DATABASE);
 
 					// Open a new database connection
@@ -22,8 +25,11 @@ namespace EnergyManager {
 					//}
 				},
 				[] {
+					static std::mutex mutex;
+					std::lock_guard<std::mutex> guard(mutex);
+
 					Utility::Logging::logDebug("Closing database...");
-					if(database_ == nullptr && sqlite3_close(database_)) {
+					if(database_ != nullptr && sqlite3_close(database_)) {
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot close database: " + std::string(sqlite3_errmsg(database_)));
 					}
 				});
@@ -59,10 +65,11 @@ namespace EnergyManager {
 				} while(errorCode == SQLITE_BUSY);
 
 				if(errorCode) {
-					throw EnergyManager::Utility::Exceptions::Exception(
+					EnergyManager::Utility::Exceptions::Exception(
 						"Could not execute SQL statement " + statement + ", error code " + std::to_string(errorCode) + (errorMessage == nullptr ? "" : ": " + std::string(errorMessage)),
 						file,
-						line);
+						line)
+						.throwWithStacktrace();
 				}
 
 				return rows_;

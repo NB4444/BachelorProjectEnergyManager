@@ -5,33 +5,31 @@
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
-			std::map<std::string, std::string> CentralProcessorMonitor::onPollProcessor() {
-				if(!startTimespansMeasured_) {
-					startTimespansMeasured_ = true;
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startUserTimespan_ = processor_->getUserTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startNiceTimespan_ = processor_->getNiceTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startSystemTimespan_ = processor_->getSystemTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startIdleTimespan_ = processor_->getIdleTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startIOWaitTimespan_ = processor_->getIOWaitTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startInterruptsTimespan_ = processor_->getInterruptsTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startSoftInterruptsTimespan_ = processor_->getSoftInterruptsTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startStealTimespan_ = processor_->getStealTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startGuestTimespan_ = processor_->getGuestTimespan());
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startGuestNiceTimespan_ = processor_->getGuestNiceTimespan());
-				}
+			void CentralProcessorMonitor::beforeLoopStart() {
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startUserTimespan_ = processor_->getUserTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startNiceTimespan_ = processor_->getNiceTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startSystemTimespan_ = processor_->getSystemTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startIdleTimespan_ = processor_->getIdleTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startIOWaitTimespan_ = processor_->getIOWaitTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startInterruptsTimespan_ = processor_->getInterruptsTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startSoftInterruptsTimespan_ = processor_->getSoftInterruptsTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startStealTimespan_ = processor_->getStealTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startGuestTimespan_ = processor_->getGuestTimespan());
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(startGuestNiceTimespan_ = processor_->getGuestNiceTimespan());
+			}
 
+			std::map<std::string, std::string> CentralProcessorMonitor::onPollProcessor() {
 				std::map<std::string, std::string> results;
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["userTimespan"] = std::to_string((processor_->getUserTimespan() - startUserTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["niceTimespan"] = std::to_string((processor_->getNiceTimespan() - startNiceTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["systemTimespan"] = std::to_string((processor_->getSystemTimespan() - startSystemTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["idleTimespan"] = std::to_string((processor_->getIdleTimespan() - startIdleTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["ioWaitTimespan"] = std::to_string((processor_->getIOWaitTimespan() - startIOWaitTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["interruptsTimespan"] = std::to_string((processor_->getInterruptsTimespan() - startInterruptsTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(
-					results["softInterruptsTimespan"] = std::to_string((processor_->getSoftInterruptsTimespan() - startSoftInterruptsTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["stealTimespan"] = std::to_string((processor_->getStealTimespan() - startStealTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["guestTimespan"] = std::to_string((processor_->getGuestTimespan() - startGuestTimespan_).count()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["guestNiceTimespan"] = std::to_string((processor_->getGuestNiceTimespan() - startGuestNiceTimespan_).count()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["userTimespan"] = Utility::Text::toString(processor_->getUserTimespan() - startUserTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["niceTimespan"] = Utility::Text::toString(processor_->getNiceTimespan() - startNiceTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["systemTimespan"] = Utility::Text::toString(processor_->getSystemTimespan() - startSystemTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["idleTimespan"] = Utility::Text::toString(processor_->getIdleTimespan() - startIdleTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["ioWaitTimespan"] = Utility::Text::toString(processor_->getIOWaitTimespan() - startIOWaitTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["interruptsTimespan"] = Utility::Text::toString(processor_->getInterruptsTimespan() - startInterruptsTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["softInterruptsTimespan"] = Utility::Text::toString(processor_->getSoftInterruptsTimespan() - startSoftInterruptsTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["stealTimespan"] = Utility::Text::toString(processor_->getStealTimespan() - startStealTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["guestTimespan"] = Utility::Text::toString(processor_->getGuestTimespan() - startGuestTimespan_));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["guestNiceTimespan"] = Utility::Text::toString(processor_->getGuestNiceTimespan() - startGuestNiceTimespan_));
 
 				// Get downstream values
 				auto centralProcessorResults = onPollCentralProcessor();
@@ -44,24 +42,9 @@ namespace EnergyManager {
 				return {};
 			}
 
-			void CentralProcessorMonitor::onResetDevice() {
-				startUserTimespan_ = {};
-				startNiceTimespan_ = {};
-				startSystemTimespan_ = {};
-				startIdleTimespan_ = {};
-				startIOWaitTimespan_ = {};
-				startInterruptsTimespan_ = {};
-				startSoftInterruptsTimespan_ = {};
-				startStealTimespan_ = {};
-				startGuestTimespan_ = {};
-				startGuestNiceTimespan_ = {};
-				startTimespansMeasured_ = false;
-			}
-
 			CentralProcessorMonitor::CentralProcessorMonitor(const std::string& name, const std::shared_ptr<Hardware::CentralProcessor>& processor, const std::chrono::system_clock::duration& interval)
 				: ProcessorMonitor(name, processor, interval)
 				, processor_(processor) {
-				reset();
 			}
 		}
 	}

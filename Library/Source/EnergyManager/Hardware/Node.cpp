@@ -14,6 +14,10 @@ namespace EnergyManager {
 		}
 
 		std::shared_ptr<Node> Node::getNode() {
+			// Only allow one thread to get Nodes at a time
+			static std::mutex mutex;
+			std::lock_guard<std::mutex> guard(mutex);
+
 			static std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node(CPU::getCPUs(), GPU::getGPUs()));
 
 			return node;
@@ -94,7 +98,7 @@ namespace EnergyManager {
 			return info.procs;
 		}
 
-		Utility::Units::Joule Node::getEnergyConsumption() const {
+		Utility::Units::Joule Node::getEnergyConsumption() {
 			double energyConsumption = 0.0;
 
 			// Collect CPU energy consumptions
@@ -110,7 +114,7 @@ namespace EnergyManager {
 			return Utility::Units::Joule(energyConsumption) - startEnergyConsumption_;
 		}
 
-		Utility::Units::Watt Node::getPowerConsumption() const {
+		Utility::Units::Watt Node::getPowerConsumption() {
 			double powerConsumption = 0.0;
 
 			// Collect CPU power consumptions

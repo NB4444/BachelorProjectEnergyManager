@@ -26,9 +26,14 @@ class EventPlot(FigurePlot):
     def on_plot_figure(self, figure):
         axes = self.axes
 
-        axes.get_yaxis().set_visible(False)
+        # Define the y offset
+        y_offset = 0.3
+
+        # Disable the y axis
+        # axes.get_yaxis().set_visible(False)
         # axes.set_aspect(1)
 
+        # Set the x label
         axes.set_xlabel("Timestamp")
 
         # Enable grid
@@ -50,6 +55,11 @@ class EventPlot(FigurePlot):
             event_names.append(event)
         event_names = sorted(list(set(event_names)))
         axes.set_xlim(date2num(minimum_timestamp), date2num(maximum_timestamp))
+        axes.set_ylim(0, len(event_names) - 1)
+
+        # Set the ticks
+        axes.set_yticks([event_id for event_id, _ in enumerate(event_names)], minor=False)
+        axes.set_yticklabels([])
 
         # Set the colors
         colors = [pyplot.get_cmap("gist_rainbow")(1. * i / len(event_names)) for i in range(len(event_names))]
@@ -77,13 +87,20 @@ class EventPlot(FigurePlot):
             # Add the annotation
             average_x = average(x_range)
             average_y = average([y_range[0], y_range_2[0]])
-            axes.text(average_x, average_y, event, horizontalalignment="center", verticalalignment="center")
+            # axes.text(average_x, average_y, event, horizontalalignment="center", verticalalignment="center")
 
         # Assign date locator / formatter to the x-axis to get proper labels
         locator = AutoDateLocator(minticks=3)
         formatter = AutoDateFormatter(locator)
         axes.xaxis.set_major_locator(locator)
         axes.xaxis.set_major_formatter(formatter)
+
+        # Create the labels
+        for event_id, event_name in enumerate(event_names):
+            self.annotations.append(
+                axes.annotate(event_name, xy=(0, event_id + y_offset), xytext=(-125, 0),
+                              xycoords=("axes fraction", "data"),
+                              textcoords="offset points"))
 
     @property
     def extent(self):

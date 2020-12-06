@@ -1,6 +1,7 @@
 //#include "./DynamicDVFSModel.hpp"
 //
 //#include "EnergyManager/Utility/Logging.hpp"
+//#include "EnergyManager/Utility/Text.hpp"
 //
 //namespace EnergyManager {
 //	namespace EnergySaving {
@@ -132,8 +133,8 @@
 //
 //				// Get the initial point
 //				arma::mat optimizedPoint(
-//					std::to_string(cpu_->getMinimumCoreClockRate().toValue()) + " " + std::to_string(cpu_->getMaximumCoreClockRate().toValue()) + " 1 "
-//					+ std::to_string(gpu_->getMaximumCoreClockRate().toValue()));
+//					Utility::Text::toString(cpu_->getMinimumCoreClockRate().toValue()) + " " + Utility::Text::toString(cpu_->getMaximumCoreClockRate().toValue()) + " 1 "
+//					+ Utility::Text::toString(gpu_->getMaximumCoreClockRate().toValue()));
 //
 //				// Optimize
 //				auto schedule = ens::ExponentialSchedule();

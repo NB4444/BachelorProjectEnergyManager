@@ -14,13 +14,13 @@ namespace EnergyManager {
 			 * Returns the Device's energy consumption since the framework was initialized.
 			 * @return The energy consumption.
 			 */
-			virtual Utility::Units::Joule getEnergyConsumption() const = 0;
+			virtual Utility::Units::Joule getEnergyConsumption() = 0;
 
 			/**
 			 * Returns the Device's power consumption.
 			 * @return The power consumption.
 			 */
-			virtual Utility::Units::Watt getPowerConsumption() const = 0;
+			virtual Utility::Units::Watt getPowerConsumption() = 0;
 		};
 	}
 }

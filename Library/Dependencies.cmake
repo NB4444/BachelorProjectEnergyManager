@@ -115,7 +115,7 @@ ExternalProject_Add(
 
 # Configure Boost
 set(Boost_NO_BOOST_CMAKE "on")
-find_package(Boost 1.67 REQUIRED COMPONENTS math_c99 program_options unit_test_framework serialization)
+find_package(Boost 1.67 REQUIRED COMPONENTS math_c99 program_options unit_test_framework serialization filesystem)
 #set(BOOST_ROOT_DIRECTORY "${Boost_INCLUDE_DIR}")
 #if(NOT BOOST_ROOT_DIRECTORY AND EXISTS "/hpc/base/ctt/packages/boost/1.70.0/intel")
 #    set(BOOST_ROOT_DIRECTORY "/hpc/base/ctt/packages/boost/1.70.0/intel")

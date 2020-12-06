@@ -1,4 +1,5 @@
 #include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Profiling/Profilers/Profiler.hpp"
 
@@ -16,7 +17,7 @@ namespace EnergyManager {
 				/**
 				 * The core to use when profiling.
 				 */
-				std::shared_ptr<Hardware::CPU::Core> core_;
+				std::shared_ptr<Hardware::Core> core_;
 
 				/**
 				 * The GPU to use when profiling.

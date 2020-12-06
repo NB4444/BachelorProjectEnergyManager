@@ -142,8 +142,8 @@ namespace EnergyManager {
 				// Write the job script
 				std::string command
 					= "#!/bin/bash\n"
-					  "#SBATCH --output log.%J\n"
-					  "#SBATCH --error log.%J\n"
+					  "#SBATCH --output %J.log\n"
+					  "#SBATCH --error %J.log\n"
 					  + std::string(verbose ? "#SBATCH --verbose\n" : "")
 					  + "#SBATCH --job-name EnergyManager-JobRunner\n"
 					  "#SBATCH --account COLBSC\n"
@@ -167,23 +167,31 @@ namespace EnergyManager {
 					  "module load ear/ear\n"
 
 					  // Load the EAR library
-					  "export LD_PRELOAD=${EAR_INSTALL_PATH}/lib/libear.seq.so\n"
-					  "export SLURM_HACK_LIBRARY_FILE=${EAR_INSTALL_PATH}/lib/libear.seq.so\n"
+					  "export LD_PRELOAD=" + EAR_LIBRARY + "\n"
+					  "export SLURM_HACK_LIBRARY_FILE=" + EAR_LIBRARY + "\n"
 
-					  // Set the GPU frequency if necessary
+					  // Set the GPU frequency in EAR if necessary
+					  // EAR requires the value to be in MHz
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
 						 : "export SLURM_EAR_GPU_DEF_FREQ=\"" + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA)) + "\"\n")
 
 					  + "srun"
+
+					  // Set the CPU frequency in SLURM
+					  // SLURM want the CPU frequency in KHz
 					  + (maximumCPUFrequency == Units::Hertz()
 						 ? ""
 						 : (" --cpu-freq " + (minimumCPUFrequency == Units::Hertz()
 								 ? ""
-								 : (Text::toString(minimumCPUFrequency.convertPrefix(Units::SIPrefix::MEGA)) + "-")) + Text::toString(maximumCPUFrequency.convertPrefix(Units::SIPrefix::MEGA))))
+								 : (Text::toString(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)) + "-")) + Text::toString(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))))
+
+					  // Set the GPU frequency in SLURM
+					  // SLURM wants the GPU frequency in MHz
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
 						 : (" --gpu-freq " + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))))
+
 					  + (verbose ? " --verbose" : "")
 					  + " --job-name EnergyManager"
 					  " --ear-verbose 1"
@@ -215,13 +223,16 @@ namespace EnergyManager {
 
 				// Capture the output
 				std::string jobOutput;
-				for(unsigned int attempt = 0; attempt < 10; ++attempt) {
-					if(jobOutput.empty()) {
-						jobOutput = Text::readFile("log." + Text::toString(jobID));
-					} else {
-						break;
-					}
-				}
+				Exceptions::Exception::retry(
+					[&] {
+						jobOutput = Text::readFile(Text::toString(jobID) + ".log");
+
+						if(jobOutput.empty()) {
+							ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not retrieve job output");
+						}
+					},
+					10,
+					std::chrono::seconds(1));
 				Logging::logTrace("SLURM job output: %s", jobOutput.c_str());
 
 				// Return the results

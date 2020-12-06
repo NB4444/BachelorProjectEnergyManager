@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" promptOnRemoteOverwrite="CHECK_CONTENT" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" deleteMissingItems="true" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" traceLevel="ERRORS" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/xqbakker/EnergyManager" local="$PROJECT_DIR$" web="" />
+            <mapping deploy="EnergyManager" local="$PROJECT_DIR$" web="" />
           </mappings>
           <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
           </excludedPaths>
         </serverdata>

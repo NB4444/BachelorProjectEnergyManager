@@ -1,11 +1,14 @@
 #pragma once
 
 #include "EnergyManager/Hardware/CentralProcessor.hpp"
+#include "EnergyManager/Utility/CachedValue.hpp"
+#include "EnergyManager/Utility/Logging/Loggable.hpp"
 #include "EnergyManager/Utility/Loopable.hpp"
 #include "EnergyManager/Utility/Units/Joule.hpp"
 #include "EnergyManager/Utility/Units/Percent.hpp"
 #include "EnergyManager/Utility/Units/Watt.hpp"
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -15,71 +18,25 @@
 
 namespace EnergyManager {
 	namespace Hardware {
+		class Core;
+
 		/**
 		 * Represents a Central Processing Unit.
 		 */
 		class CPU
 			: public CentralProcessor
-			, private Utility::Loopable {
-		public:
-			class Core;
-
-		private:
+			, protected Utility::Logging::Loggable {
 			friend Core;
-
-			/**
-			 * The mutex that protects the monitored resources.
-			 */
-			static std::mutex monitorThreadMutex_;
-
-			/**
-			 * Gets the current `/proc/cpuinfo` values of all available CPU processors.
-			 * @return The current values.
-			 */
-			static std::map<unsigned int, std::map<std::string, std::string>> getProcCPUInfoValuesPerProcessor();
-
-			/**
-			 * Gets the current `/proc/cpuinfo` values of all available CPUs.
-			 * @return The current values.
-			 */
-			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> getProcCPUInfoValuesPerCPU();
-
-			/**
-			 * Gets the current `/proc/stat` values of all available CPU processors.
-			 * @return The current values.
-			 */
-			static std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> getProcStatValuesPerProcessor();
-
-			/**
-			 * Gets the current `/proc/stat` values of all available CPUs.
-			 * @return The current values.
-			 */
-			static std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> getProcStatValuesPerCPU();
-
-			/**
-			 * The cores of the current CPU.
-			 */
-			std::vector<std::shared_ptr<Core>> cores_;
-
-			/**
-			 * Record the last time at which the variables were polled
-			 */
-			std::chrono::system_clock::time_point lastMonitorTimestamp_ = std::chrono::system_clock::now();
-
-			/**
-			 * Record the last `/proc/stat` values
-			 */
-			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> lastProcStatValues_ = getProcStatValuesPerCPU();
-
-			/**
-			 * Record the last polled energy consumption
-			 */
-			Utility::Units::Joule lastEnergyConsumption_ = 0;
 
 			/**
 			 * The `/proc/stat` values at the start of execution.
 			 */
 			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> startProcStatValues_ = getProcStatValuesPerCPU();
+
+			/**
+			 * The cores in the CPU.
+			 */
+			std::vector<std::shared_ptr<Core>> cores_;
 
 			/**
 			 * The starting energy consumption.
@@ -89,12 +46,12 @@ namespace EnergyManager {
 			/**
 			 * The power consumption.
 			 */
-			Utility::Units::Watt powerConsumption_ = 0;
+			Utility::CachedValue<Utility::Units::Watt> powerConsumption;
 
 			/**
-			 * The utilization rates per core.
+			 * The last energy consumption recorded when calculating the power consumption.
 			 */
-			std::map<unsigned int, Utility::Units::Percent> coreUtilizationRates_ = {};
+			Utility::Units::Joule lastEnergyConsumption_;
 
 			/**
 			 * Creates a new CPU.
@@ -104,8 +61,6 @@ namespace EnergyManager {
 
 		protected:
 			std::vector<std::string> generateHeaders() const override;
-
-			void onLoop() override;
 
 		public:
 			static std::vector<std::shared_ptr<Hardware::CPU>> parseCPUs(const std::string& cpuString);
@@ -145,15 +100,15 @@ namespace EnergyManager {
 
 			void resetCoreClockRate() final;
 
-			Utility::Units::Percent getCoreUtilizationRate() const final;
+			Utility::Units::Percent getCoreUtilizationRate() final;
 
-			Utility::Units::Joule getEnergyConsumption() const final;
+			Utility::Units::Joule getEnergyConsumption() final;
 
 			Utility::Units::Hertz getMinimumCoreClockRate() const final;
 
 			Utility::Units::Hertz getMaximumCoreClockRate() const final;
 
-			Utility::Units::Watt getPowerConsumption() const final;
+			Utility::Units::Watt getPowerConsumption() final;
 
 			std::chrono::system_clock::duration getUserTimespan() const final;
 
@@ -188,151 +143,6 @@ namespace EnergyManager {
 			 * @param turbo Whether to enable turbo.
 			 */
 			void setTurboEnabled(const bool& turbo) const;
-
-			/**
-			 * Represents a CPU core.
-			 */
-			class Core
-				: public CentralProcessor
-				, protected Utility::Logging::Loggable {
-				friend CPU;
-
-				/**
-				 * The CPU that the core belongs to.
-				 */
-				CPU* cpu_;
-
-				/**
-				 * The core ID.
-				 */
-				unsigned int coreID_;
-
-				/**
-				 * Creates a new Core.
-				 * @param cpu The CPU that the core belongs to.
-				 * @param id The ID of the core.
-				 * @param coreID The ID of the core in the current CPU.
-				 */
-				explicit Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID);
-
-				/**
-				 * Gets a `/proc/stat` timespan.
-				 * @param name The name of the timespan.
-				 * @return The timespan.
-				 */
-				std::chrono::system_clock::duration getProcStatTimespan(const std::string& name) const;
-
-			protected:
-				std::vector<std::string> generateHeaders() const override;
-
-			public:
-				/**
-				 * Gets the Core with the specified ID.
-				 * @param id The ID.
-				 * @return The Core.
-				 */
-				static std::shared_ptr<Core> getCore(const unsigned int& id);
-
-				/**
-				 * Gets the CPU that the core belongs to.
-				 * @return The CPU.
-				 */
-				std::shared_ptr<CPU> getCPU() const;
-
-				/**
-				 * Converts a core ID to a processor ID for use with system commands.
-				 * @return The processor ID.
-				 */
-				unsigned int getCoreID() const;
-
-				Utility::Units::Hertz getCoreClockRate() const final;
-
-				Utility::Units::Hertz getCurrentMinimumCoreClockRate() const final;
-
-				Utility::Units::Hertz getCurrentMaximumCoreClockRate() const final;
-
-				void setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) final;
-
-				void resetCoreClockRate() final;
-
-				Utility::Units::Percent getCoreUtilizationRate() const final;
-
-				Utility::Units::Hertz getMinimumCoreClockRate() const final;
-
-				Utility::Units::Hertz getMaximumCoreClockRate() const final;
-
-				Utility::Units::Joule getEnergyConsumption() const final;
-
-				Utility::Units::Watt getPowerConsumption() const final;
-
-				Utility::Units::Celsius getTemperature() const final;
-
-				/**
-				 * Gets the amount of time spent on user level processes.
-				 * @return The user timespan.
-				 */
-				std::chrono::system_clock::duration getUserTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on user level processes with a positive nice value.
-				 * @return The nice timespan.
-				 */
-				std::chrono::system_clock::duration getNiceTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on system level processes.
-				 * @return The system timespan.
-				 */
-				std::chrono::system_clock::duration getSystemTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent idle.
-				 * @return The idle timespan.
-				 */
-				std::chrono::system_clock::duration getIdleTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent waiting for IO operations.
-				 * @return The IO wait timespan.
-				 */
-				std::chrono::system_clock::duration getIOWaitTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on interrupts.
-				 * @return The interrupts timespan.
-				 */
-				std::chrono::system_clock::duration getInterruptsTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on soft interrupts by the specified core.
-				 * @return The soft interrupts timespan.
-				 */
-				std::chrono::system_clock::duration getSoftInterruptsTimespan() const final;
-
-				/**
-				 * Gets the amount of time waiting on the host CPU in a virtualized environment by the specified core.
-				 * @return The steal timespan.
-				 */
-				std::chrono::system_clock::duration getStealTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on processes in a guest virtualization environment by the specified core.
-				 * @return The guest timespan.
-				 */
-				std::chrono::system_clock::duration getGuestTimespan() const final;
-
-				/**
-				 * Gets the amount of time spent on user level processes with a positive nice value in a guest virtualization environment by the specified core.
-				 * @return The nice timespan.
-				 */
-				std::chrono::system_clock::duration getGuestNiceTimespan() const final;
-
-				/**
-				 * Gets the power scaling driver that is in use.
-				 * @return The power scaling driver.
-				 */
-				std::string getPowerScalingDriver() const;
-			};
 		};
 	}
 }

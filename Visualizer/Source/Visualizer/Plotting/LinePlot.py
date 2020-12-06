@@ -1,4 +1,4 @@
-from typing import Dict, Any, OrderedDict
+from typing import Any, OrderedDict
 
 from Visualizer.Plotting.AxesPlot import AxesPlot
 

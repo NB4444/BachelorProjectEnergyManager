@@ -15,6 +15,13 @@ namespace EnergyManager {
 		void Runnable::afterRun() {
 		}
 
+		void Runnable::sleep(const std::chrono::system_clock::duration& duration) {
+			usleep(std::chrono::duration_cast<std::chrono::microseconds>(duration).count());
+		}
+
+		Runnable::Runnable() : isRunning_(false) {
+		}
+
 		Runnable::Runnable(const Runnable& runnable) {
 			if(isRunning()) {
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Running objects cannot be copied");
@@ -37,30 +44,33 @@ namespace EnergyManager {
 			logTrace("Running runnable" + std::string(asynchronous ? " asynchronously" : "") + "...");
 
 			auto operation = [&] {
-				// Lock synchronization
-				std::unique_lock<std::mutex> lock(synchronizationMutex_);
+				//{
+				//	// Set up the running state and lock any waiting threads
+				//	std::unique_lock<std::mutex> lock(synchronizationMutex_);
+				isRunning_ = true;
 
 				logTrace("Preparing run...");
 				beforeRun();
-
-				// Set up the running state and lock any waiting threads
-				isRunning_ = true;
-				startTimestamp_ = std::chrono::system_clock::now();
 
 				// Run the operation
 				logTrace("Executing workload...");
 				onRun();
 
-				// Release any waiting threads
-				isRunning_ = false;
-
 				logTrace("Finalizing run...");
 				afterRun();
 
-				// Unlock the waiting synchronization
-				lock.unlock();
-				synchronizationCondition_.notify_one();
+				logTrace("Finished workload");
+
+				// Release any waiting threads
+				isRunning_ = false;
+				//}
+				//
+				//logTrace("Notifying waiting threads...");
+				//synchronizationCondition_.notify_all();
 			};
+
+			// Run the operation
+			startTimestamp_ = std::chrono::system_clock::now();
 			if(asynchronous) {
 				runThread_ = std::thread(operation);
 				Logging::registerThread(runThread_);
@@ -72,16 +82,26 @@ namespace EnergyManager {
 		void Runnable::synchronize() {
 			logTrace("Synchronizing with run thread...");
 
-			// Wait for the worker thread to finish running
-			std::unique_lock<std::mutex> lock(synchronizationMutex_);
-			synchronizationCondition_.wait(lock, [&] {
-				return !isRunning_;
-			});
+			//std::unique_lock<std::mutex> lock(synchronizationMutex_);
 
 			// Join the thread to wait for it to stop, if there is a thread
 			if(runThread_.joinable()) {
+				logTrace("Waiting for worker thread to finish...");
+
+				// Wait for the worker thread to finish running
+				while(isRunning_) {
+					sleep(std::chrono::milliseconds(1));
+				}
+				//synchronizationCondition_.wait(lock, [&] {
+				//	return !isRunning_;
+				//});
+
+				logTrace("Joining thread...");
+
 				runThread_.join();
 			}
+
+			logTrace("Synchronized with run thread");
 		}
 	}
 }

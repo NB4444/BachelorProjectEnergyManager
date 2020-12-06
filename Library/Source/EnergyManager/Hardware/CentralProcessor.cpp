@@ -1,32 +1,18 @@
 #include "./CentralProcessor.hpp"
 
+#include "EnergyManager/Utility/CachedValue.hpp"
 #include "EnergyManager/Utility/Text.hpp"
-
-#include <fstream>
-#include <string>
-#include <unistd.h>
-#include <vector>
 
 namespace EnergyManager {
 	namespace Hardware {
-		std::map<unsigned int, std::map<std::string, std::string>> CentralProcessor::getProcCentralProcessorInfoValuesPerProcessor() {
-			// Keep track of each access time
-			static std::chrono::system_clock::time_point lastProcCentralProcessorInfoValuesPerProcessorRetrieval = std::chrono::system_clock::now();
+		std::map<unsigned int, std::map<std::string, std::string>> CentralProcessor::getProcCPUInfoValuesPerProcessor() {
+			static Utility::CachedValue<std::map<unsigned int, std::map<std::string, std::string>>> procCPUInfoValuesPerProcessor(std::chrono::milliseconds(100));
 
-			// Keep track of the last values
-			static std::map<unsigned int, std::map<std::string, std::string>> procCentralProcessorInfoValues = {};
+			return procCPUInfoValuesPerProcessor.getValue([](const auto& value, const auto& timeSinceLastUpdate) {
+				std::map<unsigned int, std::map<std::string, std::string>> result;
 
-			// Set up a mutex
-			static std::mutex procCentralProcessorInfoValuesMutex;
-			std::lock_guard<std::mutex> guard(procCentralProcessorInfoValuesMutex);
-
-			if(procCentralProcessorInfoValues.empty()
-			   || std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastProcCentralProcessorInfoValuesPerProcessorRetrieval).count() > 100) {
-				procCentralProcessorInfoValues.clear();
-				lastProcCentralProcessorInfoValuesPerProcessorRetrieval = std::chrono::system_clock::now();
-
-				// Read the CentralProcessor info
-				std::ifstream inputStream("/proc/CentralProcessorinfo");
+				// Read the CPU info
+				std::ifstream inputStream("/proc/cpuinfo");
 				std::string processorInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
 
 				// Parse the values to lines
@@ -43,55 +29,47 @@ namespace EnergyManager {
 
 					// Do something based on the value type
 					if(valuePair.front() == "processor") {
-						// Set the current CentralProcessor ID
+						// Set the current CPU ID
 						currentProcessorID = std::stoi(valuePair.back());
 					} else {
 						// Set the variable
-						procCentralProcessorInfoValues[currentProcessorID][valuePair.front()] = Utility::Text::trim(valuePair.back());
+						result[currentProcessorID][valuePair.front()] = Utility::Text::trim(valuePair.back());
 					}
 				}
-			}
 
-			return procCentralProcessorInfoValues;
+				return result;
+			});
 		}
 
-		std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> CentralProcessor::getProcCentralProcessorInfoValuesPerCentralProcessor() {
-			// Parse the values per CentralProcessor
-			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> CentralProcessorCoreValues = {};
-			for(auto& processorValues : getProcCentralProcessorInfoValuesPerProcessor()) {
-				auto CentralProcessorID = std::stoi(processorValues.second["physical id"]);
+		std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> CentralProcessor::getProcCPUInfoValuesPerCPU() {
+			// Keep track of the values
+			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::string>>> cpuCoreValues;
+
+			// Parse the values per CPU
+			for(auto& processorValues : getProcCPUInfoValuesPerProcessor()) {
+				auto cpuID = std::stoi(processorValues.second["physical id"]);
 
 				// Create structures if they don't exist
-				if(CentralProcessorCoreValues.find(CentralProcessorID) == CentralProcessorCoreValues.end()) {
-					CentralProcessorCoreValues[CentralProcessorID] = {};
+				if(cpuCoreValues.find(cpuID) == cpuCoreValues.end()) {
+					cpuCoreValues[cpuID] = {};
 				}
 
 				//auto coreID = std::stoi(processorValues.second["core id"]);
-				auto coreID = processorValues.first;
-				CentralProcessorCoreValues[CentralProcessorID][coreID] = processorValues.second;
+				auto processorID = processorValues.first;
+				cpuCoreValues[cpuID][processorID] = processorValues.second;
 			}
 
-			return CentralProcessorCoreValues;
+			return cpuCoreValues;
 		}
 
 		std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> CentralProcessor::getProcStatValuesPerProcessor() {
-			// Keep track of each access time
-			static std::chrono::system_clock::time_point lastProcStatValuesRetrieval = std::chrono::system_clock::now();
+			static Utility::CachedValue<std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> procStatValuesPerProcessor(std::chrono::milliseconds(100));
 
-			// Keep track of the last values
-			static std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> procStatValues = {};
+			return procStatValuesPerProcessor.getValue([](const auto& value, const auto& timeSinceLastUpdate) {
+				std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> result;
 
-			// Set up a mutex
-			static std::mutex procStatValuesMutex;
-			std::lock_guard<std::mutex> guard(procStatValuesMutex);
-
-			if(procStatValues.empty() || std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastProcStatValuesRetrieval).count() > 100) {
-				procStatValues.clear();
-				lastProcStatValuesRetrieval = std::chrono::system_clock::now();
-
-				// Read the CentralProcessor info
-				std::ifstream inputStream("/proc/stat");
-				std::string processorInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+				// Read the CPU info
+				auto processorInfo = Utility::Text::readFile("/proc/stat");
 
 				// Parse the values to lines
 				std::vector<std::string> processorInfoLines = Utility::Text::splitToVector(processorInfo, "\n");
@@ -99,7 +77,7 @@ namespace EnergyManager {
 				// Parse the lines
 				for(const auto& processorInfoLine : processorInfoLines) {
 					// Only process processors
-					if(processorInfoLine.rfind("CentralProcessor", 0) != 0) {
+					if(processorInfoLine.rfind("cpu", 0) != 0) {
 						break;
 					}
 
@@ -119,8 +97,8 @@ namespace EnergyManager {
 						const double jiffiesPerSecond = sysconf(_SC_CLK_TCK);
 						const double jiffiesPerMillisecond = jiffiesPerSecond / 1e3;
 
-						procStatValues[processorID][name] = std::chrono::duration_cast<std::chrono::system_clock::duration>(
-							std::chrono::milliseconds(static_cast<unsigned long>(std::stol(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
+						result[processorID][name] = std::chrono::duration_cast<std::chrono::system_clock::duration>(
+							std::chrono::milliseconds(static_cast<unsigned long>(std::stoul(processorInfoValues[valueIndex]) / jiffiesPerMillisecond)));
 					};
 
 					setValue("userTimespan", 1);
@@ -134,32 +112,35 @@ namespace EnergyManager {
 					setValue("guestTimespan", 9);
 					setValue("guestNiceTimespan", 10);
 				}
-			}
 
-			return procStatValues;
+				return result;
+			});
 		}
 
-		std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> CentralProcessor::getProcStatValuesPerCentralProcessor() {
-			auto procCentralProcessorInfoValuesPerProcessor = getProcCentralProcessorInfoValuesPerProcessor();
+		std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> CentralProcessor::getProcStatValuesPerCPU() {
+			// Keep track of the last values
+			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> cpuCoreValues;
 
-			// Parse the values per CentralProcessor
-			std::map<unsigned int, std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>>> CentralProcessorCoreValues;
-			for(auto& processorValues : getProcStatValuesPerProcessor()) {
+			auto procCPUInfoValuesPerProcessor = getProcCPUInfoValuesPerProcessor();
+			auto procStatValuesPerProcessor = getProcStatValuesPerProcessor();
+
+			// Parse the values per CPU
+			for(auto& processorValues : procStatValuesPerProcessor) {
 				auto processorID = processorValues.first;
 
-				auto CentralProcessorID = std::stoi(procCentralProcessorInfoValuesPerProcessor[processorID]["physical id"]);
+				auto cpuID = std::stoi(procCPUInfoValuesPerProcessor[processorID]["physical id"]);
 
 				// Create structures if they don't exist
-				if(CentralProcessorCoreValues.find(CentralProcessorID) == CentralProcessorCoreValues.end()) {
-					CentralProcessorCoreValues[CentralProcessorID] = {};
+				if(cpuCoreValues.find(cpuID) == cpuCoreValues.end()) {
+					cpuCoreValues[cpuID] = {};
 				}
 
-				//auto coreID = std::stoi(procCentralProcessorInfoValuesPerProcessor[processorID]["core id"]);
+				//auto coreID = std::stoi(procCPUInfoValuesPerProcessor[processorID]["core id"]);
 				auto coreID = processorID;
-				CentralProcessorCoreValues[CentralProcessorID][coreID] = processorValues.second;
+				cpuCoreValues[cpuID][coreID] = processorValues.second;
 			}
 
-			return CentralProcessorCoreValues;
+			return cpuCoreValues;
 		}
 	}
 }

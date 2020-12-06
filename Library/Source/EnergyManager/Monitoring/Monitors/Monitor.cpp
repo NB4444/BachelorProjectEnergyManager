@@ -6,6 +6,7 @@
 #include "EnergyManager/Monitoring/Monitors/NodeMonitor.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 #include <utility>
 
@@ -103,7 +104,7 @@ namespace EnergyManager {
 
 				if(save) {
 					variableValues_[getLastLoopTimestamp()] = results;
-					variableValues_[getLastLoopTimestamp()]["runtime"] = std::to_string(getRuntime().count());
+					variableValues_[getLastLoopTimestamp()]["runtime"] = Utility::Text::toString(getRuntime());
 				}
 
 				return results;

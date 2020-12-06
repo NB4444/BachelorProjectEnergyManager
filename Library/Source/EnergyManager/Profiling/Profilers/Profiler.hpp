@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Hardware/Processor.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
@@ -41,6 +42,11 @@ namespace EnergyManager {
 				unsigned int iterationsPerRun_;
 
 				/**
+				 * The amount of times to re-try a run before halting.
+				 */
+				unsigned int retriesPerRun_;
+
+				/**
 				 * The last profiling sessions.
 				 */
 				std::vector<std::shared_ptr<Persistence::ProfilerSession>> profilerSessions_;
@@ -78,14 +84,16 @@ namespace EnergyManager {
 				/**
 				 * Does one profiling run.
 				 * @param profile The profile.
+				 * @param attempts The amount of attempts to make.
 				 */
-				void runProfile(const std::map<std::string, std::string>& profile);
+				void runProfile(const std::map<std::string, std::string>& profile, const unsigned int& attempts = 3);
 
 				/**
 				 * Does one profiling run using SLURM.
 				 * @param profile The profile.
+				 * @param attempts The amount of attempts to make.
 				 */
-				void runSLURMProfile(const std::map<std::string, std::string>& profile);
+				void runSLURMProfile(const std::map<std::string, std::string>& profile, const unsigned int& attempts = 3);
 
 			protected:
 				std::vector<std::string> generateHeaders() const override;
@@ -140,9 +148,7 @@ namespace EnergyManager {
 				 * @return The frequency profiles.
 				 */
 				static std::vector<Utility::Units::Hertz>
-					generateFrequencyValueRange(const Utility::Units::Hertz& minimumClockRate, const Utility::Units::Hertz& maximumClockRate, const unsigned int& clockRatesToProfile) {
-					return generateValueRange<Utility::Units::Hertz>(minimumClockRate, maximumClockRate, clockRatesToProfile);
-				}
+					generateFrequencyValueRange(const Utility::Units::Hertz& minimumClockRate, const Utility::Units::Hertz& maximumClockRate, const unsigned int& clockRatesToProfile);
 
 				/**
 				 * Generates a bunch of profiles for each of the available processor frequencies specified.
@@ -150,9 +156,7 @@ namespace EnergyManager {
 				 * @param clockRatesToProfile The amount of profiles to test in between the minimum and maximum clock rate (inclusive).
 				 * @return The frequency profiles.
 				 */
-				static std::vector<Utility::Units::Hertz> generateFrequencyValueRange(const std::shared_ptr<Hardware::Processor>& processor, const unsigned int& clockRatesToProfile) {
-					return generateFrequencyValueRange(processor->getMinimumCoreClockRate().toValue(), processor->getMaximumCoreClockRate().toValue(), clockRatesToProfile);
-				}
+				static std::vector<Utility::Units::Hertz> generateFrequencyValueRange(const std::shared_ptr<Hardware::Processor>& processor, const unsigned int& clockRatesToProfile);
 
 				/**
 				 * Generates a copy of the provided profiles for every frequency combination.
@@ -165,31 +169,10 @@ namespace EnergyManager {
 				 */
 				static std::vector<std::map<std::string, std::string>> generateFixedFrequencyProfiles(
 					const std::vector<std::map<std::string, std::string>>& profiles,
-					const std::shared_ptr<Hardware::CPU::Core>& core,
+					const std::shared_ptr<Hardware::Core>& core,
 					const unsigned int& coreClockRatesToProfile,
 					const std::shared_ptr<Hardware::GPU>& gpu,
-					const unsigned int& gpuClockRatesToProfile) {
-					std::vector<std::map<std::string, std::string>> results;
-					for(const auto& coreClockRate : Profiler::generateFrequencyValueRange(core, coreClockRatesToProfile)) {
-						for(const auto& gpuClockRate : Profiler::generateFrequencyValueRange(1000, gpu->getMaximumCoreClockRate(), gpuClockRatesToProfile)) {
-							for(const auto& profile : profiles) {
-								// Generate a new profile with the frequencies set
-								std::map<std::string, std::string> newProfile = {
-									{ "minimumCPUClockRate", Utility::Text::toString(coreClockRate) },
-									{ "maximumCPUClockRate", Utility::Text::toString(coreClockRate) },
-									{ "minimumGPUClockRate", Utility::Text::toString(gpuClockRate) },
-									{ "maximumGPUClockRate", Utility::Text::toString(gpuClockRate) },
-								};
-
-								// Append the current profile
-								newProfile.insert(profile.begin(), profile.end());
-								results.push_back(newProfile);
-							}
-						}
-					}
-
-					return results;
-				}
+					const unsigned int& gpuClockRatesToProfile);
 
 				/**
 				 * Creates a new Profiler.
@@ -198,6 +181,7 @@ namespace EnergyManager {
 				 * @param monitors The monitors to use when running.
 				 * @param runsPerProfile The amount of runs per profile.
 				 * @param iterationsPerRun The amount of iterations to do in a single run without restarting the Monitors.
+				 * @param retriesPerRun The amount of times to attempt to re-try a run before halting.
 				 * @param randomize Whether to randomize profile evaluation order.
 				 * @param autoSave Whether to automatically save profiler sessions.
 				 * @param slurm Whether to use SLURM.
@@ -211,6 +195,7 @@ namespace EnergyManager {
 					std::vector<std::shared_ptr<Monitoring::Monitors::Monitor>> monitors,
 					const unsigned int& runsPerProfile = 1,
 					const unsigned int& iterationsPerRun = 1,
+					const unsigned int& retriesPerRun = 10,
 					const bool& randomize = false,
 					const bool& autoSave = false,
 					const bool& slurm = false,

@@ -19,6 +19,7 @@ namespace EnergyManager {
 					{ core_ },
 					gpu_,
 					true,
+					true,
 					true)
 					.run();
 			}
@@ -28,7 +29,7 @@ namespace EnergyManager {
 					"Jacobi",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Get the topology configuration
@@ -68,7 +69,7 @@ namespace EnergyManager {
 						return profiles;
 					}(),
 					arguments)
-				, core_(Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
+				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
 			}
 		}

@@ -23,6 +23,7 @@ namespace EnergyManager {
 					cpu_->setCoreClockRate(optimalControlParameters.at("minimumCPUFrequency"), optimalControlParameters.at("maximumCPUFrequency"));
 					gpu_->setCoreClockRate(optimalControlParameters.at("minimumGPUFrequency"), optimalControlParameters.at("maximumGPUFrequency"));
 				} catch(const Utility::Exceptions::Exception& exception) {
+					exception.log();
 				}
 			}
 

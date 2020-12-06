@@ -157,8 +157,6 @@ namespace EnergyManager {
 				//ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaDeviceReset());
 			});
 
-		std::mutex GPU::monitorThreadMutex_;
-
 		std::vector<GPU::Kernel> GPU::kernels_ = {};
 
 		void GPU::initializeCUDA() {
@@ -211,8 +209,8 @@ namespace EnergyManager {
 					Utility::Logging::logTrace("Enabling activity tracing for activity kind %d...", activityKind);
 					ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cuptiActivityEnable(activityKind));
 				} catch(const Utility::Exceptions::Exception& exception) {
-					Utility::Logging::logWarning("Could not enable activity kind %d", activityKind);
 					exception.log();
+					Utility::Logging::logWarning("Could not enable activity kind %d", activityKind);
 				}
 			}
 
@@ -412,15 +410,6 @@ namespace EnergyManager {
 		}
 
 		void GPU::onLoop() {
-			const auto currentTimestamp = std::chrono::system_clock::now();
-
-			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
-
-			energyConsumption_ += (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastEnergyConsumptionPollTimestamp_).count()) / 1e3)
-								  * getPowerConsumption().toValue();
-
-			lastEnergyConsumptionPollTimestamp_ = currentTimestamp;
-
 			// Flush all buffers
 			logTrace("Flushing CUPTI buffers...");
 			//ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(cudaDeviceSynchronize());
@@ -430,16 +419,18 @@ namespace EnergyManager {
 
 		void GPU::handleAPICall(const std::string& call, const CUresult& callResult, const std::string& file, const int& line) {
 			if(callResult != CUDA_SUCCESS) {
-				throw Utility::Exceptions::Exception(
+				Utility::Exceptions::Exception(
 					"Driver call " + call + " failed with error code " + std::to_string(callResult) + ": " + cudaGetErrorString(static_cast<cudaError_t>(callResult)),
 					file,
-					line);
+					line)
+					.throwWithStacktrace();
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const cudaError_t& callResult, const std::string& file, const int& line) {
 			if(callResult != static_cast<cudaError_t>(CUDA_SUCCESS)) {
-				throw Utility::Exceptions::Exception("Runtime driver call " + call + " failed with error code " + std::to_string(callResult) + ": " + cudaGetErrorString(callResult), file, line);
+				Utility::Exceptions::Exception("Runtime driver call " + call + " failed with error code " + std::to_string(callResult) + ": " + cudaGetErrorString(callResult), file, line)
+					.throwWithStacktrace();
 			}
 		}
 
@@ -448,17 +439,21 @@ namespace EnergyManager {
 				const char* errorMessage;
 				cuptiGetResultString(callResult, &errorMessage);
 
-				throw Utility::Exceptions::Exception("CUPTI call " + call + " failed with error code " + std::to_string(callResult) + ": " + errorMessage, file, line);
+				Utility::Exceptions::Exception("CUPTI call " + call + " failed with error code " + std::to_string(callResult) + ": " + errorMessage, file, line).throwWithStacktrace();
 			}
 		}
 
 		void GPU::handleAPICall(const std::string& call, const nvmlReturn_t& callResult, const std::string& file, const int& line) {
 			if(callResult != NVML_SUCCESS) {
-				throw Utility::Exceptions::Exception("NVML call " + call + " failed with error code " + std::to_string(callResult) + ": " + nvmlErrorString(callResult), file, line);
+				Utility::Exceptions::Exception("NVML call " + call + " failed with error code " + std::to_string(callResult) + ": " + nvmlErrorString(callResult), file, line).throwWithStacktrace();
 			}
 		}
 
 		std::shared_ptr<GPU> GPU::getGPU(const unsigned int& id) {
+			// Only allow one thread to get GPUs at a time
+			static std::mutex mutex;
+			std::lock_guard<std::mutex> guard(mutex);
+
 			// Keep track of GPUs
 			static std::map<unsigned int, std::shared_ptr<GPU>> gpus_ = {};
 
@@ -663,7 +658,7 @@ namespace EnergyManager {
 			return { static_cast<double>(maximumCoreClockRate), Utility::Units::SIPrefix::MEGA };
 		}
 
-		Utility::Units::Percent GPU::getCoreUtilizationRate() const {
+		Utility::Units::Percent GPU::getCoreUtilizationRate() {
 			// Retrieve the utilization rates
 			nvmlUtilization_t rates;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetUtilizationRates(device_, &rates));
@@ -671,13 +666,18 @@ namespace EnergyManager {
 			return rates.gpu;
 		}
 
-		Utility::Units::Joule GPU::getEnergyConsumption() const {
-			std::lock_guard<std::mutex> guard(monitorThreadMutex_);
+		Utility::Units::Joule GPU::getEnergyConsumption() {
+			// Get the timestamp
+			const auto currentTimestamp = std::chrono::system_clock::now();
+
+			energyConsumption_
+				+= (static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp - lastEnergyConsumptionUpdate_).count()) / 1e3) * getPowerConsumption().toValue();
+			lastEnergyConsumptionUpdate_ = currentTimestamp;
 
 			return energyConsumption_;
 		}
 
-		Utility::Units::Watt GPU::getPowerConsumption() const {
+		Utility::Units::Watt GPU::getPowerConsumption() {
 			unsigned int powerConsumption = 0;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetPowerUsage(device_, &powerConsumption));
 
@@ -874,25 +874,27 @@ namespace EnergyManager {
 				// Make sure that the file ends with a newline to prevent reading incomplete data
 				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
 
-				// Discard any data after the last newline since it indicates an incomplete write
-				reporterDataLines.back() = "";
+				// Ensure that it is possible to do a complete read
+				if(reporterDataLines.back().empty()) {
+					const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
 
-				const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
+					// Process the events
+					for(const auto& event : data) {
+						const auto timestamp = Utility::Text::timestampFromString(event.at("Timestamp"));
+						const auto eventName = event.at("Event");
 
-				// Process the events
-				for(const auto& event : data) {
-					const auto timestamp = Utility::Text::timestampFromString(event.at("Timestamp"));
-					const auto eventName = event.at("Event");
+						logTrace("Processing event that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), eventName.c_str());
 
-					logTrace("Processing event that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), eventName.c_str());
+						// Create the timestamp data if it does not exist
+						if(events.find(timestamp) == events.end()) {
+							events[timestamp] = {};
+						}
 
-					// Create the timestamp data if it does not exist
-					if(events.find(timestamp) == events.end()) {
-						events[timestamp] = {};
+						// Add the current data
+						events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
 					}
-
-					// Add the current data
-					events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
+				} else {
+					logWarning("Reporter events file is incomplete");
 				}
 			} else {
 				logWarning("Reporter events file does not exist");

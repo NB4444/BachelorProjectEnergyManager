@@ -7,7 +7,7 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void BFSProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				Utility::Application(std::string(RODINIA_BINARY_DIRECTORY) + "/cuda/bfs", std::vector<std::string> { '"' + profile.at("file") + '"' }, { core_ }, gpu_, true, true).run();
+				Utility::Application(std::string(RODINIA_DIRECTORY) + "/cuda/bfs/bfs", std::vector<std::string> { profile.at("file") }, { core_ }, gpu_, true, true, true).run();
 			}
 
 			BFSProfiler::BFSProfiler(const std::map<std::string, std::string>& arguments)
@@ -15,7 +15,7 @@ namespace EnergyManager {
 					"BFS",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Generate the profiles
@@ -33,7 +33,7 @@ namespace EnergyManager {
 						return profiles;
 					}(),
 					arguments)
-				, core_(Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
+				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
 			}
 		}

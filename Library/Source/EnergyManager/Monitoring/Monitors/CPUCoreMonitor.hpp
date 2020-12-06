@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnergyManager/Hardware/CPU.hpp"
+#include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Monitoring/Monitors/CentralProcessorMonitor.hpp"
 
 #include <memory>
@@ -15,7 +15,7 @@ namespace EnergyManager {
 				/**
 				 * The CPU Core to monitor.
 				 */
-				std::shared_ptr<Hardware::CPU::Core> core_;
+				std::shared_ptr<Hardware::Core> core_;
 
 			protected:
 				std::map<std::string, std::string> onPollCentralProcessor() final;
@@ -26,7 +26,7 @@ namespace EnergyManager {
 				 * @param core The CPU Core to monitor.
 				 * @param interval The interval at which to poll the monitored variables.
 				 */
-				explicit CPUCoreMonitor(const std::shared_ptr<Hardware::CPU::Core>& core, const std::chrono::system_clock::duration& interval);
+				explicit CPUCoreMonitor(const std::shared_ptr<Hardware::Core>& core, const std::chrono::system_clock::duration& interval);
 			};
 		}
 	}

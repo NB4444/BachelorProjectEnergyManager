@@ -17,14 +17,14 @@ target_include_directories(
         ${TARGET_NAME}
         PUBLIC Source
         PUBLIC ../Library/Source
-#        PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-#        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"
+        #        PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
+        #        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"
 )
 target_link_libraries(
         ${TARGET_NAME}
         ${PROJECT_NAME}-Library
-#        "Threads::Threads"
-#        "cuda"
-#        "cudart"
-#        "${CUDA_CUPTI_LIBRARY}"
+        #        "Threads::Threads"
+        #        "cuda"
+        #        "cudart"
+        #        "${CUDA_CUPTI_LIBRARY}"
 )

@@ -1,5 +1,7 @@
 #include "./DeviceMonitor.hpp"
 
+#include "EnergyManager/Utility/Text.hpp"
+
 #include <utility>
 
 namespace EnergyManager {
@@ -12,8 +14,8 @@ namespace EnergyManager {
 				}
 
 				std::map<std::string, std::string> results = {
-					{ "energyConsumption", std::to_string((device_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
-					{ "powerConsumption", std::to_string(device_->getPowerConsumption().toValue()) },
+					{ "energyConsumption", Utility::Text::toString((device_->getEnergyConsumption() - startEnergyConsumption_).toValue()) },
+					{ "powerConsumption", Utility::Text::toString(device_->getPowerConsumption().toValue()) },
 				};
 
 				// Get downstream values

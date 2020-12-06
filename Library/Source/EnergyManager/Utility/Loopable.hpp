@@ -22,25 +22,49 @@ namespace EnergyManager {
 			/**
 			 * Whether the object is currently still looping.
 			 */
-			bool isLooping_ = true;
+			std::atomic<bool> isLooping_;
 
-			/**
-			 * The mutex that protects the looping state.
-			 */
-			std::mutex isLoopingMutex_;
-
-			/**
-			 * The condition that determines whether to keep looping.
-			 */
-			std::condition_variable loopCondition_;
+			///**
+			// * The mutex that protects the looping state.
+			// */
+			//std::mutex isLoopingMutex_;
+			//
+			///**
+			// * The condition that determines whether to keep looping.
+			// */
+			//std::condition_variable loopCondition_;
 
 		protected:
+			void beforeRun() final;
+
 			void onRun() final;
+
+			void afterRun() final;
+
+			/**
+			 * Executes before the object starts looping.
+			 */
+			virtual void beforeLoopStart();
+
+			/**
+			 * Executes before the object starts looping.
+			 */
+			virtual void afterLoopEnd();
+
+			/**
+			 * Executes before the object does a loop looping.
+			 */
+			virtual void beforeLoop();
 
 			/**
 			 * Executes when the object is looped.
 			 */
 			virtual void onLoop();
+
+			/**
+			 * Executes after the object does a loop looping.
+			 */
+			virtual void afterLoop();
 
 		public:
 			/**

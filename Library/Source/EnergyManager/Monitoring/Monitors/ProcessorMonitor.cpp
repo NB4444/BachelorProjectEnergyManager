@@ -1,20 +1,21 @@
 #include "./ProcessorMonitor.hpp"
 
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
 			std::map<std::string, std::string> ProcessorMonitor::onPollDevice() {
 				std::map<std::string, std::string> results;
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["id"] = std::to_string(processor_->getID()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreClockRate"] = std::to_string(processor_->getCoreClockRate().toValue()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreUtilizationRate"] = std::to_string(processor_->getCoreUtilizationRate().toCombined()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["currentMaximumCoreClockRate"] = std::to_string(processor_->getCurrentMaximumCoreClockRate().toValue()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["currentMinimumCoreClockRate"] = std::to_string(processor_->getCurrentMinimumCoreClockRate().toValue()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["maximumCoreClockRate"] = std::to_string(processor_->getMaximumCoreClockRate().toValue()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["minimumCoreClockRate"] = std::to_string(processor_->getMinimumCoreClockRate().toValue()));
-				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["temperature"] = std::to_string(processor_->getTemperature().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["id"] = Utility::Text::toString(processor_->getID()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreClockRate"] = Utility::Text::toString(processor_->getCoreClockRate().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["coreUtilizationRate"] = Utility::Text::toString(processor_->getCoreUtilizationRate().toCombined()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["currentMaximumCoreClockRate"] = Utility::Text::toString(processor_->getCurrentMaximumCoreClockRate().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["currentMinimumCoreClockRate"] = Utility::Text::toString(processor_->getCurrentMinimumCoreClockRate().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["maximumCoreClockRate"] = Utility::Text::toString(processor_->getMaximumCoreClockRate().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["minimumCoreClockRate"] = Utility::Text::toString(processor_->getMinimumCoreClockRate().toValue()));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(results["temperature"] = Utility::Text::toString(processor_->getTemperature().toValue()));
 
 				// Get downstream values
 				auto processorResults = onPollProcessor();

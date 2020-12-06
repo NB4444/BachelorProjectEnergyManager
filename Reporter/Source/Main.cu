@@ -423,7 +423,7 @@ void __attribute__((constructor)) constructCUDAModule() {
 
 	// Get the number of passes required to collect all the events needed for the metric and the event groups for each pass
 	CUpti_EventGroupSets* passData;
-	printf("Metric ID: %d", metricId);
+	printf("Metric ID: %d\n", metricId);
 	//CUPTI_CALL(cuptiMetricCreateEventGroupSets(callbackInformation->context, sizeof(metricId), &metricId, &passData));
 	CUPTI_CALL(cuptiMetricCreateEventGroupSets(context, sizeof(metricId), &metricId, &passData));
 	for(unsigned int pass = 0; pass < passData->numSets; pass++) {
@@ -433,4 +433,6 @@ void __attribute__((constructor)) constructCUDAModule() {
 		fprintf(stderr, "Cannot initialize reader as profiling would require multiple passes");
 		exit(1);
 	}
+
+	printf("Reporter initialized\n");
 }

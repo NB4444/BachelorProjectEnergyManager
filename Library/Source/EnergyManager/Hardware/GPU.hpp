@@ -302,16 +302,6 @@ namespace EnergyManager {
 			nvmlDevice_t device_;
 
 			/**
-			 * The energy consumption in Joules.
-			 */
-			Utility::Units::Joule energyConsumption_ = 0;
-
-			/**
-			 * Record the last time at which the energy consumption was polled.
-			 */
-			std::chrono::system_clock::time_point lastEnergyConsumptionPollTimestamp_ = std::chrono::system_clock::now();
-
-			/**
 			 * The global memory bandwidth available on the device, in kBytes/sec.
 			 */
 			Utility::Units::Bandwidth memoryBandwidth_;
@@ -330,6 +320,16 @@ namespace EnergyManager {
 			 * The current maximum core clock rate.
 			 */
 			Utility::Units::Hertz currentMaximumCoreClockRate_;
+
+			/**
+			 * The last update of the energy consumption.
+			 */
+			std::chrono::system_clock::time_point lastEnergyConsumptionUpdate_ = std::chrono::system_clock::now();
+
+			/**
+			 * The last energy consumption.
+			 */
+			Utility::Units::Joule energyConsumption_ = 0;
 
 			/**
 			 * Handles a device activity.
@@ -550,11 +550,11 @@ namespace EnergyManager {
 
 			Utility::Units::Hertz getMaximumCoreClockRate() const final;
 
-			Utility::Units::Percent getCoreUtilizationRate() const final;
+			Utility::Units::Percent getCoreUtilizationRate() final;
 
-			Utility::Units::Joule getEnergyConsumption() const final;
+			Utility::Units::Joule getEnergyConsumption() final;
 
-			Utility::Units::Watt getPowerConsumption() const final;
+			Utility::Units::Watt getPowerConsumption() final;
 
 			/**
 			 * Retrieves the power management limit associated with this device.

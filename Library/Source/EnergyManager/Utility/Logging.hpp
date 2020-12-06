@@ -9,9 +9,8 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <string>
-
-#define ENERGY_MANAGER_UTILITY_LOGGING_LOG_ERROR(FORMAT, ...) EnergyManager::Utility::Logging::logError(FORMAT, __FILE__, __LINE__, __VA_ARGS__)
 
 namespace EnergyManager {
 	namespace Utility {
@@ -25,6 +24,11 @@ namespace EnergyManager {
 			 * Human-understandable thread IDs.
 			 */
 			static std::map<std::thread::id, unsigned int> threadIDs = {};
+
+			/**
+			 * The mutex that protects thread IDs.
+			 */
+			static std::mutex threadIDsMutex_;
 
 			/**
 			 * The sizes of each header column.
@@ -57,19 +61,15 @@ namespace EnergyManager {
 			/**
 			 * The logging levels that are enabled.
 			 */
-			static const std::vector<Level> enabledLogLevels = {
-				//Level::TRACE,
-				Level::DEBUG,
-				Level::INFORMATION,
-				Level::WARNING,
-				Level::ERROR
-			};
+			static const std::vector<Level> enabledLogLevels = { /*Level::TRACE,*/ Level::DEBUG, Level::INFORMATION, Level::WARNING, Level::ERROR };
 
 			/**
 			 * Registers a thread so that it's ID can be used.
 			 * @param threadID The thread to register.
 			 */
 			static void registerThread(const std::thread::id& threadID) {
+				std::lock_guard<std::mutex> guard(threadIDsMutex_);
+
 				// Ignore threads that have already been registered
 				if(threadIDs.find(threadID) != threadIDs.end()) {
 					return;
@@ -97,6 +97,8 @@ namespace EnergyManager {
 			static unsigned int getCurrentThreadID() {
 				registerThread(std::this_thread::get_id());
 
+				std::lock_guard<std::mutex> guard(threadIDsMutex_);
+
 				return threadIDs.at(std::this_thread::get_id());
 			}
 
@@ -107,7 +109,7 @@ namespace EnergyManager {
 			 * @param format The format of the message.
 			 * @param arguments The arguments to use.
 			 */
-			static void vlog(const Level& level, std::vector<std::string> headers, std::string format, va_list& arguments) {
+			static void vlog(const Level& level, std::vector<std::string> headers, const std::string& format, va_list& arguments) {
 				// Check if this log level is enabled
 				if(std::find(enabledLogLevels.begin(), enabledLogLevels.end(), level) == enabledLogLevels.end()) {
 					return;
@@ -139,7 +141,11 @@ namespace EnergyManager {
 						levelString = "ERROR";
 						break;
 				}
-				headers.push_back(levelString);
+				headers.insert(headers.begin() + 2, levelString);
+
+				// Lock the rest of the function to ensure that messages do not overlap
+				static std::mutex mutex;
+				std::lock_guard<std::mutex> guard(mutex);
 
 				// Print the headers
 				if(!headers.empty()) {
@@ -244,7 +250,7 @@ namespace EnergyManager {
 			 * @param line The line on which the error occurred.
 			 * @param ... The arguments to use.
 			 */
-			static void logError(std::string format, std::string file, int line, ...) {
+			static void logError(const std::string& format, const std::string& file, int line, ...) {
 				va_list arguments;
 				va_start(arguments, line);
 				vlog(Level::ERROR, {}, file + ":" + std::to_string(line) + ": " + format, arguments);

@@ -2,10 +2,11 @@
 
 #include "EnergyManager/Utility/Logging/Loggable.hpp"
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <map>
-#include <mutex>
+//#include <mutex>
 #include <thread>
 #include <unistd.h>
 
@@ -28,17 +29,17 @@ namespace EnergyManager {
 			/**
 			 * Whether the object is running.
 			 */
-			bool isRunning_ = false;
+			std::atomic<bool> isRunning_;
 
-			/**
-			 * The mutex to protect the conditional variable.
-			 */
-			std::mutex synchronizationMutex_;
-
-			/**
-			 * The conditional variable to share the running state between threads and allow synchronization.
-			 */
-			std::condition_variable synchronizationCondition_;
+			///**
+			// * The mutex to protect the conditional variable.
+			// */
+			//std::mutex synchronizationMutex_;
+			//
+			///**
+			// * The conditional variable to share the running state between threads and allow synchronization.
+			// */
+			//std::condition_variable synchronizationCondition_;
 
 		protected:
 			/**
@@ -61,14 +62,12 @@ namespace EnergyManager {
 			 * Suspends the current thread for the specified amount of time.
 			 * @param duration The time to sleep.
 			 */
-			static void sleep(const std::chrono::system_clock::duration& duration) {
-				usleep(std::chrono::duration_cast<std::chrono::microseconds>(duration).count());
-			}
+			static void sleep(const std::chrono::system_clock::duration& duration);
 
 			/**
 			 * Creates a new Runnable.
 			 */
-			Runnable() = default;
+			Runnable();
 
 			/**
 			 * Copies the object.

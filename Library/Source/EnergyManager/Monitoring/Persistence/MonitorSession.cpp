@@ -1,6 +1,7 @@
 #include "./MonitorSession.hpp"
 
 #include "EnergyManager/Profiling/Persistence/ProfilerSession.hpp"
+#include "EnergyManager/Utility/Text.hpp"
 
 #include <utility>
 
@@ -25,8 +26,10 @@ namespace EnergyManager {
 							value.replace(startIndex, find.length(), "\"\"");
 						}
 
-						monitorData.push_back(
-							{ { "monitorSessionID", std::to_string(getID()) }, { "timestamp", timestamp }, { "name", '\'' + filterSQL(name) + '\'' }, { "value", '\'' + filterSQL(value) + '\'' } });
+						monitorData.push_back({ { "monitorSessionID", Utility::Text::toString(getID()) },
+												{ "timestamp", timestamp },
+												{ "name", '\'' + filterSQL(name) + '\'' },
+												{ "value", '\'' + filterSQL(value) + '\'' } });
 					}
 				}
 				insert("MonitorData", monitorData);

@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --output log.%J
-#SBATCH --error log.%J
+#SBATCH --output %J.log
+#SBATCH --error %J.log
 #SBATCH --job-name EnergyManager-JobRunner
 #SBATCH --account COLBSC
 #SBATCH --partition standard

@@ -11,7 +11,7 @@ namespace EnergyManager {
 			/**
 			 * Represents an amount of rotations per minute.
 			 */
-			class RotationsPerMinute : public PerUnit<Rotation, int, double> {
+			class RotationsPerMinute : public PerUnit<RotationsPerMinute, Rotation, int, double> {
 			public:
 				/**
 				 * Creates a new RotationsPerMinute.

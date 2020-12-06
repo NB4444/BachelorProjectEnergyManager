@@ -7,13 +7,7 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void KMeansProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				EnergyManager::Utility::Application(
-					std::string(RODINIA_BINARY_DIRECTORY) + "/cuda/kmeans",
-					std::vector<std::string> { "-i \"" + profile.at("file") + '"' },
-					{ core_ },
-					gpu_,
-					true,
-					true)
+				EnergyManager::Utility::Application(std::string(RODINIA_DIRECTORY) + "/cuda/kmeans/kmeans", std::vector<std::string> { "-i", profile.at("file") }, { core_ }, gpu_, true, true, true)
 					.run();
 			}
 
@@ -22,7 +16,7 @@ namespace EnergyManager {
 					"KMeans",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Generate the profiles
@@ -39,7 +33,7 @@ namespace EnergyManager {
 						return profiles;
 					}(),
 					arguments)
-				, core_(Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
+				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
 			}
 		}

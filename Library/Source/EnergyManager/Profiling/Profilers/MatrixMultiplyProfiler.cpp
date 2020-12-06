@@ -7,7 +7,6 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void MatrixMultiplyProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				//EnergyManager::Utility::Application("/bin/ping", { "-c " + std::to_string(5), "8.8.8.8" }, { core }, gpu).run();
 				Utility::Application(
 					std::string(CUDA_SAMPLES_DIRECTORY) + "/0_Simple/matrixMul/matrixMul",
 					std::vector<std::string> { "-device=" + Utility::Text::toString(gpu_->getID()),
@@ -18,6 +17,7 @@ namespace EnergyManager {
 					{ core_ },
 					gpu_,
 					true,
+					true,
 					true)
 					.run();
 			}
@@ -27,7 +27,7 @@ namespace EnergyManager {
 					"Matrix Multiply",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Get the profile configurations
@@ -51,7 +51,7 @@ namespace EnergyManager {
 						return profiles;
 					}(),
 					arguments)
-				, core_(Hardware::CPU::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
+				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
 			}
 		}

@@ -35,7 +35,7 @@ namespace EnergyManager {
 				std::map<std::string, std::string> getEARValues() const;
 
 			protected:
-				void beforeRun() override;
+				void beforeLoopStart() override;
 
 				std::map<std::string, std::string> onPoll() final;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnergyManager/Utility/Text.hpp"
+
 #include <cmath>
 #include <string>
 #include <utility>
@@ -74,7 +76,7 @@ namespace EnergyManager {
 				 * @return A string representation.
 				 */
 				std::string toString(const bool& numeric = false, const bool& symbol = false) const {
-					return std::to_string(value_) + (numeric ? "" : (" " + (symbol ? symbol_ : name_)));
+					return Text::toString(value_) + (numeric ? "" : (" " + (symbol ? symbol_ : name_)));
 				}
 
 				/**

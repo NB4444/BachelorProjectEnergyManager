@@ -113,9 +113,9 @@ namespace EnergyManager {
 			 */
 			unsigned int getProcessCount() const;
 
-			Utility::Units::Joule getEnergyConsumption() const final;
+			Utility::Units::Joule getEnergyConsumption() final;
 
-			Utility::Units::Watt getPowerConsumption() const final;
+			Utility::Units::Watt getPowerConsumption() final;
 		};
 	}
 }

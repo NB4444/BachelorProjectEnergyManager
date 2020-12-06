@@ -11,11 +11,12 @@ namespace EnergyManager {
 		namespace Units {
 			/**
 			 * Represents a unit that represents one value per another value.
+			 * @tparam Self The type of the class.
 			 * @tparam Type The type of the value.
 			 * @tparam Per The type of the per value.
 			 * @tparam Combined The value representing a combination of the two values.
 			 */
-			template<typename Type, typename Per, typename Combined>
+			template<typename Self, typename Type, typename Per, typename Combined>
 			class PerUnit {
 				/**
 				 * The type of the Unit value.
@@ -99,6 +100,66 @@ namespace EnergyManager {
 				 */
 				explicit operator std::string() const {
 					return toString();
+				}
+
+				/**
+				 * Determines if one PerUnit is larger than another one.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the left PerUnit is larger.
+				 */
+				friend bool operator>(const Self& left, const Self& right) {
+					return left.toCombined() > right.toCombined();
+				}
+
+				/**
+				 * Determines if one PerUnit is larger than or equal to another one.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the left PerUnit is larger or equal.
+				 */
+				friend bool operator>=(const Self& left, const Self& right) {
+					return left.toCombined() >= right.toCombined();
+				}
+
+				/**
+				 * Determines if one PerUnit is smaller than another one.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the left PerUnit is smaller.
+				 */
+				friend bool operator<(const Self& left, const Self& right) {
+					return left.toCombined() < right.toCombined();
+				}
+
+				/**
+				 * Determines if one PerUnit is smaller than or equal to another one.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the left PerUnit is smaller or equal.
+				 */
+				friend bool operator<=(const Self& left, const Self& right) {
+					return left.toCombined() <= right.toCombined();
+				}
+
+				/**
+				 * Determines if two PerUnits are equal.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the PerUnits are equal.
+				 */
+				friend bool operator==(const Self& left, const Self& right) {
+					return left.toCombined() == right.toCombined();
+				}
+
+				/**
+				 * Determines if two PerUnits are not equal.
+				 * @param left The left operand PerUnit.
+				 * @param right The right operand PerUnit.
+				 * @return Whether the PerUnits are not equal.
+				 */
+				friend bool operator!=(const Self& left, const Self& right) {
+					return left.toCombined() != right.toCombined();
 				}
 			};
 		}

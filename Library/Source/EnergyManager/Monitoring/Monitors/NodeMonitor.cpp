@@ -1,21 +1,23 @@
 #include "./NodeMonitor.hpp"
 
+#include "EnergyManager/Utility/Text.hpp"
+
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
 			std::map<std::string, std::string> NodeMonitor::onPollDevice() {
-				std::map<std::string, std::string> results = { { "memorySize", std::to_string(node_->getMemorySize().toValue()) },
-															   { "freeMemorySize", std::to_string(node_->getFreeMemorySize().toValue()) },
-															   { "usedMemorySize", std::to_string(node_->getUsedMemorySize().toValue()) },
-															   { "sharedMemorySize", std::to_string(node_->getSharedMemorySize().toValue()) },
-															   { "bufferMemorySize", std::to_string(node_->getBufferMemorySize().toValue()) },
-															   { "swapMemorySize", std::to_string(node_->getSwapMemorySize().toValue()) },
-															   { "freeSwapMemorySize", std::to_string(node_->getFreeSwapMemorySize().toValue()) },
-															   { "usedSwapMemorySize", std::to_string(node_->getUsedSwapMemorySize().toValue()) },
-															   { "highMemorySize", std::to_string(node_->getHighMemorySize().toValue()) },
-															   { "freeHighMemorySize", std::to_string(node_->getFreeHighMemorySize().toValue()) },
-															   { "usedHighMemorySize", std::to_string(node_->getUsedHighMemorySize().toValue()) },
-															   { "processCount", std::to_string(node_->getProcessCount()) } };
+				std::map<std::string, std::string> results = { { "memorySize", Utility::Text::toString(node_->getMemorySize().toValue()) },
+															   { "freeMemorySize", Utility::Text::toString(node_->getFreeMemorySize().toValue()) },
+															   { "usedMemorySize", Utility::Text::toString(node_->getUsedMemorySize().toValue()) },
+															   { "sharedMemorySize", Utility::Text::toString(node_->getSharedMemorySize().toValue()) },
+															   { "bufferMemorySize", Utility::Text::toString(node_->getBufferMemorySize().toValue()) },
+															   { "swapMemorySize", Utility::Text::toString(node_->getSwapMemorySize().toValue()) },
+															   { "freeSwapMemorySize", Utility::Text::toString(node_->getFreeSwapMemorySize().toValue()) },
+															   { "usedSwapMemorySize", Utility::Text::toString(node_->getUsedSwapMemorySize().toValue()) },
+															   { "highMemorySize", Utility::Text::toString(node_->getHighMemorySize().toValue()) },
+															   { "freeHighMemorySize", Utility::Text::toString(node_->getFreeHighMemorySize().toValue()) },
+															   { "usedHighMemorySize", Utility::Text::toString(node_->getUsedHighMemorySize().toValue()) },
+															   { "processCount", Utility::Text::toString(node_->getProcessCount()) } };
 
 				return results;
 			}
