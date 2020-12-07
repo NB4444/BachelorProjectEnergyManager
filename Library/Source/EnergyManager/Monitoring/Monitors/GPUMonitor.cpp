@@ -111,6 +111,26 @@ namespace EnergyManager {
 					}
 				}
 
+				// Add the IPC data
+				logTrace("Looking for GPU IPC...");
+				for(const auto& timestampInstructionsPerCycle : gpu_->getInstructionsPerCycle()) {
+					const auto& timestamp = timestampInstructionsPerCycle.first;
+					const auto& instructionsPerCycle = timestampInstructionsPerCycle.second;
+
+					// Only process new events
+					if(timestamp > lastInstructionsPerCycleTimestamp) {
+						logTrace("Processing IPC that occurred at %s with value %f", Utility::Text::formatTimestamp(timestamp).c_str(), instructionsPerCycle.toCombined());
+
+						// Store the variable
+						setVariable(timestamp, "instructionsPerCycle", Utility::Text::toString(instructionsPerCycle.toCombined()));
+
+						// Update the last timestamp
+						lastInstructionsPerCycleTimestamp = timestamp;
+					} else {
+						logTrace("Outdated IPC, ignoring...");
+					}
+				}
+
 				return results;
 			}
 

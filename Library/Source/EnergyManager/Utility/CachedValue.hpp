@@ -17,14 +17,19 @@ namespace EnergyManager {
 			Value value_;
 
 			/**
-			 * When the value was last updated.
+			 * Whether the value has been initialized.
 			 */
-			std::chrono::system_clock::time_point lastUpdate_ = std::chrono::system_clock::time_point();
+			bool valueInitialized_ = false;
 
 			/**
 			 * The amount of time to cache the value.
 			 */
 			std::chrono::system_clock::duration cachePeriod_;
+
+			/**
+			 * When the value was last updated.
+			 */
+			std::chrono::system_clock::time_point lastUpdate_ = std::chrono::system_clock::now();
 
 			/**
 			 * Mutex to prevent multiple threads from updating and reading the value.
@@ -48,12 +53,15 @@ namespace EnergyManager {
 			const Value& getValue(const std::function<Value(const Value& currentValue, const std::chrono::system_clock::duration& timeSinceLastUpdate)>& producer) {
 				std::lock_guard<std::mutex> guard(mutex_);
 
-				// Update the value if necessary
+				// Get current timestamp
 				const auto now = std::chrono::system_clock::now();
+
+				// Update the value if necessary
 				const auto timeSinceLastUpdate = now - lastUpdate_;
-				if(lastUpdate_ == std::chrono::system_clock::time_point() || timeSinceLastUpdate > cachePeriod_) {
+				if(!valueInitialized_ || timeSinceLastUpdate >= cachePeriod_) {
 					lastUpdate_ = now;
 					value_ = producer(value_, timeSinceLastUpdate);
+					valueInitialized_ = true;
 				}
 
 				return value_;

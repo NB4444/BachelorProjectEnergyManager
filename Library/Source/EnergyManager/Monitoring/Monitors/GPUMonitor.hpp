@@ -20,6 +20,11 @@ namespace EnergyManager {
 				 */
 				std::chrono::system_clock::time_point lastEventTimestamp_ = std::chrono::system_clock::now();
 
+				/**
+				 * The timestamp of the last metric that was processed.
+				 */
+				std::chrono::system_clock::time_point lastInstructionsPerCycleTimestamp = std::chrono::system_clock::now();
+
 			protected:
 				std::map<std::string, std::string> onPollProcessor() final;
 

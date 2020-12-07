@@ -337,6 +337,23 @@ class ProfilerSession(Entity):
         return TimeseriesPlot(title="Fan Speed", plot_series=self.fan_speed, y_label="Fan Speed (%)")
 
     @property
+    def instructions_per_cycle(self):
+        utilization_rate = {}
+
+        for gpu_monitor in self.gpu_monitors:
+            gpu_id = gpu_monitor.get_value("id", int)
+            utilization_rate.update({
+                f"GPU {gpu_id}": gpu_monitor.get_values("instructionsPerCycle", float),
+            })
+
+        return utilization_rate
+
+    @property
+    def instructions_per_cycle_timeseries_plot(self):
+        return TimeseriesPlot(title="Instructions Per Cycle", plot_series=self.instructions_per_cycle,
+                              y_label="Instructions")
+
+    @property
     def total_flops(self):
         _, variables = list(self.node_monitor.monitor_data.items())[-1]
         return variables["flops"]

@@ -885,11 +885,6 @@ namespace EnergyManager {
 
 						logTrace("Processing event that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), eventName.c_str());
 
-						// Create the timestamp data if it does not exist
-						if(events.find(timestamp) == events.end()) {
-							events[timestamp] = {};
-						}
-
 						// Add the current data
 						events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
 					}
@@ -901,6 +896,45 @@ namespace EnergyManager {
 			}
 
 			return events;
+		}
+
+		std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> GPU::getInstructionsPerCycle() const {
+			std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> ipc;
+
+			logTrace("Looking for GPU metrics...");
+			const auto csvFileName = "reporter.metrics.csv.tmp";
+			if(Utility::Environment::fileExists(csvFileName)) {
+				// Contact the EAR accounting tool and store the data in CSV format
+				logTrace("Found metric data, loading...");
+				const auto reporterData = Utility::Text::readFile(csvFileName);
+
+				// Make sure that the file ends with a newline to prevent reading incomplete data
+				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
+
+				// Ensure that it is possible to do a complete read
+				if(reporterDataLines.back().empty()) {
+					const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
+
+					// Process the events
+					for(const auto& metric : data) {
+						const auto timestamp = Utility::Text::timestampFromString(metric.at("Timestamp"));
+						const auto name = metric.at("Metric");
+						const auto value = metric.at("Value");
+
+						logTrace("Processing metric that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), name.c_str());
+
+						if(name == "ipc") {
+							ipc[timestamp] = Utility::Units::InstructionsPerCycle(std::stod(value));
+						}
+					}
+				} else {
+					logWarning("Reporter events file is incomplete");
+				}
+			} else {
+				logWarning("Reporter events file does not exist");
+			}
+
+			return ipc;
 		}
 
 		void GPU::reset() {

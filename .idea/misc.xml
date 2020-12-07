@@ -3,8 +3,10 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/EventReporter/Source" />
       <file path="$PROJECT_DIR$/Library/Console/Source" />
       <file path="$PROJECT_DIR$/Library/Source" />
+      <file path="$PROJECT_DIR$/MetricReporter/Source" />
       <file path="$PROJECT_DIR$/Profiling/ActivityTrace/Source" />
       <file path="$PROJECT_DIR$/Profiling/All/Source" />
       <file path="$PROJECT_DIR$/Profiling/BFS/Source" />
@@ -13,6 +15,7 @@
       <file path="$PROJECT_DIR$/Profiling/Jacobi/Source" />
       <file path="$PROJECT_DIR$/Profiling/KMeans/Source" />
       <file path="$PROJECT_DIR$/Profiling/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Reporter/Source" />
       <file path="$PROJECT_DIR$/Tests/ActiveInactive/Source" />
       <file path="$PROJECT_DIR$/Tests/AllocateFree/Source" />
       <file path="$PROJECT_DIR$/Tests/FixedFrequencyMatrixMultiply/Source" />

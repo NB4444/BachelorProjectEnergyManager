@@ -9,6 +9,7 @@
 #include "EnergyManager/Utility/Units/Percent.hpp"
 #include "EnergyManager/Utility/Units/RotationsPerMinute.hpp"
 #include "EnergyManager/Utility/Units/Watt.hpp"
+#include "EnergyManager/Utility/Units/InstructionsPerCycle.hpp"
 
 #include <chrono>
 #include <cuda.h>
@@ -680,6 +681,12 @@ namespace EnergyManager {
 			 * @return The events.
 			 */
 			std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> getEvents() const;
+
+			/**
+			 * Gets instructions per cycle.
+			 * @return The IPC.
+			 */
+			std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> getInstructionsPerCycle() const;
 
 			/**
 			 * Resets any flags set for the device.

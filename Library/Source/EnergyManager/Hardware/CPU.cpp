@@ -236,7 +236,10 @@ namespace EnergyManager {
 							currentEnergyConsumption.toValue(),
 							lastEnergyConsumption_.toValue(),
 							energyConsumed.toValue(),
-							Utility::Text::toString(timeSinceLastUpdate).c_str());
+							Utility::Text::formatDuration(timeSinceLastUpdate).c_str());
+					}
+					if(powerConsumption.toValue() < 0) {
+						powerConsumption = 0;
 					}
 				}
 

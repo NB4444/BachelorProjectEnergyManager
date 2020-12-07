@@ -46,11 +46,6 @@
 CUpti_SubscriberHandle subscriber;
 
 /**
- * Whether to log events.
- */
-bool logEvents = false;
-
-/**
  * GPU to use.
  */
 CUdevice device = 0;
@@ -60,64 +55,10 @@ CUdevice device = 0;
  */
 const char* metricName = "ipc";
 
-void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
-	if(logEvents) {
-		printf("Processing events...\n");
-	}
-
-	//char* site = "exits";
-	//if(cbInfo->callbackSite == CUPTI_API_ENTER) {
-	//	site = "enter";
-	//}
-	//
-	//cupti_calls[cbid] += cbInfo->callbackSite == CUPTI_API_ENTER;
-	//ulong fret = (ulong) cbInfo->functionReturnValue & 0x00000fff;
-	//ulong fpar = (ulong) cbInfo->functionParams & 0x00000fff;
-	//
-	//ulong proc = (ulong) getpid() & 0x00000fff;
-	//ulong thrd = (ulong) pthread_self() & 0x0000ffff;
-	//
-	//if(cbInfo->callbackSite != CUPTI_API_ENTER) {
-	//	// tprintf("%s||%lu||%lu||%llu||%llu||%s||%u||%lu||%lu",
-	//	fprintf(stderr, "%s;%lu;%lu;%s;%u;%lu;%lu\n", cbInfo->functionName, proc, thrd, site, cupti_calls[cbid], fret, fpar);
-	//}
-
-	// Get information about the event
-	const auto timestamp = std::chrono::system_clock::now();
-	const auto functionName = callbackInformation->functionName;
-	const auto callbackSite = callbackInformation->callbackSite;
-	const auto returnCode = (ulong) callbackInformation->functionReturnValue & 0x00000fff;
-	const auto parameters = (ulong) callbackInformation->functionParams & 0x00000fff;
-	const auto processID = (ulong) getpid() & 0x00000fff;
-	const auto thread = (ulong) pthread_self() & 0x0000ffff;
-
-	// Only process function enter events
-	if(logEvents) {
-		printf("Processing event %s...\n", functionName);
-	}
-
-	// Generate the output message
-	char message[1024];
-	snprintf(
-		message,
-		sizeof(message),
-		"%ld;%s;%s\n",
-		std::chrono::duration_cast<std::chrono::nanoseconds>(timestamp.time_since_epoch()).count(),
-		functionName,
-		callbackSite == CUPTI_API_ENTER ? "ENTER" : "EXIT");
-
-	// Open file to write headers
-	const auto output = fopen("reporter.events.csv.tmp", "a");
-	if(output == nullptr) {
-		printf("Failed to open file for writing with error code %d: %s\n", errno, strerror(errno));
-	}
-
-	// Write the headers
-	fputs(message, output);
-
-	// Close the stream
-	fclose(output);
-}
+/**
+ * The time event tracking started.
+ */
+std::chrono::system_clock::time_point startTime;
 
 /**
  * User data for event collection callback.
@@ -154,27 +95,72 @@ struct MetricData {
 	uint64_t* eventValueArray;
 };
 
-void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
-	printf("Processing metrics...\n");
+/**
+ * The metric data
+ */
+MetricData* metricData;
 
-	// This callback is enabled only for launch so we shouldn't see
-	// anything else.
-	if((callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020) && (callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000)) {
-		//return;
+void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
+	//printf("Processing events...\n");
+
+	// Get information about the event
+	const auto site = callbackInformation->callbackSite;
+	const auto timestamp = std::chrono::system_clock::now();
+	const auto functionName = callbackInformation->functionName;
+	const auto callbackSite = callbackInformation->callbackSite;
+	const auto returnCode = (ulong) callbackInformation->functionReturnValue & 0x00000fff;
+	const auto parameters = (ulong) callbackInformation->functionParams & 0x00000fff;
+	const auto processID = (ulong) getpid() & 0x00000fff;
+	const auto thread = (ulong) pthread_self() & 0x0000ffff;
+
+	// Only process function enter events
+	//printf("Processing event %s...\n", functionName);
+
+	// Generate the output message
+	char message[1024];
+	snprintf(
+		message,
+		sizeof(message),
+		"%ld;%s;%s\n",
+		std::chrono::duration_cast<std::chrono::nanoseconds>(timestamp.time_since_epoch()).count(),
+		functionName,
+		callbackSite == CUPTI_API_ENTER ? "ENTER" : "EXIT");
+
+	// Open file to write headers
+	const auto output = fopen("reporter.events.csv.tmp", "a");
+	if(output == nullptr) {
+		printf("Failed to open file for writing with error code %d: %s\n", errno, strerror(errno));
 	}
 
-	MetricData* metricData = (MetricData*) userData;
+	// Write the headers
+	fputs(message, output);
+
+	// Close the stream
+	fclose(output);
+}
+
+void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
+	//printf("Processing metrics...\n");
+
+	// This callback is enabled only for launch so we shouldn't see anything else.
+	if((callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020) && (callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000)) {
+		//printf("Unexpected event\n");
+		return;
+	} else {
+		//printf("Processing event metrics...\n");
+	}
+
+	auto* metricData = (MetricData*) userData;
 
 	// Keep track of event data between loops
-	static bool initialized = false;
-	static std::chrono::system_clock::time_point startTime;
-
-	// Keep track of data for the current loop
 	const auto now = std::chrono::system_clock::now();
 
 	// Read and record event values of the last cycle
-	if(initialized) {
-		printf("Collecting metrics...\n");
+	//if(initialized) {
+	if(callbackInformation->callbackSite == CUPTI_API_EXIT) {
+		//printf("Collecting metrics...\n");
+
+		cudaDeviceSynchronize();
 
 		// For each group, read the event values from the group and record in metricData
 		for(unsigned int i = 0; i < metricData->eventGroups->numEventGroups; i++) {
@@ -208,8 +194,9 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 			for(unsigned int j = 0; j < numEvents; j++) {
 				CUPTI_CALL(cuptiEventGroupReadEvent(group, CUPTI_EVENT_READ_FLAG_NONE, eventIds[j], &valuesSize, values));
 				if(metricData->eventIdx >= metricData->numEvents) {
-					fprintf(stderr, "error: too many events collected, metric expects only %d\n", (int) metricData->numEvents);
-					exit(-1);
+					printf("Too many events collected, metric expects only %d\n", (int) metricData->numEvents);
+					return;
+					//exit(-1);
 				}
 
 				// Sum collect event values from all instances
@@ -225,32 +212,33 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 				metricData->eventValueArray[metricData->eventIdx] = normalized;
 				metricData->eventIdx++;
 
-				// Print collected value
-				{
-					char eventName[128];
-					size_t eventNameSize = sizeof(eventName) - 1;
-					CUPTI_CALL(cuptiEventGetAttribute(eventIds[j], CUPTI_EVENT_ATTR_NAME, &eventNameSize, eventName));
-					eventName[127] = '\0';
-					printf("\t%s = %llu (", eventName, (unsigned long long) sum);
-					if(numInstances > 1) {
-						for(unsigned int k = 0; k < numInstances; k++) {
-							if(k != 0)
-								printf(", ");
-							printf("%llu", (unsigned long long) values[k]);
-						}
-					}
-
-					printf(")\n");
-					printf("\t%s (normalized) (%llu * %u) / %u = %llu\n", eventName, (unsigned long long) sum, numTotalInstances, numInstances, (unsigned long long) normalized);
-				}
+				//// Print collected value
+				//{
+				//	char eventName[128];
+				//	size_t eventNameSize = sizeof(eventName) - 1;
+				//	CUPTI_CALL(cuptiEventGetAttribute(eventIds[j], CUPTI_EVENT_ATTR_NAME, &eventNameSize, eventName));
+				//	eventName[127] = '\0';
+				//	printf("\t%s = %llu (", eventName, (unsigned long long) sum);
+				//	if(numInstances > 1) {
+				//		for(unsigned int k = 0; k < numInstances; k++) {
+				//			if(k != 0)
+				//				printf(", ");
+				//			printf("%llu", (unsigned long long) values[k]);
+				//		}
+				//	}
+				//
+				//	printf(")\n");
+				//	printf("\t%s (normalized) (%llu * %u) / %u = %llu\n", eventName, (unsigned long long) sum, numTotalInstances, numInstances, (unsigned long long) normalized);
+				//}
 			}
 
 			free(values);
 		}
 
 		if(metricData->eventIdx != metricData->numEvents) {
-			fprintf(stderr, "error: expected %u metric events, got %u\n", metricData->numEvents, metricData->eventIdx);
-			exit(-1);
+			printf("Error: expected %u metric events, got %u\n", metricData->numEvents, metricData->eventIdx);
+			return;
+			//exit(-1);
 		}
 
 		// Use all the collected events to calculate the metric value
@@ -294,18 +282,19 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 				snprintf(message, sizeof(message), "%ld;%s;%u\n", timestamp, metricName, (unsigned int) metricValue.metricValueUtilizationLevel);
 				break;
 			default:
-				fprintf(stderr, "error: unknown value kind\n");
-				exit(-1);
+				printf("Error: unknown value kind\n");
+				return;
+				//exit(-1);
 		}
 
 		{
-			// Open file to write headers
+			// Open file to write message
 			const auto output = fopen("reporter.metrics.csv.tmp", "a");
 			if(output == nullptr) {
 				printf("Failed to open file for writing with error code %d: %s\n", errno, strerror(errno));
 			}
 
-			// Write the headers
+			// Write the message
 			fputs(message, output);
 
 			// Close the stream
@@ -315,35 +304,63 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 		for(unsigned int i = 0; i < metricData->eventGroups->numEventGroups; i++) {
 			CUPTI_CALL(cuptiEventGroupDisable(metricData->eventGroups->eventGroups[i]));
 		}
+
+		initialized = false;
 	}
 
 	// Enable all the event groups being collected this pass, for metrics we collect for all instances of the event
-	{
-		printf("Configuring metrics...\n");
-		CUPTI_CALL(cuptiSetEventCollectionMode(callbackInformation->context, CUPTI_EVENT_COLLECTION_MODE_KERNEL));
-		printf("Processing %d event groups...\n", metricData->eventGroups->numEventGroups);
+	//if(!initialized) {
+	if(callbackInformation->callbackSite == CUPTI_API_ENTER) {
+		cudaDeviceSynchronize();
+
+		//printf("Initializing metrics...\n");
+		metricData->eventIdx = 0;
+
+		//printf("Configuring passes...\n");
+		CUpti_MetricID metricId;
+		CUPTI_CALL(cuptiMetricGetIdFromName(device, metricName, &metricId));
+		// Get the number of passes required to collect all the events needed for the metric and the event groups for each pass
+		CUpti_EventGroupSets* passData;
+		CUPTI_CALL(cuptiMetricCreateEventGroupSets(callbackInformation->context, sizeof(metricId), &metricId, &passData));
+		//CUPTI_CALL(cuptiMetricCreateEventGroupSets(context, sizeof(metricId), &metricId, &passData));
+		if(passData->numSets == 0) {
+			printf("No sets generated\n");
+			exit(1);
+		} else if(passData->numSets > 1) {
+			printf("Cannot initialize reader as profiling would require multiple passes\n");
+			exit(1);
+		} else {
+			//printf("Initializing event groups...\n");
+			metricData->eventGroups = passData->sets;
+
+			//printf("Event groups initialized: %d\n", passData->sets->numEventGroups);
+		}
+
+		//printf("Configuring metrics...\n");
+		CUPTI_CALL(cuptiSetEventCollectionMode(callbackInformation->context, CUPTI_EVENT_COLLECTION_MODE_CONTINUOUS));
+
+		//printf("Processing %d event groups...\n", metricData->eventGroups->numEventGroups);
 		for(unsigned int i = 0; i < metricData->eventGroups->numEventGroups; i++) {
 			const auto eventGroup = metricData->eventGroups->eventGroups[i];
 
 			uint32_t all = 1;
 			CUPTI_CALL(cuptiEventGroupSetAttribute(eventGroup, CUPTI_EVENT_GROUP_ATTR_PROFILE_ALL_DOMAIN_INSTANCES, sizeof(all), &all));
 			CUPTI_CALL(cuptiEventGroupEnable(eventGroup));
-			return;
 		}
 
-		printf("Marking device as initialized...\n");
+		//printf("Marking device as initialized...\n");
 
 		// Mark the device as initialized
 		initialized = true;
 		startTime = now;
 
-		printf("Metric collection initialized\n");
+		//printf("Metric collection initialized\n");
 	}
 }
 
 void CUPTIAPI cuptiEventCallback(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
 	processEvents(userData, domain, callbackID, callbackInformation);
-	//processMetrics(userData, domain, callbackID, callbackInformation);
+	processMetrics(userData, domain, callbackID, callbackInformation);
 }
 
 void __attribute__((constructor)) constructCUDAModule() {
@@ -390,7 +407,9 @@ void __attribute__((constructor)) constructCUDAModule() {
 
 	printf("Determining current device...\n");
 
-	int deviceNum;
+	int deviceNum = 0;
+	printf("CUDA Device Number: %d\n", deviceNum);
+
 	DRIVER_API_CALL(cuDeviceGet(&device, deviceNum));
 	char deviceName[32];
 	DRIVER_API_CALL(cuDeviceGetName(deviceName, 32, device));
@@ -399,40 +418,33 @@ void __attribute__((constructor)) constructCUDAModule() {
 	CUcontext context = 0;
 	DRIVER_API_CALL(cuCtxCreate(&context, 0, device));
 
-	printf("Initializing metric collection...\n");
-
-	// Subscribe to events
-	MetricData metricData {};
-	cuptiSubscribe(&subscriber, (CUpti_CallbackFunc) cuptiEventCallback, &metricData);
-	cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_DRIVER_API);
-	//cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API);
-	//CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020));
-	//CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000));
-
 	printf("Allocating metric data...\n");
 
 	// Allocate space to hold all the events needed for the metric
+	metricData = new MetricData();
 	CUpti_MetricID metricId;
 	CUPTI_CALL(cuptiMetricGetIdFromName(device, metricName, &metricId));
-	CUPTI_CALL(cuptiMetricGetNumEvents(metricId, &metricData.numEvents));
-	metricData.eventIdArray = (CUpti_EventID*) malloc(metricData.numEvents * sizeof(CUpti_EventID));
-	metricData.eventValueArray = (uint64_t*) malloc(metricData.numEvents * sizeof(uint64_t));
-	metricData.eventIdx = 0;
+	CUPTI_CALL(cuptiMetricGetNumEvents(metricId, &metricData->numEvents));
+	metricData->device = device;
+	metricData->eventIdArray = (CUpti_EventID*) malloc(metricData->numEvents * sizeof(CUpti_EventID));
+	metricData->eventValueArray = (uint64_t*) malloc(metricData->numEvents * sizeof(uint64_t));
+	metricData->eventIdx = 0;
 
-	printf("Configuring passes...\n");
+	// HERE
 
-	// Get the number of passes required to collect all the events needed for the metric and the event groups for each pass
-	CUpti_EventGroupSets* passData;
-	printf("Metric ID: %d\n", metricId);
-	//CUPTI_CALL(cuptiMetricCreateEventGroupSets(callbackInformation->context, sizeof(metricId), &metricId, &passData));
-	CUPTI_CALL(cuptiMetricCreateEventGroupSets(context, sizeof(metricId), &metricId, &passData));
-	for(unsigned int pass = 0; pass < passData->numSets; pass++) {
-		metricData.eventGroups = passData->sets + pass;
-	}
-	if(passData->numSets > 1) {
-		fprintf(stderr, "Cannot initialize reader as profiling would require multiple passes");
-		exit(1);
-	}
+	printf("Initializing metric collection...\n");
+
+	// Subscribe to events
+	cuptiSubscribe(&subscriber, (CUpti_CallbackFunc) cuptiEventCallback, metricData);
+	cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_DRIVER_API);
+	cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API);
+	CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020));
+	CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000));
 
 	printf("Reporter initialized\n");
+}
+
+void __attribute__((destructor)) destructCUDAModule() {
+	// Clean up metric data
+	delete metricData;
 }
