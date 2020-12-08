@@ -5,11 +5,11 @@
 #include "EnergyManager/Utility/StaticInitializer.hpp"
 #include "EnergyManager/Utility/Units/Bandwidth.hpp"
 #include "EnergyManager/Utility/Units/Celsius.hpp"
+#include "EnergyManager/Utility/Units/InstructionsPerCycle.hpp"
 #include "EnergyManager/Utility/Units/Joule.hpp"
 #include "EnergyManager/Utility/Units/Percent.hpp"
 #include "EnergyManager/Utility/Units/RotationsPerMinute.hpp"
 #include "EnergyManager/Utility/Units/Watt.hpp"
-#include "EnergyManager/Utility/Units/InstructionsPerCycle.hpp"
 
 #include <chrono>
 #include <cuda.h>

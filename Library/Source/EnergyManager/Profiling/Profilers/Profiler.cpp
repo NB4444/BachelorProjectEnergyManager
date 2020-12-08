@@ -191,7 +191,10 @@ namespace EnergyManager {
 						true,
 						profile.find("minimumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("minimumCPUClockRate"))),
 						profile.find("maximumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumCPUClockRate"))),
+						-1,
 						profile.find("maximumGPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumGPUClockRate"))),
+						true,
+						std::chrono::milliseconds(50),
 						true);
 					jobID = jobResults.jobID;
 					output = jobResults.output;
@@ -384,7 +387,7 @@ namespace EnergyManager {
 				const unsigned int& gpuClockRatesToProfile) {
 				std::vector<std::map<std::string, std::string>> results;
 				for(const auto& coreClockRate : Profiler::generateFrequencyValueRange(core, coreClockRatesToProfile)) {
-					for(const auto& gpuClockRate : Profiler::generateFrequencyValueRange(1000, gpu->getMaximumCoreClockRate(), gpuClockRatesToProfile)) {
+					for(const auto& gpuClockRate : Profiler::generateFrequencyValueRange(gpu->getMinimumCoreClockRate(), gpu->getMaximumCoreClockRate(), gpuClockRatesToProfile)) {
 						for(const auto& profile : profiles) {
 							// Generate a new profile with the frequencies set
 							std::map<std::string, std::string> newProfile = {
@@ -437,9 +440,9 @@ namespace EnergyManager {
 				, retriesPerRun_(Utility::Text::getArgument<unsigned int>(arguments, "--retriesPerRun", 10))
 				, randomize_(Utility::Text::getArgument<bool>(arguments, "--randomize", true))
 				, autoSave_(Utility::Text::getArgument<bool>(arguments, "--autoSave", true))
-				, slurm_(Utility::Text::getArgument<bool>(arguments, "--slurm", true))
+				, slurm_(Utility::Text::getArgument<bool>(arguments, "--slurm", false))
 				, slurmArguments_(arguments)
-				, ear_(Utility::Text::getArgument<bool>(arguments, "--ear", true)) {
+				, ear_(Utility::Text::getArgument<bool>(arguments, "--ear", false)) {
 				// Get hardware
 				static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 				static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
@@ -498,6 +501,10 @@ namespace EnergyManager {
 
 			void Profiler::setIterationsPerRun(const unsigned int& iterationsPerRun) {
 				iterationsPerRun_ = iterationsPerRun;
+			}
+
+			void Profiler::addMonitor(const std::shared_ptr<Monitoring::Monitors::Monitor>& monitor) {
+				monitors_.push_back(monitor);
 			}
 
 			std::vector<std::shared_ptr<Persistence::ProfilerSession>> Profiler::getProfilerSessions() const {

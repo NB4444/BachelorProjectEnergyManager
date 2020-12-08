@@ -260,6 +260,12 @@ namespace EnergyManager {
 				void setIterationsPerRun(const unsigned int& iterationsPerRun);
 
 				/**
+				 * Adds the specified monitor.
+				 * @param monitor The monitor to add.
+				 */
+				void addMonitor(const std::shared_ptr<Monitoring::Monitors::Monitor>& monitor);
+
+				/**
 				 * Gets the last profiling session.
 				 * @return The last profiling session.
 				 */

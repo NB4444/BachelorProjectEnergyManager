@@ -112,6 +112,8 @@ namespace EnergyManager {
 					logTrace("Application ran successfully");
 				}
 			} else {
+				logDebug("Starting child process %s...", path_.c_str());
+
 				logTrace("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
@@ -144,6 +146,7 @@ namespace EnergyManager {
 					logTrace("Injecting libraries...");
 					std::vector<std::string> librariesToInject = {};
 					if(injectReporter_) {
+						//librariesToInject.push_back(REPORTER_LIBRARY_DEPENDENCIES);
 						librariesToInject.push_back(REPORTER_LIBRARY);
 					}
 					if(injectEAR_) {

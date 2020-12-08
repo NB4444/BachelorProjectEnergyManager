@@ -138,8 +138,8 @@ class DataSet(object):
 
         return data
 
-    def energy_consumption_vs_runtime_scatter_plot(self, normalized=True):
-        plot_series = self.runtime_vs_energy_consumption_vs_combined_clock_rates(normalized)
+    def energy_consumption_vs_runtime_scatter_plot(self, normalized=True, use_ear=False):
+        plot_series = self.runtime_vs_energy_consumption_vs_combined_clock_rates(normalized, use_ear)
 
         values = []
         for profiler_session in self.data:
@@ -155,7 +155,7 @@ class DataSet(object):
             y_label="Energy Consumption (" + ("% of optimal" if normalized else "Joules") + ")",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
 
     def energy_consumption_vs_flops(self, normalized=True, use_ear=False):
@@ -170,12 +170,12 @@ class DataSet(object):
                     profiler_session.total_flops / self.maximum_flops_profiler_session.total_flops * 100] = profiler_session.total_energy_consumption / self.minimum_energy_consumption_profiler_session(
                     use_ear).total_energy_consumption * 100
             else:
-                data[profile][profiler_session.total_flops] = profiler_session.total_energy_consumption
+                data[profile][profiler_session.total_flops] = profiler_session.total_energy_consumption(use_ear)
 
         return data
 
-    def energy_consumption_vs_flops_scatter_plot(self, normalized=True):
-        plot_series = self.energy_consumption_vs_flops(normalized)
+    def energy_consumption_vs_flops_scatter_plot(self, normalized=True, use_ear=False):
+        plot_series = self.energy_consumption_vs_flops(normalized, use_ear)
 
         values = []
         for profiler_session in self.data:
@@ -191,11 +191,10 @@ class DataSet(object):
             y_label="Energy Consumption (" + ("% of optimal" if normalized else "Joules") + ")",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
 
-    @cached_property
-    def core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption(self):
+    def core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption(self, use_ear=False):
         data: OrderedDict[str, OrderedDict[int, OrderedDict[int, int]]] = collections.OrderedDict({})
         for profiler_session in self.data:
             profile = "Runs"
@@ -207,13 +206,12 @@ class DataSet(object):
                 data[profile][core_clock_rate] = collections.OrderedDict()
 
             gpu_clock_rate = profiler_session.profile["maximumGPUClockRate"]
-            data[profile][core_clock_rate][gpu_clock_rate] = profiler_session.total_energy_consumption
+            data[profile][core_clock_rate][gpu_clock_rate] = profiler_session.total_energy_consumption(use_ear)
 
         return data
 
-    @cached_property
-    def core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption_scatter_plot(self):
-        plot_series = self.core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption
+    def core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption_scatter_plot(self, use_ear=False):
+        plot_series = self.core_clock_rate_vs_gpu_clock_rate_vs_energy_consumption(use_ear)
 
         values = []
         for series_name, x_y_z_values in plot_series.items():
@@ -230,7 +228,7 @@ class DataSet(object):
             z_label="Energy Consumption (Joules)",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
 
     @cached_property
@@ -250,8 +248,7 @@ class DataSet(object):
 
         return data
 
-    @cached_property
-    def core_clock_rate_vs_gpu_clock_rate_vs_runtime_scatter_plot(self):
+    def core_clock_rate_vs_gpu_clock_rate_vs_runtime_scatter_plot(self, use_ear=False):
         plot_series = self.core_clock_rate_vs_gpu_clock_rate_vs_runtime
 
         values = []
@@ -268,5 +265,5 @@ class DataSet(object):
             y_label="GPU Clock Rate (Hertz)", z_label="Runtime (Seconds)",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )

@@ -38,11 +38,19 @@
 		} \
 	} while(0)
 
-#define ALIGN_SIZE (8)
-#define ALIGN_BUFFER(buffer, align) (((uintptr_t)(buffer) & ((align) -1)) ? ((buffer) + (align) - ((uintptr_t)(buffer) & ((align) -1))) : (buffer))
+/**
+ * Whether to report events.
+ */
+bool enableEvents = true;
 
-//uint cupti_calls[1024];
+/**
+ * Whether to report metrics.
+ */
+bool enableMetrics = false;
 
+/**
+ * The callback subscriber.
+ */
 CUpti_SubscriberHandle subscriber;
 
 /**
@@ -304,8 +312,6 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 		for(unsigned int i = 0; i < metricData->eventGroups->numEventGroups; i++) {
 			CUPTI_CALL(cuptiEventGroupDisable(metricData->eventGroups->eventGroups[i]));
 		}
-
-		initialized = false;
 	}
 
 	// Enable all the event groups being collected this pass, for metrics we collect for all instances of the event
@@ -351,7 +357,6 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 		//printf("Marking device as initialized...\n");
 
 		// Mark the device as initialized
-		initialized = true;
 		startTime = now;
 
 		//printf("Metric collection initialized\n");
@@ -359,8 +364,13 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 }
 
 void CUPTIAPI cuptiEventCallback(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
-	processEvents(userData, domain, callbackID, callbackInformation);
-	processMetrics(userData, domain, callbackID, callbackInformation);
+	if(enableEvents) {
+		processEvents(userData, domain, callbackID, callbackInformation);
+	}
+
+	if(enableMetrics) {
+		processMetrics(userData, domain, callbackID, callbackInformation);
+	}
 }
 
 void __attribute__((constructor)) constructCUDAModule() {
@@ -368,7 +378,7 @@ void __attribute__((constructor)) constructCUDAModule() {
 
 	printf("Writing Reporter headers...\n");
 
-	{
+	if(enableEvents) {
 		// Open file to write headers
 		const auto output = fopen("reporter.events.csv.tmp", "w");
 		if(output == nullptr) {
@@ -381,7 +391,7 @@ void __attribute__((constructor)) constructCUDAModule() {
 		// Close the stream
 		fclose(output);
 	}
-	{
+	if(enableMetrics) {
 		// Open file to write headers
 		const auto output = fopen("reporter.metrics.csv.tmp", "w");
 		if(output == nullptr) {
@@ -415,31 +425,33 @@ void __attribute__((constructor)) constructCUDAModule() {
 	DRIVER_API_CALL(cuDeviceGetName(deviceName, 32, device));
 	printf("CUDA Device Name: %s\n", deviceName);
 
-	CUcontext context = 0;
-	DRIVER_API_CALL(cuCtxCreate(&context, 0, device));
+	if(enableMetrics) {
+		CUcontext context = 0;
+		DRIVER_API_CALL(cuCtxCreate(&context, 0, device));
 
-	printf("Allocating metric data...\n");
+		printf("Allocating metric data for metric %s...\n", metricName);
 
-	// Allocate space to hold all the events needed for the metric
-	metricData = new MetricData();
-	CUpti_MetricID metricId;
-	CUPTI_CALL(cuptiMetricGetIdFromName(device, metricName, &metricId));
-	CUPTI_CALL(cuptiMetricGetNumEvents(metricId, &metricData->numEvents));
-	metricData->device = device;
-	metricData->eventIdArray = (CUpti_EventID*) malloc(metricData->numEvents * sizeof(CUpti_EventID));
-	metricData->eventValueArray = (uint64_t*) malloc(metricData->numEvents * sizeof(uint64_t));
-	metricData->eventIdx = 0;
+		// Allocate space to hold all the events needed for the metric
+		metricData = new MetricData();
+		CUpti_MetricID metricId;
+		CUPTI_CALL(cuptiMetricGetIdFromName(device, metricName, &metricId));
+		CUPTI_CALL(cuptiMetricGetNumEvents(metricId, &metricData->numEvents));
+		metricData->device = device;
+		metricData->eventIdArray = (CUpti_EventID*) malloc(metricData->numEvents * sizeof(CUpti_EventID));
+		metricData->eventValueArray = (uint64_t*) malloc(metricData->numEvents * sizeof(uint64_t));
+		metricData->eventIdx = 0;
+	}
 
-	// HERE
-
-	printf("Initializing metric collection...\n");
+	printf("Initializing data collection...\n");
 
 	// Subscribe to events
 	cuptiSubscribe(&subscriber, (CUpti_CallbackFunc) cuptiEventCallback, metricData);
 	cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_DRIVER_API);
 	cuptiEnableDomain(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API);
-	CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020));
-	CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000));
+	if(enableMetrics) {
+		CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020));
+		CUPTI_CALL(cuptiEnableCallback(1, subscriber, CUPTI_CB_DOMAIN_RUNTIME_API, CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000));
+	}
 
 	printf("Reporter initialized\n");
 }

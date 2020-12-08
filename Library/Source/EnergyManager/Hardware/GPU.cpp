@@ -398,6 +398,10 @@ namespace EnergyManager {
 		GPU::GPU(const unsigned int& id) : Processor(id), Utility::Loopable(std::chrono::milliseconds(100)) {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetHandleByIndex(id, &device_));
 
+			// Set the initial limits
+			currentMinimumCoreClockRate_ = getMinimumCoreClockRate();
+			currentMaximumCoreClockRate_ = getMaximumCoreClockRate();
+
 			// start the monitor thread
 			run(true);
 		}
@@ -632,9 +636,15 @@ namespace EnergyManager {
 
 		void GPU::resetCoreClockRate() {
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
+
+			currentMinimumCoreClockRate_ = getMinimumCoreClockRate();
+			currentMaximumCoreClockRate_ = getMaximumCoreClockRate();
 		}
 
 		Utility::Units::Hertz GPU::getMinimumCoreClockRate() const {
+			// FIXME: This is a quick replacement fix, since the rest of this function is not supported on the test GPU
+			return Utility::Units::Hertz(1, Utility::Units::SIPrefix::MEGA);
+
 			Utility::Units::Hertz minimumCoreClockRate;
 			bool found = false;
 
@@ -889,10 +899,10 @@ namespace EnergyManager {
 						events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
 					}
 				} else {
-					logWarning("Reporter events file is incomplete");
+					logTrace("Reporter events file is incomplete");
 				}
 			} else {
-				logWarning("Reporter events file does not exist");
+				logTrace("Reporter events file does not exist");
 			}
 
 			return events;
@@ -928,10 +938,10 @@ namespace EnergyManager {
 						}
 					}
 				} else {
-					logWarning("Reporter events file is incomplete");
+					logTrace("Reporter metrics file is incomplete");
 				}
 			} else {
-				logWarning("Reporter events file does not exist");
+				logTrace("Reporter metrics file does not exist");
 			}
 
 			return ipc;

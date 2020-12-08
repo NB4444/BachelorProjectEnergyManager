@@ -1,8 +1,11 @@
+find_program(CONDA conda PATHS "~/anaconda3/bin")
+message(STATUS "Conda: ${CONDA}")
+
 # Add the environment
 add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment"
         COMMAND
-        conda env create --prefix "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment" --file "${CMAKE_CURRENT_SOURCE_DIR}/environment.yml"
+        ${CONDA} env create --prefix "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment" --file "${CMAKE_CURRENT_SOURCE_DIR}/environment.yml"
         && "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment/bin/jupyter" labextension install @jupyter-widgets/jupyterlab-manager
         && "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment/bin/jupyter" labextension install @jupyterlab/toc
         && "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment/bin/jupyter" labextension install jupyter-matplotlib

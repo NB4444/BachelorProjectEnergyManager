@@ -9,6 +9,8 @@
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-root" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
@@ -18,15 +20,21 @@
       <paths name="Root (c235f0b0-e1e8-4db4-82ed-f3d2d8c98eaf)">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$" />
+            <mapping deploy="EnergyManager" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
             <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-lenox" />
             <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
           </excludedPaths>
         </serverdata>

@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Database" uuid="fc2e5ec3-f13d-4231-869d-d29c37207b24">
+    <data-source source="LOCAL" name="Database" single-connection="true" uuid="fc2e5ec3-f13d-4231-869d-d29c37207b24">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/Database.sqlite</jdbc-url>
+      <auto-close enable="true" timeout="30" />
     </data-source>
     <data-source source="LOCAL" name="TestDatabase.sqlite" uuid="0cd52f12-25e6-4964-852b-fad1761fe1dc">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/EnergyManager/Resources/Data/TestDatabase.sqlite</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="MatrixMultiply" uuid="778eb797-a49b-4497-a172-7c3e334c9457">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/MatrixMultiply.sqlite</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="KMeans" uuid="9594e38e-9971-496f-bcfc-fa15653e873b">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/KMeans.sqlite</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="RootDatabase" uuid="102b0edd-6e68-42b0-a5c8-491b7073d903">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:/tmp/EnergyManager/Resources/Data/Database.sqlite</jdbc-url>
     </data-source>
   </component>
 </project>

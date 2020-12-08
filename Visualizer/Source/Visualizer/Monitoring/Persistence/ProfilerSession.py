@@ -80,6 +80,10 @@ class ProfilerSession(Entity):
         return self.get_monitor_session_by_monitor_name("NodeMonitor")[0]
 
     @cached_property
+    def energy_monitor(self):
+        return self.get_monitor_session_by_monitor_name("EnergyMonitor")[0]
+
+    @cached_property
     def ear_monitor(self):
         return self.get_monitor_session_by_monitor_name("EARMonitor")[0]
 
@@ -87,8 +91,7 @@ class ProfilerSession(Entity):
     def monitor_data_correlations_plot(self):
         return MonitorSession.correlations_plot(self.monitor_sessions)
 
-    @property
-    def plot_label(self):
+    def plot_label(self, use_ear=False):
         result = f"ID={self.id}\n"
         result += "\n"
         if "minimumCPUClockRate" in self.profile:
@@ -99,7 +102,7 @@ class ProfilerSession(Entity):
             result += f"GPU Minimum Frequency={Plot.humanize_number(self.profile['minimumGPUClockRate'])}\n"
         if "maximumGPUClockRate" in self.profile:
             result += f"GPU Maximum Frequency={Plot.humanize_number(self.profile['maximumGPUClockRate'])}\n"
-        result += f"Energy Consumption={Plot.humanize_number(self.total_energy_consumption)} J\n"
+        result += f"Energy Consumption={Plot.humanize_number(self.total_energy_consumption(use_ear))} J\n"
         result += f"Runtime={Plot.ns_to_s(self.total_runtime)} s"
 
         return result
@@ -147,8 +150,7 @@ class ProfilerSession(Entity):
             # self.monitor_data_correlations_plot,
         ])
 
-    @property
-    def clock_rate(self):
+    def clock_rate(self, use_ear=False):
         clock_rate = {}
 
         for cpu_monitor in self.cpu_monitors:
@@ -168,9 +170,10 @@ class ProfilerSession(Entity):
                 f"GPU {gpu_id} SM": gpu_monitor.get_values("streamingMultiprocessorClockRate", int)
             })
 
-        clock_rate.update({
-            "EAR CPU Clock Rate": self.ear_monitor.get_values("cpuCoreClockRate", float),
-        })
+        if use_ear:
+            clock_rate.update({
+                "EAR CPU Clock Rate": self.ear_monitor.get_values("cpuCoreClockRate", float),
+            })
 
         return clock_rate
 
@@ -214,8 +217,8 @@ class ProfilerSession(Entity):
 
         return clock_rate_limits
 
-    def clock_rate_timeseries_plot(self, plot_limits=True):
-        series = self.clock_rate
+    def clock_rate_timeseries_plot(self, plot_limits=True, use_ear=False):
+        series = self.clock_rate(use_ear)
         if plot_limits:
             series.update(self.clock_rate_limits)
 
@@ -251,7 +254,7 @@ class ProfilerSession(Entity):
 
         return result
 
-    def energy_consumption(self, modifier=lambda value: value):
+    def energy_consumption(self, modifier=lambda value: value, use_ear=False):
         energy_consumption = {}
 
         for cpu_monitor in self.cpu_monitors:
@@ -270,13 +273,17 @@ class ProfilerSession(Entity):
 
         energy_consumption.update({
             "Node": self.node_monitor.get_values("energyConsumption", float, modifier),
-            "EAR Node": self.ear_monitor.get_values("energyConsumption", float, modifier)
         })
+
+        if use_ear:
+            energy_consumption.update({
+                "EAR Node": self.ear_monitor.get_values("energyConsumption", float, modifier)
+            })
 
         return energy_consumption
 
-    def energy_consumption_timeseries_plot(self, unit_string="J", modifier=lambda value: value):
-        return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier),
+    def energy_consumption_timeseries_plot(self, unit_string="J", modifier=lambda value: value, use_ear=False):
+        return TimeseriesPlot(title="Energy Consumption", plot_series=self.energy_consumption(modifier, use_ear),
                               y_label=f"Energy Consumption ({unit_string})")
 
     def total_energy_consumption(self, use_ear=False):
@@ -410,8 +417,7 @@ class ProfilerSession(Entity):
 
         return TimeseriesPlot(title="Memory Consumption", plot_series=series, y_label="Memory Consumption (B)")
 
-    @property
-    def power_consumption(self):
+    def power_consumption(self, use_ear=False):
         power_consumption = {}
 
         for cpu_monitor in self.cpu_monitors:
@@ -430,8 +436,12 @@ class ProfilerSession(Entity):
 
         power_consumption.update({
             "Node": self.node_monitor.get_values("powerConsumption", float),
-            "EAR Node Average": self.ear_monitor.get_values("averagePowerConsumption", float)
         })
+
+        if use_ear:
+            power_consumption.update({
+                "EAR Node Average": self.ear_monitor.get_values("averagePowerConsumption", float)
+            })
 
         return power_consumption
 
@@ -448,8 +458,8 @@ class ProfilerSession(Entity):
 
         return power_limits
 
-    def power_consumption_timeseries_plot(self, plot_limits=True):
-        series = self.power_consumption
+    def power_consumption_timeseries_plot(self, plot_limits=True, use_ear=False):
+        series = self.power_consumption(use_ear)
         if plot_limits:
             series.update(self.power_limits)
 
@@ -469,6 +479,35 @@ class ProfilerSession(Entity):
     def total_runtime(self):
         _, variables = list(self.node_monitor.monitor_data.items())[-1]
         return variables["runtime"]
+
+    @property
+    def states(self):
+        """
+        Gets the states per GPU monitor.
+        :return: The states.
+        """
+        states: List[Tuple[str, datetime, datetime]] = []
+
+        current_state = None
+        start_timestamp = None
+
+        # Process the states
+        state_items = list(self.energy_monitor.get_values("state", str).items())
+        for index, (timestamp, state) in enumerate(state_items):
+            # Update the state if it changes or if this is the last state and store the current value
+            if state != current_state or index == len(state_items) - 1:
+                # Store the current state
+                if current_state is not None:
+                    states.append((current_state, start_timestamp, timestamp))
+
+                # Update the state
+                current_state = state
+                start_timestamp = timestamp
+
+        return states
+
+    def states_event_plot(self):
+        return EventPlot(title="States", events=self.states)
 
     @property
     def switches(self):
@@ -509,8 +548,7 @@ class ProfilerSession(Entity):
     def temperature_timeseries_plot(self):
         return TimeseriesPlot(title="Temperature", plot_series=self.temperature, y_label="Temperature (C)")
 
-    @property
-    def timespan(self):
+    def timespan(self, use_ear=False):
         timespan = {}
 
         for cpu_monitor in self.cpu_monitors:
@@ -556,15 +594,18 @@ class ProfilerSession(Entity):
             })
 
         timespan.update({
-            "Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s),
-            "EAR Runtime": self.ear_monitor.get_values("applicationRuntime", float, Plot.ns_to_s)
+            "Runtime": self.node_monitor.get_values("runtime", float, Plot.ns_to_s)
         })
+
+        if use_ear:
+            timespan.update({
+                "EAR Runtime": self.ear_monitor.get_values("applicationRuntime", float, Plot.ns_to_s)
+            })
 
         return timespan
 
-    @property
-    def timespan_timeseries_plot(self):
-        return TimeseriesPlot(title="Timespan", plot_series=self.timespan, y_label="Timespan (s)")
+    def timespan_timeseries_plot(self, use_ear=False):
+        return TimeseriesPlot(title="Timespan", plot_series=self.timespan(use_ear), y_label="Timespan (s)")
 
     @property
     def utilization_rate(self):

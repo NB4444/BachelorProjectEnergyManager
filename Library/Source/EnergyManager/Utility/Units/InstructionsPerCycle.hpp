@@ -1,7 +1,7 @@
 #pragma once
 
-#include "EnergyManager/Utility/Units/PerUnit.hpp"
 #include "EnergyManager/Utility/Units/Instruction.hpp"
+#include "EnergyManager/Utility/Units/PerUnit.hpp"
 
 namespace EnergyManager {
 	namespace Utility {

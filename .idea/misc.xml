@@ -16,6 +16,7 @@
       <file path="$PROJECT_DIR$/Profiling/KMeans/Source" />
       <file path="$PROJECT_DIR$/Profiling/MatrixMultiply/Source" />
       <file path="$PROJECT_DIR$/Reporter/Source" />
+      <file path="$PROJECT_DIR$/ShowFrequencies/Source" />
       <file path="$PROJECT_DIR$/Tests/ActiveInactive/Source" />
       <file path="$PROJECT_DIR$/Tests/AllocateFree/Source" />
       <file path="$PROJECT_DIR$/Tests/FixedFrequencyMatrixMultiply/Source" />

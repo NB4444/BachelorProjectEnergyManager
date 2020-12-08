@@ -52,7 +52,8 @@ class ControlledDataSet(object):
 
         return data
 
-    def energy_savings_vs_runtime_increase_plot(self, control_comparison=ControlComparison.MEAN, normalized=True):
+    def energy_savings_vs_runtime_increase_plot(self, control_comparison=ControlComparison.MEAN, normalized=True,
+                                                use_ear=False):
         plot_series = self.energy_savings_vs_runtime_increase(control_comparison, normalized)
 
         values = []
@@ -69,7 +70,7 @@ class ControlledDataSet(object):
             y_label="Energy Savings (" + ("% of optimal" if normalized else "Joules") + ")",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
         )
 
     def energy_savings_vs_flops_decrease(self, control_comparison=ControlComparison.MEAN, normalized=True,
@@ -103,7 +104,8 @@ class ControlledDataSet(object):
 
         return data
 
-    def energy_savings_vs_flops_decrease_plot(self, control_comparison=ControlComparison.MEAN, normalized=True):
+    def energy_savings_vs_flops_decrease_plot(self, control_comparison=ControlComparison.MEAN, normalized=True,
+                                              use_ear=False):
         plot_series = self.energy_savings_vs_flops_decrease(control_comparison, normalized)
 
         values = []
@@ -120,7 +122,7 @@ class ControlledDataSet(object):
             y_label="Energy Savings (" + ("% of optimal" if normalized else "Joules") + ")",
             colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
                     values] if len(values) > 0 else None,
-            labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
         )
 
     def core_clock_rate_vs_gpu_clock_rate_vs_energy_savings(self, control_comparison=ControlComparison.MEAN,
@@ -153,14 +155,15 @@ class ControlledDataSet(object):
         return data
 
     def core_clock_rate_vs_gpu_clock_rate_vs_energy_savings_scatter_plot(self,
-                                                                         control_comparison=ControlComparison.MEAN):
+                                                                         control_comparison=ControlComparison.MEAN,
+                                                                         use_ear=False):
         return ScatterPlot(
             title="Core Frequency vs. GPU Frequency vs. Energy Savings",
             plot_series=self.core_clock_rate_vs_gpu_clock_rate_vs_energy_savings(control_comparison),
             x_label="Core Clock Rate (Hertz)",
             y_label="GPU Clock Rate (Hertz)",
             z_label="Energy Savings (Joules)",
-            labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
         )
 
     def core_clock_rate_vs_gpu_clock_rate_vs_runtime_increase(self, control_comparison=ControlComparison.MEAN):
@@ -191,12 +194,13 @@ class ControlledDataSet(object):
         return data
 
     def core_clock_rate_vs_gpu_clock_rate_vs_runtime_increase_scatter_plot(self,
-                                                                           control_comparison=ControlComparison.MEAN):
+                                                                           control_comparison=ControlComparison.MEAN,
+                                                                           use_ear=False):
         return ScatterPlot(
             title="Core Frequency vs. GPU Frequency vs. Runtime Increase",
             plot_series=self.core_clock_rate_vs_gpu_clock_rate_vs_runtime_increase(control_comparison),
             x_label="Core Clock Rate (Hertz)",
             y_label="GPU Clock Rate (Hertz)",
             z_label="Runtime Increase (Seconds)",
-            labels=[profiler_session.plot_label for profiler_session in self.data_set.data]
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
         )

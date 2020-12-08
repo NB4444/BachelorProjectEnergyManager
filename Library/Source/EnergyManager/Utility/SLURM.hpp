@@ -131,6 +131,7 @@ namespace EnergyManager {
 				const bool& exclusive = true,
 				const Units::Hertz& minimumCPUFrequency = Units::Hertz(),
 				const Units::Hertz& maximumCPUFrequency = Units::Hertz(),
+				const int& gpus = -1,
 				const Units::Hertz& gpuFrequency = Units::Hertz(),
 				const bool& ear = false,
 				const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::milliseconds(50),
@@ -138,6 +139,8 @@ namespace EnergyManager {
 				std::lock_guard<std::mutex> lock(mutex);
 
 				Logging::logDebug("Creating SLURM job...");
+
+				auto slurmGPUFrequency = static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA));
 
 				// Write the job script
 				std::string command
@@ -174,7 +177,7 @@ namespace EnergyManager {
 					  // EAR requires the value to be in MHz
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
-						 : "export SLURM_EAR_GPU_DEF_FREQ=\"" + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA)) + "\"\n")
+						 : "export SLURM_EAR_GPU_DEF_FREQ=" + Text::toString(static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))) + "\n")
 
 					  + "srun"
 
@@ -184,13 +187,15 @@ namespace EnergyManager {
 						 ? ""
 						 : (" --cpu-freq " + (minimumCPUFrequency == Units::Hertz()
 								 ? ""
-								 : (Text::toString(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)) + "-")) + Text::toString(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))))
+								 : (Text::toString(static_cast<unsigned int>(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))) + "-")) + Text::toString(static_cast<unsigned int>(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)))))
+
+					  + (gpus >= 0 ? " --gpus " + Text::toString(gpus) : "")
 
 					  // Set the GPU frequency in SLURM
 					  // SLURM wants the GPU frequency in MHz
 					  + (gpuFrequency == Units::Hertz()
 						 ? ""
-						 : (" --gpu-freq " + Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))))
+						 : (" --gpu-freq " + (slurmGPUFrequency == 0 ? "low" : Text::toString(slurmGPUFrequency))))
 
 					  + (verbose ? " --verbose" : "")
 					  + " --job-name EnergyManager"

@@ -55,7 +55,7 @@ class EventPlot(FigurePlot):
             event_names.append(event)
         event_names = sorted(list(set(event_names)))
         axes.set_xlim(date2num(minimum_timestamp), date2num(maximum_timestamp))
-        axes.set_ylim(0, len(event_names) - 1)
+        axes.set_ylim(0, len(event_names))
 
         # Set the ticks
         axes.set_yticks([event_id for event_id, _ in enumerate(event_names)], minor=False)
