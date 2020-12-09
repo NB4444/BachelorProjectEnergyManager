@@ -32,18 +32,17 @@ class MonitorSession(Entity):
 
     @classmethod
     def _load(cls, database_file: str, conditions: str = None):
-        Entity.database_file = database_file
-
         monitor_sessions = []
-        for row in cls._select("MonitorSession", ["id", "monitorName"], conditions):
+        for row in Entity(database_file)._select("MonitorSession", ["id", "monitorName"], conditions):
             id = row[0]
             monitor_name = row[1]
 
-            monitor_sessions.append(MonitorSession(
+            monitor_session = MonitorSession(
                 database_file,
                 id,
                 monitor_name
-            ))
+            )
+            monitor_sessions.append(monitor_session)
 
         return monitor_sessions
 

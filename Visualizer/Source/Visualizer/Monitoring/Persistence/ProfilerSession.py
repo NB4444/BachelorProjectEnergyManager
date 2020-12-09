@@ -23,10 +23,8 @@ class ProfilerSession(Entity):
 
     @classmethod
     def _load(cls, database_file: str, conditions: str = None):
-        Entity.database_file = database_file
-
         profiler_sessions = []
-        for row in cls._select("ProfilerSession", ["id", "label"], conditions):
+        for row in Entity(database_file)._select("ProfilerSession", ["id", "label"], conditions):
             id = row[0]
             label = row[1]
 
@@ -77,11 +75,13 @@ class ProfilerSession(Entity):
 
     @cached_property
     def node_monitor(self):
-        return self.get_monitor_session_by_monitor_name("NodeMonitor")[0]
+        node_monitors = self.get_monitor_session_by_monitor_name("NodeMonitor")
+        return node_monitors[0] if len(node_monitors) > 0 else None
 
     @cached_property
     def energy_monitor(self):
-        return self.get_monitor_session_by_monitor_name("EnergyMonitor")[0]
+        energy_monitors = self.get_monitor_session_by_monitor_name("EnergyMonitor")
+        return energy_monitors[0] if len(energy_monitors) > 0 else None
 
     @cached_property
     def ear_monitor(self):
@@ -492,17 +492,18 @@ class ProfilerSession(Entity):
         start_timestamp = None
 
         # Process the states
-        state_items = list(self.energy_monitor.get_values("state", str).items())
-        for index, (timestamp, state) in enumerate(state_items):
-            # Update the state if it changes or if this is the last state and store the current value
-            if state != current_state or index == len(state_items) - 1:
-                # Store the current state
-                if current_state is not None:
-                    states.append((current_state, start_timestamp, timestamp))
+        if self.energy_monitor is not None:
+            state_items = list(self.energy_monitor.get_values("state", str).items())
+            for index, (timestamp, state) in enumerate(state_items):
+                # Update the state if it changes or if this is the last state and store the current value
+                if state != current_state or index == len(state_items) - 1:
+                    # Store the current state
+                    if current_state is not None:
+                        states.append((current_state, start_timestamp, timestamp))
 
-                # Update the state
-                current_state = state
-                start_timestamp = timestamp
+                    # Update the state
+                    current_state = state
+                    start_timestamp = timestamp
 
         return states
 

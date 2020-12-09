@@ -32,5 +32,19 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:/tmp/EnergyManager/Resources/Data/Database.sqlite</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="OldDatabase" single-connection="true" uuid="9422a594-bb3a-4d4c-a0be-a8ac323004d9">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/OldDatabase.sqlite</jdbc-url>
+      <auto-close enable="true" timeout="30" />
+    </data-source>
+    <data-source source="LOCAL" name="NewDatabase" single-connection="true" uuid="36083d3a-acd5-4c7d-9c33-fb57adae669c">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/NewDatabase.sqlite</jdbc-url>
+      <auto-close enable="true" timeout="30" />
+    </data-source>
   </component>
 </project>

@@ -12,7 +12,7 @@ namespace EnergyManager {
 		namespace Monitors {
 			EnergyMonitor::State EnergyMonitor::deterimineState() {
 				// Define the boundary above which values are considered "high" (inclusive)
-				const auto highBoundary = 70;
+				const auto highBoundary = 10;
 
 				// First determine the utilization rates
 				enum class Utilization { HIGH, LOW };
@@ -87,6 +87,9 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> EnergyMonitor::onPoll() {
+				// Define whether to use the smart policy.
+				const bool smart = false;
+
 				// Define the amount to scale values with when setting frequencies for inactive states
 				const auto inactiveScaling = 0.2;
 
@@ -122,30 +125,54 @@ namespace EnergyManager {
 
 				// Take action if the state changes
 				if(activeMode_ && currentState != lastState_) {
-					// Reset configured values
-					core_->getCPU()->setTurboEnabled(true);
-					core_->resetCoreClockRate();
-					core_->getCPU()->resetCoreClockRate();
-					gpu_->resetCoreClockRate();
+					// Reset configured values to the defaults
+					if(smart) {
+						core_->getCPU()->setTurboEnabled(true);
+						core_->resetCoreClockRate();
+						core_->getCPU()->resetCoreClockRate();
+						gpu_->resetCoreClockRate();
+					} else {
+						core_->getCPU()->setTurboEnabled(true);
+						core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
+						core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
+						gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+					}
 
 					// Apply the new configuration
 					switch(currentState) {
 						case State::CPU_IDLE:
 						case State::CPU_BUSY_WAIT:
-							// If the CPU idle or in a busy wait, set the frequency to about 20 percent of the max value.
+							// If the CPU is idle or in a busy wait, set the frequency to about 20 percent of the max value.
 							core_->getCPU()->setTurboEnabled(false);
 							core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
 							core_->getCPU()->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue());
+							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
 							break;
 						case State::GPU_IDLE:
 							// GPU is waiting for work, set the frequency to about 20 percent of the max value
 							gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue());
 							break;
 						case State::BUSY:
+							if(!smart) {
+								// In the busy state set all frequencies to maximum
+								core_->getCPU()->setTurboEnabled(true);
+								core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
+								core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
+								gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+							}
+							break;
 						case State::IDLE:
+							if(!smart) {
+								// If we're idle we can cap all execution frequencies
+								core_->getCPU()->setTurboEnabled(false);
+								core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
+								core_->getCPU()->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue());
+								gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue());
+							}
+							break;
 						case State::UNKNOWN:
 						default:
-							// If we're busy, idle, or the state is unknown we don't take any action
+							// In unknown states no action is taken
 							break;
 					}
 				}

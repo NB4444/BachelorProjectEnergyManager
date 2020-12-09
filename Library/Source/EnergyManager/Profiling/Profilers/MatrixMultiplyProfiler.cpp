@@ -31,9 +31,9 @@ namespace EnergyManager {
 						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Get the profile configurations
-						static const auto sizeStart = Utility::Text::getArgument<unsigned int>(arguments, "--sizeStart", 1024);
+						static const auto sizeStart = Utility::Text::getArgument<unsigned int>(arguments, "--sizeStart", 3 * 512);
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_ASSERT(sizeStart % 32 == 0 && sizeStart >= 32, "Size must be divisible by 32");
-						static const auto sizeEnd = Utility::Text::getArgument<unsigned int>(arguments, "--sizeEnd", 1024);
+						static const auto sizeEnd = Utility::Text::getArgument<unsigned int>(arguments, "--sizeEnd", 3 * 512);
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_ASSERT(sizeEnd % 32 == 0 && sizeEnd >= sizeStart, "Size must be divisible by 32");
 
 						// Generate the profiles

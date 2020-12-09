@@ -3,15 +3,14 @@ from typing import List, Dict
 
 
 class Entity(object):
-    database = None
-    database_file = ""
+    # database = None
+    # database_file = ""
 
-    @classmethod
-    def _execute_sql(cls, statement: str):
-        if Entity.database is None:
-            Entity.database = sqlite3.connect(cls.database_file)
+    def _execute_sql(self, statement: str):
+        if self.database is None:
+            self.database = sqlite3.connect(self.database_file)
 
-        cursor = cls.database.cursor()
+        cursor = self.database.cursor()
         cursor.execute(statement)
 
         return cursor.fetchall()
@@ -19,20 +18,19 @@ class Entity(object):
     def _on_save(self):
         pass
 
-    def __init__(self, database_file):
-        Entity.database_file = database_file
+    def __init__(self, database_file=""):
+        # Entity.database_file = database_file
+        self.database = None
+        self.database_file = database_file
 
-    @classmethod
-    def _add_column(cls, table: str, column: str, attributes: str):
-        return cls._execute_sql(f"ALTER TABLE {table} ADD {column} {attributes};")
+    def _add_column(self, table: str, column: str, attributes: str):
+        return self._execute_sql(f"ALTER TABLE {table} ADD {column} {attributes};")
 
-    @classmethod
-    def _create_table(cls, table: str, columns_with_attributes: Dict[str, str]):
-        return cls._execute_sql(
+    def _create_table(self, table: str, columns_with_attributes: Dict[str, str]):
+        return self._execute_sql(
             f"CREATE TABLE {table}({','.join([column_with_attributes + ' ' + columns_with_attributes[column_with_attributes] for column_with_attributes in columns_with_attributes])});")
 
-    @classmethod
-    def _insert(cls, table: str, row_column_values):
+    def _insert(self, table: str, row_column_values):
         if isinstance(row_column_values, Dict):
             row_column_values: List[Dict[str, str]] = [row_column_values]
 
@@ -53,12 +51,11 @@ class Entity(object):
 
             row_values.append(insert_values)
 
-        return cls._execute_sql(
+        return self._execute_sql(
             f"INSERT INTO {table}({','.join(columns)}) VALUES({'),('.join([','.join(row) for row in row_values])});")
 
-    @classmethod
-    def _select(cls, table: str, columns: List[str], conditions: str = None, order: str = None):
-        return cls._execute_sql(
+    def _select(self, table: str, columns: List[str], conditions: str = None, order: str = None):
+        return self._execute_sql(
             f"SELECT {','.join(columns)} FROM {table}" + (f" WHERE {conditions}" if conditions is not None else "") + (
                 f" ORDER BY {order}" if order is not None else "") + ";")
 

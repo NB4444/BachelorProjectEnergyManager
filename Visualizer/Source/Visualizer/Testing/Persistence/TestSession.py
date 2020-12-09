@@ -17,10 +17,8 @@ class TestSession(Entity):
 
     @classmethod
     def _load(cls, database_file: str, conditions: str = None):
-        Entity.database_file = database_file
-
         test_sessions = []
-        for row in cls._select("TestSession", ["id", "testName", "profilerSessionID"], conditions):
+        for row in Entity(database_file)._select("TestSession", ["id", "testName", "profilerSessionID"], conditions):
             id = row[0]
             test_name = row[1]
             profiling_session_id = row[2]

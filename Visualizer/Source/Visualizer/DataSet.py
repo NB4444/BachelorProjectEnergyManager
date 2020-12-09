@@ -153,7 +153,7 @@ class DataSet(object):
             title="Runtime vs. Energy Consumption vs. Combined Clock Rates", plot_series=plot_series,
             x_label="Runtime (" + ("% of optimal" if normalized else "Seconds") + ")",
             y_label="Energy Consumption (" + ("% of optimal" if normalized else "Joules") + ")",
-            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
+            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (min_value - max_value)) for value in
                     values] if len(values) > 0 else None,
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
