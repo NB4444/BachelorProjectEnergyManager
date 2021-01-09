@@ -1,3 +1,5 @@
+#pragma once
+
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"

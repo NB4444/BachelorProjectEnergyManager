@@ -5,7 +5,7 @@ find_package(Threads REQUIRED)
 message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
 
 # Set up CUDA
-find_package(CUDA 10.1 REQUIRED)
+find_package(CUDA 10.1 EXACT REQUIRED)
 set(CUDA_DIRECTORY "${CUDA_TOOLKIT_ROOT_DIR}")
 set(CUDA_BINARY_DIRECTORY "${CUDA_DIRECTORY}/bin")
 #set(CUDA_SAMPLES_DIRECTORY "${CUDA_DIRECTORY}/samples")
@@ -53,6 +53,9 @@ message(STATUS "Reporter library dependencies: ${REPORTER_LIBRARY_DEPENDENCIES}"
 
 # Configure Nvidia Code Samples
 set(NVIDIA_CODE_SAMPLES_DIRECTORY "/home/xqbakker/code-samples")
+if (NOT EXISTS ${NVIDIA_CODE_SAMPLES_DIRECTORY})
+    set(NVIDIA_CODE_SAMPLES_DIRECTORY "/home/qub1/code-samples")
+endif ()
 add_compile_definitions(NVIDIA_CODE_SAMPLES_DIRECTORY="${NVIDIA_CODE_SAMPLES_DIRECTORY}")
 message(STATUS "NVIDIA code samples directory: ${NVIDIA_CODE_SAMPLES_DIRECTORY}")
 

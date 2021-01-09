@@ -1,60 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)" overwriteAll="false" traceLevel="ERRORS" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" overwriteAll="false" traceLevel="ERRORS" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="LENOX (f841e8da-4843-4d2b-a3e6-f269f87a97f5)">
+      <paths name="Lenox (2d5e421d-9ad6-41d6-87b5-fff6779b55d1)">
         <serverdata>
           <mappings>
             <mapping deploy="EnergyManager" local="$PROJECT_DIR$" web="" />
           </mappings>
           <excludedPaths>
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-root" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/venv" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-gcc-8" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Library/cmake-build-default" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-gcc-8" />
             <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
-          </excludedPaths>
-        </serverdata>
-      </paths>
-      <paths name="Root (c235f0b0-e1e8-4db4-82ed-f3d2d8c98eaf)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="EnergyManager" local="$PROJECT_DIR$" />
-          </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-root" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-lenox" />
             <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
           </excludedPaths>
-        </serverdata>
-      </paths>
-      <paths name="Showcees (124cb36c-83a9-4025-9cc4-a019a72e3c8f)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$" />
-          </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-release-showcees" />
-            <excludedPath local="true" path="$PROJECT_DIR$/EnergyManager/cmake-build-debug-showcees" />
-          </excludedPaths>
-        </serverdata>
-      </paths>
-      <paths name="qub1.com (034427ff-5534-42db-bfcb-c120a6f2fe80)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/EnergyManager" local="$PROJECT_DIR$" web="" />
-          </mappings>
         </serverdata>
       </paths>
     </serverData>

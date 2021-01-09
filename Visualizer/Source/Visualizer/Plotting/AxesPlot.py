@@ -125,7 +125,7 @@ class AxesPlot(FigurePlot):
 
         # Enable legend
         if self.legend:
-            max_columns = 3
+            max_columns = 1
             axes.legend(bbox_to_anchor=(1.15, 1), loc="upper left",
                         ncol=min(math.ceil(len(self.plot_series) / 10), max_columns))
 

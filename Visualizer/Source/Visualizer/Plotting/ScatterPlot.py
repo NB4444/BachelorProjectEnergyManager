@@ -30,7 +30,8 @@ class ScatterPlot(AxesPlot):
                     xs = list(series_values.keys())
                     ys = list(series_values.values())
 
+                label = f"{series_name} ({len(xs)})"
                 if self.is_3d:
-                    axes.scatter(xs, ys, zs, c=self.colors, label=series_name)
+                    axes.scatter(xs, ys, zs, c=self.colors, label=label)
                 else:
-                    axes.scatter(xs, ys, c=self.colors, label=series_name)
+                    axes.scatter(xs, ys, c=self.colors, label=label)

@@ -180,7 +180,7 @@ class ControlledDataSet(object):
         for profiler_session in self.data_set.data:
             increase = Plot.ns_to_s(profiler_session.total_runtime - control_runtime)
 
-            profile = "Saves Time" if increase < 0 else "Costs Time"
+            profile = "Saves Time" if increase <= 0 else "Costs Time"
             if profile not in data:
                 data[profile] = collections.OrderedDict()
 
@@ -202,5 +202,55 @@ class ControlledDataSet(object):
             x_label="Core Clock Rate (Hertz)",
             y_label="GPU Clock Rate (Hertz)",
             z_label="Runtime Increase (Seconds)",
+            labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
+        )
+
+    def core_clock_rate_vs_gpu_clock_rate_vs_energy_harvests(self, control_comparison=ControlComparison.MEAN,
+                                                             use_ear=False):
+        control_energy_consumption = None
+        if control_comparison == ControlComparison.MEAN:
+            control_energy_consumption = self.control_data_set.mean_energy_consumption(use_ear)
+        elif control_comparison == ControlComparison.MEDIAN:
+            control_energy_consumption = self.control_data_set.median_energy_consumption(use_ear)
+        elif control_comparison == ControlComparison.OPTIMAL:
+            control_energy_consumption = self.control_data_set.minimum_energy_consumption_profiler_session.total_energy_consumption(
+                use_ear)
+
+        control_runtime = None
+        if control_comparison == ControlComparison.MEAN:
+            control_runtime = self.control_data_set.mean_runtime
+        elif control_comparison == ControlComparison.MEDIAN:
+            control_runtime = self.control_data_set.median_runtime
+        elif control_comparison == ControlComparison.OPTIMAL:
+            control_runtime = self.control_data_set.minimum_runtime_profiler_session.total_runtime
+
+        data: OrderedDict[
+            str, OrderedDict[int, OrderedDict[int, int]]] = collections.OrderedDict({})
+        for profiler_session in self.data_set.data:
+            energy_savings = control_energy_consumption - profiler_session.total_energy_consumption(use_ear)
+            runtime_increase = Plot.ns_to_s(profiler_session.total_runtime - control_runtime)
+
+            profile = "Harvests Energy" if energy_savings >= 0 and runtime_increase <= 0 else "Costs Energy"
+            if profile not in data:
+                data[profile] = collections.OrderedDict()
+
+            core_clock_rate = profiler_session.profile["maximumCPUClockRate"]
+            if core_clock_rate not in data[profile]:
+                data[profile][core_clock_rate] = collections.OrderedDict()
+
+            gpu_clock_rate = profiler_session.profile["maximumGPUClockRate"]
+            data[profile][core_clock_rate][gpu_clock_rate] = energy_savings
+
+        return data
+
+    def core_clock_rate_vs_gpu_clock_rate_vs_energy_harvests_scatter_plot(self,
+                                                                          control_comparison=ControlComparison.MEAN,
+                                                                          use_ear=False):
+        return ScatterPlot(
+            title="Core Frequency vs. GPU Frequency vs. Energy Harvests",
+            plot_series=self.core_clock_rate_vs_gpu_clock_rate_vs_energy_harvests(control_comparison),
+            x_label="Core Clock Rate (Hertz)",
+            y_label="GPU Clock Rate (Hertz)",
+            z_label="Energy Savings (Joules)",
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data_set.data]
         )

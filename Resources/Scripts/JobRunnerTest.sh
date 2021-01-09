@@ -23,13 +23,20 @@ module load boost/1.67.0/impi
 module load ear/ear
 
 # Load the EAR library
-export SLURM_HACK_LIBRARY_FILE=${EAR_INSTALL_PATH}/lib/libear.seq.so
+#export SLURM_HACK_LIBRARY_FILE=${EAR_INSTALL_PATH}/lib/libear.seq.so
+export MY_EAR_PATH=/home/xjcorbalan/EAR_GEN
+export SLURM_HACK_EARL_INSTALL_PATH=${MY_EAR_PATH}/lib
+export SLURM_HACK_LOADER=${SLURM_HACK_EARL_INSTALL_PATH}/libearld.so
+export SLURM_HACK_LIBRARY_FILE=${SLURM_HACK_EARL_INSTALL_PATH}/libear.seq.so
+export SLURM_HACK_EARL_VERBOSE=2
 export SLURM_LOADER_LOAD_NO_MPI_LIB="$@"
+export SLURM_EAR_GPU_DEF_FREQ=1380000
 
 srun \
   --job-name EnergyManager \
   --ear on \
   --ear-verbose 1 \
   --ear-policy monitoring \
+  --ear-cpufreq 2000000 \
   --verbose \
   "$@"

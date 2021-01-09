@@ -444,14 +444,14 @@ namespace EnergyManager {
 				, slurmArguments_(arguments)
 				, ear_(Utility::Text::getArgument<bool>(arguments, "--ear", false)) {
 				// Get hardware
-				static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
-				static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
+				const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+				const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 				// Configure monitors
-				static const auto monitorInterval = Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(250));
+				const auto monitorInterval = Utility::Text::getArgument<std::chrono::system_clock::duration>(arguments, "--monitorInterval", std::chrono::milliseconds(250));
 
 				// Determine if the profiles should be profiled using a set of CPU and GPU frequencies
-				static const auto fixedClockRates = Utility::Text::getArgument<bool>(arguments, "--fixedClockRates", false);
+				const auto fixedClockRates = Utility::Text::getArgument<bool>(arguments, "--fixedClockRates", false);
 
 				// Configure the Profiler
 				profileName_ = std::string(fixedClockRates ? "Fixed Frequency " : "") + profileName;

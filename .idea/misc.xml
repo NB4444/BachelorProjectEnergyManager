@@ -8,13 +8,13 @@
       <file path="$PROJECT_DIR$/Library/Source" />
       <file path="$PROJECT_DIR$/MetricReporter/Source" />
       <file path="$PROJECT_DIR$/Profiling/ActivityTrace/Source" />
-      <file path="$PROJECT_DIR$/Profiling/All/Source" />
       <file path="$PROJECT_DIR$/Profiling/BFS/Source" />
       <file path="$PROJECT_DIR$/Profiling/CUBLAS/Source" />
       <file path="$PROJECT_DIR$/Profiling/CUFFT/Source" />
       <file path="$PROJECT_DIR$/Profiling/Jacobi/Source" />
       <file path="$PROJECT_DIR$/Profiling/KMeans/Source" />
       <file path="$PROJECT_DIR$/Profiling/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Profiling/Source" />
       <file path="$PROJECT_DIR$/Reporter/Source" />
       <file path="$PROJECT_DIR$/ShowFrequencies/Source" />
       <file path="$PROJECT_DIR$/Tests/ActiveInactive/Source" />

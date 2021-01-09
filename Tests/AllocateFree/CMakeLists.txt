@@ -1,12 +1,12 @@
-# Set up directories
-set(PROJECT_SOURCE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/Source")
+# Set up target
+set(TARGET_NAME "${PROJECT_NAME}-Tests-AllocateFree")
 
 # Get sources
-file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIRECTORY}/*.cpp" "${PROJECT_SOURCE_DIRECTORY}/*.cu")
-message(STATUS "Source files: ${SOURCE_FILES}")
+set(SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+file(GLOB_RECURSE SOURCE_FILES "${SOURCE_DIRECTORY}/*.cpp" "${SOURCE_DIRECTORY}/*.cu")
+message(STATUS "${TARGET_NAME} source files: ${SOURCE_FILES}")
 
 # Add and configure target
-set(TARGET_NAME "${PROJECT_NAME}-Tests-AllocateFree")
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 set_target_properties(
         ${TARGET_NAME}

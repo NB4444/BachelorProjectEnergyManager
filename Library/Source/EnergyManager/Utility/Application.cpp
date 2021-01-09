@@ -114,6 +114,14 @@ namespace EnergyManager {
 			} else {
 				logDebug("Starting child process %s...", path_.c_str());
 
+				logTrace("Configuring child privileges...");
+				if(groupID_ >= 0) {
+					setgid(groupID_);
+				}
+				if(userID_ >= 0) {
+					setuid(userID_);
+				}
+
 				logTrace("Configuring pipe in child process...");
 				close(outputPipe[readPipe]);
 				close(startPipe[writePipe]);
@@ -224,6 +232,22 @@ namespace EnergyManager {
 
 		void Application::setParameters(const std::vector<std::string>& parameters) {
 			parameters_ = parameters;
+		}
+
+		int Application::getGroupID() {
+			return groupID_;
+		}
+
+		void Application::setGroupID(const int& groupID) {
+			groupID_ = groupID;
+		}
+
+		int Application::getUserID() {
+			return userID_;
+		}
+
+		void Application::setUserID(const int& userID) {
+			userID_ = userID;
 		}
 
 		std::vector<std::shared_ptr<Hardware::CentralProcessor>> Application::getAffinity() const {

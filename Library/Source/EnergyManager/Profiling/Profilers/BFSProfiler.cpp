@@ -15,8 +15,8 @@ namespace EnergyManager {
 					"BFS",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
-						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
+						const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Generate the profiles
 						std::vector<std::map<std::string, std::string>> profiles = {};

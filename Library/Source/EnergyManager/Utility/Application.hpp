@@ -61,6 +61,16 @@ namespace EnergyManager {
 			 */
 			pid_t processID_;
 
+			/**
+			 * The group ID to run with.
+			 */
+			int groupID_ = -1;
+
+			/**
+			 * The user ID to run with.
+			 */
+			int userID_ = -1;
+
 		protected:
 			std::vector<std::string> generateHeaders() const override;
 
@@ -117,6 +127,30 @@ namespace EnergyManager {
 			 * @param parameters The parameters.
 			 */
 			void setParameters(const std::vector<std::string>& parameters);
+
+			/**
+			 * Gets the group ID to use to run the application.
+			 * @return The group ID.
+			 */
+			int getGroupID();
+
+			/**
+			 * Sets the group ID to use to run the application.
+			 * @param groupID The group ID.
+			 */
+			void setGroupID(const int& groupID);
+
+			/**
+			 * Gets the user ID to use to run the application.
+			 * @return The user ID.
+			 */
+			int getUserID();
+
+			/**
+			 * Sets the user ID to use to run the application.
+			 * @param userID The user ID.
+			 */
+			void setUserID(const int& userID);
 
 			/**
 			 * Retrieves the Application's affinity.

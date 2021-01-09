@@ -27,13 +27,13 @@ namespace EnergyManager {
 					"Matrix Multiply",
 					[&]() {
 						// Get hardware
-						static const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
-						static const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
+						const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+						const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 						// Get the profile configurations
-						static const auto sizeStart = Utility::Text::getArgument<unsigned int>(arguments, "--sizeStart", 3 * 512);
+						const auto sizeStart = Utility::Text::getArgument<unsigned int>(arguments, "--sizeStart", 3 * 512);
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_ASSERT(sizeStart % 32 == 0 && sizeStart >= 32, "Size must be divisible by 32");
-						static const auto sizeEnd = Utility::Text::getArgument<unsigned int>(arguments, "--sizeEnd", 3 * 512);
+						const auto sizeEnd = Utility::Text::getArgument<unsigned int>(arguments, "--sizeEnd", 3 * 512);
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_ASSERT(sizeEnd % 32 == 0 && sizeEnd >= sizeStart, "Size must be divisible by 32");
 
 						// Generate the profiles
