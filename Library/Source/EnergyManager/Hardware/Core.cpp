@@ -6,6 +6,11 @@
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
+#ifdef EAR_ENABLED
+	#define num_gpus unsigned int num_gpus
+	#include <ear.h>
+#endif
+
 #include <chrono>
 
 namespace EnergyManager {
@@ -136,6 +141,14 @@ namespace EnergyManager {
 		void Core::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
 			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
 
+#ifdef EAR_ENABLED
+			// Encode an affinity mask
+			cpu_set_t mask;
+			CPU_ZERO(&mask);
+			CPU_SET(getID(), &mask);
+
+			ear_set_cpufreq(&mask, maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
+#else
 			// Set minimum rate
 			Utility::Text::writeFile(
 				"/sys/devices/system/cpu/cpu" + Utility::Text::toString(getID()) + "/cpufreq/scaling_min_freq",
@@ -145,6 +158,7 @@ namespace EnergyManager {
 			Utility::Text::writeFile(
 				"/sys/devices/system/cpu/cpu" + Utility::Text::toString(getID()) + "/cpufreq/scaling_max_freq",
 				Utility::Text::toString(maximumRate.convertPrefix(Utility::Units::SIPrefix::KILO)));
+#endif
 		}
 
 		void Core::resetCoreClockRate() {

@@ -84,6 +84,6 @@ int main(int argumentCount, char* argumentValues[]) {
 	//
 	//// Save the model
 	// model->save();
-	//
-	// return 0;
+
+	 return 0;
 }

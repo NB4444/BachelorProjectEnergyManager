@@ -39,6 +39,7 @@ target_include_directories(
         PUBLIC "${ARMADILLO_INCLUDE_DIRECTORY}"
         PUBLIC "${ENSMALLEN_INCLUDE_DIRECTORY}"
         PUBLIC "${MLPACK_INCLUDE_DIRECTORY}"
+        PUBLIC "${EAR_INCLUDE_DIRECTORY}"
 )
 #target_link_libraries(
 #        ${TARGET_NAME}
@@ -60,14 +61,23 @@ target_include_directories(
 #)
 target_link_libraries(
         ${TARGET_NAME}
-        "Threads::Threads"
-        "${SQLITE_LIBRARY}"
-        "cuda"
-        "${CUDA_CUPTI_LIBRARY}"
-        "nvidia-ml"
-        "dl"
-        "${BOOST_LIBRARY}"
-        "${OPENBLAS_LIBRARY}"
-        "${ARMADILLO_LIBRARY}"
-        "${MLPACK_LIBRARY}"
+        PUBLIC "Threads::Threads"
+        PUBLIC "${SQLITE_LIBRARY}"
+        PUBLIC "cuda"
+        PUBLIC "${CUDA_CUPTI_LIBRARY}"
+        PUBLIC "nvidia-ml"
+        PUBLIC "dl"
+        PUBLIC "${BOOST_LIBRARY}"
+        PUBLIC "${OPENBLAS_LIBRARY}"
+        PUBLIC "${ARMADILLO_LIBRARY}"
+        PUBLIC "${MLPACK_LIBRARY}"
 )
+if (DEFINED EAR_ENABLED)
+    message(STATUS "Adding ear libraries to ${TARGET_NAME}...")
+    target_link_libraries(
+            ${TARGET_NAME}
+            PUBLIC "${EAR_LIBRARY}"
+#            PUBLIC "${EAR_LIBRARY_DAEMON}"
+            PUBLIC "${EAR_LIBRARY_API}"
+    )
+endif ()

@@ -31,7 +31,8 @@ namespace EnergyManager {
 		 */
 		class GPU
 			: public Processor
-			, private Utility::Loopable {
+			, private Utility::Loopable
+			, private std::enable_shared_from_this<GPU> {
 			/**
 			 * Represents a kernel executing on the GPU.
 			 */

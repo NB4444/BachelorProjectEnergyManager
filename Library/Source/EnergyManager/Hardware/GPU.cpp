@@ -1,5 +1,6 @@
 #include "./GPU.hpp"
 
+#include "EnergyManager/Utility/EAR.hpp"
 #include "EnergyManager/Utility/Environment.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
@@ -611,8 +612,12 @@ namespace EnergyManager {
 		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
 			logDebug("Setting frequency range to [%lu, %lu]...", mininimumRate.toValue(), maximumRate.toValue());
 
+#ifdef EAR_ENABLED
+			Utility::EAR::setGPUClockRate(shared_from_this(), maximumRate);
+#else
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
 				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+#endif
 
 			currentMinimumCoreClockRate_ = mininimumRate;
 			currentMaximumCoreClockRate_ = maximumRate;

@@ -23,7 +23,11 @@ module load boost/1.67.0/impi
 module load ear/ear
 
 # Load the EAR library
-export SLURM_HACK_LIBRARY_FILE=${EAR_INSTALL_PATH}/lib/libear.seq.so
+export EAR_DIRECTORY=/home/xjcorbalan/EAR_GEN
+export SLURM_HACK_EARL_INSTALL_PATH=${EAR_DIRECTORY}/lib
+export SLURM_HACK_LOADER=${SLURM_HACK_EARL_INSTALL_PATH}/libearld.so
+export SLURM_HACK_LIBRARY_FILE=${SLURM_HACK_EARL_INSTALL_PATH}/libear.seq.so
+export SLURM_HACK_EARL_VERBOSE=2
 export SLURM_LOADER_LOAD_NO_MPI_LIB="$@"
 
 srun \

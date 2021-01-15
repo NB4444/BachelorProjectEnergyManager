@@ -1,5 +1,6 @@
 #include "./Profiler.hpp"
 
+#include "EnergyManager/Configuration.hpp"
 #include "EnergyManager/Monitoring/Monitors/EARMonitor.hpp"
 #include "EnergyManager/Monitoring/Persistence/MonitorSession.hpp"
 #include "EnergyManager/Utility/Environment.hpp"
@@ -25,18 +26,18 @@ namespace EnergyManager {
 					core = Hardware::Core::getCore(std::stoi(profile.at("core")));
 
 					// Set up the defaults
-					if(!slurm_) {
-						core->resetCoreClockRate();
-						core->getCPU()->setTurboEnabled(true);
-						core->getCPU()->resetCoreClockRate();
-					}
+#ifndef SLURM_ENABLED
+					core->resetCoreClockRate();
+					core->getCPU()->setTurboEnabled(true);
+					core->getCPU()->resetCoreClockRate();
+#endif
 
 					// Apply custom configurations
 					if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
-						if(!slurm_) {
-							core->getCPU()->setTurboEnabled(false);
-							core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
-						}
+#ifndef SLURM_ENABLED
+						core->getCPU()->setTurboEnabled(false);
+						core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
+#endif
 					}
 				}
 
@@ -46,14 +47,15 @@ namespace EnergyManager {
 
 					// Set up the defaults
 					gpu->makeActive();
-					if(!slurm_ && !ear_) {
-						gpu->reset();
-						//gpu->setAutoBoostedClocksEnabled(true);
-						gpu->resetCoreClockRate();
-					}
+#if !defined(SLURM_ENABLED) && !defined(EAR_ENABLED)
+					gpu->reset();
+					//gpu->setAutoBoostedClocksEnabled(true);
+					gpu->resetCoreClockRate();
+#endif
 
 					// Apply custom configurations
-					if(!slurm_ && !ear_ && profile.find("gpuSynchronizationMode") != profile.end()) {
+#if !defined(SLURM_ENABLED) && !defined(EAR_ENABLED)
+					if(profile.find("gpuSynchronizationMode") != profile.end()) {
 						const auto synchronizationMode = profile.at("gpuSynchronizationMode");
 						if(synchronizationMode == "AUTOMATIC") {
 							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::AUTOMATIC);
@@ -65,12 +67,13 @@ namespace EnergyManager {
 							gpu->setSynchronizationMode(Hardware::GPU::SynchronizationMode::BLOCKING);
 						}
 					}
+#endif
 
 					if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
-						if(!slurm_ && !ear_) {
-							//gpu->setAutoBoostedClocksEnabled(false);
-							gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
-						}
+#if !defined(SLURM_ENABLED) && !defined(EAR_ENABLED)
+						//gpu->setAutoBoostedClocksEnabled(false);
+						gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
+#endif
 					}
 				}
 
@@ -113,16 +116,18 @@ namespace EnergyManager {
 
 				// Reset the devices
 				logDebug("Resetting device parameters...");
-				if(!slurm_ && !ear_ && core != nullptr) {
+#if !defined(SLURM_ENABLED) && !defined(EAR_ENABLED)
+				if(core != nullptr) {
 					core->getCPU()->resetCoreClockRate();
 					core->getCPU()->setTurboEnabled(true);
 				}
 
-				if(!slurm_ && !ear_ && gpu != nullptr) {
+				if(gpu != nullptr) {
 					gpu->resetCoreClockRate();
 					//gpu->setAutoBoostedClocksEnabled(true);
 					gpu->reset();
 				}
+#endif
 
 				if(succeeded) {
 					logDebug("Setting up profiler session...");
@@ -193,7 +198,6 @@ namespace EnergyManager {
 						profile.find("maximumCPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumCPUClockRate"))),
 						-1,
 						profile.find("maximumGPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumGPUClockRate"))),
-						true,
 						std::chrono::milliseconds(50),
 						true);
 					jobID = jobResults.jobID;
@@ -211,13 +215,12 @@ namespace EnergyManager {
 				}
 
 				if(succeeded) {
+#ifdef EAR_ENABLED
+					logDebug("Starting EAR monitor...");
 					// Start the monitor
-					std::shared_ptr<Monitoring::Monitors::EARMonitor> earMonitor;
-					if(ear_) {
-						logDebug("Starting EAR monitor...");
-						earMonitor = std::make_shared<Monitoring::Monitors::EARMonitor>(jobID, 0, earMonitorInterval_);
-						earMonitor->run(true);
-					}
+					std::shared_ptr<Monitoring::Monitors::EARMonitor> earMonitor = std::make_shared<Monitoring::Monitors::EARMonitor>(jobID, 0, earMonitorInterval_);
+					earMonitor->run(true);
+#endif
 
 					logTrace("Job output: %s", output.c_str());
 
@@ -238,25 +241,21 @@ namespace EnergyManager {
 					profilerSessions_.push_back(profilerSession);
 
 					// Stop the EAR monitor
-					if(ear_) {
-						logDebug("Stopping EAR monitor...");
-						earMonitor->stop(true);
+#ifdef EAR_ENABLED
+					logDebug("Stopping EAR monitor...");
+					earMonitor->stop(true);
 
-						// Append the monitor data to the session
-						logDebug("Getting profiler session...");
-						auto& profilerSession = profilerSessions_.back();
+					logDebug("Accessing profiler session...");
+					if(profilerSession->getID() >= 0) {
+						logDebug("Storing EAR monitor data in profiler session %d...", profilerSession->getID());
 
-						logDebug("Accessing profiler session...");
-						if(profilerSession->getID() >= 0) {
-							logDebug("Storing EAR monitor data in profiler session %d...", profilerSession->getID());
+						// Get the monitor data and add it to the session
+						profilerSession->setMonitorSessions({ std::make_shared<Monitoring::Persistence::MonitorSession>(earMonitor->getName(), earMonitor->getVariableValues(), profilerSession) });
 
-							// Get the monitor data and add it to the session
-							profilerSession->setMonitorSessions({ std::make_shared<Monitoring::Persistence::MonitorSession>(earMonitor->getName(), earMonitor->getVariableValues(), profilerSession) });
-
-							// Save the updated session
-							profilerSession->save();
-						}
+						// Save the updated session
+						profilerSession->save();
 					}
+#endif
 
 					// Break out of the retry loop
 					return;
@@ -278,10 +277,10 @@ namespace EnergyManager {
 
 			void Profiler::onRun() {
 				// Show information about the current node
-				if(slurm_) {
-					logInformation("Program started with the following arguments:\n%s", Utility::Text::join(slurmArguments_, "\n", "=").c_str());
-					Utility::SLURM::logInformation();
-				}
+#ifdef SLURM_ENABLED
+				logInformation("Program started with the following arguments:\n%s", Utility::Text::join(slurmArguments_, "\n", "=").c_str());
+				Utility::SLURM::logInformation();
+#endif
 
 				// Check if this is the parent process
 				if(slurmArguments_.find("--slurmRunner") == slurmArguments_.end()) { // This is the parent
@@ -322,12 +321,12 @@ namespace EnergyManager {
 							// Retry if the profiler fails
 							Utility::Exceptions::Exception::retry(
 								[&] {
-									if(slurm_) {
-										runSLURMProfile(profile);
-									} else {
-										// Simply run the profile if slurm is disabled
-										runProfile(profile);
-									}
+#ifdef SLURM_ENABLED
+									runSLURMProfile(profile);
+#else
+									// Simply run the profile if slurm is disabled
+									runProfile(profile);
+#endif
 								},
 								retriesPerRun_);
 						}
@@ -416,9 +415,7 @@ namespace EnergyManager {
 				const unsigned int& retriesPerRun,
 				const bool& randomize,
 				const bool& autoSave,
-				const bool& slurm,
 				const std::map<std::string, std::string>& slurmArguments,
-				const bool& ear,
 				const std::chrono::system_clock::duration& earMonitorInterval)
 				: profileName_(std::move(profileName))
 				, profiles_(std::move(profiles))
@@ -428,9 +425,7 @@ namespace EnergyManager {
 				, monitors_(std::move(monitors))
 				, randomize_(randomize)
 				, autoSave_(autoSave)
-				, slurm_(slurm)
 				, slurmArguments_(slurmArguments)
-				, ear_(ear)
 				, earMonitorInterval_(earMonitorInterval) {
 			}
 
@@ -440,9 +435,7 @@ namespace EnergyManager {
 				, retriesPerRun_(Utility::Text::getArgument<unsigned int>(arguments, "--retriesPerRun", 10))
 				, randomize_(Utility::Text::getArgument<bool>(arguments, "--randomize", true))
 				, autoSave_(Utility::Text::getArgument<bool>(arguments, "--autoSave", true))
-				, slurm_(Utility::Text::getArgument<bool>(arguments, "--slurm", false))
-				, slurmArguments_(arguments)
-				, ear_(Utility::Text::getArgument<bool>(arguments, "--ear", false)) {
+				, slurmArguments_(arguments) {
 				// Get hardware
 				const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
 				const auto gpu = Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));

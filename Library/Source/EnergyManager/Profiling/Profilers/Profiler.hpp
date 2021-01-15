@@ -62,16 +62,6 @@ namespace EnergyManager {
 				bool autoSave_;
 
 				/**
-				 * Whether to use SLURM.
-				 */
-				bool slurm_;
-
-				/**
-				 * Whether to use EAR.
-				 */
-				bool ear_;
-
-				/**
 				 * The interval at which to monitor EAR.
 				 */
 				std::chrono::system_clock::duration earMonitorInterval_;
@@ -198,9 +188,7 @@ namespace EnergyManager {
 					const unsigned int& retriesPerRun = 10,
 					const bool& randomize = false,
 					const bool& autoSave = false,
-					const bool& slurm = false,
 					const std::map<std::string, std::string>& slurmArguments = {},
-					const bool& ear = false,
 					const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::system_clock::duration(0));
 
 				/**

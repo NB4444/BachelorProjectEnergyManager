@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EnergyManager/Configuration.hpp"
 #include "EnergyManager/Utility/Application.hpp"
 #include "EnergyManager/Utility/Environment.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
@@ -133,7 +134,6 @@ namespace EnergyManager {
 				const Units::Hertz& maximumCPUFrequency = Units::Hertz(),
 				const int& gpus = -1,
 				const Units::Hertz& gpuFrequency = Units::Hertz(),
-				const bool& ear = false,
 				const std::chrono::system_clock::duration& earMonitorInterval = std::chrono::milliseconds(50),
 				const bool& verbose = false) {
 				std::lock_guard<std::mutex> lock(mutex);
@@ -170,8 +170,13 @@ namespace EnergyManager {
 					  "module load ear/ear\n"
 
 					  // Load the EAR library
-					  "export LD_PRELOAD=" + EAR_LIBRARY + "\n"
-					  "export SLURM_HACK_LIBRARY_FILE=" + EAR_LIBRARY + "\n"
+#ifdef EAR_ENABLED
+					  "export SLURM_HACK_EARL_INSTALL_PATH=" + std::string(EAR_LIBRARY_DIRECTORY) + "\n"
+					  "export SLURM_HACK_LOADER=" + std::string(EAR_LIBRARY_DAEMON) + "\n"
+					  "export SLURM_HACK_LIBRARY_FILE=" + std::string(EAR_LIBRARY) + "\n"
+					  "export SLURM_HACK_EARL_VERBOSE=2\n"
+					  "export SLURM_LOADER_LOAD_NO_MPI_LIB=\"$@\"\n"
+#endif
 
 					  // Set the GPU frequency in EAR if necessary
 					  // EAR requires the value to be in MHz
@@ -199,8 +204,10 @@ namespace EnergyManager {
 
 					  + (verbose ? " --verbose" : "")
 					  + " --job-name EnergyManager"
+#ifdef EAR_ENABLED
 					  " --ear-verbose 1"
 					  " --ear-policy monitoring"
+#endif
 					  " \"" + applicationPath + "\""
 					  + (applicationParameters.empty() ? "" : (" \"" + Text::join(applicationParameters, "\" \"") + "\""));
 				std::ofstream jobScriptOutput("JobRunner.sh.tmp");
@@ -246,111 +253,6 @@ namespace EnergyManager {
 					std::string output;
 				} result { .jobID = jobID, .output = jobOutput };
 				return result;
-				//// Prepare the SLURM parameters
-				//std::vector<std::string> srunParameters;
-				//
-				//// Enable verbose mode
-				//srunParameters.push_back("--verbose");
-				//
-				//// Set the name
-				//srunParameters.push_back("--job-name");
-				//srunParameters.push_back(jobName);
-				//
-				////// Set the time limit
-				////slurmParameters.push_back("--time");
-				////slurmParameters.push_back("1:00:00");
-				//
-				//// Ensure exclusive access
-				//if(exclusive) {
-				//	srunParameters.push_back("--exclusive");
-				//}
-				//
-				////// Set the partition
-				////slurmParameters.push_back("--partition");
-				////slurmParameters.push_back("standard");
-				//
-				////// Set the account
-				////slurmParameters.push_back("--account");
-				////slurmParameters.push_back("COLBSC");
-				//
-				//// Configure amount of nodes
-				//srunParameters.push_back("--nodes");
-				//srunParameters.push_back(Text::toString(nodes));
-				//
-				//// Set the amount of tasks
-				//srunParameters.push_back("--ntasks");
-				//srunParameters.push_back(Text::toString(tasks));
-				//
-				//if(constraint != "") {
-				//	srunParameters.push_back("--constraint");
-				//	srunParameters.push_back(constraint);
-				//}
-				//
-				////// Set the amount of repetitions per node
-				////slurmParameters.push_back("--ntasks-per-node");
-				////slurmParameters.push_back("1");
-				//
-				////// Constrain the nodes from which to select by using features
-				////slurmParameters.push_back("--constraint");
-				////slurmParameters.push_back("V100_16GB&NUMGPU2&rack26&EDR");
-				////slurmParameters.push_back("2666MHz&NUMGPU2&V100_16GB");
-				//
-				////// Set up the output file
-				////slurmParameters.push_back("-o");
-				////slurmParameters.push_back("log.%j.profiler-session.out");
-				////
-				////// Set up the error output file
-				////slurmParameters.push_back("-e");
-				////slurmParameters.push_back("log.%j.profiler-session.err");
-				//
-				//// Set the CPU frequency
-				//if(maximumCPUFrequency != Units::Hertz()) {
-				//	srunParameters.push_back("--cpu-freq");
-				//	srunParameters.push_back(
-				//		(minimumCPUFrequency == Units::Hertz() ? "" : (Text::toString(minimumCPUFrequency.convertPrefix(Units::SIPrefix::MEGA)) + "-"))
-				//		+ Text::toString(maximumCPUFrequency.convertPrefix(Units::SIPrefix::MEGA)));
-				//}
-				//
-				//// Set the GPU frequency
-				//if(gpuFrequency != Units::Hertz()) {
-				//	srunParameters.push_back("--gpu-freq");
-				//	srunParameters.push_back(Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA)));
-				//}
-				//
-				//// Configure the EAR framework
-				//if(ear) {
-				//	// Inject EAR into SLURM
-				//	const auto earInstallPath = Environment::getVariable<std::string>("EAR_INSTALL_PATH");
-				//	Environment::setVariable("LD_PRELOAD", earInstallPath + "/lib/libear.seq.so");
-				//	Environment::setVariable("SLURM_HACK_LIBRARY_FILE", earInstallPath + "/lib/libear.seq.so");
-				//
-				//	// Disable loading MPI
-				//	Environment::setVariable("SLURM_LOADER_LOAD_NO_MPI_LIB", applicationPath);
-				//
-				//	// Set the verbosity
-				//	srunParameters.push_back("--ear-verbose");
-				//	srunParameters.push_back("1");
-				//
-				//	// Set the policy
-				//	srunParameters.push_back("--ear-policy");
-				//	srunParameters.push_back("monitoring");
-				//
-				//	// Set the GPU frequency
-				//	if(gpuFrequency != Units::Hertz()) {
-				//		Environment::setVariable("SLURM_EAR_GPU_DEF_FREQ", Text::toString(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA)));
-				//	}
-				//}
-				//
-				//// Combine the parameters
-				//srunParameters.push_back(applicationPath);
-				//srunParameters.insert(srunParameters.end(), applicationParameters.begin(), applicationParameters.end());
-				//
-				//// Prepare and return the SLURM runner
-				//auto job = Application(SLURM_SALLOC, srunParameters);
-				//job.setLogOutput(true);
-				//job.run();
-				//
-				//return job.getExecutableOutput();
 			}
 		}
 	}

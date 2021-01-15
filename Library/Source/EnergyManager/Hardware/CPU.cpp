@@ -1,7 +1,9 @@
 #include "./CPU.hpp"
 
+#include "EnergyManager/Configuration.hpp"
 #include "EnergyManager/Hardware/Core.hpp"
 #include "EnergyManager/Utility/Collections.hpp"
+#include "EnergyManager/Utility/EAR.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 #include "EnergyManager/Utility/Text.hpp"
@@ -123,6 +125,9 @@ namespace EnergyManager {
 		void CPU::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
 			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
 
+#ifdef EAR_ENABLED
+			Utility::EAR::setCoreClockRates(getCores(), maximumRate);
+#else
 			for(const auto& core : getCores()) {
 				core->setCoreClockRate(minimumRate, maximumRate);
 			}
@@ -139,6 +144,7 @@ namespace EnergyManager {
 				const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
 				maximumRateStream << maximumRatePercentage;
 			}
+#endif
 		}
 
 		void CPU::resetCoreClockRate() {
