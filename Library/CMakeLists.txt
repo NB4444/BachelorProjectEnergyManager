@@ -21,7 +21,6 @@ set_target_properties(
 target_include_directories(
         ${TARGET_NAME}
         PUBLIC "Source"
-        #        PUBLIC "${MPI_INCLUDE_DIRECTORY}"
         PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
         PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"

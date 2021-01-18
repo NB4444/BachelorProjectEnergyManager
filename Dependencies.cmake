@@ -8,7 +8,6 @@ message(STATUS "Threads libraries: ${CMAKE_THREAD_LIBS_INIT}")
 find_package(CUDA 10.1 EXACT REQUIRED)
 set(CUDA_DIRECTORY "${CUDA_TOOLKIT_ROOT_DIR}")
 set(CUDA_BINARY_DIRECTORY "${CUDA_DIRECTORY}/bin")
-#set(CUDA_SAMPLES_DIRECTORY "${CUDA_DIRECTORY}/samples")
 set(CUDA_SAMPLES_DIRECTORY "/home/xqbakker/cuda-10.1/samples")
 if (NOT EXISTS ${CUDA_SAMPLES_DIRECTORY})
     set(CUDA_SAMPLES_DIRECTORY "/home/qub1/cuda-10.1/samples")
@@ -20,7 +19,6 @@ endif ()
 find_library(CUDA_LIBRARY cuda PATHS "${CUDA_DIRECTORY}/lib64/stubs" "${CUDA_DIRECTORY}/lib/stubs")
 set(CUDA_NVML_LIBRARY "${CUDA_DIRECTORY}/lib64/stubs/libnvidia-ml.so")
 set(CUDA_RUNTIME_LIBRARY "${CUDA_LIBRARIES}")
-#set(CUDA_STATIC_RUNTIME_LIBRARY "${CUDA_DIRECTORY}/lib64/libcudart.so")
 set(CUDA_STATIC_RUNTIME_LIBRARY "${CUDA_cudart_static_LIBRARY}")
 set(CUDA_CUPTI_INCLUDE_DIRECTORY "${CUDA_DIRECTORY}/extras/CUPTI/include")
 set(CUDA_CUPTI_LIBRARY_DIRECTORY "${CUDA_DIRECTORY}/extras/CUPTI/lib64")
@@ -71,19 +69,3 @@ add_compile_definitions(RODINIA_DATA_DIRECTORY="${RODINIA_DATA_DIRECTORY}")
 message(STATUS "Rodinia directory: ${RODINIA_DIRECTORY}")
 message(STATUS "Rodinia binary directory: ${RODINIA_BINARY_DIRECTORY}")
 message(STATUS "Rodinia data directory: ${RODINIA_DATA_DIRECTORY}")
-#find_package(CUDA 8 REQUIRED)
-#set(CUDA_8_DIRECTORY "/hpc/base/cuda/cuda-8.0")
-#set(CUDA_8_SAMPLES_DIRECTORY "${CUDA_8_DIRECTORY}/samples")
-#message(STATUS "CUDA 8 directory: ${CUDA_8_DIRECTORY}")
-#message(STATUS "CUDA 8 samples directory: ${CUDA_8_SAMPLES_DIRECTORY}")
-#ExternalProject_Add(
-#        Rodinia
-#        PREFIX "${RODINIA_DIRECTORY}"
-#        URL "http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2"
-#        URL_MD5 "047d983e62107972f217921aa0027b05"
-#        CONFIGURE_COMMAND ""
-#        BUILD_COMMAND cd cuda/bfs && make CC="'${CUDA_8_DIRECTORY}/bin/nvcc' '-ccbin=/hpc/base/ctt/packages/compiler/gnu/4.9.2/bin/g++'" CUDA_DIR="${CUDA_8_DIRECTORY}" SDK_DIR="${CUDA_8_SAMPLES_DIRECTORY}"
-#        BUILD_IN_SOURCE true
-#        INSTALL_COMMAND ""
-#        INSTALL_DIR "${RODINIA_DIRECTORY}"
-#)
