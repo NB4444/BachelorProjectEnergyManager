@@ -1,5 +1,4 @@
 # TODO: Add necessary licenses for all libraries
-# TODO: Add ensmallen citation from here https://github.com/mlpack/ensmallen
 
 # Set up target
 set(TARGET_NAME "${PROJECT_NAME}-Library")
@@ -14,12 +13,6 @@ message(STATUS "${TARGET_NAME} source files: ${SOURCE_FILES}")
 
 # Add and configure target
 add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
-#set_property(TARGET ${PROJECT_NAME}-Library PROPERTY POSITION_INDEPENDENT_CODE OFF)
-add_dependencies(
-        ${TARGET_NAME}
-        ensmallen
-        mlpack
-)
 set_target_properties(
         ${TARGET_NAME}
         PROPERTIES
@@ -35,30 +28,8 @@ target_include_directories(
         #        PUBLIC "${BOOST_INCLUDE_DIRECTORY}"
         # FIXME: Quick fix to fix the wrong boost includes from being used
         PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
-        PUBLIC "${OPENBLAS_INCLUDE_DIRECTORY}"
-        PUBLIC "${ARMADILLO_INCLUDE_DIRECTORY}"
-        PUBLIC "${ENSMALLEN_INCLUDE_DIRECTORY}"
-        PUBLIC "${MLPACK_INCLUDE_DIRECTORY}"
         PUBLIC "${EAR_INCLUDE_DIRECTORY}"
 )
-#target_link_libraries(
-#        ${TARGET_NAME}
-#        "Threads::Threads"
-#        imf
-#        #        "${MPI_LIBRARY}"
-#        "${SQLITE_LIBRARY}"
-#        "${CUDA_LIBRARY}"
-#        "${CUDA_RUNTIME_LIBRARY}"
-#        #        "${CUDA_STATIC_RUNTIME_LIBRARY}"
-#        "${CUDA_CUPTI_LIBRARY}"
-#        #        "${CUDA_NVML_LIBRARY}"
-#        "nvidia-ml"
-#        #        "OpenMP::OpenMP_CXX"
-#        "${BOOST_LIBRARY}"
-#        "${OPENBLAS_LIBRARY}"
-#        "${ARMADILLO_LIBRARY}"
-#        "${MLPACK_LIBRARY}"
-#)
 target_link_libraries(
         ${TARGET_NAME}
         PUBLIC "Threads::Threads"
@@ -68,16 +39,15 @@ target_link_libraries(
         PUBLIC "nvidia-ml"
         PUBLIC "dl"
         PUBLIC "${BOOST_LIBRARY}"
-        PUBLIC "${OPENBLAS_LIBRARY}"
-        PUBLIC "${ARMADILLO_LIBRARY}"
-        PUBLIC "${MLPACK_LIBRARY}"
 )
 if (DEFINED EAR_ENABLED)
     message(STATUS "Adding ear libraries to ${TARGET_NAME}...")
+    target_link_directories(
+            ${TARGET_NAME}
+            PUBLIC "${EAR_LIBRARY_DIRECTORY}"
+    )
     target_link_libraries(
             ${TARGET_NAME}
-            PUBLIC "${EAR_LIBRARY}"
-#            PUBLIC "${EAR_LIBRARY_DAEMON}"
-            PUBLIC "${EAR_LIBRARY_API}"
+            PUBLIC "ear_api"
     )
 endif ()

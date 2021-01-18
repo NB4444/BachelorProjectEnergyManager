@@ -5,7 +5,6 @@
 #include "EnergyManager/Utility/Units/Hertz.hpp"
 
 #ifdef EAR_ENABLED
-	#define num_gpus unsigned int num_gpus
 	#include <ear.h>
 #endif
 
@@ -22,11 +21,11 @@ namespace EnergyManager {
 					CPU_SET(core->getID(), &mask);
 				}
 
-				ear_set_cpufreq(&mask, clockRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
+				//ear_set_cpufreq(&mask, clockRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
 			}
 
 			static void setGPUClockRate(const std::shared_ptr<Hardware::GPU>& gpu, const Utility::Units::Hertz& clockRate) {
-				ear_set_gpufreq(static_cast<int>(gpu->getID()), clockRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
+				//ear_set_gpufreq(static_cast<int>(gpu->getID()), clockRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
 			}
 		}
 	}

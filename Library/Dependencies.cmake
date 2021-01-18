@@ -25,7 +25,8 @@ message(STATUS "SLURM scontrol: ${SLURM_SCONTROL}")
 # Configure EAR
 set(EAR_ENABLED TRUE)
 add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
-set(EAR_DIRECTORY "/home/xqbakker/EAR_GEN")
+#set(EAR_DIRECTORY "/home/xqbakker/EAR_GEN")
+set(EAR_DIRECTORY "/hpc/base/ctt/packages/EAR/ear")
 set(EAR_INCLUDE_DIRECTORY "${EAR_DIRECTORY}/include")
 set(EAR_LIBRARY_DIRECTORY "${EAR_DIRECTORY}/lib")
 add_compile_definitions(EAR_LIBRARY_DIRECTORY="${EAR_LIBRARY_DIRECTORY}")
@@ -86,80 +87,6 @@ message(STATUS "SQLite3 libraries: ${SQLITE_LIBRARY}")
 #endif ()
 #message(STATUS "OpenMP libraries: ${OpenMP_LIBRARIES}")
 
-# Configure OpenBLAS
-set(OPENBLAS_INCLUDE_DIRECTORY "${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
-set(OPENBLAS_LIBRARY "${PROJECT_LIBRARY_FILES_DIRECTORY}/libblas.a")
-message(STATUS "OpenBLAS include directory: ${OPENBLAS_INCLUDE_DIRECTORY}")
-message(STATUS "OpenBLAS library: ${OPENBLAS_LIBRARY}")
-ExternalProject_Add(
-        OpenBLAS
-        URL "https://github.com/xianyi/OpenBLAS/archive/v0.3.5.tar.gz"
-        URL_MD5 "579bda57f68ea6e9074bf5780e8620bb"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DTARGET=HASWELL"
-)
-
-# Configure LAPACK
-set(LAPACK_INCLUDE_DIRECTORY "${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
-set(LAPACK_LIBRARY "${PROJECT_LIBRARY_FILES_DIRECTORY}/liblapack.a")
-message(STATUS "LAPACK include directory: ${LAPACK_INCLUDE_DIRECTORY}")
-message(STATUS "LAPACK library: ${LAPACK_LIBRARY}")
-ExternalProject_Add(
-        LAPACK
-        URL "http://www.netlib.org/lapack/lapack-3.8.0.tar.gz"
-        URL_MD5 "96591affdbf58c450d45c1daa540dbd2"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'"
-)
-
-## Configure ARPACK
-#set(ARPACK_INCLUDE_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/include")
-#set(ARPACK_LIBRARY "${PROJECT_LIBRARIES_DIRECTORY}/lib/libarpack.so")
-#message(STATUS "ARPACK include directory: ${ARPACK_INCLUDE_DIRECTORY}")
-#message(STATUS "ARPACK library: ${ARPACK_LIBRARY}")
-#ExternalProject_Add(
-#        ARPACK
-#        URL "https://github.com/opencollab/arpack-ng/archive/3.6.3.tar.gz"
-#        URL_MD5 "a159a998d1805e18a68ca1995f79a245"
-#        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'"
-#)
-
-## Configure SuperLU
-#set(SUPERLU_INCLUDE_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/include")
-#set(SUPERLU_LIBRARY "${PROJECT_LIBRARIES_DIRECTORY}/lib/libsuperlu.so")
-#message(STATUS "SuperLU include directory: ${SUPERLU_INCLUDE_DIRECTORY}")
-#message(STATUS "SuperLU library: ${SUPERLU_LIBRARY}")
-#ExternalProject_Add(
-#        SuperLU
-#        URL "https://github.com/xiaoyeli/superlu/archive/v5.2.2.tar.gz"
-#        URL_MD5 "1e93259572bd2412674ed809a1446bd3"
-#        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'"
-#)
-
-# Configure Armadillo
-set(ARMADILLO_INCLUDE_DIRECTORY "${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
-set(ARMADILLO_LIBRARY "${PROJECT_LIBRARY_FILES_DIRECTORY}/libarmadillo.so")
-message(STATUS "Armadillo include directory: ${ARMADILLO_INCLUDE_DIRECTORY}")
-message(STATUS "Armadillo library: ${ARMADILLO_LIBRARY}")
-ExternalProject_Add(
-        Armadillo
-        URL "https://downloads.sourceforge.net/project/arma/armadillo-8.600.1.tar.xz"
-        URL_MD5 "3380ccfc68d8eb318af0253b92301a66"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DDETECT_HDF5=false"
-        DEPENDS OpenBLAS LAPACK
-)
-
-# Configure ensmallen
-set(ENSMALLEN_INCLUDE_DIRECTORY "${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
-message(STATUS "ensmallen include directory: ${ENSMALLEN_INCLUDE_DIRECTORY}")
-ExternalProject_Add(
-        ensmallen
-        URL "https://github.com/mlpack/ensmallen/archive/2.15.1.tar.gz"
-        URL_MD5 "74bb5cb4ee1525f5569c48848161b225"
-        #        URL "https://github.com/mlpack/ensmallen/archive/ensmallen-1.14.0.tar.gz"
-        #        URL_MD5 "3c4782ce15c0f6bc961df116dc8acf1f"
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DCMAKE_CXX_STANDARD_LIBRARIES='-lgfortran -lpthread'"
-        DEPENDS Armadillo
-)
-
 # Configure Boost
 set(Boost_NO_BOOST_CMAKE "on")
 find_package(Boost 1.67 REQUIRED COMPONENTS math_c99 program_options unit_test_framework serialization filesystem)
@@ -188,28 +115,3 @@ message(STATUS "Boost library: ${BOOST_LIBRARY}")
 #        INSTALL_COMMAND ""
 #        INSTALL_DIR "${BOOST_ROOT_DIRECTORY}"
 #
-
-# Configure mlpack
-ExternalProject_Add(
-        mlpack
-        #        URL "https://github.com/mlpack/mlpack/archive/mlpack-3.0.4.tar.gz"
-        #        URL_MD5 "361862a4d3f210ccb2181e5c1049f2b2"
-        URL "https://github.com/mlpack/mlpack/archive/3.4.2.tar.gz"
-        URL_MD5 "56b7056a50361089015fa8b2ce923cf8"
-        #        URL "https://github.com/mlpack/mlpack/archive/3.2.1.tar.gz"
-        #        URL_MD5 "1111f6ef7b41657ae2107f0182d2e157"
-        #        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DBoost_NO_BOOST_CMAKE=on" "-DCMAKE_CXX_STANDARD_LIBRARIES='-lgfortran -lboost_program_options -lboost_unit_test_framework -lboost_serialization'"
-
-        # Use for compilation on own PC:
-        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DBOOST_INCLUDEDIR:PATH='${BOOST_INCLUDE_DIRECTORY}'" "-DBOOST_LIBRARYDIR:PATH='${BOOST_LIBRARIES_DIRECTORY}'" "-DBoost_NO_BOOST_CMAKE=on" "-DCMAKE_CXX_STANDARD_LIBRARIES='-lgfortran -lpthread -lboost_math_c99 -lboost_program_options -lboost_unit_test_framework -lboost_serialization'"
-
-        # Use for compilation on Lenox:
-        #        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DBOOST_INCLUDEDIR:PATH='${BOOST_INCLUDE_DIRECTORY}'" "-DBOOST_LIBRARYDIR:PATH='${BOOST_LIBRARIES_DIRECTORY}'" "-DBoost_NO_BOOST_CMAKE=on" "-DCMAKE_CXX_STANDARD_LIBRARIES='-lirc -lgfortran -lpthread -lboost_math_c99 -lboost_program_options -lboost_unit_test_framework -lboost_serialization'"
-
-        #        CMAKE_ARGS "-DCMAKE_C_COMPILER:PATH='${CMAKE_C_COMPILER}'" "-DCMAKE_CXX_COMPILER:PATH='${CMAKE_CXX_COMPILER}'" "-DCMAKE_Fortran_COMPILER:PATH='${CMAKE_Fortran_COMPILER}'" "-DCMAKE_INSTALL_PREFIX:PATH='${PROJECT_LIBRARIES_DIRECTORY}'" "-DBOOST_ROOT='${BOOST_ROOT_DIRECTORY}'" "-DCMAKE_CXX_STANDARD_LIBRARIES='-lgfortran'"
-        DEPENDS Armadillo ensmallen
-)
-set(MLPACK_INCLUDE_DIRECTORY "${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
-set(MLPACK_LIBRARY "${PROJECT_LIBRARY_FILES_DIRECTORY}/libmlpack.so")
-message(STATUS "mlpack include directory: ${MLPACK_INCLUDE_DIRECTORY}")
-message(STATUS "mlpack library: ${MLPACK_LIBRARY}")

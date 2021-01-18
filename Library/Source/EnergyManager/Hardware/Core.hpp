@@ -3,6 +3,8 @@
 #include "EnergyManager/Hardware/CentralProcessor.hpp"
 #include "EnergyManager/Utility/Logging/Loggable.hpp"
 
+#include <memory>
+
 namespace EnergyManager {
 	namespace Hardware {
 		class CPU;
@@ -12,7 +14,8 @@ namespace EnergyManager {
 		 */
 		class Core
 			: public CentralProcessor
-			, protected Utility::Logging::Loggable {
+			, protected Utility::Logging::Loggable
+			, private std::enable_shared_from_this<Core> {
 			friend CPU;
 
 			/**

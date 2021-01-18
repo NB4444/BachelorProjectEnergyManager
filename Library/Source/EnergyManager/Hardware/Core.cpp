@@ -3,13 +3,9 @@
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Utility/CachedValue.hpp"
 #include "EnergyManager/Utility/Collections.hpp"
+#include "EnergyManager/Utility/EAR.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Text.hpp"
-
-#ifdef EAR_ENABLED
-	#define num_gpus unsigned int num_gpus
-	#include <ear.h>
-#endif
 
 #include <chrono>
 
@@ -142,12 +138,7 @@ namespace EnergyManager {
 			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
 
 #ifdef EAR_ENABLED
-			// Encode an affinity mask
-			cpu_set_t mask;
-			CPU_ZERO(&mask);
-			CPU_SET(getID(), &mask);
-
-			ear_set_cpufreq(&mask, maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
+			Utility::EAR::setCoreClockRates({ shared_from_this() }, maximumRate);
 #else
 			// Set minimum rate
 			Utility::Text::writeFile(
