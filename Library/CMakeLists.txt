@@ -32,7 +32,7 @@ target_include_directories(
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
         PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
         PUBLIC "${EAR_INCLUDE_DIRECTORIES}"
-        PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
+        PUBLIC "${SQLITE_INCLUDE_DIRECTORIES}"
 )
 target_link_libraries(
         ${TARGET_NAME}
