@@ -2,7 +2,6 @@
 
 # Set up dependencies
 include(Dependencies/Boost.cmake)
-include(Dependencies/CUDA.cmake)
 include(Dependencies/EAR.cmake)
 include(Dependencies/MPI.cmake)
 include(Dependencies/NVIDIACodeSamples.cmake)
@@ -29,23 +28,27 @@ set_target_properties(
 target_include_directories(
         ${TARGET_NAME}
         PUBLIC "Source"
-        PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
+        PUBLIC "${BOOST_INCLUDE_DIRECTORIES}"
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
         PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
-        PUBLIC "${BOOST_INCLUDE_DIRECTORIES}"
-        # FIXME: Quick fix to fix the wrong boost includes from being used
-        #        PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
         PUBLIC "${EAR_INCLUDE_DIRECTORIES}"
+        PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
 )
 target_link_libraries(
         ${TARGET_NAME}
-        PUBLIC "Threads::Threads"
-        PUBLIC "${SQLITE_LIBRARIES}"
-        PUBLIC "cuda"
         PUBLIC "${CUDA_CUPTI_LIBRARIES}"
-        PUBLIC "nvidia-ml"
+        PUBLIC "${SQLITE_LIBRARIES}"
+        PUBLIC "Boost::filesystem"
+        PUBLIC "Boost::math_c99"
+        PUBLIC "Boost::program_options"
+        PUBLIC "Boost::serialization"
+        PUBLIC "Boost::stacktrace_addr2line"
+        PUBLIC "Boost::unit_test_framework"
+        PUBLIC "Threads::Threads"
+        PUBLIC "cuda"
         PUBLIC "dl"
-        PUBLIC "${BOOST_LIBRARIES}"
+        PUBLIC "irc"
+        PUBLIC "nvidia-ml"
 )
 if (DEFINED EAR_ENABLED)
     message(STATUS "Adding ear libraries to ${TARGET_NAME}...")

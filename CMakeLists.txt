@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
+# Set up dependencies
+include(Dependencies/CUDA.cmake)
+
 # Configure project paths
 include(Paths.cmake)
 

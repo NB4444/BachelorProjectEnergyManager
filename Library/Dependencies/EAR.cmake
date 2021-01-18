@@ -3,7 +3,7 @@ set(EAR_ENABLED TRUE)
 add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
 
 # Find the root directory
-set(EAR_DIRECTORY "/hpc/base/ctt/packages/EAR/ear")
+set(EAR_DIRECTORY "$ENV{EAR_INSTALL_PATH}")
 message(STATUS "EAR directory: ${EAR_DIRECTORY}")
 
 # Find the include directory
@@ -24,10 +24,6 @@ message(STATUS "EAR libraries: ${EAR_LIBRARIES}")
 find_library(EAR_DAEMON_LIBRARIES earld "${EAR_LIBRARY_DIRECTORIES}")
 add_compile_definitions(EAR_DAEMON_LIBRARIES="${EAR_DAEMON_LIBRARIES}")
 message(STATUS "EAR daemon libraries: ${EAR_DAEMON_LIBRARIES}")
-
-# Find the API library
-find_library(EAR_API_LIBRARIES ear_api "${EAR_LIBRARY_DIRECTORIES}")
-message(STATUS "EAR API libraries: ${EAR_API_LIBRARIES}")
 
 # Find eacct
 set(EAR_EACCT "${EAR_DIRECTORY}/bin/eacct")

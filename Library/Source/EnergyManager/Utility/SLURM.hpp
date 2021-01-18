@@ -169,6 +169,7 @@ namespace EnergyManager {
 					  "module load base-env\n"
 					  "module load git/2.6.2\n"
 					  "module load compiler/gnu/8.2.0\n"
+					  "module load compiler/intel/20.4\n"
 					  "module load cmake/3.14.5\n"
 					  "module load cuda/10.1\n"
 					  "module load mpi/openmpi/4.0.5_gnu\n"
