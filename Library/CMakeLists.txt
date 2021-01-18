@@ -1,10 +1,18 @@
 # TODO: Add necessary licenses for all libraries
 
+# Set up dependencies
+include(Dependencies/Boost.cmake)
+include(Dependencies/CUDA.cmake)
+include(Dependencies/EAR.cmake)
+include(Dependencies/MPI.cmake)
+include(Dependencies/NVIDIACodeSamples.cmake)
+include(Dependencies/Rodinia.cmake)
+include(Dependencies/SLURM.cmake)
+include(Dependencies/SQLite.cmake)
+include(Dependencies/Threads.cmake)
+
 # Set up target
 set(TARGET_NAME "${PROJECT_NAME}-Library")
-
-# Set up dependencies
-include(Dependencies.cmake)
 
 # Get sources
 set(SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Source")
@@ -23,27 +31,27 @@ target_include_directories(
         PUBLIC "Source"
         PUBLIC "${SQLITE_INCLUDE_DIRECTORY}"
         PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORY}"
-        #        PUBLIC "${BOOST_INCLUDE_DIRECTORY}"
+        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
+        PUBLIC "${BOOST_INCLUDE_DIRECTORIES}"
         # FIXME: Quick fix to fix the wrong boost includes from being used
-        PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
-        PUBLIC "${EAR_INCLUDE_DIRECTORY}"
+        #        PUBLIC "/hpc/base/ctt/packages/boost/1.70.0/intel/include"
+        PUBLIC "${EAR_INCLUDE_DIRECTORIES}"
 )
 target_link_libraries(
         ${TARGET_NAME}
         PUBLIC "Threads::Threads"
-        PUBLIC "${SQLITE_LIBRARY}"
+        PUBLIC "${SQLITE_LIBRARIES}"
         PUBLIC "cuda"
-        PUBLIC "${CUDA_CUPTI_LIBRARY}"
+        PUBLIC "${CUDA_CUPTI_LIBRARIES}"
         PUBLIC "nvidia-ml"
         PUBLIC "dl"
-        PUBLIC "${BOOST_LIBRARY}"
+        PUBLIC "${BOOST_LIBRARIES}"
 )
 if (DEFINED EAR_ENABLED)
     message(STATUS "Adding ear libraries to ${TARGET_NAME}...")
     target_link_directories(
             ${TARGET_NAME}
-            PUBLIC "${EAR_LIBRARY_DIRECTORY}"
+            PUBLIC "${EAR_LIBRARY_DIRECTORIES}"
     )
     target_link_libraries(
             ${TARGET_NAME}

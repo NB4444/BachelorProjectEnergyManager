@@ -1,21 +1,14 @@
-# Set up project paths
-set(PROJECT_RESOURCES_DIRECTORY "${CMAKE_SOURCE_DIR}/Resources")
-set(PROJECT_SCRIPTS_DIRECTORY "${PROJECT_RESOURCES_DIRECTORY}/Scripts")
-set(PROJECT_LIBRARIES_DIRECTORY "${CMAKE_BINARY_DIR}/Installations")
-set(PROJECT_LIBRARY_FILES_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/lib")
-if (NOT EXISTS ${PROJECT_LIBRARY_FILES_DIRECTORY})
-    set(PROJECT_LIBRARY_FILES_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/lib64")
-endif ()
-set(PROJECT_LIBRARY_INCLUDES_DIRECTORY "${PROJECT_LIBRARIES_DIRECTORY}/include")
-set(PROJECT_DATABASE "${PROJECT_RESOURCES_DIRECTORY}/Data/Database.sqlite")
-set(REPORTER_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/Reporter/lib${PROJECT_NAME}-Reporter.so")
+# Find the resources directory
+set(PROJECT_RESOURCES_DIRECTORY "~/EnergyManager")
 add_compile_definitions(PROJECT_RESOURCES_DIRECTORY="${PROJECT_RESOURCES_DIRECTORY}")
-add_compile_definitions(PROJECT_DATABASE="${PROJECT_DATABASE}")
-add_compile_definitions(REPORTER_LIBRARY="${REPORTER_LIBRARY}")
-include_directories(${PROJECT_LIBRARIES_DIRECTORY}/include)
 message(STATUS "Project resources directory: ${PROJECT_RESOURCES_DIRECTORY}")
-message(STATUS "Project libraries directory: ${PROJECT_LIBRARIES_DIRECTORY}")
-message(STATUS "Project library files directory: ${PROJECT_LIBRARY_FILES_DIRECTORY}")
-message(STATUS "Project library includes directory: ${PROJECT_LIBRARY_INCLUDES_DIRECTORY}")
+
+# Find the database
+set(PROJECT_DATABASE "${PROJECT_RESOURCES_DIRECTORY}/Data/Database.sqlite")
+add_compile_definitions(PROJECT_DATABASE="${PROJECT_DATABASE}")
 message(STATUS "Project database: ${PROJECT_DATABASE}")
+
+# Find the reporter
+set(REPORTER_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/Reporter/lib${PROJECT_NAME}-Reporter.so")
+add_compile_definitions(REPORTER_LIBRARY="${REPORTER_LIBRARY}")
 message(STATUS "Reporter library: ${REPORTER_LIBRARY}")

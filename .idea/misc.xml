@@ -3,6 +3,7 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/EARTest/Source" />
       <file path="$PROJECT_DIR$/EventReporter/Source" />
       <file path="$PROJECT_DIR$/Library/Console/Source" />
       <file path="$PROJECT_DIR$/Library/Source" />
@@ -17,14 +18,14 @@
       <file path="$PROJECT_DIR$/Profiling/Source" />
       <file path="$PROJECT_DIR$/Reporter/Source" />
       <file path="$PROJECT_DIR$/ShowFrequencies/Source" />
-      <file path="$PROJECT_DIR$/Tests/ActiveInactive/Source" />
-      <file path="$PROJECT_DIR$/Tests/AllocateFree/Source" />
-      <file path="$PROJECT_DIR$/Tests/FixedFrequencyMatrixMultiply/Source" />
-      <file path="$PROJECT_DIR$/Tests/LinearRegression/Source" />
-      <file path="$PROJECT_DIR$/Tests/MatrixMultiply/Source" />
-      <file path="$PROJECT_DIR$/Tests/Ping/Source" />
-      <file path="$PROJECT_DIR$/Tests/VectorAdd/Source" />
-      <file path="$PROJECT_DIR$/Tests/VectorAddSubtract/Source" />
+      <file path="$PROJECT_DIR$/Testing/AllocateFree/Source" />
+      <file path="$PROJECT_DIR$/Testing/FixedFrequencyMatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Testing/LinearRegression/Source" />
+      <file path="$PROJECT_DIR$/Testing/MatrixMultiply/Source" />
+      <file path="$PROJECT_DIR$/Testing/Ping/Source" />
+      <file path="$PROJECT_DIR$/Testing/Source" />
+      <file path="$PROJECT_DIR$/Testing/VectorAdd/Source" />
+      <file path="$PROJECT_DIR$/Testing/VectorAddSubtract/Source" />
       <file path="$PROJECT_DIR$/Training/KMeans/Source" />
       <file path="$PROJECT_DIR$/Training/MatrixMultiply/Source" />
       <file path="$PROJECT_DIR$/Visualizer/Source" />

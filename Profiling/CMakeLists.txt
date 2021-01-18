@@ -15,10 +15,10 @@ set_target_properties(
 )
 target_include_directories(
         ${TARGET_NAME}
-        PUBLIC Source
-        PUBLIC ../Library/Source
+        PUBLIC "Source"
+        PUBLIC "../Library/Source"
 )
 target_link_libraries(
         ${TARGET_NAME}
-        ${PROJECT_NAME}-Library
+        PUBLIC "${PROJECT_NAME}-Library"
 )

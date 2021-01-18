@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" overwriteAll="false" traceLevel="ERRORS" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Lenox (2d5e421d-9ad6-41d6-87b5-fff6779b55d1)" overwriteAll="false" deleteMissingItems="true" createEmptyFolders="true" traceLevel="ERRORS" autoUploadExternalChanges="true">
     <serverData>
       <paths name="Lenox (2d5e421d-9ad6-41d6-87b5-fff6779b55d1)">
         <serverdata>
@@ -22,5 +22,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

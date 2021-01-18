@@ -147,14 +147,20 @@ namespace EnergyManager {
 					= "#!/bin/bash\n"
 					  "#SBATCH --output %J.log\n"
 					  "#SBATCH --error %J.log\n"
-					  + std::string(verbose ? "#SBATCH --verbose\n" : "")
-					  + "#SBATCH --job-name EnergyManager-JobRunner\n"
+					+ std::string(verbose ? "#SBATCH --verbose\n" : "")
+					+ "#SBATCH --job-name EnergyManager-JobRunner\n"
 					  "#SBATCH --account COLBSC\n"
 					  "#SBATCH --partition standard\n"
 					  "#SBATCH --time 1:00:00\n"
-					  "#SBATCH --constraint " + constraint + "\n"
-					  "#SBATCH --nodes " + Text::toString(nodes) + "\n"
-					  "#SBATCH --ntasks " + Text::toString(tasks) + "\n"
+					  "#SBATCH --constraint "
+					+ constraint
+					+ "\n"
+					  "#SBATCH --nodes "
+					+ Text::toString(nodes)
+					+ "\n"
+					  "#SBATCH --ntasks "
+					+ Text::toString(tasks)
+					+ "\n"
 					  "#SBATCH --ntasks-per-node 1\n"
 					  "#SBATCH --exclusive\n"
 
@@ -162,54 +168,56 @@ namespace EnergyManager {
 					  "source /hpc/base/ctt/bin/setup_modules.sh\n"
 					  "module load base-env\n"
 					  "module load git/2.6.2\n"
-					  "module load compiler/intel/20.4\n"
 					  "module load compiler/gnu/8.2.0\n"
 					  "module load cmake/3.14.5\n"
 					  "module load cuda/10.1\n"
-					  "module load boost/1.67.0/impi\n"
+					  "module load mpi/openmpi/4.0.5_gnu\n"
+					  "module load boost/1.70.0/impi\n"
 					  "module load ear/ear\n"
 
-					  // Load the EAR library
 #ifdef EAR_ENABLED
-					  "export SLURM_HACK_EARL_INSTALL_PATH=" + std::string(EAR_LIBRARY_DIRECTORY) + "\n"
-					  "export SLURM_HACK_LOADER=" + std::string(EAR_LIBRARY_DAEMON) + "\n"
-					  "export SLURM_HACK_LIBRARY_FILE=" + std::string(EAR_LIBRARY) + "\n"
+					  // Load the EAR library
+					  "export SLURM_HACK_EARL_INSTALL_PATH="
+					+ std::string(EAR_LIBRARY_DIRECTORIES)
+					+ "\n"
+					  "export SLURM_HACK_LOADER="
+					+ std::string(EAR_DAEMON_LIBRARIES)
+					+ "\n"
+					  "export SLURM_HACK_LIBRARY_FILE="
+					+ std::string(EAR_LIBRARIES)
+					+ "\n"
 					  "export SLURM_HACK_EARL_VERBOSE=2\n"
 					  "export SLURM_LOADER_LOAD_NO_MPI_LIB=\"$@\"\n"
 #endif
 
-					  // Set the GPU frequency in EAR if necessary
-					  // EAR requires the value to be in MHz
-					  + (gpuFrequency == Units::Hertz()
-						 ? ""
-						 : "export SLURM_EAR_GPU_DEF_FREQ=" + Text::toString(static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))) + "\n")
+					// Set the GPU frequency in EAR if necessary
+					// EAR requires the value to be in MHz
+					+ (gpuFrequency == Units::Hertz() ? "" : "export SLURM_EAR_GPU_DEF_FREQ=" + Text::toString(static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA))) + "\n")
 
-					  + "srun"
+					+ "srun"
 
-					  // Set the CPU frequency in SLURM
-					  // SLURM want the CPU frequency in KHz
-					  + (maximumCPUFrequency == Units::Hertz()
-						 ? ""
-						 : (" --cpu-freq " + (minimumCPUFrequency == Units::Hertz()
-								 ? ""
-								 : (Text::toString(static_cast<unsigned int>(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))) + "-")) + Text::toString(static_cast<unsigned int>(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)))))
+					// Set the CPU frequency in SLURM
+					// SLURM want the CPU frequency in KHz
+					+ (maximumCPUFrequency == Units::Hertz()
+						   ? ""
+						   : (" --cpu-freq "
+							  + (minimumCPUFrequency == Units::Hertz() ? "" : (Text::toString(static_cast<unsigned int>(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))) + "-"))
+							  + Text::toString(static_cast<unsigned int>(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)))))
 
-					  + (gpus >= 0 ? " --gpus " + Text::toString(gpus) : "")
+					+ (gpus >= 0 ? " --gpus " + Text::toString(gpus) : "")
 
-					  // Set the GPU frequency in SLURM
-					  // SLURM wants the GPU frequency in MHz
-					  + (gpuFrequency == Units::Hertz()
-						 ? ""
-						 : (" --gpu-freq " + (slurmGPUFrequency == 0 ? "low" : Text::toString(slurmGPUFrequency))))
+					// Set the GPU frequency in SLURM
+					// SLURM wants the GPU frequency in MHz
+					+ (gpuFrequency == Units::Hertz() ? "" : (" --gpu-freq " + (slurmGPUFrequency == 0 ? "low" : Text::toString(slurmGPUFrequency))))
 
-					  + (verbose ? " --verbose" : "")
-					  + " --job-name EnergyManager"
+					+ (verbose ? " --verbose" : "")
+					+ " --job-name EnergyManager"
 #ifdef EAR_ENABLED
 					  " --ear-verbose 1"
 					  " --ear-policy monitoring"
 #endif
-					  " \"" + applicationPath + "\""
-					  + (applicationParameters.empty() ? "" : (" \"" + Text::join(applicationParameters, "\" \"") + "\""));
+					  " \""
+					+ applicationPath + "\"" + (applicationParameters.empty() ? "" : (" \"" + Text::join(applicationParameters, "\" \"") + "\""));
 				std::ofstream jobScriptOutput("JobRunner.sh.tmp");
 				jobScriptOutput << command;
 				jobScriptOutput.close();

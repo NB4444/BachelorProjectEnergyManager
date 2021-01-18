@@ -1,5 +1,5 @@
 # Set up target
-set(TARGET_NAME "${PROJECT_NAME}-Reporter")
+set(TARGET_NAME "${PROJECT_NAME}-Testing")
 
 # Get sources
 set(SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Source")
@@ -7,7 +7,7 @@ file(GLOB_RECURSE SOURCE_FILES "${SOURCE_DIRECTORY}/*.cpp" "${SOURCE_DIRECTORY}/
 message(STATUS "${TARGET_NAME} source files: ${SOURCE_FILES}")
 
 # Add and configure target
-add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
+add_executable(${TARGET_NAME} ${SOURCE_FILES})
 set_target_properties(
         ${TARGET_NAME}
         PROPERTIES
@@ -16,11 +16,9 @@ set_target_properties(
 target_include_directories(
         ${TARGET_NAME}
         PUBLIC "Source"
-        PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
+        PUBLIC "../Library/Source"
 )
 target_link_libraries(
         ${TARGET_NAME}
-        PUBLIC "cuda"
-        PUBLIC "${CUDA_CUPTI_LIBRARIES}"
+        PUBLIC "${PROJECT_NAME}-Library"
 )

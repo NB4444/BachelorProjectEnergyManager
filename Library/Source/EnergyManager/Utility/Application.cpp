@@ -158,8 +158,8 @@ namespace EnergyManager {
 						librariesToInject.push_back(REPORTER_LIBRARY);
 					}
 					if(injectEAR_) {
-						librariesToInject.push_back(EAR_LIBRARY);
-						librariesToInject.push_back(EAR_LIBRARY_DAEMON);
+						librariesToInject.push_back(EAR_LIBRARIES);
+						librariesToInject.push_back(EAR_DAEMON_LIBRARIES);
 					}
 
 					// Prepare environment

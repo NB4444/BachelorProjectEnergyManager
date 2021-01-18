@@ -89,7 +89,12 @@ namespace EnergyManager {
 				 * @param activeMode Whether to run the monitor in active mode, where it changes frequency values to save energy.
 				 * @param smartPolicy Whether to enable the smart policy.
 				 */
-				explicit EnergyMonitor(std::shared_ptr<Hardware::Core> core, std::shared_ptr<Hardware::GPU> gpu, const std::chrono::system_clock::duration& interval, const bool& activeMode = false, const bool& smartPolicy = false);
+				explicit EnergyMonitor(
+					std::shared_ptr<Hardware::Core> core,
+					std::shared_ptr<Hardware::GPU> gpu,
+					const std::chrono::system_clock::duration& interval,
+					const bool& activeMode = false,
+					const bool& smartPolicy = false);
 			};
 		}
 	}

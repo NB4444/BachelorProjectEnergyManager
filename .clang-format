@@ -5,7 +5,7 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: false
 AlignEscapedNewlines: "DontAlign"
-AlignOperands: true
+AlignOperands: "AlignAfterOperator"
 AlignTrailingComments: false
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false

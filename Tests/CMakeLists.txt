@@ -1,5 +1,0 @@
-add_subdirectory(ActiveInactive)
-add_subdirectory(AllocateFree)
-add_subdirectory(Ping)
-add_subdirectory(VectorAdd)
-add_subdirectory(VectorAddSubtract)

@@ -3,6 +3,7 @@
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/stacktrace.hpp>
 #include <csignal>
 #include <unistd.h>
 #include <utility>
