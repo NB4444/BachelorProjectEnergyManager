@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="EnergyManager-Visualizer" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="lab" REDIRECT_INPUT="false" ELEVATE="false" WORKING_DIR="file://$PROJECT_DIR$/Visualizer/Source" PASS_PARENT_ENVS_2="true" PROJECT_NAME="EnergyManager" TARGET_NAME="EnergyManager-Visualizer" CONFIG_NAME="Debug-GCC 8" RUN_PATH="$PROJECT_DIR$/cmake-build-release-gcc-8/Visualizer/CondaEnvironment/bin/jupyter">
+  <configuration default="false" name="EnergyManager-Visualizer" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="lab" REDIRECT_INPUT="false" ELEVATE="false" WORKING_DIR="file://$PROJECT_DIR$/Visualizer/Source" PASS_PARENT_ENVS_2="true" PROJECT_NAME="EnergyManager" TARGET_NAME="EnergyManager-Visualizer" CONFIG_NAME="Release-Lenox GCC" RUN_PATH="$PROJECT_DIR$/cmake-build-release-gcc-8/Visualizer/CondaEnvironment/bin/jupyter">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>

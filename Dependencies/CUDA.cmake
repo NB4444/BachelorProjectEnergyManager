@@ -10,18 +10,12 @@ set(CUDA_BINARY_DIRECTORIES "${CUDA_DIRECTORY}/bin")
 message(STATUS "CUDA binary directories: ${CUDA_BINARY_DIRECTORIES}")
 
 # Find the samples directory
-set(CUDA_SAMPLES_DIRECTORY "/home/xqbakker/cuda-10.1/samples")
-if (NOT EXISTS ${CUDA_SAMPLES_DIRECTORY})
-    set(CUDA_SAMPLES_DIRECTORY "/home/qub1/cuda-10.1/samples")
-endif ()
+set(CUDA_SAMPLES_DIRECTORY "$ENV{HOME}/cuda-10.1/samples")
 add_compile_definitions(CUDA_SAMPLES_DIRECTORY="${CUDA_SAMPLES_DIRECTORY}")
 message(STATUS "CUDA samples directory: ${CUDA_SAMPLES_DIRECTORY}")
 
 # Find the CUPTI samples directory
-set(CUDA_CUPTI_SAMPLES_DIRECTORY "/home/xqbakker/cuda-10.1/extras/CUPTI/samples")
-if (NOT EXISTS ${CUDA_CUPTI_SAMPLES_DIRECTORY})
-    set(CUDA_CUPTI_SAMPLES_DIRECTORY "/home/qub1/cuda-10.1/extras/CUPTI/samples")
-endif ()
+set(CUDA_CUPTI_SAMPLES_DIRECTORY "$ENV{HOME}/cuda-10.1/extras/CUPTI/samples")
 add_compile_definitions(CUDA_CUPTI_SAMPLES_DIRECTORY="${CUDA_CUPTI_SAMPLES_DIRECTORY}")
 message(STATUS "CUDA CUPTI samples directory: ${CUDA_SAMPLES_DIRECTORY}")
 

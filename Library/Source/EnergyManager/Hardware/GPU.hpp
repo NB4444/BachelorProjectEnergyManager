@@ -31,8 +31,7 @@ namespace EnergyManager {
 		 */
 		class GPU
 			: public Processor
-			, private Utility::Loopable
-			, private std::enable_shared_from_this<GPU> {
+			, private Utility::Loopable {
 			/**
 			 * Represents a kernel executing on the GPU.
 			 */
@@ -345,13 +344,13 @@ namespace EnergyManager {
 			 */
 			void handleKernelActivity(const CUpti_ActivityKernel4* activity);
 
+		protected:
 			/**
 			 * Creates a new GPU.
 			 * @param id The ID of the device.
 			 */
 			explicit GPU(const unsigned int& id);
 
-		protected:
 			std::vector<std::string> generateHeaders() const override;
 
 			void onLoop() override;

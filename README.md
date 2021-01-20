@@ -1,8 +1,7 @@
 # EnergyManager
 
 This repository contains the files for the collaboration project between EAR and SARA on power saving methods for GPU
-kernels.
-EnergyManager is a framework that can be used to test and monitor heterogeneous CPU-GPU applications in order
+kernels. EnergyManager is a framework that can be used to test and monitor heterogeneous CPU-GPU applications in order
 to automatically apply energy saving strategies.
 
 ## Usage

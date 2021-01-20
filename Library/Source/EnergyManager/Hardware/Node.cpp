@@ -2,6 +2,7 @@
 
 #include "EnergyManager/Hardware/CPU.hpp"
 #include "EnergyManager/Hardware/GPU.hpp"
+#include "EnergyManager/Utility/ProtectedMakeShared.hpp"
 
 #include <algorithm>
 #include <numeric>
@@ -18,7 +19,7 @@ namespace EnergyManager {
 			static std::mutex mutex;
 			std::lock_guard<std::mutex> guard(mutex);
 
-			static std::shared_ptr<Node> node = std::shared_ptr<Node>(new Node(CPU::getCPUs(), GPU::getGPUs()));
+			static std::shared_ptr<Node> node = Utility::protectedMakeShared<Node>(CPU::getCPUs(), GPU::getGPUs());
 
 			return node;
 		}

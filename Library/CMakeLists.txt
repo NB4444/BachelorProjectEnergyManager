@@ -58,6 +58,6 @@ if (DEFINED EAR_ENABLED)
     )
     target_link_libraries(
             ${TARGET_NAME}
-            PUBLIC "ear_api"
+            PUBLIC "ear_api_debug"
     )
 endif ()

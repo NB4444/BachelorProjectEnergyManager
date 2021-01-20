@@ -1,10 +1,10 @@
 # Find the resources directory
-set(PROJECT_RESOURCES_DIRECTORY "~/EnergyManager")
+set(PROJECT_RESOURCES_DIRECTORY "$ENV{HOME}/EnergyManager-Resources")
 add_compile_definitions(PROJECT_RESOURCES_DIRECTORY="${PROJECT_RESOURCES_DIRECTORY}")
 message(STATUS "Project resources directory: ${PROJECT_RESOURCES_DIRECTORY}")
 
 # Find the database
-set(PROJECT_DATABASE "${PROJECT_RESOURCES_DIRECTORY}/Data/Database.sqlite")
+set(PROJECT_DATABASE "${PROJECT_RESOURCES_DIRECTORY}/Database.sqlite")
 add_compile_definitions(PROJECT_DATABASE="${PROJECT_DATABASE}")
 message(STATUS "Project database: ${PROJECT_DATABASE}")
 

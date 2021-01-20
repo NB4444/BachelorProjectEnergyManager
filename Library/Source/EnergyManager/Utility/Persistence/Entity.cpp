@@ -3,6 +3,9 @@
 #include "EnergyManager/Utility/Collections.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
 
+#include <boost/filesystem.hpp>
+#include <stack>
+
 namespace EnergyManager {
 	namespace Utility {
 		namespace Persistence {
@@ -15,14 +18,15 @@ namespace EnergyManager {
 
 					auto databaseFile = std::string(PROJECT_DATABASE);
 
+					// Create the directory to contain the database
+					Utility::Logging::logDebug("Creating database path %s...", PROJECT_RESOURCES_DIRECTORY);
+					system("mkdir -p \"" PROJECT_RESOURCES_DIRECTORY "\"");
+
 					// Open a new database connection
 					Utility::Logging::logDebug("Initializing database %s...", databaseFile.c_str());
 					if(database_ == nullptr && sqlite3_open_v2(databaseFile.c_str(), &database_, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, "unix-dotfile")) {
 						ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot open database: " + std::string(sqlite3_errmsg(database_)));
 					}
-					//if(database_ == nullptr && sqlite3_open(databaseFile.c_str(), &database_)) {
-					//	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Cannot open database: " + std::string(sqlite3_errmsg(database_)));
-					//}
 				},
 				[] {
 					static std::mutex mutex;

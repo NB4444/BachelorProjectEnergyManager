@@ -4,6 +4,7 @@
 #include "EnergyManager/Utility/Environment.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/ProtectedMakeShared.hpp"
 #include "EnergyManager/Utility/Units/Byte.hpp"
 
 #include <algorithm>
@@ -464,7 +465,7 @@ namespace EnergyManager {
 
 			auto iterator = gpus_.find(id);
 			if(iterator == gpus_.end()) {
-				gpus_[id] = std::shared_ptr<GPU>(new GPU(id));
+				gpus_[id] = Utility::protectedMakeShared<GPU>(id);
 			}
 
 			return gpus_[id];
@@ -613,7 +614,7 @@ namespace EnergyManager {
 			logDebug("Setting frequency range to [%lu, %lu]...", mininimumRate.toValue(), maximumRate.toValue());
 
 #ifdef EAR_ENABLED
-			Utility::EAR::setGPUClockRate(shared_from_this(), maximumRate);
+			Utility::EAR::setGPUClockRate(getID(), maximumRate);
 #else
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
 				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));

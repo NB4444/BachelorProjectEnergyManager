@@ -53,13 +53,13 @@ namespace EnergyManager {
 			 */
 			Utility::Units::Joule lastEnergyConsumption_;
 
+		protected:
 			/**
 			 * Creates a new CPU.
 			 * @param id The ID of the device.
 			 */
 			explicit CPU(const unsigned int& id);
 
-		protected:
 			std::vector<std::string> generateHeaders() const override;
 
 		public:

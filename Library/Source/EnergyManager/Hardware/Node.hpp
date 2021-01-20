@@ -29,6 +29,7 @@ namespace EnergyManager {
 			 */
 			Utility::Units::Joule startEnergyConsumption_ = getEnergyConsumption();
 
+		protected:
 			/**
 			 * Creates a new Node.
 			 */

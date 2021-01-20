@@ -1,8 +1,5 @@
 # Find the root directory
-set(RODINIA_DIRECTORY "/home/xqbakker/rodinia_3.1")
-if (NOT EXISTS ${RODINIA_DIRECTORY})
-    set(RODINIA_DIRECTORY "/home/qub1/rodinia_3.1")
-endif ()
+set(RODINIA_DIRECTORY "$ENV{HOME}/rodinia_3.1")
 add_compile_definitions(RODINIA_DIRECTORY="${RODINIA_DIRECTORY}")
 message(STATUS "Rodinia directory: ${RODINIA_DIRECTORY}")
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.5)
+cmake_minimum_required(VERSION 3.13.4)
 
 # Set up the project
 project(EnergyManager LANGUAGES C CXX)
@@ -17,5 +17,6 @@ include(Paths.cmake)
 add_subdirectory(Library)
 add_subdirectory(Profiling)
 add_subdirectory(Reporter)
+add_subdirectory(ShowFrequencies)
 add_subdirectory(Testing)
 add_subdirectory(Visualizer)

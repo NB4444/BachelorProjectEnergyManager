@@ -5,6 +5,7 @@
 #include "EnergyManager/Utility/Collections.hpp"
 #include "EnergyManager/Utility/EAR.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
+#include "EnergyManager/Utility/ProtectedMakeShared.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <chrono>
@@ -65,7 +66,7 @@ namespace EnergyManager {
 
 			// Create the core if it does not exist yet
 			if(cpuCores.find(id) == cpuCores.end()) {
-				cpuCores[id] = std::shared_ptr<Core>(new Core(cpu, Utility::Collections::getMapItemByIndex(getProcCPUInfoValuesPerCPU().at(cpu->getID()), id).first, id));
+				cpuCores[id] = Utility::protectedMakeShared<Core>(cpu, Utility::Collections::getMapItemByIndex(getProcCPUInfoValuesPerCPU().at(cpu->getID()), id).first, id);
 			}
 
 			return cpuCores.at(id);
@@ -135,10 +136,10 @@ namespace EnergyManager {
 		}
 
 		void Core::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
-			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
+			logDebug("Setting clock rate range to [%f, %f]...", minimumRate.toValue(), maximumRate.toValue());
 
 #ifdef EAR_ENABLED
-			Utility::EAR::setCoreClockRates({ shared_from_this() }, maximumRate);
+			Utility::EAR::setCoreClockRates(std::vector<unsigned int> { getID() }, maximumRate);
 #else
 			// Set minimum rate
 			Utility::Text::writeFile(
@@ -186,15 +187,15 @@ namespace EnergyManager {
 							const auto lastCoreValues = lastProcStatValues.at(cpu).at(core);
 							const auto previousIdle = lastCoreValues.at("idleTimespan") + lastCoreValues.at("ioWaitTimespan");
 							const auto previousActive = lastCoreValues.at("userTimespan") + lastCoreValues.at("niceTimespan") + lastCoreValues.at("systemTimespan")
-														+ lastCoreValues.at("interruptsTimespan") + lastCoreValues.at("softInterruptsTimespan") + lastCoreValues.at("stealTimespan")
-														+ lastCoreValues.at("guestTimespan") + lastCoreValues.at("guestNiceTimespan");
+													  + lastCoreValues.at("interruptsTimespan") + lastCoreValues.at("softInterruptsTimespan") + lastCoreValues.at("stealTimespan")
+													  + lastCoreValues.at("guestTimespan") + lastCoreValues.at("guestNiceTimespan");
 							const auto previousTotal = previousIdle + previousActive;
 
 							const auto currentCoreValues = coreProcStatData.second;
 							const auto idle = currentCoreValues.at("idleTimespan") + currentCoreValues.at("ioWaitTimespan");
 							const auto active = currentCoreValues.at("userTimespan") + currentCoreValues.at("niceTimespan") + currentCoreValues.at("systemTimespan")
-												+ currentCoreValues.at("interruptsTimespan") + currentCoreValues.at("softInterruptsTimespan") + currentCoreValues.at("stealTimespan")
-												+ currentCoreValues.at("guestTimespan") + currentCoreValues.at("guestNiceTimespan");
+											  + currentCoreValues.at("interruptsTimespan") + currentCoreValues.at("softInterruptsTimespan") + currentCoreValues.at("stealTimespan")
+											  + currentCoreValues.at("guestTimespan") + currentCoreValues.at("guestNiceTimespan");
 							const auto total = idle + active;
 
 							const auto totalDifference = total - previousTotal;

@@ -6,6 +6,7 @@
 #include "EnergyManager/Utility/EAR.hpp"
 #include "EnergyManager/Utility/Exceptions/Exception.hpp"
 #include "EnergyManager/Utility/Logging.hpp"
+#include "EnergyManager/Utility/ProtectedMakeShared.hpp"
 #include "EnergyManager/Utility/Text.hpp"
 
 #include <fstream>
@@ -63,7 +64,7 @@ namespace EnergyManager {
 
 			auto iterator = cpus.find(id);
 			if(iterator == cpus.end()) {
-				cpus[id] = std::shared_ptr<CPU>(new CPU(id));
+				cpus[id] = Utility::protectedMakeShared<CPU>(id);
 			}
 
 			return cpus[id];
@@ -123,7 +124,7 @@ namespace EnergyManager {
 		}
 
 		void CPU::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
-			logDebug("Setting clock rate range to [%lu, %lu]...", minimumRate.toValue(), minimumRate.toValue());
+			logDebug("Setting clock rate range to [%f, %f]...", minimumRate.toValue(), maximumRate.toValue());
 
 #ifdef EAR_ENABLED
 			Utility::EAR::setCoreClockRates(getCores(), maximumRate);
@@ -180,7 +181,7 @@ namespace EnergyManager {
 			return Utility::Units::Joule(
 					   std::stod(Utility::Text::readFile("/sys/class/powercap/intel-rapl/intel-rapl:" + Utility::Text::toString(getID()) + "/energy_uj")),
 					   Utility::Units::SIPrefix::MICRO)
-				   - startEnergyConsumption_;
+				 - startEnergyConsumption_;
 		}
 
 		Utility::Units::Hertz CPU::getMinimumCoreClockRate() const {

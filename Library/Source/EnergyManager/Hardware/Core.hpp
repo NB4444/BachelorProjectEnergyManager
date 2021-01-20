@@ -14,8 +14,7 @@ namespace EnergyManager {
 		 */
 		class Core
 			: public CentralProcessor
-			, protected Utility::Logging::Loggable
-			, private std::enable_shared_from_this<Core> {
+			, protected Utility::Logging::Loggable {
 			friend CPU;
 
 			/**
@@ -39,14 +38,6 @@ namespace EnergyManager {
 			std::map<unsigned int, std::map<std::string, std::chrono::system_clock::duration>> lastUtilizationRateUpdateProcStatValues_;
 
 			/**
-			 * Creates a new Core.
-			 * @param cpu The CPU that the core belongs to.
-			 * @param id The ID of the core.
-			 * @param coreID The ID of the core in the current CPU.
-			 */
-			explicit Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID);
-
-			/**
 			 * Gets a `/proc/stat` timespan.
 			 * @param name The name of the timespan.
 			 * @return The timespan.
@@ -62,6 +53,14 @@ namespace EnergyManager {
 			static std::shared_ptr<Core> getCore(CPU* cpu, const unsigned int& id);
 
 		protected:
+			/**
+			 * Creates a new Core.
+			 * @param cpu The CPU that the core belongs to.
+			 * @param id The ID of the core.
+			 * @param coreID The ID of the core in the current CPU.
+			 */
+			explicit Core(CPU* cpu, const unsigned int& id, const unsigned int& coreID);
+
 			std::vector<std::string> generateHeaders() const override;
 
 		public:
