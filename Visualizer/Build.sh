@@ -1,6 +1,6 @@
 #!/bin/bash
 
-conda env create --prefix "$1/CondaEnvironment" --file "$2/environment.yml"
-"$1/CondaEnvironment/bin/jupyter" labextension install @jupyter-widgets/jupyterlab-manager
-"$1/CondaEnvironment/bin/jupyter" labextension install @jupyterlab/toc
-"$1/CondaEnvironment/bin/jupyter" labextension install jupyter-matplotlib
+"$1" env create --prefix "$2/CondaEnvironment" --file "$3/environment.yml"
+"$2/CondaEnvironment/bin/jupyter" labextension install @jupyter-widgets/jupyterlab-manager
+"$2/CondaEnvironment/bin/jupyter" labextension install @jupyterlab/toc
+"$2/CondaEnvironment/bin/jupyter" labextension install jupyter-matplotlib

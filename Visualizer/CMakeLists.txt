@@ -4,7 +4,7 @@ message(STATUS "Conda: ${CONDA}")
 # Add the environment
 add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/CondaEnvironment"
-        COMMAND "/bin/bash" "${CMAKE_CURRENT_SOURCE_DIR}/Build.sh" "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMAND "/bin/bash" "${CONDA}" "${CMAKE_CURRENT_SOURCE_DIR}/Build.sh" "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 # Set up the target
