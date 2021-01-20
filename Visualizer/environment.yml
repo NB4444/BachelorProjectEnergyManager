@@ -1,4 +1,4 @@
-name: EnergyManager-Visualizer
+name: /data/Cloud/Nextcloud/Development/Projects/EnergyManager/cmake-build-release-gcc-8/Visualizer/CondaEnvironment
 channels:
   - conda-forge
   - defaults
@@ -37,7 +37,7 @@ dependencies:
   - intel-openmp=2020.2=254
   - ipykernel=5.3.4=py38h1cdfbd6_1
   - ipympl=0.5.8=pyh9f0ad1d_0
-  - ipython=7.19.0=py38h81c977d_0
+  - ipython=7.19.0=py38h81c977d_2
   - ipython_genutils=0.2.0=py_1
   - ipywidgets=7.5.1=py_1
   - jedi=0.17.2=py38h32f6830_1
@@ -141,21 +141,16 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.5=h9ceee32_0
   - pip:
-      - bottle==0.12.19
-      - colorama==0.4.4
-      - conan==1.31.3
-      - deprecation==2.0.7
-      - distro==1.5.0
-      - fasteners==0.15
-      - future==0.18.2
-      - monotonic==1.5
-      - mplcursors==0.3
-      - mpldatacursor==0.7.1
-      - node-semver==0.6.1
-      - patch-ng==1.17.4
-      - pluginbase==1.0.0
-      - pyjwt==1.7.1
-      - pyyaml==5.3.1
-      - setuptools==50.3.2
-      - tqdm==4.53.0
-prefix: /home/qub1/anaconda3/envs/Visualizer
+    - colorama==0.4.4
+    - conan==1.31.3
+    - deprecation==2.0.7
+    - distro==1.5.0
+    - fasteners==0.15
+    - mplcursors==0.3
+    - mpldatacursor==0.7.1
+    - node-semver==0.6.1
+    - pyjwt==1.7.1
+    - pyyaml==5.3.1
+    - setuptools==50.3.2
+    - tqdm==4.53.0
+prefix: /data/Cloud/Nextcloud/Development/Projects/EnergyManager/cmake-build-release-gcc-8/Visualizer/CondaEnvironment
