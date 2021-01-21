@@ -11,7 +11,7 @@ int main(int argumentCount, char* argumentValues[]) {
 
 	// Run the tests
 	matrixMultiply(arguments);
-	//kMeans(arguments);
+	kMeans(arguments);
 	//jacobi(arguments);
 
 	return 0;

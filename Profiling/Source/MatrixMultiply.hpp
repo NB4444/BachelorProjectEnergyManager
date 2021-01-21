@@ -101,8 +101,8 @@ void matrixMultiplyEnergyMonitorMediumSmart(const std::map<std::string, std::str
 
 void matrixMultiply(const std::map<std::string, std::string>& arguments) {
 	// Control data
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(matrixMultiplyControlShort(arguments));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(matrixMultiplyControlMedium(arguments));
+	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(matrixMultiplyControlShort(arguments));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(matrixMultiplyControlMedium(arguments));
 
 	// Fixed frequency data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(matrixMultiplyFixedFrequenciesShort(arguments));
