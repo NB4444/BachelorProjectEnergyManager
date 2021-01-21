@@ -24,7 +24,6 @@ namespace EnergyManager {
 					{ core_ },
 					gpu_,
 					true,
-					false,
 					false);
 				application.setGroupID(1000);
 				application.setUserID(1000);

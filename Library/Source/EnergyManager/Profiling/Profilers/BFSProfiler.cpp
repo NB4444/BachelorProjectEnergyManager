@@ -7,7 +7,7 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void BFSProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				Utility::Application(std::string(RODINIA_DIRECTORY) + "/cuda/bfs/bfs", std::vector<std::string> { profile.at("file") }, { core_ }, gpu_, true, true, true).run();
+				Utility::Application(std::string(RODINIA_DIRECTORY) + "/cuda/bfs/bfs", std::vector<std::string> { profile.at("file") }, { core_ }, gpu_, true, true).run();
 			}
 
 			BFSProfiler::BFSProfiler(const std::map<std::string, std::string>& arguments)

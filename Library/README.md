@@ -4,7 +4,7 @@ The Library contains all core functionality provided by the EnergyManager.
 
 ## Usage
 
-This section outlines common use cases for the Library along with detailed instructions.
+This section outlinescommon use cases for the Library along with detailed instructions.
 
 ### Profiling an Application
 

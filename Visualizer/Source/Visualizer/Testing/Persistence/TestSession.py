@@ -1,4 +1,5 @@
 from functools import cached_property
+
 from typing import List, Dict
 
 from Visualizer.Monitoring.Persistence.ProfilerSession import ProfilerSession

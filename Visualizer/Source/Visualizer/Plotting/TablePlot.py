@@ -1,7 +1,6 @@
-from typing import Any, List
-
 import pandas
 from IPython.display import display
+from typing import Any, List
 
 from Visualizer.Plotting.Plot import Plot
 

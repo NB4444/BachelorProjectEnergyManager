@@ -150,14 +150,21 @@ namespace EnergyManager {
 				cParameters.push_back(nullptr);
 
 				// Start the application
-				if(injectReporter_ || injectEAR_) {
+				bool injectEAR =
+#ifdef EAR_ENABLED
+					true
+#else
+					false
+#endif
+					;
+				if(injectReporter_ || injectEAR) {
 					logTrace("Injecting libraries...");
 					std::vector<std::string> librariesToInject = {};
 					if(injectReporter_) {
 						//librariesToInject.push_back(REPORTER_LIBRARY_DEPENDENCIES);
 						librariesToInject.push_back(REPORTER_LIBRARY);
 					}
-					if(injectEAR_) {
+					if(injectEAR) {
 						librariesToInject.push_back(EAR_LIBRARIES);
 						librariesToInject.push_back(EAR_DAEMON_LIBRARIES);
 					}
@@ -204,15 +211,13 @@ namespace EnergyManager {
 			std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity,
 			std::shared_ptr<Hardware::GPU> gpu,
 			const bool& logOutput,
-			const bool& injectReporter,
-			const bool& injectEAR)
+			const bool& injectReporter)
 			: path_(std::move(path))
 			, parameters_(std::move(parameters))
 			, affinity_(std::move(affinity))
 			, gpu_(std::move(gpu))
 			, logOutput_(logOutput)
-			, injectReporter_(injectReporter)
-			, injectEAR_(injectEAR) {
+			, injectReporter_(injectReporter) {
 		}
 
 		Application::Application(const Application& application) : Application(application.path_, application.parameters_, application.affinity_, application.gpu_) {

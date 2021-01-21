@@ -17,7 +17,6 @@ namespace EnergyManager {
 					{ core_ },
 					gpu_,
 					true,
-					true,
 					true)
 					.run();
 			}

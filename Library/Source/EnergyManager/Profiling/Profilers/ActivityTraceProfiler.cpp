@@ -9,7 +9,7 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void ActivityTraceProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				Utility::Application(std::string(CUDA_CUPTI_SAMPLES_DIRECTORY) + "/activity_trace_async/activity_trace_async", std::vector<std::string> {}, { core_ }, gpu_, true, true, true).run();
+				Utility::Application(std::string(CUDA_CUPTI_SAMPLES_DIRECTORY) + "/activity_trace_async/activity_trace_async", std::vector<std::string> {}, { core_ }, gpu_, true, true).run();
 			}
 
 			ActivityTraceProfiler::ActivityTraceProfiler(const std::map<std::string, std::string>& arguments)
