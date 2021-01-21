@@ -2,45 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/sshConfigs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/Presentation 2020-11-13.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/codeStyles/Project.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Hardware/GPU.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/MonitorSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Persistence/ProfilerSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/FixedFrequencyProfiler.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Monitoring/Profilers/Profiler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Persistence/Entity.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Library/Source/EnergyManager/Testing/Persistence/TestSession.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/BFS/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/BFS/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/KMeans/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/KMeans/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Profiling/MatrixMultiply/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Profiling/MatrixMultiply/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Resources/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/ActiveInactive/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/ActiveInactive/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/AllocateFree/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/AllocateFree/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/FixedFrequencyMatrixMultiply/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/MatrixMultiply/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/MatrixMultiply/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/Ping/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/Ping/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAdd/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAdd/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Tests/VectorAddSubtract/Source/Main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../EnergyManager/Training/MatrixMultiply/Source/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../EnergyManager/Training/MatrixMultiply/Source/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ClockRateEffects.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ClockRateEffects.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ClockRateHistogram.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ClockRateHistogram.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/DataSetOverview.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/DataSetOverview.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ProfilerSessionVisualizer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ProfilerSessionVisualizer.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/ControlledDataSet.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/ControlledDataSet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/DataSet.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/DataSet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/ProfilerSession.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence/ProfilerSession.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/AxesPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/AxesPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/BarPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/BarPlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/LinePlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/LinePlot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Visualizer/Plotting/ScatterPlot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Visualizer/Plotting/ScatterPlot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,10 +33,11 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="$PROJECT_DIR$/Resources/Scripts/VisualizerNotebook.sh&#10;/data/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/Visualizer/Resources/Scripts/VisualizeNotebook.sh" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Source/Visualizer/Plotting" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" />
   </component>
@@ -139,9 +102,9 @@
     </configuration>
     <list>
       <item itemvalue="Python.Visualizer" />
-      <item itemvalue="Shell Script.Clean" />
       <item itemvalue="Shell Script.Visualize" />
       <item itemvalue="Shell Script.VisualizeNotebook" />
+      <item itemvalue="Shell Script.Clean" />
     </list>
     <recent_temporary>
       <list>
@@ -196,6 +159,7 @@
       <workItem from="1605143306698" duration="14253000" />
       <workItem from="1605183831295" duration="3456000" />
       <workItem from="1605546612372" duration="8000" />
+      <workItem from="1611190560796" duration="8000" />
     </task>
     <servers />
   </component>
