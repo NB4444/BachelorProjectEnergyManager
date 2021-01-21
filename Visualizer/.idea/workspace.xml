@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="" />
+    <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../Library/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../Library/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,22 +38,24 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="$PROJECT_DIR$/Resources/Scripts/VisualizerNotebook.sh&#10;/data/Cloud/Nextcloud/Education/Vrije Universiteit/Master Project/Project/Visualizer/Resources/Scripts/VisualizeNotebook.sh" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Source/Notebooks/SURF" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/Source/VisualizerNotebook.ipynb" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Source/Notebooks/SURF" />
       <recent name="$PROJECT_DIR$/Source/Visualizer/Plotting" />
       <recent name="$PROJECT_DIR$/Source/Visualizer" />
       <recent name="$PROJECT_DIR$/Source" />
       <recent name="$PROJECT_DIR$/Resources/Scripts" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Source/Notebooks/Thesis" />
+      <recent name="$PROJECT_DIR$/Source/Notebooks" />
       <recent name="$PROJECT_DIR$/Source" />
       <recent name="$PROJECT_DIR$/Source/Visualizer/Monitoring/Persistence" />
       <recent name="$PROJECT_DIR$/Source/Visualizer/Plotting" />
-      <recent name="$PROJECT_DIR$/Source/Visualizer/Testing/Persistence" />
     </key>
   </component>
   <component name="RunManager" selected="Shell Script.VisualizeNotebook">
@@ -159,6 +164,7 @@
       <workItem from="1605546612372" duration="8000" />
       <workItem from="1611190560796" duration="8000" />
       <workItem from="1611190592209" duration="1274000" />
+      <workItem from="1611239665918" duration="651000" />
     </task>
     <servers />
   </component>
