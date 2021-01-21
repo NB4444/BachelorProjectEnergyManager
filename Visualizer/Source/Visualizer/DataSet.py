@@ -1,10 +1,10 @@
 # TODO: Fix function and graph names so that they represent x value type, then y value type and then z value type and not in the random orders they are now
 import collections
 from functools import cached_property
-from typing import List, OrderedDict
 
 from matplotlib import pyplot
 from numpy import array, mean, median
+from typing import List, OrderedDict
 
 from Visualizer.Monitoring.Persistence.ProfilerSession import ProfilerSession
 from Visualizer.Plotting.HistogramPlot import HistogramPlot

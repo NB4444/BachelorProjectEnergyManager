@@ -52,11 +52,6 @@ namespace EnergyManager {
 			bool injectReporter_;
 
 			/**
-			 * Whether or not to inject the EAR library.
-			 */
-			bool injectEAR_;
-
-			/**
 			 * The pipe of the current executable.
 			 */
 			pid_t processID_;
@@ -87,7 +82,6 @@ namespace EnergyManager {
 			 * @param gpu The GPU to use.
 			 * @param logOutput Whether to log the output.
 			 * @param injectReporter Whether to inject the reporter application.
-			 * @param injectEAR Whether to inject the EAR library.
 			 */
 			explicit Application(
 				std::string path,
@@ -95,8 +89,7 @@ namespace EnergyManager {
 				std::vector<std::shared_ptr<Hardware::CentralProcessor>> affinity = {},
 				std::shared_ptr<Hardware::GPU> gpu = nullptr,
 				const bool& logOutput = false,
-				const bool& injectReporter = false,
-				const bool& injectEAR = false);
+				const bool& injectReporter = false);
 
 			/**
 			 * Copies the Application.

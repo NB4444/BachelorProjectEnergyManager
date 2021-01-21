@@ -1,8 +1,8 @@
 import collections
-from enum import Enum
-from typing import Any, OrderedDict
 
+from enum import Enum
 from matplotlib import pyplot
+from typing import Any, OrderedDict
 
 from Visualizer.DataSet import DataSet
 from Visualizer.Plotting.Plot import Plot

@@ -7,7 +7,7 @@ namespace EnergyManager {
 	namespace Profiling {
 		namespace Profilers {
 			void CUBLASProfiler::onProfile(const std::map<std::string, std::string>& profile) {
-				Utility::Application(std::string(CUDA_SAMPLES_DIRECTORY) + "/7_CUDALibraries/simpleCUBLAS/simpleCUBLAS", {}, { core_ }, gpu_, true, true, true).run();
+				Utility::Application(std::string(CUDA_SAMPLES_DIRECTORY) + "/7_CUDALibraries/simpleCUBLAS/simpleCUBLAS", {}, { core_ }, gpu_, true, true).run();
 			}
 
 			CUBLASProfiler::CUBLASProfiler(const std::map<std::string, std::string>& arguments)
