@@ -28,11 +28,11 @@ namespace EnergyManager {
 					CPU_SET(core, &mask);
 				}
 
-				Utility::Logging::logInformation("Setting EAR CPU frequency...");
+				Utility::Logging::logDebug("Setting EAR CPU frequency...");
 
 				int status = ear_set_cpufreq(&mask, clockRate.convertPrefix(Utility::Units::SIPrefix::KILO));
-				if(status != 0) {
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set CPU frequency: " + Text::toString(status));
+				if(status != EAR_SUCCESS) {
+					Utility::Logging::logWarning("Could not set EAR CPU frequency: %d", status);
 				}
 
 				ear_disconnect();
@@ -52,11 +52,11 @@ namespace EnergyManager {
 #ifdef EAR_ENABLED
 				ear_connect();
 
-				Utility::Logging::logInformation("Setting EAR GPU frequency...");
+				Utility::Logging::logDebug("Setting EAR GPU frequency...");
 
-				int status = ear_set_gpufreq(static_cast<int>(gpu), clockRate.convertPrefix(Utility::Units::SIPrefix::MEGA));
-				if(status != 0) {
-					ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Could not set GPU frequency: " + Text::toString(status));
+				int status = ear_set_gpufreq(static_cast<int>(gpu), clockRate.convertPrefix(Utility::Units::SIPrefix::KILO));
+				if(status != EAR_SUCCESS && status != -21) {
+					Utility::Logging::logWarning("Could not set EAR GPU frequency: %d", status);
 				}
 
 				ear_disconnect();

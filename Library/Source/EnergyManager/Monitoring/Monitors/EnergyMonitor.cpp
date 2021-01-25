@@ -141,13 +141,17 @@ namespace EnergyManager {
 						case State::CPU_BUSY_WAIT:
 							// If the CPU is idle or in a busy wait, set the frequency to about 20 percent of the max value.
 							core_->getCPU()->setTurboEnabled(false);
-							core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
-							core_->getCPU()->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue());
+							core_->setCoreClockRate(
+								core_->getMinimumCoreClockRate(),
+								std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getMaximumCoreClockRate().toValue()));
+							core_->getCPU()->setCoreClockRate(
+								core_->getMinimumCoreClockRate(),
+								std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue()));
 							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
 							break;
 						case State::GPU_IDLE:
 							// GPU is waiting for work, set the frequency to about 20 percent of the max value
-							gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue());
+							gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue()));
 							break;
 						case State::BUSY:
 							if(!smartPolicy_) {
@@ -163,8 +167,12 @@ namespace EnergyManager {
 								// If we're idle we can cap all execution frequencies
 								core_->getCPU()->setTurboEnabled(false);
 								core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
-								core_->getCPU()->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue());
-								gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue());
+								core_->getCPU()->setCoreClockRate(
+									core_->getMinimumCoreClockRate(),
+									std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue()));
+								gpu_->setCoreClockRate(
+									gpu_->getMinimumCoreClockRate(),
+									std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue()));
 							}
 							break;
 						case State::UNKNOWN:

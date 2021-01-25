@@ -1,6 +1,5 @@
 from datetime import datetime
 from functools import cached_property
-
 from typing import Dict, List, Tuple
 
 from Visualizer.Monitoring.Persistence.MonitorSession import MonitorSession

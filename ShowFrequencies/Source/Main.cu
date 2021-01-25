@@ -157,7 +157,7 @@ int main() {
 	ear_connect();
 
 	std::cout << "Setting CPU frequency to 2.6 GHz..." << std::endl;
-	ear_set_cpufreq(&mask, 2600 * 1e3);
+	std::cout << "Status: " << ear_set_cpufreq(&mask, 2600 * 1e3) << std::endl;
 
 	for(unsigned int attempt = 0; attempt < 30; ++attempt) {
 		// Do pass default stream
@@ -171,11 +171,11 @@ int main() {
 	cudaDeviceSynchronize();
 	cudaDeviceReset();
 
-	std::cout << "Waiting 30 seconds..." << std::endl;
-	usleep(30 * 1e6);
+	std::cout << "Waiting 10 seconds..." << std::endl;
+	usleep(10 * 1e6);
 
 	std::cout << "Setting CPU frequency to 2 GHz..." << std::endl;
-	ear_set_cpufreq(&mask, 2 * 1e6);
+	std::cout << "Status: " << ear_set_cpufreq(&mask, 2 * 1e6) << std::endl;
 
 	for(unsigned int attempt = 0; attempt < 30; ++attempt) {
 		// Do pass default stream
@@ -189,11 +189,11 @@ int main() {
 	cudaDeviceSynchronize();
 	cudaDeviceReset();
 
-	std::cout << "Waiting 30 seconds..." << std::endl;
-	usleep(30 * 1e6);
+	std::cout << "Waiting 10 seconds..." << std::endl;
+	usleep(10 * 1e6);
 
 	std::cout << "Setting GPU frequency to 135 MHz..." << std::endl;
-	ear_set_gpufreq(0, 135 * 1e3);
+	std::cout << "Status: " << ear_set_gpufreq(0, 135 * 1e3) << std::endl;
 
 	for(unsigned int attempt = 0; attempt < 30; ++attempt) {
 		// Do pass default stream
@@ -207,11 +207,11 @@ int main() {
 	cudaDeviceSynchronize();
 	cudaDeviceReset();
 
-	std::cout << "Waiting 30 seconds..." << std::endl;
-	usleep(30 * 1e6);
+	std::cout << "Waiting 10 seconds..." << std::endl;
+	usleep(10 * 1e6);
 
 	std::cout << "Setting GPU frequency to 1245 MHz..." << std::endl;
-	ear_set_gpufreq(0, 1245 * 1e3);
+	std::cout << "Status: " << ear_set_gpufreq(0, 1245 * 1e3) << std::endl;
 
 	for(unsigned int attempt = 0; attempt < 30; ++attempt) {
 		// Do pass default stream
@@ -225,8 +225,8 @@ int main() {
 	cudaDeviceSynchronize();
 	cudaDeviceReset();
 
-	std::cout << "Waiting 30 seconds..." << std::endl;
-	usleep(30 * 1e6);
+	std::cout << "Waiting 10 seconds..." << std::endl;
+	usleep(10 * 1e6);
 
 	running = false;
 	thread.join();

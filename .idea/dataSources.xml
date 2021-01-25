@@ -5,7 +5,7 @@
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/Resources/Data/Database.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/EnergyManager-Resources/Database.sqlite</jdbc-url>
       <auto-close enable="true" timeout="30" />
     </data-source>
     <data-source source="LOCAL" name="TestDatabase.sqlite" uuid="0cd52f12-25e6-4964-852b-fad1761fe1dc">

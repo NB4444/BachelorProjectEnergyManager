@@ -1,10 +1,10 @@
 # TODO: Fix function and graph names so that they represent x value type, then y value type and then z value type and not in the random orders they are now
 import collections
 from functools import cached_property
+from typing import List, OrderedDict
 
 from matplotlib import pyplot
 from numpy import array, mean, median
-from typing import List, OrderedDict
 
 from Visualizer.Monitoring.Persistence.ProfilerSession import ProfilerSession
 from Visualizer.Plotting.HistogramPlot import HistogramPlot
@@ -148,12 +148,14 @@ class DataSet(object):
                     profiler_session.profile["maximumCPUClockRate"] + profiler_session.profile["maximumGPUClockRate"])
         max_value = max(values, default=None)
         min_value = min(values, default=None)
+        difference = max_value - min_value
 
         return ScatterPlot(
             title="Runtime vs. Energy Consumption vs. Combined Clock Rates", plot_series=plot_series,
             x_label="Runtime (" + ("% of optimal" if normalized else "Seconds") + ")",
             y_label="Energy Consumption (" + ("% of optimal" if normalized else "Joules") + ")",
-            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
+            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (difference if difference > 0 else 0.001)) for
+                    value in
                     values] if len(values) > 0 else None,
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
@@ -184,12 +186,14 @@ class DataSet(object):
                     profiler_session.profile["maximumCPUClockRate"] + profiler_session.profile["maximumGPUClockRate"])
         max_value = max(values)
         min_value = min(values)
+        difference = max_value - min_value
 
         return ScatterPlot(
             title="Energy Consumption vs. FLOPs", plot_series=plot_series,
             x_label="FLOPs (" + ("% of optimal" if normalized else "Operations") + ")",
             y_label="Energy Consumption (" + ("% of optimal" if normalized else "Joules") + ")",
-            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
+            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (difference if difference > 0 else 0.001)) for
+                    value in
                     values] if len(values) > 0 else None,
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
@@ -220,13 +224,15 @@ class DataSet(object):
                     values.append(x_value + y_value)
         max_value = max(values, default=None)
         min_value = min(values, default=None)
+        difference = max_value - min_value
 
         return ScatterPlot(
             title="Core Frequency vs. GPU Frequency vs. Energy Consumption",
             plot_series=plot_series,
             x_label="Core Clock Rate (Hertz)", y_label="GPU Clock Rate (Hertz)",
             z_label="Energy Consumption (Joules)",
-            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
+            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (difference if difference > 0 else 0.001)) for
+                    value in
                     values] if len(values) > 0 else None,
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )
@@ -258,12 +264,14 @@ class DataSet(object):
                     values.append(x_value + y_value)
         max_value = max(values, default=None)
         min_value = min(values, default=None)
+        difference = max_value - min_value
 
         return ScatterPlot(
             title="Core Frequency vs. GPU Frequency vs. Runtime", plot_series=plot_series,
             x_label="Core Clock Rate (Hertz)",
             y_label="GPU Clock Rate (Hertz)", z_label="Runtime (Seconds)",
-            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (max_value - min_value)) for value in
+            colors=[pyplot.get_cmap("gist_rainbow")((value - min_value) / (difference if difference > 0 else 0.001)) for
+                    value in
                     values] if len(values) > 0 else None,
             labels=[profiler_session.plot_label(use_ear) for profiler_session in self.data]
         )

@@ -611,7 +611,7 @@ namespace EnergyManager {
 		}
 
 		void GPU::setCoreClockRate(const Utility::Units::Hertz& mininimumRate, const Utility::Units::Hertz& maximumRate) {
-			logDebug("Setting frequency range to [%lu, %lu]...", mininimumRate.toValue(), maximumRate.toValue());
+			logDebug("Setting clock rate range to [%f, %f]...", mininimumRate.toValue(), maximumRate.toValue());
 
 #ifdef EAR_ENABLED
 			Utility::EAR::setGPUClockRate(getID(), maximumRate);
@@ -641,10 +641,14 @@ namespace EnergyManager {
 		}
 
 		void GPU::resetCoreClockRate() {
+#ifdef EAR_ENABLED
+			logWarning("Resetting GPU clock rates is not supported when using EAR");
+#else
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
 
 			currentMinimumCoreClockRate_ = getMinimumCoreClockRate();
 			currentMaximumCoreClockRate_ = getMaximumCoreClockRate();
+#endif
 		}
 
 		Utility::Units::Hertz GPU::getMinimumCoreClockRate() const {

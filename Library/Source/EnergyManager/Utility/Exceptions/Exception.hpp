@@ -72,6 +72,7 @@ namespace EnergyManager {
 				 * @param operation The operation.
 				 * @param attempts The amount of attempts. Set to 0 to retry infinitely.
 				 * @param attemptInterval The time to wait between attempts.
+				 * @package attemptTimeout The maximum time an attempt can take. Set to 0 to allow an attempt to run forever.
 				 */
 				static void retry(
 					const std::function<void()>& operation,

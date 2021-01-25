@@ -1,5 +1,6 @@
-from matplotlib import pyplot, gridspec
 from typing import List
+
+from matplotlib import pyplot, gridspec
 
 from Visualizer.Plotting.FigurePlot import FigurePlot
 from Visualizer.Plotting.Plot import Plot

@@ -1,7 +1,3 @@
-# Enable EAR
-set(EAR_ENABLED TRUE)
-add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
-
 # Find the root directory
 set(EAR_DIRECTORY "$ENV{EAR_INSTALL_PATH}")
 message(STATUS "EAR directory: ${EAR_DIRECTORY}")
@@ -29,3 +25,12 @@ message(STATUS "EAR daemon libraries: ${EAR_DAEMON_LIBRARIES}")
 set(EAR_EACCT "${EAR_DIRECTORY}/bin/eacct")
 add_compile_definitions(EAR_EACCT="${EAR_EACCT}")
 message(STATUS "EAR eacct: ${EAR_EACCT}")
+
+# Enable EAR if available
+if (EXISTS ${EAR_DIRECTORY})
+    message(STATUS "EAR found, enabling EAR functionality")
+    set(EAR_ENABLED TRUE)
+    add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
+else ()
+    message(STATUS "EAR not found, disabling EAR functionality")
+endif ()

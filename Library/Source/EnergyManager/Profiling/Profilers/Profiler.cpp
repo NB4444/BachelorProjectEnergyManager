@@ -89,6 +89,7 @@ namespace EnergyManager {
 				try {
 					logDebug("Profiling workload...");
 					for(unsigned int iterationIndex = 0; iterationIndex < getIterationsPerRun(); ++iterationIndex) {
+						logInformation("Profiling iteration %d/%d...", iterationIndex + 1, getIterationsPerRun());
 						onProfile(profile);
 					}
 
@@ -200,6 +201,8 @@ namespace EnergyManager {
 						profile.find("maximumGPUClockRate") == profile.end() ? Utility::Units::Hertz() : Utility::Units::Hertz(std::stod(profile.at("maximumGPUClockRate"))),
 						std::chrono::milliseconds(50),
 						true);
+
+					logDebug("Retrieving SLURM job results...");
 					jobID = jobResults.jobID;
 					output = jobResults.output;
 
@@ -279,7 +282,8 @@ namespace EnergyManager {
 				// Show information about the current node
 #ifdef SLURM_ENABLED
 				logInformation("Program started with the following arguments:\n%s", Utility::Text::join(slurmArguments_, "\n", "=").c_str());
-				Utility::SLURM::logInformation();
+				// FIXME: This causes a crash for some reason
+				//Utility::SLURM::logInformation();
 #endif
 
 				// Check if this is the parent process

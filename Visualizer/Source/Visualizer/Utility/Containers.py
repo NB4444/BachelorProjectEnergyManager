@@ -1,7 +1,7 @@
 import collections
+from typing import List, Any, Dict
 
 import pandas
-from typing import List, Any, Dict
 
 
 def unique(list: List[Any]):
