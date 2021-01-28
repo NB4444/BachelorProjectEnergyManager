@@ -1,3 +1,4 @@
+#include "BFS.hpp"
 #include "Jacobi.hpp"
 #include "KMeans.hpp"
 #include "MatrixMultiply.hpp"
@@ -9,8 +10,9 @@ int main(int argumentCount, char* argumentValues[]) {
 	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
 
 	// Run the tests
-	//jacobi(arguments);
-	//kMeans(arguments);
+	bfs(arguments);
+	jacobi(arguments);
+	kMeans(arguments);
 	matrixMultiply(arguments);
 
 	return 0;
