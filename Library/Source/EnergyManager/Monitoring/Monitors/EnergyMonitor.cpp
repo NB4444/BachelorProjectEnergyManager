@@ -10,7 +10,7 @@
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
-			EnergyMonitor::State EnergyMonitor::deterimineState() {
+			EnergyMonitor::State EnergyMonitor::determineState() {
 				// Define the boundary above which values are considered "high" (inclusive)
 				const auto highBoundary = 10;
 
@@ -93,7 +93,7 @@ namespace EnergyManager {
 				std::map<std::string, std::string> results = {};
 
 				// Determine the state
-				auto currentState = deterimineState();
+				auto currentState = determineState();
 
 				// Store the state
 				std::string stateString;
@@ -123,7 +123,7 @@ namespace EnergyManager {
 				// Take action if the state changes
 				if(activeMode_ && currentState != lastState_) {
 					// Reset configured values to the defaults
-					if(smartPolicy_) {
+					if(systemPolicy_) {
 						core_->getCPU()->setTurboEnabled(true);
 						core_->resetCoreClockRate();
 						core_->getCPU()->resetCoreClockRate();
@@ -154,7 +154,7 @@ namespace EnergyManager {
 							gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue()));
 							break;
 						case State::BUSY:
-							if(!smartPolicy_) {
+							if(!systemPolicy_) {
 								// In the busy state set all frequencies to maximum
 								core_->getCPU()->setTurboEnabled(true);
 								core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
@@ -163,7 +163,7 @@ namespace EnergyManager {
 							}
 							break;
 						case State::IDLE:
-							if(!smartPolicy_) {
+							if(!systemPolicy_) {
 								// If we're idle we can cap all execution frequencies
 								core_->getCPU()->setTurboEnabled(false);
 								core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
@@ -193,12 +193,12 @@ namespace EnergyManager {
 				std::shared_ptr<Hardware::GPU> gpu,
 				const std::chrono::system_clock::duration& interval,
 				const bool& activeMode,
-				const bool& smartPolicy)
+				const bool& systemPolicy)
 				: Monitor("EnergyMonitor", interval)
 				, core_(std::move(core))
 				, gpu_(std::move(gpu))
 				, activeMode_(activeMode)
-				, smartPolicy_(smartPolicy) {
+				, systemPolicy_(systemPolicy) {
 			}
 		}
 	}

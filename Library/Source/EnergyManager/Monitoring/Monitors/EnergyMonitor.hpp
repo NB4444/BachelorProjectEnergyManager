@@ -69,13 +69,13 @@ namespace EnergyManager {
 				/**
 				 * Whether to use the smart policy.
 				 */
-				bool smartPolicy_;
+				bool systemPolicy_;
 
 				/**
 				 * Determines the state that is currently active.
 				 * @return
 				 */
-				State deterimineState();
+				State determineState();
 
 			protected:
 				std::map<std::string, std::string> onPoll() final;
@@ -87,14 +87,14 @@ namespace EnergyManager {
 				 * @param gpu The GPU to monitor.
 				 * @param interval The interval at which to poll the monitored variables.
 				 * @param activeMode Whether to run the monitor in active mode, where it changes frequency values to save energy.
-				 * @param smartPolicy Whether to enable the smart policy.
+				 * @param systemPolicy Whether to enable the system policy or the minmax policy.
 				 */
 				explicit EnergyMonitor(
 					std::shared_ptr<Hardware::Core> core,
 					std::shared_ptr<Hardware::GPU> gpu,
 					const std::chrono::system_clock::duration& interval,
 					const bool& activeMode = false,
-					const bool& smartPolicy = false);
+					const bool& systemPolicy = false);
 			};
 		}
 	}
