@@ -83,6 +83,10 @@ namespace EnergyManager {
 			stop(true);
 		}
 
+		std::chrono::system_clock::duration Loopable::getInterval() const {
+			return interval_;
+		}
+
 		std::chrono::system_clock::time_point Loopable::getLastLoopTimestamp() const {
 			return lastLoopTimestamp_;
 		}

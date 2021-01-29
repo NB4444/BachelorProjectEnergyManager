@@ -79,6 +79,12 @@ namespace EnergyManager {
 			~Loopable();
 
 			/**
+			 * Gets the interval at which the Loopable loops.
+			 * @return The interval.
+			 */
+			std::chrono::system_clock::duration getInterval() const;
+
+			/**
 			 * Gets the timestamp of the last loop operation.
 			 * @return The last loop timestamp.
 			 */

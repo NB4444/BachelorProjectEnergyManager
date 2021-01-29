@@ -140,7 +140,12 @@ namespace EnergyManager {
 
 				Logging::logDebug("Creating SLURM job...");
 
-				auto slurmGPUFrequency = static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::MEGA));
+				std::string slurmCPUFrequencyString
+					= (minimumCPUFrequency == Units::Hertz() ? "" : (Text::toString(static_cast<unsigned int>(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))) + "-"))
+					+ Text::toString(static_cast<unsigned int>(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)));
+
+				auto slurmGPUFrequency = static_cast<unsigned int>(gpuFrequency.convertPrefix(Units::SIPrefix::KILO));
+				std::string slurmGPUFrequencyString = slurmGPUFrequency == 0 ? "low" : Text::toString(slurmGPUFrequency);
 
 				// Write the job script
 				std::string command
@@ -197,19 +202,15 @@ namespace EnergyManager {
 
 					+ "srun"
 
-					  // Set the CPU frequency in SLURM
-					  // SLURM want the CPU frequency in KHz
-					  " --cpu-freq "
-					+ (maximumCPUFrequency == Units::Hertz()
-						   ? "2600000"
-						   : ((minimumCPUFrequency == Units::Hertz() ? "" : (Text::toString(static_cast<unsigned int>(minimumCPUFrequency.convertPrefix(Units::SIPrefix::KILO))) + "-"))
-							  + Text::toString(static_cast<unsigned int>(maximumCPUFrequency.convertPrefix(Units::SIPrefix::KILO)))))
+					// Set the CPU frequency in SLURM
+					// SLURM want the CPU frequency in KHz
+					+ (maximumCPUFrequency == Units::Hertz() ? "" : " --cpu-freq " + slurmCPUFrequencyString)
 
 					+ (gpus >= 0 ? " --gpus " + Text::toString(gpus) : "")
 
 					// Set the GPU frequency in SLURM
 					// SLURM wants the GPU frequency in MHz
-					+ (gpuFrequency == Units::Hertz() ? "" : (" --gpu-freq " + (slurmGPUFrequency == 0 ? "low" : Text::toString(slurmGPUFrequency))))
+					+ (gpuFrequency == Units::Hertz() ? "" : (" --gpu-freq " + slurmGPUFrequencyString))
 
 					+ (verbose ? " --verbose" : "")
 					+ " --job-name EnergyManager"

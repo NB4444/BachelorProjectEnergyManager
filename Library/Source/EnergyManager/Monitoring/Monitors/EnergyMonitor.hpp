@@ -72,6 +72,16 @@ namespace EnergyManager {
 				bool systemPolicy_;
 
 				/**
+				 * The amount of time between halfing the frequency.
+				 */
+				std::chrono::system_clock::duration halfingPeriod_;
+
+				/**
+				 * The amount of time between doubling the frequency.
+				 */
+				std::chrono::system_clock::duration doublingPeriod_;
+
+				/**
 				 * Determines the state that is currently active.
 				 * @return
 				 */
@@ -86,6 +96,8 @@ namespace EnergyManager {
 				 * @param core The Core to monitor.
 				 * @param gpu The GPU to monitor.
 				 * @param interval The interval at which to poll the monitored variables.
+				 * @param halfingPeriod The amount of time between frequency halfings.
+				 * @param doublingPeriod The amount of time between frequency doublings.
 				 * @param activeMode Whether to run the monitor in active mode, where it changes frequency values to save energy.
 				 * @param systemPolicy Whether to enable the system policy or the minmax policy.
 				 */
@@ -94,6 +106,8 @@ namespace EnergyManager {
 					std::shared_ptr<Hardware::GPU> gpu,
 					const std::chrono::system_clock::duration& interval,
 					const bool& activeMode = false,
+					const std::chrono::system_clock::duration& halfingPeriod = std::chrono::system_clock::duration(0),
+					const std::chrono::system_clock::duration& doublingPeriod = std::chrono::system_clock::duration(0),
 					const bool& systemPolicy = false);
 			};
 		}

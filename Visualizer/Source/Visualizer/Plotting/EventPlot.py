@@ -1,11 +1,10 @@
-from datetime import datetime
-from random import Random
-from typing import List, Tuple
-
 import matplotlib
 import numpy
+from datetime import datetime
 from matplotlib import pyplot
 from matplotlib.dates import date2num, AutoDateFormatter, AutoDateLocator
+from random import Random
+from typing import List, Tuple
 
 from Visualizer.Plotting.FigurePlot import FigurePlot
 

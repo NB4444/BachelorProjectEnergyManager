@@ -36,6 +36,8 @@ namespace EnergyManager {
 					if(profile.find("minimumCPUClockRate") != profile.end() && profile.find("maximumCPUClockRate") != profile.end()) {
 #ifndef SLURM_ENABLED
 						core->getCPU()->setTurboEnabled(false);
+#endif
+#if !defined(SLURM_ENABLED) || defined(EAR_ENABLED)
 						core->getCPU()->setCoreClockRate(std::stoul(profile.at("minimumCPUClockRate")), std::stoul(profile.at("maximumCPUClockRate")));
 #endif
 					}
@@ -70,7 +72,7 @@ namespace EnergyManager {
 #endif
 
 					if(profile.find("minimumGPUClockRate") != profile.end() && profile.find("maximumGPUClockRate") != profile.end()) {
-#if !defined(SLURM_ENABLED) && !defined(EAR_ENABLED)
+#if !defined(SLURM_ENABLED) || defined(EAR_ENABLED)
 						//gpu->setAutoBoostedClocksEnabled(false);
 						gpu->setCoreClockRate(std::stoul(profile.at("minimumGPUClockRate")), std::stoul(profile.at("maximumGPUClockRate")));
 #endif

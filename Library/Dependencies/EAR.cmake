@@ -28,9 +28,9 @@ message(STATUS "EAR eacct: ${EAR_EACCT}")
 
 # Enable EAR if available
 if (EXISTS ${EAR_DIRECTORY})
-    message(STATUS "EAR found, enabling EAR functionality")
-    set(EAR_ENABLED TRUE)
-    add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
+	message(STATUS "EAR found, enabling EAR functionality")
+	set(EAR_ENABLED TRUE)
+	add_compile_definitions(EAR_ENABLED="${EAR_ENABLED}")
 else ()
-    message(STATUS "EAR not found, disabling EAR functionality")
+	message(STATUS "EAR not found, disabling EAR functionality")
 endif ()

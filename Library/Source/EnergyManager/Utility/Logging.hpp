@@ -61,7 +61,7 @@ namespace EnergyManager {
 			/**
 			 * The logging levels that are enabled.
 			 */
-			static const std::vector<Level> enabledLogLevels = { /*Level::TRACE,*/ Level::DEBUG, Level::INFORMATION, Level::WARNING, Level::ERROR };
+			static const std::vector<Level> enabledLogLevels = { /*Level::TRACE, Level::DEBUG,*/ Level::INFORMATION, Level::WARNING, Level::ERROR };
 
 			/**
 			 * Registers a thread so that it's ID can be used.

@@ -9,16 +9,16 @@ message(STATUS "${TARGET_NAME} source files: ${SOURCE_FILES}")
 # Add and configure target
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 set_target_properties(
-        ${TARGET_NAME}
-        PROPERTIES
-        CUDA_SEPARABLE_COMPILATION ON
+	${TARGET_NAME}
+	PROPERTIES
+	CUDA_SEPARABLE_COMPILATION ON
 )
 target_include_directories(
-        ${TARGET_NAME}
-        PUBLIC "Source"
-        PUBLIC "../Library/Source"
+	${TARGET_NAME}
+	PUBLIC "Source"
+	PUBLIC "../Library/Source"
 )
 target_link_libraries(
-        ${TARGET_NAME}
-        PUBLIC "${PROJECT_NAME}-Library"
+	${TARGET_NAME}
+	PUBLIC "${PROJECT_NAME}-Library"
 )

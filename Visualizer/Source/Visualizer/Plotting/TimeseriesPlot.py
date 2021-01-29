@@ -1,6 +1,5 @@
-from typing import Any, OrderedDict
-
 from matplotlib import pyplot
+from typing import Any, OrderedDict
 
 from Visualizer.Plotting.LinePlot import LinePlot
 from Visualizer.Plotting.Plot import Plot

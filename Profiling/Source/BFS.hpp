@@ -14,21 +14,23 @@ void bfsControl(const std::map<std::string, std::string>& arguments, const unsig
 	const auto gpu = EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
 
 	auto profiler = EnergyManager::Profiling::Profilers::BFSProfiler(arguments);
-	std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
-	for(auto& profile : profiles) {
-		profile["minimumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
-		profile["maximumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
-		profile["minimumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
-		profile["maximumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
-	}
-	profiler.setProfiles(profiles);
+	//std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
+	//for(auto& profile : profiles) {
+	//	profile["minimumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
+	//	profile["maximumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
+	//	profile["minimumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
+	//	profile["maximumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
+	//}
+	//profiler.setProfiles(profiles);
 	profiler.setIterationsPerRun(iterations);
-	profiler.setRunsPerProfile(5);
+	profiler.setRunsPerProfile(1);
 	profiler.addMonitor(std::make_shared<EnergyManager::Monitoring::Monitors::EnergyMonitor>(
 		EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)),
 		EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0)),
 		energySavingInterval,
-		false));
+		false,
+		halfingPeriod,
+		doublingPeriod));
 
 	profiler.run();
 }
@@ -40,14 +42,27 @@ void bfsFixedFrequencies(std::map<std::string, std::string> arguments, const uns
 	arguments["--cpuCoreClockRatesToProfile"] = "7";
 	arguments["--gpuCoreClockRatesToProfile"] = "7";
 
+	const auto core = EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+	//const auto gpu = EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
+
 	auto profiler = EnergyManager::Profiling::Profilers::BFSProfiler(arguments);
+	std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
+	for(auto& profile : profiles) {
+		//profile["minimumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMinimumCoreClockRate());
+		profile["maximumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
+		//profile["minimumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMinimumCoreClockRate());
+		//profile["maximumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
+	}
+	profiler.setProfiles(profiles);
 	profiler.setIterationsPerRun(iterations);
 	profiler.setRunsPerProfile(1);
 	profiler.addMonitor(std::make_shared<EnergyManager::Monitoring::Monitors::EnergyMonitor>(
 		EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)),
 		EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0)),
 		energySavingInterval,
-		false));
+		false,
+		halfingPeriod,
+		doublingPeriod));
 
 	profiler.run();
 }
@@ -55,19 +70,32 @@ void bfsFixedFrequencies(std::map<std::string, std::string> arguments, const uns
 void bfsEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const bool& system) {
 	EnergyManager::Utility::Logging::logInformation("Profiling Jacobi energy monitor (%d iterations, smart %d)...", iterations, system);
 
+	const auto core = EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
+	//const auto gpu = EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0));
+
 	auto profiler = EnergyManager::Profiling::Profilers::BFSProfiler(arguments);
 	if(system) {
 		profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor System)");
 	} else {
 		profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor MinMax)");
 	}
+	std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
+	for(auto& profile : profiles) {
+		//profile["minimumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMinimumCoreClockRate());
+		profile["maximumCPUClockRate"] = EnergyManager::Utility::Text::toString(core->getMaximumCoreClockRate());
+		//profile["minimumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMinimumCoreClockRate());
+		//profile["maximumGPUClockRate"] = EnergyManager::Utility::Text::toString(gpu->getMaximumCoreClockRate());
+	}
+	profiler.setProfiles(profiles);
 	profiler.setIterationsPerRun(iterations);
-	profiler.setRunsPerProfile(2);
+	profiler.setRunsPerProfile(1);
 	profiler.addMonitor(std::make_shared<EnergyManager::Monitoring::Monitors::EnergyMonitor>(
 		EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)),
 		EnergyManager::Hardware::GPU::getGPU(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0)),
 		energySavingInterval,
 		true,
+		halfingPeriod,
+		doublingPeriod,
 		system));
 
 	profiler.run();
@@ -75,16 +103,16 @@ void bfsEnergyMonitor(const std::map<std::string, std::string>& arguments, const
 
 void bfs(const std::map<std::string, std::string>& arguments) {
 	const unsigned int shortIterations = 15;
-	const unsigned int mediumIterations = 75;
+	const unsigned int mediumIterations = 55;
 
 	// Control data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsControl(arguments, shortIterations));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsControl(arguments, mediumIterations));
-	
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsControl(arguments, mediumIterations));
+
 	// Energy monitor data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsEnergyMonitor(arguments, shortIterations, false));
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsEnergyMonitor(arguments, shortIterations, true));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsEnergyMonitor(arguments, mediumIterations, false));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsEnergyMonitor(arguments, mediumIterations, false));
 	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(bfsEnergyMonitor(arguments, mediumIterations, true));
 
 	// Fixed frequency data

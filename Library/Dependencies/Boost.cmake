@@ -1,13 +1,13 @@
 # Find Boost
 find_package(
-        Boost 1.70 REQUIRED
-        COMPONENTS
-        filesystem
-        math_c99
-        program_options
-        serialization
-        stacktrace_addr2line
-        unit_test_framework
+	Boost 1.70 REQUIRED
+	COMPONENTS
+	filesystem
+	math_c99
+	program_options
+	serialization
+	stacktrace_addr2line
+	unit_test_framework
 )
 
 # Find the include directory

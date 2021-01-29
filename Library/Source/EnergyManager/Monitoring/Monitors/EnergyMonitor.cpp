@@ -87,8 +87,47 @@ namespace EnergyManager {
 			}
 
 			std::map<std::string, std::string> EnergyMonitor::onPoll() {
-				// Define the amount to scale values with when setting frequencies for inactive states
-				const auto inactiveScaling = 0.2;
+				/**
+				 * To calculate the inactive scaling:
+				 * x=scaling factor
+				 * y=monitor intervals in halfing period
+				 * z=clock speed
+				 * Solve for x: x^y*z=0.5z
+				 */
+				const auto halfingPeriodMonitorIntervals = halfingPeriod_ / getInterval();
+				const auto inactiveScaling = std::pow(2.0, -1.0 / halfingPeriodMonitorIntervals);
+
+				/**
+				 * To calculate the busy scaling:
+				 * x=scaling factor
+				 * y=monitor intervals in doubling period
+				 * z=clock speed
+				 * Solve for x: x^y*z=2z
+				 */
+				const auto doublingPeriodsMonitorIntervals = doublingPeriod_ / getInterval();
+				const auto busyScaling = std::pow(2.0, 1.0 / doublingPeriodsMonitorIntervals);
+
+				// Functions responsible for scaling frequencies
+				const auto scaleCPUDown = [&] {
+					const auto clockRate = std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCoreClockRate().toValue());
+					core_->getCPU()->setTurboEnabled(false);
+					core_->setCoreClockRate(clockRate, clockRate);
+					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+				};
+				const auto scaleCPUUp = [&] {
+					const auto clockRate = std::min(core_->getMaximumCoreClockRate().toValue(), busyScaling * core_->getCoreClockRate().toValue());
+					core_->getCPU()->setTurboEnabled(false);
+					core_->setCoreClockRate(clockRate, clockRate);
+					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+				};
+				const auto scaleGPUDown = [&] {
+					const auto clockRate = std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getCoreClockRate().toValue());
+					gpu_->setCoreClockRate(clockRate, clockRate);
+				};
+				const auto scaleGPUUp = [&] {
+					const auto clockRate = std::min(gpu_->getMaximumCoreClockRate().toValue(), busyScaling * gpu_->getCoreClockRate().toValue());
+					gpu_->setCoreClockRate(clockRate, clockRate);
+				};
 
 				std::map<std::string, std::string> results = {};
 
@@ -139,40 +178,23 @@ namespace EnergyManager {
 					switch(currentState) {
 						case State::CPU_IDLE:
 						case State::CPU_BUSY_WAIT:
-							// If the CPU is idle or in a busy wait, set the frequency to about 20 percent of the max value.
-							core_->getCPU()->setTurboEnabled(false);
-							core_->setCoreClockRate(
-								core_->getMinimumCoreClockRate(),
-								std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getMaximumCoreClockRate().toValue()));
-							core_->getCPU()->setCoreClockRate(
-								core_->getMinimumCoreClockRate(),
-								std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue()));
-							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+							scaleCPUDown();
+							scaleGPUUp();
 							break;
 						case State::GPU_IDLE:
-							// GPU is waiting for work, set the frequency to about 20 percent of the max value
-							gpu_->setCoreClockRate(gpu_->getMinimumCoreClockRate(), std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue()));
+							scaleGPUDown();
+							scaleCPUUp();
 							break;
 						case State::BUSY:
 							if(!systemPolicy_) {
-								// In the busy state set all frequencies to maximum
-								core_->getCPU()->setTurboEnabled(true);
-								core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
-								core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
-								gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+								scaleCPUUp();
+								scaleGPUUp();
 							}
 							break;
 						case State::IDLE:
 							if(!systemPolicy_) {
-								// If we're idle we can cap all execution frequencies
-								core_->getCPU()->setTurboEnabled(false);
-								core_->setCoreClockRate(core_->getMinimumCoreClockRate(), inactiveScaling * core_->getMaximumCoreClockRate().toValue());
-								core_->getCPU()->setCoreClockRate(
-									core_->getMinimumCoreClockRate(),
-									std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCPU()->getMaximumCoreClockRate().toValue()));
-								gpu_->setCoreClockRate(
-									gpu_->getMinimumCoreClockRate(),
-									std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getMaximumCoreClockRate().toValue()));
+								scaleCPUDown();
+								scaleGPUDown();
 							}
 							break;
 						case State::UNKNOWN:
@@ -193,8 +215,12 @@ namespace EnergyManager {
 				std::shared_ptr<Hardware::GPU> gpu,
 				const std::chrono::system_clock::duration& interval,
 				const bool& activeMode,
+				const std::chrono::system_clock::duration& halfingPeriod,
+				const std::chrono::system_clock::duration& doublingPeriod,
 				const bool& systemPolicy)
 				: Monitor("EnergyMonitor", interval)
+				, halfingPeriod_(halfingPeriod)
+				, doublingPeriod_(doublingPeriod)
 				, core_(std::move(core))
 				, gpu_(std::move(gpu))
 				, activeMode_(activeMode)

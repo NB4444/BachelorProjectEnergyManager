@@ -9,18 +9,18 @@ message(STATUS "${TARGET_NAME} source files: ${SOURCE_FILES}")
 # Add and configure target
 add_library(${TARGET_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(
-        ${TARGET_NAME}
-        PROPERTIES
-        CUDA_SEPARABLE_COMPILATION ON
+	${TARGET_NAME}
+	PROPERTIES
+	CUDA_SEPARABLE_COMPILATION ON
 )
 target_include_directories(
-        ${TARGET_NAME}
-        PUBLIC "Source"
-        PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-        PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
+	${TARGET_NAME}
+	PUBLIC "Source"
+	PUBLIC "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
+	PUBLIC "${CUDA_CUPTI_INCLUDE_DIRECTORIES}"
 )
 target_link_libraries(
-        ${TARGET_NAME}
-        PUBLIC "cuda"
-        PUBLIC "${CUDA_CUPTI_LIBRARIES}"
+	${TARGET_NAME}
+	PUBLIC "cuda"
+	PUBLIC "${CUDA_CUPTI_LIBRARIES}"
 )

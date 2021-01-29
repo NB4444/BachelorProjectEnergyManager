@@ -1,6 +1,5 @@
-from typing import Dict, Any
-
 from matplotlib import pyplot
+from typing import Dict, Any
 
 from Visualizer.Plotting.FigurePlot import FigurePlot
 

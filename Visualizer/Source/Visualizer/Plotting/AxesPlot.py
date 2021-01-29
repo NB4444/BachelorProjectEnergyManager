@@ -1,14 +1,13 @@
 import collections
 import math
-from random import Random
-from typing import Any, List, OrderedDict
-
 import matplotlib
 import mplcursors
 from matplotlib import dates, pyplot
 from mpl_toolkits.mplot3d import Axes3D
 from mplcursors import Selection
 from natsort import natsorted
+from random import Random
+from typing import Any, List, OrderedDict
 
 from Visualizer.Plotting.FigurePlot import FigurePlot
 

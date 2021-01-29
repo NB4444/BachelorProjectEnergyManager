@@ -1,10 +1,9 @@
 import collections
 from datetime import datetime
 from functools import cached_property
-from typing import Dict, OrderedDict, Any, List, Type
-
 from numpy import median, array, mean
 from scipy.stats import mode
+from typing import Dict, OrderedDict, Any, List, Type
 
 from Visualizer.Persistence.Entity import Entity
 from Visualizer.Plotting.CorrelationsPlot import CorrelationsPlot

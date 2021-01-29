@@ -10,9 +10,9 @@ message(STATUS "SLURM scontrol: ${SLURM_SCONTROL}")
 
 # Enable SLURM if available
 if (EXISTS ${SLURM_SBATCH})
-    message(STATUS "SLURM found, enabling SLURM functionality")
-    set(SLURM_ENABLED TRUE)
-    add_compile_definitions(SLURM_ENABLED="${SLURM_ENABLED}")
+	message(STATUS "SLURM found, enabling SLURM functionality")
+	set(SLURM_ENABLED TRUE)
+	add_compile_definitions(SLURM_ENABLED="${SLURM_ENABLED}")
 else ()
-    message(STATUS "SLURM not found, disabling SLURM functionality")
+	message(STATUS "SLURM not found, disabling SLURM functionality")
 endif ()
