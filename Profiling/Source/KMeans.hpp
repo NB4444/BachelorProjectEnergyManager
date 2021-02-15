@@ -112,8 +112,8 @@ void kMeans(const std::map<std::string, std::string>& arguments) {
 	// Energy monitor data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, shortIterations, false));
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, shortIterations, true));
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, mediumIterations, false));
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, mediumIterations, true));
+	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, mediumIterations, false));
+	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansEnergyMonitor(arguments, mediumIterations, true));
 
 	// Fixed frequency data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(kMeansFixedFrequencies(arguments, shortIterations));

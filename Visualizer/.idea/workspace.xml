@@ -2,8 +2,31 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4bad1a96-70f0-4020-9442-b458208c89c1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../Tests/ActiveInactive/Source/Workloads/ActiveInactiveWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/ActiveInactive/Source/Workloads/ActiveInactiveWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/AllocateFree/Source/Workloads/AllocateFreeWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/AllocateFree/Source/Workloads/AllocateFreeWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/FixedFrequencyMatrixMultiply/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/FixedFrequencyMatrixMultiply/Source/Main.cu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/FixedFrequencyMatrixMultiply/Source/Tests/FixedFrequencyMatrixMultiplyTest.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/FixedFrequencyMatrixMultiply/Source/Tests/FixedFrequencyMatrixMultiplyTest.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/LinearRegression/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/LinearRegression/Source/Main.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/MatrixMultiply/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/MatrixMultiply/Source/Main.cu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/Ping/Source/Tests/PingTest.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/Ping/Source/Tests/PingTest.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/VectorAdd/Source/Workloads/VectorAddWorkload.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/VectorAdd/Source/Workloads/VectorAddWorkload.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/VectorAddSubtract/Source/Tests/VectorAddSubtractTest.cu" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Tests/VectorAddSubtract/Source/Tests/VectorAddSubtractTest.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/other.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../Library/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../Library/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Profiling/Source/Jacobi.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Profiling/Source/Jacobi.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Profiling/Source/KMeans.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Profiling/Source/KMeans.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/[Analyzer] Single Profiler Session.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/[Analyzer] Single Profiler Session.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/[Presentation] SURF.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Source/[Presentation] SURF.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,6 +188,8 @@
       <workItem from="1611190560796" duration="8000" />
       <workItem from="1611190592209" duration="1274000" />
       <workItem from="1611239665918" duration="651000" />
+      <workItem from="1612638894261" duration="87000" />
+      <workItem from="1612638990582" duration="80000" />
     </task>
     <servers />
   </component>

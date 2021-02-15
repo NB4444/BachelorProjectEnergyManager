@@ -107,13 +107,13 @@ void jacobi(const std::map<std::string, std::string>& arguments) {
 
 	// Control data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiControl(arguments, shortIterations));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiControl(arguments, mediumIterations));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiControl(arguments, mediumIterations));
 
 	// Energy monitor data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, shortIterations, false));
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, shortIterations, true));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, false));
-	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, true));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, false));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, true));
 
 	// Fixed frequency data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiFixedFrequencies(arguments, shortIterations));
