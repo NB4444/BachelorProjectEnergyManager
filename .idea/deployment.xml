@@ -1,36 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Lenox GCC (2d5e421d-9ad6-41d6-87b5-fff6779b55d1)" overwriteAll="false" deleteMissingItems="true" createEmptyFolders="true" traceLevel="ERRORS" autoUploadExternalChanges="true" showAutoUploadSettingsWarning="false">
-    <serverData>
-      <paths name="Lenox GCC (2d5e421d-9ad6-41d6-87b5-fff6779b55d1)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="EnergyManager" local="$PROJECT_DIR$" web="" />
-          </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/venv" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox-gcc" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox-gcc" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Library/cmake-build-default" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-gcc-8" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-lenox" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release" />
-            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-gcc-8" />
-            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
-          </excludedPaths>
-        </serverdata>
-      </paths>
-      <paths name="Lenox ICC (3c0aa416-6a57-43c6-8d9a-9a70a22f7045)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="EnergyManager" local="$PROJECT_DIR$" web="" />
-          </mappings>
-        </serverdata>
-      </paths>
-    </serverData>
+  <component name="PublishConfigData" autoUpload="Always" overwriteAll="false" deleteMissingItems="true" createEmptyFolders="true" traceLevel="ERRORS" autoUploadExternalChanges="true" showAutoUploadSettingsWarning="false">
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
