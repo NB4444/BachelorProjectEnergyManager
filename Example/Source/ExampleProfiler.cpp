@@ -60,7 +60,7 @@ ExampleProfiler::ExampleProfiler(const std::map<std::string, std::string>& argum
 		arguments) {
 	// We can configure the amount of iterations in a single profiling session - this means that within one single profiling session of one of the provided profiles, the onProfile function will be called this amount of times
 	// Setting this to a value higher than 1 can be useful if you want to investigate multiple executions of the same application, or if you want to warm up the cache
-	setIterationsPerRun(1);
+	setIterationsPerRun(3);
 
 	// We can also configure how often to repeat a profiling session
 	// This means that every profile of the provided profiles will be profiled this amount of times
