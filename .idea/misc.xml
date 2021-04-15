@@ -5,6 +5,7 @@
     <sourceRoots>
       <file path="$PROJECT_DIR$/EARTest/Source" />
       <file path="$PROJECT_DIR$/EventReporter/Source" />
+      <file path="$PROJECT_DIR$/Example/Source" />
       <file path="$PROJECT_DIR$/Library/Console/Source" />
       <file path="$PROJECT_DIR$/Library/Source" />
       <file path="$PROJECT_DIR$/MetricReporter/Source" />
@@ -43,6 +44,7 @@
       <file path="$PROJECT_DIR$/Visualizer/.idea" />
       <file path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
       <file path="$PROJECT_DIR$/Visualizer/venv" />
+      <file path="$PROJECT_DIR$/cmake-build" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

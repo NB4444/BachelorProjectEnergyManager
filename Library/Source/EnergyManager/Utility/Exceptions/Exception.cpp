@@ -3,7 +3,7 @@
 #include "EnergyManager/Utility/Logging.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/stacktrace.hpp>
+//#include <boost/stacktrace.hpp>
 #include <csignal>
 #include <unistd.h>
 #include <utility>
@@ -26,8 +26,8 @@ namespace EnergyManager {
 						std::ifstream input(backtraceFile_);
 
 						// Extract the stacktrace and display it
-						auto stacktrace = boost::stacktrace::stacktrace::from_dump(input);
-						Logging::logWarning("Previous run appears to have crashed with the following stacktrace:\n%s", boost::stacktrace::to_string(stacktrace).c_str());
+						//auto stacktrace = boost::stacktrace::stacktrace::from_dump(input);
+						//Logging::logWarning("Previous run appears to have crashed with the following stacktrace:\n%s", boost::stacktrace::to_string(stacktrace).c_str());
 					}
 
 					// Clean up the file
@@ -36,10 +36,10 @@ namespace EnergyManager {
 			});
 
 			void Exception::signalHandler(int signalNumber) {
-				::signal(signalNumber, SIG_DFL);
-				boost::stacktrace::safe_dump_to(backtraceFile_.c_str());
-				Logging::logError("Program halted with signal number %d\n\nStacktrace:\n%s", __FILE__, __LINE__, signalNumber, boost::stacktrace::to_string(boost::stacktrace::stacktrace()).c_str());
-				exit(signalNumber);
+				//::signal(signalNumber, SIG_DFL);
+				//boost::stacktrace::safe_dump_to(backtraceFile_.c_str());
+				//Logging::logError("Program halted with signal number %d\n\nStacktrace:\n%s", __FILE__, __LINE__, signalNumber, boost::stacktrace::to_string(boost::stacktrace::stacktrace()).c_str());
+				//exit(signalNumber);
 			}
 
 			void Exception::retry(const std::function<void()>& operation, const unsigned int& attempts, const std::chrono::system_clock::duration& attemptInterval) {
@@ -95,11 +95,11 @@ namespace EnergyManager {
 				// Prepare the message
 				std::string message = getMessage();
 
-				// Collect the stacktrace, if any
-				const boost::stacktrace::stacktrace* stacktrace = boost::get_error_info<traced>(*this);
-				if(stacktrace) {
-					message += "\n" + boost::stacktrace::to_string(*stacktrace);
-				}
+				//// Collect the stacktrace, if any
+				//const boost::stacktrace::stacktrace* stacktrace = boost::get_error_info<traced>(*this);
+				//if(stacktrace) {
+				//	message += "\n" + boost::stacktrace::to_string(*stacktrace);
+				//}
 
 				// Show the error
 				logError(message, getFile(), getLine());

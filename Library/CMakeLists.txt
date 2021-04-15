@@ -1,15 +1,3 @@
-# TODO: Add necessary licenses for all libraries
-
-# Set up dependencies
-include(Dependencies/Boost.cmake)
-include(Dependencies/EAR.cmake)
-include(Dependencies/MPI.cmake)
-include(Dependencies/NVIDIACodeSamples.cmake)
-include(Dependencies/Rodinia.cmake)
-include(Dependencies/SLURM.cmake)
-include(Dependencies/SQLite.cmake)
-include(Dependencies/Threads.cmake)
-
 # Set up target
 set(TARGET_NAME "${PROJECT_NAME}-Library")
 
@@ -47,7 +35,7 @@ target_link_libraries(
 	PUBLIC "Threads::Threads"
 	PUBLIC "cuda"
 	PUBLIC "dl"
-	PUBLIC "irc"
+#	PUBLIC "irc"
 	PUBLIC "nvidia-ml"
 )
 if (DEFINED EAR_ENABLED)

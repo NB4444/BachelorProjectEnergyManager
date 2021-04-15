@@ -10,8 +10,8 @@ int main(int argumentCount, char* argumentValues[]) {
 	const auto arguments = EnergyManager::Utility::Text::parseArgumentsMap(argumentCount, argumentValues);
 
 	// Run the tests
-	bfs(arguments);
-	jacobi(arguments);
+	//bfs(arguments);
+	//jacobi(arguments);
 	kMeans(arguments);
 	matrixMultiply(arguments);
 

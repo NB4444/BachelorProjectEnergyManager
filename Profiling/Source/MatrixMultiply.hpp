@@ -2,9 +2,7 @@
 
 #include "Configuration.hpp"
 
-#include <EnergyManager/Monitoring/Monitors/EnergyMonitor.hpp>
-#include <EnergyManager/Profiling/Profilers/MatrixMultiplyProfiler.hpp>
-#include <EnergyManager/Utility/Text.hpp>
+#include <EnergyManager.hpp>
 #include <chrono>
 
 void matrixMultiplyControl(const std::map<std::string, std::string>& arguments, const unsigned int& iterations) {

@@ -8,7 +8,7 @@ namespace EnergyManager {
 		namespace Profilers {
 			void MatrixMultiplyProfiler::onProfile(const std::map<std::string, std::string>& profile) {
 				Utility::Application(
-					std::string(CUDA_SAMPLES_DIRECTORY) + "/0_Simple/matrixMul/matrixMul",
+					std::string(CUDA_SAMPLES_DIRECTORY) + "/Samples/matrixMul/matrixMul",
 					std::vector<std::string> { "-device=" + Utility::Text::toString(gpu_->getID()),
 											   "-wA=" + profile.at("matrixAWidth"),
 											   "-wB=" + profile.at("matrixBWidth"),

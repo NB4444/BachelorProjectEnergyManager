@@ -1,0 +1,17 @@
+#pragma once
+
+#include "EnergyManager/Benchmarking/Operations/AddGPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/AllocateCPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/AllocateGPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/AssignCPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/CPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/CopyCPUToGPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/CopyGPUToCPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/FreeCPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/FreeGPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/GPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/MemoryCPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/MemoryGPUOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/Operation.hpp"
+#include "EnergyManager/Benchmarking/Operations/SleepOperation.hpp"
+#include "EnergyManager/Benchmarking/Operations/SubtractGPUOperation.hpp"

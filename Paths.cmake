@@ -1,5 +1,5 @@
 # Find the resources directory
-set(PROJECT_RESOURCES_DIRECTORY "$ENV{HOME}/EnergyManager-Resources")
+set(PROJECT_RESOURCES_DIRECTORY "/EnergyManager/Resources")
 add_compile_definitions(PROJECT_RESOURCES_DIRECTORY="${PROJECT_RESOURCES_DIRECTORY}")
 message(STATUS "Project resources directory: ${PROJECT_RESOURCES_DIRECTORY}")
 

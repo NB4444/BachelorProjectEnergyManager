@@ -4,6 +4,23 @@ services:
     build:
       context: "."
       dockerfile: "./Dockerfile"
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
     restart: "unless-stopped"
     volumes:
-      - "./:/energymanager"
+      - "./:/EnergyManager"
+  energymanager-visualizer:
+    build:
+      context: "."
+      dockerfile: "./Visualizer/Dockerfile"
+    restart: "unless-stopped"
+    ports:
+      - "8888:8888"
+    volumes:
+      - "./:/EnergyManager"

@@ -1,6 +1,6 @@
 # Find Boost
 find_package(
-	Boost 1.70 REQUIRED
+	Boost 1.65 REQUIRED
 	COMPONENTS
 	filesystem
 	math_c99

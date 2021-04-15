@@ -7,13 +7,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-# Set up dependencies
+# Set up base dependencies
 include(Dependencies/CUDA.cmake)
 
 # Configure project paths
 include(Paths.cmake)
 
+# Set up dependencies
+include(Dependencies/Boost.cmake)
+include(Dependencies/EAR.cmake)
+include(Dependencies/MPI.cmake)
+include(Dependencies/NVIDIACodeSamples.cmake)
+include(Dependencies/Rodinia.cmake)
+include(Dependencies/SLURM.cmake)
+include(Dependencies/SQLite.cmake)
+include(Dependencies/Threads.cmake)
+
 # Add targets
+add_subdirectory(Example)
 add_subdirectory(Library)
 add_subdirectory(Profiling)
 add_subdirectory(Reporter)
