@@ -66,4 +66,10 @@ ExampleProfiler::ExampleProfiler(const std::map<std::string, std::string>& argum
 	// This means that every profile of the provided profiles will be profiled this amount of times
 	// Setting this to a value higher than 1 can be useful to ensure the repeatability of an experiment
 	setRunsPerProfile(1);
+	
+	// You can determine whether to randomize the profiling order of the provided profiles
+	// This may be useful to prevent all short tests from being at the start and long tests at the end or vice versa, which can cause the framework to provide inaccurate time estimations
+	// It is set to true by default
+	// We can set it to false here since we only run a few short tests
+	setRandomize(false);
 }
