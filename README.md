@@ -55,4 +55,5 @@ Whenever you re-start the framework the new profiler will be included and compil
 
 While the framework is running, you can visit [http://localhost:8888](http://localhost:8888) to access the Visualizer.
 The Visualizer contains notebooks to visualize the data generated during profiling sessions with the EnergyManager library.
-Before 
+Before running the notebooks be sure to have generated some data first!
+You can run the example application `EnergyManager/cmake-build-docker/Example/EnergyManager-Example` to generate some sample data.
