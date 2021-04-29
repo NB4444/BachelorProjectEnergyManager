@@ -499,10 +499,27 @@ namespace EnergyManager {
 		}
 
 		void GPU::setApplicationCoreClockRate(const Utility::Units::Hertz& rate) {
-			unsigned int memoryClockRate;
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate));
+			unsigned int memoryClockRate, nclocks, graphicClockRate, goalRate;
+			unsigned int clocksMHZ[127] = { 0 };
 
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, memoryClockRate, rate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_MEM, &memoryClockRate));
+			nclocks = 0;
+			nvmlDeviceGetSupportedGraphicsClocks(device_, memoryClockRate, &nclocks, nullptr);
+			nclocks = std::min(nclocks, (unsigned int) 127);
+			goalRate = (unsigned int) rate.convertPrefix(Utility::Units::SIPrefix::MEGA);
+			if (nclocks)
+				nvmlDeviceGetSupportedGraphicsClocks(device_, memoryClockRate, &nclocks, clocksMHZ);
+
+			for (uint8_t u=0; u < (uint8_t) nclocks; u++) {
+				// Array is in descending order, takes first rate that is under or equal to the goalRate.
+				if (clocksMHZ[u] <= goalRate) {
+					graphicClockRate = clocksMHZ[u];
+					break;
+				}
+				graphicClockRate = clocksMHZ[u];
+			}
+
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, memoryClockRate, graphicClockRate));
 		}
 
 		void GPU::resetApplicationCoreClockRate() {
@@ -523,8 +540,8 @@ namespace EnergyManager {
 		void GPU::setApplicationMemoryClockRate(const Utility::Units::Hertz& rate) {
 			unsigned int coreClockRate;
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceGetApplicationsClock(device_, nvmlClockType_enum::NVML_CLOCK_GRAPHICS, &coreClockRate));
-
-			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, rate.convertPrefix(Utility::Units::SIPrefix::MEGA), coreClockRate));
+			
+			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceSetApplicationsClocks(device_, (unsigned int) rate.convertPrefix(Utility::Units::SIPrefix::MEGA), coreClockRate));
 		}
 
 		void GPU::resetApplicationMemoryClockRate() {
@@ -616,8 +633,12 @@ namespace EnergyManager {
 #ifdef EAR_ENABLED
 			Utility::EAR::setGPUClockRate(getID(), maximumRate);
 #else
+	#ifdef false
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(
 				nvmlDeviceSetGpuLockedClocks(device_, mininimumRate.convertPrefix(Utility::Units::SIPrefix::MEGA), maximumRate.convertPrefix(Utility::Units::SIPrefix::MEGA)));
+	#else
+			setApplicationCoreClockRate(maximumRate);
+	#endif
 #endif
 
 			currentMinimumCoreClockRate_ = mininimumRate;
@@ -644,7 +665,11 @@ namespace EnergyManager {
 #ifdef EAR_ENABLED
 			logWarning("Resetting GPU clock rates is not supported when using EAR");
 #else
+	#ifdef false
 			ENERGY_MANAGER_HARDWARE_GPU_HANDLE_API_CALL(nvmlDeviceResetGpuLockedClocks(device_));
+	#else
+			resetApplicationCoreClockRate();
+	#endif
 
 			currentMinimumCoreClockRate_ = getMinimumCoreClockRate();
 			currentMaximumCoreClockRate_ = getMaximumCoreClockRate();

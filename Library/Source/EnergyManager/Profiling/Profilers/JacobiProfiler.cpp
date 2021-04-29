@@ -9,12 +9,12 @@ namespace EnergyManager {
 			void JacobiProfiler::onProfile(const std::map<std::string, std::string>& profile) {
 				auto application = Utility::Application(
 					std::string(MPI_MPIEXEC),
-					std::vector<std::string> { "-n",
+					std::vector<std::string> { "--allow-run-as-root", "-n",
 											   "1",
 											   "--bind-to",
 											   "core",
 											   "--report-bindings",
-											   std::string(NVIDIA_CODE_SAMPLES_DIRECTORY) + "/posts/cuda-aware-mpi-example/bin/jacobi_cuda_aware_mpi",
+											   std::string(NVIDIA_DEVELOPER_BLOG) + "/posts/cuda-aware-mpi-example/bin/jacobi_cuda_aware_mpi",
 											   "-t",
 											   profile.at("topologyWidth"),
 											   profile.at("topologyHeight"),
@@ -78,6 +78,9 @@ namespace EnergyManager {
 					arguments)
 				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
+					setIterationsPerRun(3);
+					setRunsPerProfile(1);
+					setRandomize(false);
 			}
 		}
 	}

@@ -25,6 +25,8 @@ namespace EnergyManager {
 			void NodeMonitor::onResetDevice() {
 				startEnergyConsumption_ = 0;
 				startEnergyConsumptionMeasured_ = false;
+				
+				node_->getEnergyConsumption();
 			}
 
 			NodeMonitor::NodeMonitor(const std::shared_ptr<Hardware::Node>& node, const std::chrono::system_clock::duration& interval) : DeviceMonitor("NodeMonitor", node, interval), node_(node) {

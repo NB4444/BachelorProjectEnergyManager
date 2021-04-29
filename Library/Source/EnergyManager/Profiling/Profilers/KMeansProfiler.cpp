@@ -34,6 +34,9 @@ namespace EnergyManager {
 					arguments)
 				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
+					setIterationsPerRun(3);
+					setRunsPerProfile(1);
+					setRandomize(false);
 			}
 		}
 	}

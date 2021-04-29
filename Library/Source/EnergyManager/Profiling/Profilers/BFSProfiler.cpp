@@ -12,7 +12,7 @@ namespace EnergyManager {
 
 			BFSProfiler::BFSProfiler(const std::map<std::string, std::string>& arguments)
 				: Profiler(
-					"BFS",
+					"BFSProfiler",
 					[&]() {
 						// Get hardware
 						const auto core = Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
@@ -35,6 +35,9 @@ namespace EnergyManager {
 					arguments)
 				, core_(Hardware::Core::getCore(Utility::Text::getArgument<unsigned int>(arguments, "--core", 0)))
 				, gpu_(Hardware::GPU::getGPU(Utility::Text::getArgument<unsigned int>(arguments, "--gpu", 0))) {
+					setIterationsPerRun(3);
+					setRunsPerProfile(1);
+					setRandomize(false);
 			}
 		}
 	}

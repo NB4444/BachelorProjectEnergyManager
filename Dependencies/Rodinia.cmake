@@ -1,5 +1,5 @@
 # Find the root directory
-set(RODINIA_DIRECTORY "$ENV{HOME}/rodinia_3.1")
+set(RODINIA_DIRECTORY "/applications/rodinia")
 add_compile_definitions(RODINIA_DIRECTORY="${RODINIA_DIRECTORY}")
 message(STATUS "Rodinia directory: ${RODINIA_DIRECTORY}")
 

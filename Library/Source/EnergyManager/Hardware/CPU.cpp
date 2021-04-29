@@ -15,6 +15,10 @@
 #include <utility>
 #include <vector>
 
+#define AMD_MSR_PWR_UNIT 0xC0010299
+#define AMD_MSR_CORE_ENERGY 0xC001029A
+#define AMD_MSR_PACKAGE_ENERGY 0xC001029B
+
 /**
  * More performance variables to monitor can be found at these sources:
  * | Tool              | Functionality                      | URL                                                                                                         |
@@ -178,12 +182,33 @@ namespace EnergyManager {
 		}
 
 		Utility::Units::Joule CPU::getEnergyConsumption() {
+#ifdef false
 			return Utility::Units::Joule(
 					   std::stod(Utility::Text::readFile("/sys/class/powercap/intel-rapl/intel-rapl:" + Utility::Text::toString(getID()) + "/energy_uj")),
 					   Utility::Units::SIPrefix::MICRO)
 				 - startEnergyConsumption_;
+#else
+			uint64_t data, powerunit;
+			char* msr_filename[BUFSIZ];
+			sprintf(reinterpret_cast<char*>(msr_filename), "/dev/cpu/%d/msr", getID());
+			int fd = open(reinterpret_cast<const char*>(msr_filename), O_RDONLY);
+			
+			if ( pread(fd, &data, sizeof data, AMD_MSR_PACKAGE_ENERGY) != sizeof data ) {
+				perror("rdmsr:pread");
+				exit(127);
+			}
+			
+			if ( pread(fd, &powerunit, sizeof powerunit, AMD_MSR_PWR_UNIT) != sizeof data ) {
+				perror("rdmsr:pread");
+				exit(127);
+			}
+			close(fd);
+			
+			double energy_unit = pow(0.5, (double)((powerunit>>8) &0x1f));
+			return Utility::Units::Joule((double) data * energy_unit) - startEnergyConsumption_;
+#endif
 		}
-
+		
 		Utility::Units::Hertz CPU::getMinimumCoreClockRate() const {
 			Utility::Units::Hertz minimum = 0;
 			bool found = false;

@@ -1,28 +1,26 @@
-#include "./ExampleProfiler.hpp"
+#include "./StreamclusterProfiler.hpp"
 
 #include <EnergyManager.hpp>
 
-void ExampleProfiler::onProfile(const std::map<std::string, std::string>& profile) {
+void StreamclusterProfiler::onProfile(const std::map<std::string, std::string>& profile) {
 	// The CPU to use to run the application
 	unsigned int cpuID = 0;
 
 	// The GPU to use to run the application
 	unsigned int gpuID = 0;
 
-	auto path = std::string(CUDA_SAMPLES_DIRECTORY) + "/Samples/matrixMul/matrixMul";
+	auto path = std::string(RODINIA_DIRECTORY) + "/cuda/streamcluster/sc_gpu";
 	EnergyManager::Utility::Logging::logInformation("Application path: %s", path.c_str());
 
 	EnergyManager::Utility::Application(
-		// The path to the application to launch, in this case we will be launching matrix multiply
-		std::string(CUDA_SAMPLES_DIRECTORY) + "/Samples/matrixMul/matrixMul",
+		// The path to the application to launch, in this case we will be launching streamcluster
+		std::string(RODINIA_DIRECTORY) + "/cuda/streamcluster/sc_gpu",
 
 		// The parameters to pass to the application
 		// We extract these values from the current profile
-		std::vector<std::string> { "-device=" + EnergyManager::Utility::Text::toString(gpuID),
-								   "-wA=" + profile.at("matrixAWidth"),
-								   "-wB=" + profile.at("matrixBWidth"),
-								   "-hA=" + profile.at("matrixAHeight"),
-								   "-hB=" + profile.at("matrixBHeight") },
+		std::vector<std::string> { profile.at("k1"), profile.at("k2"), profile.at("d"), profile.at("n"),
+								             profile.at("chunksize"), profile.at("clustersize"), profile.at("infile"),
+								   			 profile.at("outfile"), profile.at("nproc")},
 
 		// Pass the CPUs to use to run the application
 		{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
@@ -39,21 +37,16 @@ void ExampleProfiler::onProfile(const std::map<std::string, std::string>& profil
 		.run();
 }
 
-ExampleProfiler::ExampleProfiler(const std::map<std::string, std::string>& arguments)
+StreamclusterProfiler::StreamclusterProfiler(const std::map<std::string, std::string>& arguments)
 	: Profiler(
 		// The name of the profiler
-		"ExampleProfiler",
+		"StreamclusterProfiler",
 
 		// The profiles
 		{
-			// The first profiling session will multiply two matrices with all dimensions equal to 32
-			{ { "matrixAWidth", "32" }, { "matrixAHeight", "32" }, { "matrixBWidth", "32" }, { "matrixBHeight", "32" } },
-
-			// The second profiling session will multiply two matrices with all dimensions equal to 320
-			{ { "matrixAWidth", "320" }, { "matrixAHeight", "320" }, { "matrixBWidth", "320" }, { "matrixBHeight", "320" } },
-
-			// The last profiling session will multiply two matrices with all dimensions equal to 3200
-			{ { "matrixAWidth", "3200" }, { "matrixAHeight", "3200" }, { "matrixBWidth", "3200" }, { "matrixBHeight", "3200" } },
+			{ {"k1", "10"}, {"k2", "20"}, {"d", "256"}, {"n", "65536"},
+			  {"chunksize", "65536"}, {"clustersize", "1000"}, {"infile", "none"},
+			  {"outfile", "output.txt"}, {"nproc", "1"}  },
 		},
 
 		// We can forward the command line arguments here
