@@ -1,4 +1,4 @@
-#include "./StreamclusterProfiler.hpp"
+#include "./MyocyteProfiler.hpp"
 
 #include <EnergyManager.hpp>
 

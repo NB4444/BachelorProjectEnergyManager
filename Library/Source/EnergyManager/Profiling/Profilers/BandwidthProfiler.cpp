@@ -1,4 +1,4 @@
-#include "./StreamclusterProfiler.hpp"
+#include "./BandwidthProfiler.hpp"
 
 #include <EnergyManager.hpp>
 

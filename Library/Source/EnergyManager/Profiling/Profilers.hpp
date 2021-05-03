@@ -16,3 +16,4 @@
 #include "EnergyManager/Profiling/Profilers/NWProfiler.hpp"
 #include "EnergyManager/Profiling/Profilers/Particlefilter_floatProfiler.hpp"
 #include "EnergyManager/Profiling/Profilers/UnifiedMemoryPerfProfiler.hpp"
+#include "EnergyManager/Profiling/Profilers/JacobiNoMPIProfiler.hpp"

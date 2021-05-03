@@ -1,4 +1,4 @@
-#include "./StreamclusterProfiler.hpp"
+#include "./NWProfiler.hpp"
 
 #include <EnergyManager.hpp>
 

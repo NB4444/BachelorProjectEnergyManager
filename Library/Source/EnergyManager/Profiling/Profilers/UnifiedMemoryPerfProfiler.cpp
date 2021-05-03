@@ -1,4 +1,4 @@
-#include "./StreamclusterProfiler.hpp"
+#include "./UnifiedMemoryPerfProfiler.hpp"
 
 #include <EnergyManager.hpp>
 

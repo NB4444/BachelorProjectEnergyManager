@@ -1,24 +1,35 @@
-#include "./SRAD_V1Profiler.hpp"
+#include "./JacobiNoMPIProfiler.hpp"
 
 #include <EnergyManager.hpp>
 
-void SRAD_V1Profiler::onProfile(const std::map<std::string, std::string>& profile) {
+void JacobiNoMPIProfiler::onProfile(const std::map<std::string, std::string>& profile) {
 	// The CPU to use to run the application
 	unsigned int cpuID = 0;
 	
 	// The GPU to use to run the application
 	unsigned int gpuID = 0;
 	
-	auto path = std::string(RODINIA_DIRECTORY) + "/cuda/srad/srad_v1/srad";
+	auto path = std::string(JACOBI_DIRECTORY) + "/jacobi";
 	EnergyManager::Utility::Logging::logInformation("Application path: %s", path.c_str());
 	
 	EnergyManager::Utility::Application(
-		// The path to the application to launch, in this case we will be launching SRAD_V1
+		// The path to the application to launch, in this case we will be launching Jacobi
 		path,
 		
 		// The parameters to pass to the application
 		// We extract these values from the current profile
-		std::vector<std::string> { profile.at("iterations"), profile.at("coefficient"), profile.at("rows"), profile.at("columns") },
+		std::vector<std::string> {
+			"--file",
+			profile.at("file"),
+			"-i",
+			profile.at("Ni"),
+			"-j",
+			profile.at("Nj"),
+			"-n",
+			profile.at("iterations"),
+			"-k",
+			profile.at("kernel"),
+		},
 		
 		// Pass the CPUs to use to run the application
 		{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
@@ -35,14 +46,16 @@ void SRAD_V1Profiler::onProfile(const std::map<std::string, std::string>& profil
 		.run();
 }
 
-SRAD_V1Profiler::SRAD_V1Profiler(const std::map<std::string, std::string>& arguments)
+JacobiNoMPIProfiler::JacobiNoMPIProfiler(const std::map<std::string, std::string>& arguments)
 	: Profiler(
 	// The name of the profiler
-	"SRAD_V1Profiler",
+	"JacobiNoMPIProfiler",
 	
 	// The profiles
 	{
-		{ {"iterations", "100"}, {"coefficient", "0.5"}, {"rows", "502"}, {"columns", "458"} },
+		{ {"file", "/applications/jacobi/small"}, {"Ni", "512"}, {"Nj", "512"}, {"iterations", "10000"}, {"kernel", "1"}},
+		
+		{ {"file", "/applications/jacobi/small"}, {"Ni", "512"}, {"Nj", "512"}, {"iterations", "10000"}, {"kernel", "2"} },
 	},
 	arguments) {
 	setIterationsPerRun(3);

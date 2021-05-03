@@ -17,6 +17,7 @@ services:
       - "./:/EnergyManager"
       - "/mnt/54677e5c-47a2-4c09-b0f6-953df15410d0/UvA/Scriptie/Benchmark/rodinia_3.1:/applications/rodinia"
       - "/mnt/54677e5c-47a2-4c09-b0f6-953df15410d0/UvA/Scriptie/Benchmark/NVIDIA-developer-blog:/applications/nvidia-developer-blog"
+      - "/mnt/54677e5c-47a2-4c09-b0f6-953df15410d0/UvA/Scriptie/Benchmark/Jacobi/CudaJacobi:/applications/jacobi"
   energymanager-visualizer:
     build:
       context: "."

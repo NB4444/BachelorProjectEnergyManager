@@ -22,6 +22,7 @@ include(Dependencies/Rodinia.cmake)
 include(Dependencies/SLURM.cmake)
 include(Dependencies/SQLite.cmake)
 include(Dependencies/Threads.cmake)
+include(Dependencies/Jacobi.cmake)
 set(CMAKE_BUILD_TYPE Debug)
 # Add targets
 add_subdirectory(Example)
