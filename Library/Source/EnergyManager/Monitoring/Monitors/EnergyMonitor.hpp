@@ -4,6 +4,8 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 
+enum Policies {Minmax, System};
+
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
@@ -69,7 +71,7 @@ namespace EnergyManager {
 				/**
 				 * Whether to use the smart policy.
 				 */
-				bool systemPolicy_;
+				enum Policies policy_;
 
 				/**
 				 * The amount of time between halfing the frequency.
@@ -108,7 +110,7 @@ namespace EnergyManager {
 					const bool& activeMode = false,
 					const std::chrono::system_clock::duration& halfingPeriod = std::chrono::system_clock::duration(0),
 					const std::chrono::system_clock::duration& doublingPeriod = std::chrono::system_clock::duration(0),
-					const bool& systemPolicy = false);
+					const enum Policies& policy = Minmax);
 			};
 		}
 	}

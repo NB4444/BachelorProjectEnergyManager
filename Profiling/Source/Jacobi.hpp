@@ -65,7 +65,7 @@ void jacobiFixedFrequencies(std::map<std::string, std::string> arguments, const 
 	profiler.run();
 }
 
-void jacobiEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const bool& system) {
+void jacobiEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const enum Policies& system) {
 	EnergyManager::Utility::Logging::logInformation("Profiling Jacobi energy monitor (%d iterations, smart %d)...", iterations, system);
 
 	const auto core = EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
@@ -110,8 +110,8 @@ void jacobi(const std::map<std::string, std::string>& arguments) {
 	// Energy monitor data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, shortIterations, false));
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, shortIterations, true));
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, false));
-	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, true));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, Policies::Minmax));
+	ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiEnergyMonitor(arguments, mediumIterations, Policies::System));
 
 	// Fixed frequency data
 	//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(jacobiFixedFrequencies(arguments, shortIterations));

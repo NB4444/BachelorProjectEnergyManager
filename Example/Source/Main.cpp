@@ -24,7 +24,7 @@ int main(int argumentCount, char* argumentValues[]) {
 		true,
 		halfingPeriod,
 		doublingPeriod,
-		true));
+		Policies::Minmax));
 
 	// Finally we can run the profiler
 	profiler.run();

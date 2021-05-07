@@ -162,16 +162,19 @@ namespace EnergyManager {
 				// Take action if the state changes
 				if(activeMode_ && currentState != lastState_) {
 					// Reset configured values to the defaults
-					if(systemPolicy_) {
-						core_->getCPU()->setTurboEnabled(true);
-						core_->resetCoreClockRate();
-						core_->getCPU()->resetCoreClockRate();
-						gpu_->resetCoreClockRate();
-					} else {
-						core_->getCPU()->setTurboEnabled(true);
-						core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
-						core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
-						gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+					switch(policy_) {
+						case Minmax:
+							core_->getCPU()->setTurboEnabled(true);
+							core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
+							core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
+							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+							break;
+						case System:
+							core_->getCPU()->setTurboEnabled(true);
+							core_->resetCoreClockRate();
+							core_->getCPU()->resetCoreClockRate();
+							gpu_->resetCoreClockRate();
+							break;
 					}
 
 					// Apply the new configuration
@@ -186,15 +189,23 @@ namespace EnergyManager {
 							scaleCPUUp();
 							break;
 						case State::BUSY:
-							if(!systemPolicy_) {
-								scaleCPUUp();
-								scaleGPUUp();
+							switch(policy_) {
+								case Minmax:
+									scaleCPUUp();
+									scaleGPUUp();
+									break;
+								case System:
+									break;
 							}
 							break;
 						case State::IDLE:
-							if(!systemPolicy_) {
-								scaleCPUDown();
-								scaleGPUDown();
+							switch(policy_) {
+								case Minmax:
+									scaleCPUDown();
+									scaleGPUDown();
+									break;
+								case System:
+									break;
 							}
 							break;
 						case State::UNKNOWN:
@@ -217,14 +228,14 @@ namespace EnergyManager {
 				const bool& activeMode,
 				const std::chrono::system_clock::duration& halfingPeriod,
 				const std::chrono::system_clock::duration& doublingPeriod,
-				const bool& systemPolicy)
+				const enum Policies& policy)
 				: Monitor("EnergyMonitor", interval)
 				, halfingPeriod_(halfingPeriod)
 				, doublingPeriod_(doublingPeriod)
 				, core_(std::move(core))
 				, gpu_(std::move(gpu))
 				, activeMode_(activeMode)
-				, systemPolicy_(systemPolicy) {
+				, policy_(policy) {
 			}
 		}
 	}

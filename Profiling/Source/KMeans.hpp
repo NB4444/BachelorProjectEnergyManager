@@ -65,7 +65,7 @@ void kMeansFixedFrequencies(std::map<std::string, std::string> arguments, const 
 	profiler.run();
 }
 
-void kMeansEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const bool& system) {
+void kMeansEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const enum Policies& system) {
 	EnergyManager::Utility::Logging::logInformation("Profiling K-Means energy monitor (%d iterations, smart %d)...", iterations, system);
 
 	const auto core = EnergyManager::Hardware::Core::getCore(EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--core", 0));
