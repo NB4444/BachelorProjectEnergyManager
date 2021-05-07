@@ -54,13 +54,16 @@ void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments
 template <class T>
 void experiment(const std::map<std::string, std::string>& arguments, unsigned int iterations) {
 	auto i_max = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "-i", 1);
+	auto policies = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--policies", 0);
 
 	for(int i = 0; i < i_max; ++i) {
 		// Control data
 		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentControl<T>(arguments, iterations));
 
-		// Energy monitor data
-		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, false));
-		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, true));
+		if(policies == 0) {
+			// Energy monitor data
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, false));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, true));
+		}
 	}
 }

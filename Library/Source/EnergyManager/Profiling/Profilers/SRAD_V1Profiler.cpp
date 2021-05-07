@@ -21,7 +21,9 @@ void SRAD_V1Profiler::onProfile(const std::map<std::string, std::string>& profil
 		std::vector<std::string> { profile.at("iterations"), profile.at("coefficient"), profile.at("rows"), profile.at("columns") },
 		
 		// Pass the CPUs to use to run the application
-		{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		//{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		// Core to use to run the application
+		{ EnergyManager::Hardware::Core::getCore(cpuID) },
 		
 		// Pass the GPU to use to run the application
 		EnergyManager::Hardware::GPU::getGPU(gpuID),

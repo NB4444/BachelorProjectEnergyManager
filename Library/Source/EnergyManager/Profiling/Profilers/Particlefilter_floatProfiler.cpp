@@ -21,7 +21,9 @@ void Particlefilter_floatProfiler::onProfile(const std::map<std::string, std::st
 		std::vector<std::string> { "-x", profile.at("x"), "-y", profile.at("y"), "-z", profile.at("z"), "-np", profile.at("np")},
 		
 		// Pass the CPUs to use to run the application
-		{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		//{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		// Core to use to run the application
+		{ EnergyManager::Hardware::Core::getCore(cpuID) },
 		
 		// Pass the GPU to use to run the application
 		EnergyManager::Hardware::GPU::getGPU(gpuID),

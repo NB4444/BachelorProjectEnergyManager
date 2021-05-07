@@ -21,7 +21,9 @@ void LavaMDProfiler::onProfile(const std::map<std::string, std::string>& profile
 		std::vector<std::string> { "-boxes1d", profile.at("boxes1d") },
 		
 		// Pass the CPUs to use to run the application
-		{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		//{ EnergyManager::Hardware::CPU::getCPU(cpuID) },
+		// Core to use to run the application
+		{ EnergyManager::Hardware::Core::getCore(cpuID) },
 		
 		// Pass the GPU to use to run the application
 		EnergyManager::Hardware::GPU::getGPU(gpuID),
