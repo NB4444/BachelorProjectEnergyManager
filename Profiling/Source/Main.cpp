@@ -40,7 +40,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			experiment<BandwidthProfiler>(arguments, 50);
 			//experiment<UnifiedMemoryPerfProfiler>(arguments, 3);
 			experiment<EnergyManager::Profiling::Profilers::MatrixMultiplyProfiler>(arguments, 10);
-			//experiment<JacobiNoMPIProfiler>(arguments, 10);
+			experiment<JacobiNoMPIProfiler>(arguments, 3);
 			break;
 		case 1:
 			experiment<StreamclusterProfiler>(arguments, 10);
@@ -76,7 +76,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			experiment<EnergyManager::Profiling::Profilers::MatrixMultiplyProfiler>(arguments, 10);
 			break;
 		case 12:
-			experiment<JacobiNoMPIProfiler>(arguments, 10);
+			experiment<JacobiNoMPIProfiler>(arguments, 3);
 			break;
 		default:
 			break;
