@@ -81,8 +81,11 @@ namespace EnergyManager {
 
 				// Start the monitor threads
 				for(auto& monitor : monitors_) {
-					logDebug("Starting monitor %s thread...", monitor->getName().c_str());
+					logDebug("Resetting monitor %s thread...", monitor->getName().c_str());
 					monitor->reset();
+				}
+				for(auto& monitor : monitors_) {
+					logDebug("Starting monitor %s thread...", monitor->getName().c_str());
 					monitor->run(true);
 				}
 
