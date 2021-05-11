@@ -39,6 +39,9 @@ void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments
 		case Policies::RankedMinmax:
 			profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor Ranked MinMax)");
 			break;
+		case Policies::ScalingMinmax:
+			profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor Scaled MinMax)");
+			break;
 	}
 
 	std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
@@ -65,13 +68,14 @@ void experiment(const std::map<std::string, std::string>& arguments, unsigned in
 
 	for(int i = 0; i < i_max; ++i) {
 		// Control data
-		//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentControl<T>(arguments, iterations));
+		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentControl<T>(arguments, iterations));
 
 		if(policies == 0) {
 			// Energy monitor data
-			//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::Minmax));
-			//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::System));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::Minmax));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::System));
 			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::RankedMinmax));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::ScalingMinmax));
 		}
 	}
 }
