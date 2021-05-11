@@ -8,7 +8,7 @@ int main(int argumentCount, char* argumentValues[]) {
 
 	// Then we create a new instance of our profiler, to which we provide the command line arguments
 	ExampleProfiler profiler(arguments);
-	
+
 	// Finally we can run the profiler
 	profiler.run();
 

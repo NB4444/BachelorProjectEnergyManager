@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" overwriteAll="false" deleteMissingItems="true" createEmptyFolders="true" traceLevel="ERRORS" autoUploadExternalChanges="true" showAutoUploadSettingsWarning="false">
+    <serverData>
+      <paths name="EnergyManager (7e1ff10a-8f96-4788-92e1-67b3fe74fdc9)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/venv" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/Source/.ipynb_checkpoints" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-release-energymanager" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-docker" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Library/cmake-build-default" />
+            <excludedPath local="true" path="$PROJECT_DIR$/Visualizer/.idea" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-energymanager" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

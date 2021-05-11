@@ -13,6 +13,8 @@ services:
               count: 1
               capabilities: [ gpu ]
     restart: "unless-stopped"
+    ports:
+      - "2222:22"
     volumes:
       - "./:/EnergyManager"
   energymanager-visualizer:

@@ -28,6 +28,8 @@ namespace EnergyManager {
 			protected:
 				std::map<std::string, std::string> onPollProcessor() final;
 
+				void onResetDevice() final;
+
 			public:
 				/**
 				 * Creates a new GPUMonitor.

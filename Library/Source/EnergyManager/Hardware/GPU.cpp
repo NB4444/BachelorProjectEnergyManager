@@ -881,7 +881,7 @@ namespace EnergyManager {
 			return temperature;
 		}
 
-		std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, GPU::EventSite>>> GPU::getEvents() const {
+		std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, GPU::EventSite>>> GPU::getEvents(const bool& clear) const {
 			static std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events;
 
 			logTrace("Looking for GPU events...");
@@ -900,11 +900,13 @@ namespace EnergyManager {
 
 				// Contact the EAR accounting tool and store the data in CSV format
 				const auto reporterData = Utility::Text::readFile(eventsFile);
+				logTrace("Found reporter data:\n%s", reporterData.c_str());
 
 				// Make sure that the file ends with a newline to prevent reading incomplete data
 				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
 
 				// Ensure that it is possible to do a complete read
+				// TODO: Check why the reporter reports more events than are being received by the framework
 				if(reporterDataLines.back().empty()) {
 					const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
 
@@ -931,7 +933,14 @@ namespace EnergyManager {
 				logTrace("Reporter events file does not exist");
 			}
 
-			return events;
+			// Clear events if necessary
+			if(clear) {
+				auto eventsCopy = events;
+				events.clear();
+				return eventsCopy;
+			} else {
+				return events;
+			}
 		}
 
 		std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> GPU::getInstructionsPerCycle() const {
@@ -953,6 +962,7 @@ namespace EnergyManager {
 
 				// Contact the EAR accounting tool and store the data in CSV format
 				const auto reporterData = Utility::Text::readFile(metricsFile);
+				logTrace("Found reporter data:\n%s", reporterData.c_str());
 
 				// Make sure that the file ends with a newline to prevent reading incomplete data
 				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
@@ -961,7 +971,7 @@ namespace EnergyManager {
 				if(reporterDataLines.back().empty()) {
 					const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
 
-					// Process the events
+					// Process the metrics
 					for(const auto& metric : data) {
 						const auto timestamp = Utility::Text::timestampFromString(metric.at("Timestamp"));
 						const auto name = metric.at("Metric");
