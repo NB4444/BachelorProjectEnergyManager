@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#define SCALING_CLOCKRATE(device, scale) \
+	((device->getMaximumCoreClockRate().toValue() - device->getMinimumCoreClockRate().toValue()) * scale + device->getMinimumCoreClockRate().toValue())
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
@@ -128,6 +130,52 @@ namespace EnergyManager {
 					const auto clockRate = std::min(gpu_->getMaximumCoreClockRate().toValue(), busyScaling * gpu_->getCoreClockRate().toValue());
 					gpu_->setCoreClockRate(clockRate, clockRate);
 				};
+				
+				const auto scaleGPURankedUp = [&] {
+					Utility::Units::Hertz clockRate;
+					if (gpu_->getCoreUtilizationRate() <= 25) {
+						clockRate = std::min(SCALING_CLOCKRATE(gpu_, 0.25), busyScaling * gpu_->getCoreClockRate().toValue());
+					} else if(gpu_->getCoreUtilizationRate() <= 50) {
+						clockRate = std::min(SCALING_CLOCKRATE(gpu_, 0.5), busyScaling * gpu_->getCoreClockRate().toValue());
+					} else if(gpu_->getCoreUtilizationRate() <= 75) {
+						clockRate = std::min(SCALING_CLOCKRATE(gpu_, 0.75), busyScaling * gpu_->getCoreClockRate().toValue());
+					} else {
+						clockRate = std::min(gpu_->getMaximumCoreClockRate().toValue(), busyScaling * gpu_->getCoreClockRate().toValue());
+					}
+					
+					gpu_->setCoreClockRate(clockRate, clockRate);
+				};
+				
+				const auto scaleCPURankedUp = [&] {
+					Utility::Units::Hertz clockRate;
+					if (core_->getCoreUtilizationRate() <= 25) {
+						clockRate = std::min(SCALING_CLOCKRATE(core_, 0.25), busyScaling * core_->getCoreClockRate().toValue());
+					} else if(core_->getCoreUtilizationRate() <= 50) {
+						clockRate = std::min(SCALING_CLOCKRATE(core_, 0.5), busyScaling * core_->getCoreClockRate().toValue());
+					} else if(core_->getCoreUtilizationRate() <= 75) {
+						clockRate = std::min(SCALING_CLOCKRATE(core_, 0.75), busyScaling * core_->getCoreClockRate().toValue());
+					} else {
+						clockRate = std::min(core_->getMaximumCoreClockRate().toValue(), busyScaling * core_->getCoreClockRate().toValue());
+					}
+					
+					core_->getCPU()->setTurboEnabled(false);
+					core_->setCoreClockRate(clockRate, clockRate);
+					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+				};
+				
+				const auto scaleGPUScaledUp = [&] {
+					auto clockRate = std::min(SCALING_CLOCKRATE(gpu_, gpu_->getCoreUtilizationRate().getUnit() * 0.01), busyScaling * gpu_->getCoreClockRate().toValue());
+					
+					gpu_->setCoreClockRate(clockRate, clockRate);
+				};
+				
+				const auto scaleCPUScaledUp = [&] {
+					auto clockRate = std::min(SCALING_CLOCKRATE(core_, core_->getCoreUtilizationRate().getUnit() * 0.01), busyScaling * core_->getCoreClockRate().toValue());
+					
+					core_->getCPU()->setTurboEnabled(false);
+					core_->setCoreClockRate(clockRate, clockRate);
+					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+				};
 
 				std::map<std::string, std::string> results = {};
 
@@ -162,39 +210,122 @@ namespace EnergyManager {
 				// Take action if the state changes
 				if(activeMode_ && currentState != lastState_) {
 					// Reset configured values to the defaults
-					if(systemPolicy_) {
-						core_->getCPU()->setTurboEnabled(true);
-						core_->resetCoreClockRate();
-						core_->getCPU()->resetCoreClockRate();
-						gpu_->resetCoreClockRate();
-					} else {
-						core_->getCPU()->setTurboEnabled(true);
-						core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
-						core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
-						gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+					Utility::Units::Hertz clockRateCPU, clockRateGPU;
+					switch(policy_) {
+						case ScalingMinmax:
+							clockRateCPU = SCALING_CLOCKRATE(core_, core_->getCoreUtilizationRate().getUnit() * 0.01);
+							core_->getCPU()->setTurboEnabled(true);
+							core_->setCoreClockRate(clockRateCPU, clockRateCPU);
+							core_->getCPU()->setCoreClockRate(clockRateCPU, clockRateCPU);
+							
+							clockRateCPU = SCALING_CLOCKRATE(gpu_, gpu_->getCoreUtilizationRate().getUnit() * 0.01);
+							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
+							break;
+						case RankedMinmax:
+							if(core_->getCoreUtilizationRate() <= 25) {
+								clockRateCPU = SCALING_CLOCKRATE(core_, 0.25);
+							} else if (core_->getCoreUtilizationRate() <= 50) {
+								clockRateCPU = SCALING_CLOCKRATE(core_, 0.5);
+							} else if (core_->getCoreUtilizationRate() <= 75) {
+								clockRateCPU = SCALING_CLOCKRATE(core_, 0.75);
+							} else {
+								clockRateCPU = core_->getMaximumCoreClockRate().toValue();
+							}
+							core_->getCPU()->setTurboEnabled(true);
+							core_->setCoreClockRate(clockRateCPU, clockRateCPU);
+							core_->getCPU()->setCoreClockRate(clockRateCPU, clockRateCPU);
+							
+							if (gpu_->getCoreUtilizationRate() <= 25) {
+								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.25;
+							} else if(gpu_->getCoreUtilizationRate() <= 50) {
+								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.5;
+							} else if(gpu_->getCoreUtilizationRate() <= 75) {
+								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.75;
+							} else {
+								clockRateGPU = gpu_->getMaximumCoreClockRate().toValue();
+							}
+
+							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
+							break;
+						case Minmax:
+							core_->getCPU()->setTurboEnabled(true);
+							core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
+							core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
+							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
+							break;
+						case System:
+							core_->getCPU()->setTurboEnabled(true);
+							core_->resetCoreClockRate();
+							core_->getCPU()->resetCoreClockRate();
+							gpu_->resetCoreClockRate();
+							break;
 					}
 
 					// Apply the new configuration
 					switch(currentState) {
 						case State::CPU_IDLE:
 						case State::CPU_BUSY_WAIT:
-							scaleCPUDown();
-							scaleGPUUp();
+							switch(policy_) {
+								case Minmax:
+								case System:
+									scaleCPUDown();
+									scaleGPUUp();
+									break;
+								case RankedMinmax:
+									scaleCPUDown();
+									scaleGPURankedUp();
+									break;
+								case ScalingMinmax:
+									scaleCPUDown();
+									scaleGPUScaledUp();
+									break;
+							}
 							break;
 						case State::GPU_IDLE:
-							scaleGPUDown();
-							scaleCPUUp();
+							switch(policy_) {
+								case Minmax:
+								case System:
+									scaleGPUDown();
+									scaleCPUUp();
+									break;
+								case RankedMinmax:
+									scaleGPUDown();
+									scaleGPURankedUp();
+									break;
+								case ScalingMinmax:
+									scaleGPUDown();
+									scaleGPUScaledUp();
+									break;
+							}
 							break;
 						case State::BUSY:
-							if(!systemPolicy_) {
-								scaleCPUUp();
-								scaleGPUUp();
+							switch(policy_) {
+								case Minmax:
+									scaleCPUUp();
+									scaleGPUUp();
+									break;
+								case RankedMinmax:
+									scaleGPURankedUp();
+									scaleCPURankedUp();
+									break;
+								case ScalingMinmax:
+									scaleGPUScaledUp();
+									scaleCPUScaledUp();
+									break;
+								case System:
+									break;
 							}
 							break;
 						case State::IDLE:
-							if(!systemPolicy_) {
-								scaleCPUDown();
-								scaleGPUDown();
+							switch(policy_) {
+								case Minmax:
+								case RankedMinmax:
+								case ScalingMinmax:
+									scaleCPUDown();
+									scaleGPUDown();
+									break;
+								case System:
+									break;
 							}
 							break;
 						case State::UNKNOWN:
@@ -203,6 +334,25 @@ namespace EnergyManager {
 							break;
 					}
 				}
+				
+				//if(policy_ == ScalingMinmax) {
+				//	switch(currentState) {
+				//		case State::BUSY:
+				//			scaleGPUScaledUp();
+				//			scaleCPUScaledUp();
+				//			break;
+				//		case State::GPU_IDLE:
+				//			scaleCPUScaledUp();
+				//			break;
+				//		case State::CPU_IDLE:
+				//		case State::CPU_BUSY_WAIT:
+				//			scaleGPUScaledUp();
+				//			break;
+				//		case State::IDLE:
+				//		case State::UNKNOWN:
+				//			break;
+				//	}
+				//}
 
 				// Store the current state for the next poll
 				lastState_ = currentState;
@@ -217,14 +367,14 @@ namespace EnergyManager {
 				const bool& activeMode,
 				const std::chrono::system_clock::duration& halfingPeriod,
 				const std::chrono::system_clock::duration& doublingPeriod,
-				const bool& systemPolicy)
+				const enum Policies& policy)
 				: Monitor("EnergyMonitor", interval)
 				, halfingPeriod_(halfingPeriod)
 				, doublingPeriod_(doublingPeriod)
 				, core_(std::move(core))
 				, gpu_(std::move(gpu))
 				, activeMode_(activeMode)
-				, systemPolicy_(systemPolicy) {
+				, policy_(policy) {
 			}
 		}
 	}
