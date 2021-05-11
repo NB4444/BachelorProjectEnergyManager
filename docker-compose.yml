@@ -13,6 +13,8 @@ services:
               count: 1
               capabilities: [ gpu ]
     restart: "unless-stopped"
+    ports:
+      - "2222:22"
     volumes:
       - "./:/EnergyManager"
       - "/mnt/54677e5c-47a2-4c09-b0f6-953df15410d0/UvA/Scriptie/Benchmark/rodinia_3.1:/applications/rodinia"
