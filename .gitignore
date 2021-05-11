@@ -88,3 +88,4 @@ fabric.properties
 !Testing
 
 Visualizer/.idea
+.idea/other.xml
