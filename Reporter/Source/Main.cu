@@ -110,6 +110,11 @@ struct MetricData {
  */
 MetricData* metricData;
 
+bool fileExists(const char* name) {
+	struct stat buffer {};
+	return stat(name, &buffer) == 0;
+}
+
 void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
 	//printf("Processing events...\n");
 
@@ -122,6 +127,23 @@ void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId
 		usleep(10);
 	}
 
+	// Check if the file already existed, and if not, write the headers
+	if(!fileExists(eventsFile)) {
+		//printf("Writing Reporter events headers...\n");
+
+		// Open file to write headers
+		const auto output = fopen(eventsFile, "w");
+		if(output == nullptr) {
+			printf("Failed to open events file for writing with error code %d: %s\n", errno, strerror(errno));
+		}
+
+		// Write the headers
+		fputs("Timestamp;Event;Site\n", output);
+
+		// Close the stream
+		fclose(output);
+	}
+
 	// Get information about the event
 	const auto timestamp = std::chrono::system_clock::now();
 	const auto functionName = callbackInformation->functionName;
@@ -131,7 +153,6 @@ void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId
 	const auto processID = (ulong) getpid() & 0x00000fff;
 	const auto thread = (ulong) pthread_self() & 0x0000ffff;
 
-	// Only process function enter events
 	//printf("Processing event %s...\n", functionName);
 
 	// Generate the output message
@@ -162,7 +183,7 @@ void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId
 
 void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
 	//printf("Processing metrics...\n");
-	
+
 	// This callback is enabled only for launch so we shouldn't see anything else.
 	if((callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020) && (callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000)) {
 		//printf("Unexpected event\n");
@@ -312,10 +333,27 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 			// Define the file names
 			const auto metricsFile = "reporter.metrics.csv.tmp";
 			const auto lockFile = "reporter.metrics.csv.tmp.lock";
-			
+
 			// Try to obtain an atomic file lock
 			while(open(lockFile, O_CREAT | O_EXCL) < 0) {
 				usleep(10);
+			}
+
+			// Check if the file already existed, and if not, write the headers
+			if(!fileExists(metricsFile)) {
+				//printf("Writing Reporter metrics headers...\n");
+
+				// Open file to write headers
+				const auto output = fopen(metricsFile, "w");
+				if(output == nullptr) {
+					printf("Failed to open metrics file for writing with error code %d: %s\n", errno, strerror(errno));
+				}
+
+				// Write the headers
+				fputs("Timestamp;Metric;Value\n", output);
+
+				// Close the stream
+				fclose(output);
 			}
 
 			// Open file to write message
@@ -401,34 +439,11 @@ void CUPTIAPI cuptiEventCallback(void* userData, CUpti_CallbackDomain domain, CU
 void __attribute__((constructor)) constructCUDAModule() {
 	printf("Initializing Reporter...\n");
 
-	printf("Writing Reporter headers...\n");
-
-	if(enableEvents) {
-		// Open file to write headers
-		const auto output = fopen("reporter.events.csv.tmp", "w");
-		if(output == nullptr) {
-			printf("Failed to open events file for writing with error code %d: %s\n", errno, strerror(errno));
-		}
-
-		// Write the headers
-		fputs("Timestamp;Event;Site\n", output);
-
-		// Close the stream
-		fclose(output);
-	}
-	if(enableMetrics) {
-		// Open file to write headers
-		const auto output = fopen("reporter.metrics.csv.tmp", "w");
-		if(output == nullptr) {
-			printf("Failed to open metrics file for writing with error code %d: %s\n", errno, strerror(errno));
-		}
-
-		// Write the headers
-		fputs("Timestamp;Metric;Value\n", output);
-
-		// Close the stream
-		fclose(output);
-	}
+	// Remove existing files
+	remove("reporter.events.csv.tmp");
+	remove("reporter.events.csv.tmp.lock");
+	remove("reporter.metrics.csv.tmp");
+	remove("reporter.metrics.csv.tmp.lock");
 
 	printf("Initializing CUPTI...\n");
 

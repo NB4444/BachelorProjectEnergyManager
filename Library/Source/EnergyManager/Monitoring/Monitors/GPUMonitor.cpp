@@ -134,6 +134,10 @@ namespace EnergyManager {
 				return results;
 			}
 
+			void GPUMonitor::onResetDevice() {
+				gpu_->getEvents(true);
+			}
+
 			GPUMonitor::GPUMonitor(const std::shared_ptr<Hardware::GPU>& gpu, const std::chrono::system_clock::duration& interval) : ProcessorMonitor("GPUMonitor", gpu, interval), gpu_(gpu) {
 			}
 		}

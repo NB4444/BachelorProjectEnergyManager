@@ -35,7 +35,7 @@ target_link_libraries(
 	PUBLIC "Threads::Threads"
 	PUBLIC "cuda"
 	PUBLIC "dl"
-#	PUBLIC "irc"
+	#	PUBLIC "irc"
 	PUBLIC "nvidia-ml"
 )
 if (DEFINED EAR_ENABLED)

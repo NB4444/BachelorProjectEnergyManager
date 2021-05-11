@@ -678,9 +678,10 @@ namespace EnergyManager {
 
 			/**
 			 * Gets the events that have occurred on the GPU.
+			 * @param clear Whether to clear the recorded event queue after returning the results.
 			 * @return The events.
 			 */
-			std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> getEvents() const;
+			std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> getEvents(const bool& clear = false) const;
 
 			/**
 			 * Gets instructions per cycle.
