@@ -4,7 +4,7 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 
-enum Policies {Minmax, System};
+enum Policies {Minmax, System, RankedMinmax };
 
 namespace EnergyManager {
 	namespace Monitoring {
