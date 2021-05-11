@@ -6,7 +6,9 @@
 //#include <dlfcn.h>
 #include <cerrno>
 #include <chrono>
+#include <fcntl.h>
 #include <map>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #define DRIVER_API_CALL(apiFuncCall) \
@@ -111,8 +113,16 @@ MetricData* metricData;
 void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
 	//printf("Processing events...\n");
 
+	// Define the file names
+	const auto eventsFile = "reporter.events.csv.tmp";
+	const auto lockFile = "reporter.events.csv.tmp.lock";
+
+	// Try to obtain an atomic file lock
+	while(open(lockFile, O_CREAT | O_EXCL) < 0) {
+		usleep(10);
+	}
+
 	// Get information about the event
-	const auto site = callbackInformation->callbackSite;
 	const auto timestamp = std::chrono::system_clock::now();
 	const auto functionName = callbackInformation->functionName;
 	const auto callbackSite = callbackInformation->callbackSite;
@@ -135,7 +145,7 @@ void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId
 		callbackSite == CUPTI_API_ENTER ? "ENTER" : "EXIT");
 
 	// Open file to write headers
-	const auto output = fopen("reporter.events.csv.tmp", "a");
+	const auto output = fopen(eventsFile, "a");
 	if(output == nullptr) {
 		printf("Failed to open file for writing with error code %d: %s\n", errno, strerror(errno));
 	}
@@ -145,11 +155,14 @@ void processEvents(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId
 
 	// Close the stream
 	fclose(output);
+
+	// Remove the lock
+	remove(lockFile);
 }
 
 void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackId callbackID, const CUpti_CallbackData* callbackInformation) {
 	//printf("Processing metrics...\n");
-
+	
 	// This callback is enabled only for launch so we shouldn't see anything else.
 	if((callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunch_v3020) && (callbackID != CUPTI_RUNTIME_TRACE_CBID_cudaLaunchKernel_v7000)) {
 		//printf("Unexpected event\n");
@@ -296,8 +309,17 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 		}
 
 		{
+			// Define the file names
+			const auto metricsFile = "reporter.metrics.csv.tmp";
+			const auto lockFile = "reporter.metrics.csv.tmp.lock";
+			
+			// Try to obtain an atomic file lock
+			while(open(lockFile, O_CREAT | O_EXCL) < 0) {
+				usleep(10);
+			}
+
 			// Open file to write message
-			const auto output = fopen("reporter.metrics.csv.tmp", "a");
+			const auto output = fopen(metricsFile, "a");
 			if(output == nullptr) {
 				printf("Failed to open file for writing with error code %d: %s\n", errno, strerror(errno));
 			}
@@ -307,6 +329,9 @@ void processMetrics(void* userData, CUpti_CallbackDomain domain, CUpti_CallbackI
 
 			// Close the stream
 			fclose(output);
+
+			// Remove the lock
+			remove(lockFile);
 		}
 
 		for(unsigned int i = 0; i < metricData->eventGroups->numEventGroups; i++) {

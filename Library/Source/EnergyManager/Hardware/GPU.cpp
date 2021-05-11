@@ -269,7 +269,7 @@ namespace EnergyManager {
 		}
 
 		uint8_t* GPU::alignBuffer(uint8_t* buffer, const size_t& alignSize) {
-			return (((uintptr_t)(buffer) & ((alignSize) -1)) ? ((buffer) + (alignSize) - ((uintptr_t)(buffer) & ((alignSize) -1))) : (buffer));
+			return (((uintptr_t) (buffer) & ((alignSize) -1)) ? ((buffer) + (alignSize) - ((uintptr_t) (buffer) & ((alignSize) -1))) : (buffer));
 		}
 
 		void CUPTIAPI GPU::allocateBuffer(uint8_t** buffer, size_t* size, size_t* maximumRecordCount) {
@@ -907,14 +907,24 @@ namespace EnergyManager {
 		}
 
 		std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, GPU::EventSite>>> GPU::getEvents() const {
-			std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events;
+			static std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events;
 
 			logTrace("Looking for GPU events...");
-			const auto csvFileName = "reporter.events.csv.tmp";
-			if(Utility::Environment::fileExists(csvFileName)) {
-				// Contact the EAR accounting tool and store the data in CSV format
+
+			// Define the file names
+			const auto eventsFile = "reporter.events.csv.tmp";
+			const auto lockFile = "reporter.events.csv.tmp.lock";
+
+			if(Utility::Environment::fileExists(eventsFile)) {
 				logTrace("Found event data, loading...");
-				const auto reporterData = Utility::Text::readFile(csvFileName);
+
+				// Try to obtain an atomic file lock
+				while(open(lockFile, O_CREAT | O_EXCL) < 0) {
+					usleep(10);
+				}
+
+				// Contact the EAR accounting tool and store the data in CSV format
+				const auto reporterData = Utility::Text::readFile(eventsFile);
 
 				// Make sure that the file ends with a newline to prevent reading incomplete data
 				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
@@ -933,9 +943,15 @@ namespace EnergyManager {
 						// Add the current data
 						events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
 					}
+
+					// Remove the processed events
+					remove(eventsFile);
 				} else {
 					logTrace("Reporter events file is incomplete");
 				}
+
+				// Remove the lock
+				remove(lockFile);
 			} else {
 				logTrace("Reporter events file does not exist");
 			}
@@ -944,14 +960,24 @@ namespace EnergyManager {
 		}
 
 		std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> GPU::getInstructionsPerCycle() const {
-			std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> ipc;
+			static std::map<std::chrono::system_clock::time_point, Utility::Units::InstructionsPerCycle> ipc;
 
 			logTrace("Looking for GPU metrics...");
-			const auto csvFileName = "reporter.metrics.csv.tmp";
-			if(Utility::Environment::fileExists(csvFileName)) {
-				// Contact the EAR accounting tool and store the data in CSV format
+
+			// Define the file names
+			const auto metricsFile = "reporter.metrics.csv.tmp";
+			const auto lockFile = "reporter.metrics.csv.tmp.lock";
+
+			if(Utility::Environment::fileExists(metricsFile)) {
 				logTrace("Found metric data, loading...");
-				const auto reporterData = Utility::Text::readFile(csvFileName);
+
+				// Try to obtain an atomic file lock
+				while(open(lockFile, O_CREAT | O_EXCL) < 0) {
+					usleep(10);
+				}
+
+				// Contact the EAR accounting tool and store the data in CSV format
+				const auto reporterData = Utility::Text::readFile(metricsFile);
 
 				// Make sure that the file ends with a newline to prevent reading incomplete data
 				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
@@ -972,9 +998,15 @@ namespace EnergyManager {
 							ipc[timestamp] = Utility::Units::InstructionsPerCycle(std::stod(value));
 						}
 					}
+
+					// Remove the processed metrics
+					remove(metricsFile);
 				} else {
 					logTrace("Reporter metrics file is incomplete");
 				}
+
+				// Remove the lock
+				remove(lockFile);
 			} else {
 				logTrace("Reporter metrics file does not exist");
 			}
