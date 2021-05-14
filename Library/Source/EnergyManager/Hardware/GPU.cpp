@@ -917,12 +917,12 @@ namespace EnergyManager {
 
 			if(Utility::Environment::fileExists(eventsFile)) {
 				logTrace("Found event data, loading...");
-
+				
 				// Try to obtain an atomic file lock
 				while(open(lockFile, O_CREAT | O_EXCL) < 0) {
 					usleep(10);
 				}
-
+				
 				// Contact the EAR accounting tool and store the data in CSV format
 				const auto reporterData = Utility::Text::readFile(eventsFile);
 				logTrace("Found reporter data:\n%s", reporterData.c_str());

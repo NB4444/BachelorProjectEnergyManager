@@ -55,13 +55,17 @@ JacobiNoMPIProfiler::JacobiNoMPIProfiler(const std::map<std::string, std::string
 	
 	// The profiles
 	{
-		//{ {"file", "/applications/jacobi/medium"}, {"Ni", "1024"}, {"Nj", "1024"}, {"iterations", "10000"}, {"kernel", "1"}},
+		//{ {"file", "/applications/jacobi/small"}, {"Ni", "512"}, {"Nj", "512"}, {"iterations", "10000"}, {"kernel", "1"}},
 		//
-		//{ {"file", "/applications/jacobi/medium"}, {"Ni", "1024"}, {"Nj", "1024"}, {"iterations", "10000"}, {"kernel", "2"} },
+		//{ {"file", "/applications/jacobi/small"}, {"Ni", "512"}, {"Nj", "512"}, {"iterations", "10000"}, {"kernel", "2"} },
 		
-		{ {"file", "/applications/jacobi/large"}, {"Ni", "2048"}, {"Nj", "2048"}, {"iterations", "10000"}, {"kernel", "1"}},
+		{ {"file", "/applications/jacobi/medium"}, {"Ni", "1024"}, {"Nj", "1024"}, {"iterations", "10000"}, {"kernel", "1"}},
+
+		{ {"file", "/applications/jacobi/medium"}, {"Ni", "1024"}, {"Nj", "1024"}, {"iterations", "10000"}, {"kernel", "2"} },
 		
-		{ {"file", "/applications/jacobi/large"}, {"Ni", "2048"}, {"Nj", "2048"}, {"iterations", "10000"}, {"kernel", "2"} },
+		//{ {"file", "/applications/jacobi/large"}, {"Ni", "2048"}, {"Nj", "2048"}, {"iterations", "10000"}, {"kernel", "1"}},
+		//
+		//{ {"file", "/applications/jacobi/large"}, {"Ni", "2048"}, {"Nj", "2048"}, {"iterations", "10000"}, {"kernel", "2"} },
 	},
 	arguments) {
 	setIterationsPerRun(3);
