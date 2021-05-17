@@ -236,11 +236,11 @@ namespace EnergyManager {
 							core_->getCPU()->setCoreClockRate(clockRateCPU, clockRateCPU);
 							
 							if (gpu_->getCoreUtilizationRate() <= 25) {
-								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.25;
+								clockRateGPU = SCALING_CLOCKRATE(gpu_, 0.25);
 							} else if(gpu_->getCoreUtilizationRate() <= 50) {
-								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.5;
+								clockRateGPU = SCALING_CLOCKRATE(gpu_, 0.5);
 							} else if(gpu_->getCoreUtilizationRate() <= 75) {
-								clockRateGPU = (gpu_->getMaximumCoreClockRate().toValue() + gpu_->getMinimumCoreClockRate().toValue()) * 0.75;
+								clockRateGPU = SCALING_CLOCKRATE(gpu_, 0.75);
 							} else {
 								clockRateGPU = gpu_->getMaximumCoreClockRate().toValue();
 							}
