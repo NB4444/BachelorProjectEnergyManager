@@ -248,6 +248,7 @@ namespace EnergyManager {
 							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
 							break;
 						case Minmax:
+						case MaxFreq:
 							core_->getCPU()->setTurboEnabled(true);
 							core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
 							core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
@@ -279,6 +280,8 @@ namespace EnergyManager {
 									scaleCPUDown();
 									scaleGPUScaledUp();
 									break;
+								case MaxFreq:
+									break;
 							}
 							break;
 						case State::GPU_IDLE:
@@ -295,6 +298,8 @@ namespace EnergyManager {
 								case ScalingMinmax:
 									scaleGPUDown();
 									scaleGPUScaledUp();
+									break;
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -313,6 +318,7 @@ namespace EnergyManager {
 									scaleCPUScaledUp();
 									break;
 								case System:
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -325,6 +331,7 @@ namespace EnergyManager {
 									scaleGPUDown();
 									break;
 								case System:
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -335,24 +342,24 @@ namespace EnergyManager {
 					}
 				}
 				
-				//if(policy_ == ScalingMinmax) {
-				//	switch(currentState) {
-				//		case State::BUSY:
-				//			scaleGPUScaledUp();
-				//			scaleCPUScaledUp();
-				//			break;
-				//		case State::GPU_IDLE:
-				//			scaleCPUScaledUp();
-				//			break;
-				//		case State::CPU_IDLE:
-				//		case State::CPU_BUSY_WAIT:
-				//			scaleGPUScaledUp();
-				//			break;
-				//		case State::IDLE:
-				//		case State::UNKNOWN:
-				//			break;
-				//	}
-				//}
+				if(policy_ == ScalingMinmax) {
+					switch(currentState) {
+						case State::BUSY:
+							scaleGPUScaledUp();
+							scaleCPUScaledUp();
+							break;
+						case State::GPU_IDLE:
+							scaleCPUScaledUp();
+							break;
+						case State::CPU_IDLE:
+						case State::CPU_BUSY_WAIT:
+							scaleGPUScaledUp();
+							break;
+						case State::IDLE:
+						case State::UNKNOWN:
+							break;
+					}
+				}
 
 				// Store the current state for the next poll
 				lastState_ = currentState;
