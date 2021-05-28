@@ -37,96 +37,96 @@ namespace EnergyManager {
 			// Set initial values
 			startEnergyConsumption_ = getEnergyConsumption();
 			lastEnergyConsumption_ = startEnergyConsumption_;
-
+			
 			// Detect and add cores
 			for(unsigned int coreID = 0; coreID < getProcCPUInfoValuesPerCPU().at(id).size(); ++coreID) {
 				cores_.push_back(Core::getCore(this, coreID));
 			}
 		}
-
+		
 		std::vector<std::string> CPU::generateHeaders() const {
 			return { "CPU " + Utility::Text::toString(getID()) };
 		}
-
+		
 		std::vector<std::shared_ptr<Hardware::CPU>> CPU::parseCPUs(const std::string& cpuString) {
 			std::vector<std::string> cpuStrings = EnergyManager::Utility::Text::splitToVector(cpuString, ",", true);
 			std::vector<std::shared_ptr<EnergyManager::Hardware::CPU>> cpus;
 			std::transform(cpuStrings.begin(), cpuStrings.end(), std::back_inserter(cpus), [](const auto& cpuString) {
 				return EnergyManager::Hardware::CPU::getCPU(std::stoi(cpuString));
 			});
-
+			
 			return cpus;
 		}
-
+		
 		std::shared_ptr<CPU> CPU::getCPU(const unsigned int& id) {
 			// Only allow one thread to get CPUs at a time
 			static std::mutex mutex;
 			std::lock_guard<std::mutex> guard(mutex);
-
+			
 			// Keep track of CPUs
 			static std::map<uint32_t, std::shared_ptr<CPU>> cpus = {};
-
+			
 			auto iterator = cpus.find(id);
 			if(iterator == cpus.end()) {
 				cpus[id] = Utility::protectedMakeShared<CPU>(id);
 			}
-
+			
 			return cpus[id];
 		}
-
+		
 		std::vector<std::shared_ptr<CPU>> CPU::getCPUs() {
 			std::vector<std::shared_ptr<CPU>> cpus = {};
 			for(unsigned int cpu = 0; cpu < getCPUCount(); ++cpu) {
 				cpus.push_back(getCPU(cpu));
 			}
-
+			
 			return cpus;
 		}
-
+		
 		unsigned int CPU::getCPUCount() {
 			return getProcCPUInfoValuesPerCPU().size();
 		}
-
+		
 		std::vector<std::shared_ptr<Core>> CPU::getCores() const {
 			return cores_;
 		}
-
+		
 		Utility::Units::Hertz CPU::getCoreClockRate() const {
 			Utility::Units::Hertz sum = 0;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getCoreClockRate();
 			}
-
+			
 			return sum / getCores().size();
 		}
-
+		
 		Utility::Units::Hertz CPU::getCurrentMinimumCoreClockRate() const {
 			Utility::Units::Hertz minimum = -1;
-
+			
 			for(const auto& core : getCores()) {
 				auto current = core->getCurrentMinimumCoreClockRate();
 				if(minimum < 0 || current < minimum) {
 					minimum = current;
 				}
 			}
-
+			
 			return minimum;
 		}
-
+		
 		Utility::Units::Hertz CPU::getCurrentMaximumCoreClockRate() const {
 			Utility::Units::Hertz maximum = 0;
-
+			
 			for(const auto& core : getCores()) {
 				auto current = core->getCurrentMinimumCoreClockRate();
 				if(current > maximum) {
 					maximum = current;
 				}
 			}
-
+			
 			return maximum;
 		}
-
+		
 		void CPU::setCoreClockRate(const Utility::Units::Hertz& minimumRate, const Utility::Units::Hertz& maximumRate) {
 			logDebug("Setting clock rate range to [%f, %f]...", minimumRate.toValue(), maximumRate.toValue());
 
@@ -136,51 +136,73 @@ namespace EnergyManager {
 			for(const auto& core : getCores()) {
 				core->setCoreClockRate(minimumRate, maximumRate);
 			}
-
+			
 			// Check the type of power scaling driver in use
 			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
 				// Set minimum rate
 				std::ofstream minimumRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
 				const auto minimumRatePercentage = static_cast<unsigned int>((static_cast<double>(minimumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
 				minimumRateStream << minimumRatePercentage;
-
+				
 				// Set maximum rate
 				std::ofstream maximumRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
 				const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
 				maximumRateStream << maximumRatePercentage;
+			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				// Set minimum rate
+				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
+				//const auto minimumRatePercentage = static_cast<unsigned int>((static_cast<double>(minimumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				//minimumRateStream << minimumRatePercentage;
+				minimumRateStream << static_cast<unsigned int>(minimumRate.toValue());
+				
+				// Set maximum rate
+				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
+				//const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				//maximumRateStream << maximumRatePercentage;
+				maximumRateStream << static_cast<unsigned int>(maximumRate.toValue());
 			}
 #endif
 		}
-
+		
 		void CPU::resetCoreClockRate() {
 			logDebug("Resetting clock rate...");
-
+			
 			for(const auto& core : getCores()) {
 				core->resetCoreClockRate();
 			}
-
+			
 			// Check the type of power scaling driver in use
 			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
 				// Set minimum rate
 				std::ofstream minimumRateStream("/sys/devices/system/cpu/intel_pstate/min_perf_pct");
 				minimumRateStream << 0;
-
+				
 				// Set maximum rate
 				std::ofstream maximumRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
 				maximumRateStream << 100;
+			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				// Set minimum rate
+				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
+				//minimumRateStream << 0;
+				minimumRateStream << static_cast<unsigned int>(getMinimumCoreClockRate().toValue());
+				
+				// Set maximum rate
+				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
+				//maximumRateStream << 100;
+				maximumRateStream << static_cast<unsigned int>(getMaximumCoreClockRate().toValue());
 			}
 		}
-
+		
 		Utility::Units::Percent CPU::getCoreUtilizationRate() {
 			double sum = 0;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getCoreUtilizationRate().getUnit();
 			}
-
+			
 			return sum / getCores().size();
 		}
-
+		
 		Utility::Units::Joule CPU::getEnergyConsumption() {
 #ifdef false
 			return Utility::Units::Joule(
@@ -212,7 +234,7 @@ namespace EnergyManager {
 		Utility::Units::Hertz CPU::getMinimumCoreClockRate() const {
 			Utility::Units::Hertz minimum = 0;
 			bool found = false;
-
+			
 			for(const auto& core : getCores()) {
 				auto currentCoreClockRate = core->getMinimumCoreClockRate();
 				if(!found || currentCoreClockRate < minimum) {
@@ -220,41 +242,41 @@ namespace EnergyManager {
 					found = true;
 				}
 			}
-
+			
 			return minimum;
 		}
-
+		
 		Utility::Units::Hertz CPU::getMaximumCoreClockRate() const {
 			Utility::Units::Hertz maximum = 0;
-
+			
 			for(const auto& core : getCores()) {
 				auto currentCoreClockRate = core->getMaximumCoreClockRate();
 				if(currentCoreClockRate > maximum) {
 					maximum = currentCoreClockRate;
 				}
 			}
-
+			
 			return maximum;
 		}
-
+		
 		Utility::Units::Watt CPU::getPowerConsumption() {
 			return powerConsumption.getValue([&](const auto& value, const auto& timeSinceLastUpdate) {
 				// Get the time since last poll in seconds, with decimals
 				const auto pollingTimespan = std::chrono::duration<double>(timeSinceLastUpdate).count();
-
+				
 				// Keep the value
 				Utility::Units::Watt powerConsumption = value;
-
+				
 				// Get the current values
 				const auto currentEnergyConsumption = getEnergyConsumption();
-
+				
 				// Calculate the power consumption in Watts
 				if(pollingTimespan == 0) {
 					logWarning("Polling timespan equal to zero, can't measure power consumption");
 				} else {
 					// Get the difference
 					const auto energyConsumed = currentEnergyConsumption - lastEnergyConsumption_;
-
+					
 					// FIXME: There can be some noise in the data so we filter out values that are too high
 					powerConsumption = Utility::Units::Watt(energyConsumed.toValue() / pollingTimespan);
 					if(powerConsumption.toValue() <= 0 || powerConsumption > 300) {
@@ -274,132 +296,152 @@ namespace EnergyManager {
 						powerConsumption = 0;
 					}
 				}
-
+				
 				lastEnergyConsumption_ = currentEnergyConsumption;
-
+				
 				return powerConsumption;
 			});
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getUserTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getUserTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getNiceTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getNiceTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getSystemTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getSystemTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getIdleTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getIdleTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getIOWaitTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getIOWaitTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getInterruptsTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getInterruptsTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getSoftInterruptsTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getSoftInterruptsTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getStealTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getStealTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getGuestTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getGuestTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		std::chrono::system_clock::duration CPU::getGuestNiceTimespan() const {
 			std::chrono::system_clock::duration sum;
-
+			
 			for(const auto& core : getCores()) {
 				sum += core->getGuestNiceTimespan();
 			}
-
+			
 			return sum;
 		}
-
+		
 		Utility::Units::Celsius CPU::getTemperature() const {
 			std::ifstream inputStream("/sys/class/thermal/thermal_zone0/temp");
 			std::string cpuInfo((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
-
+			
 			return Utility::Units::Celsius(std::stoi(cpuInfo), Utility::Units::SIPrefix::MILLI);
 		}
-
+		
 		bool CPU::getTurboEnabled() const {
-			std::ifstream inputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
+			std::string s;
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				s = "/sys/devices/system/cpu/intel_pstate/no_turbo";
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				s = "/sys/devices/system/cpu/cpufreq/boost";
+			}
+			std::ifstream inputStream(s);
 			std::string turboEnabled((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
-
-			return std::stoi(turboEnabled);
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				return std::stoi(turboEnabled);
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				return !std::stoi(turboEnabled);
+			}
 		}
-
+		
 		void CPU::setTurboEnabled(const bool& turbo) const {
+			std::string s;
 			logDebug("Setting turbo enabled to %d...", turbo);
-
-			std::ofstream outputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
-			outputStream << !turbo;
+			
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				s = "/sys/devices/system/cpu/intel_pstate/no_turbo";
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				s = "/sys/devices/system/cpu/cpufreq/boost";
+			}
+			
+			std::ofstream outputStream(s);
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				outputStream << !turbo;
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				outputStream << turbo;
+			}
 		}
 	}
 }
