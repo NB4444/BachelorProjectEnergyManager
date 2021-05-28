@@ -148,6 +148,18 @@ namespace EnergyManager {
 				std::ofstream maximumRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
 				const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
 				maximumRateStream << maximumRatePercentage;
+			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				// Set minimum rate
+				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
+				//const auto minimumRatePercentage = static_cast<unsigned int>((static_cast<double>(minimumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				//minimumRateStream << minimumRatePercentage;
+				minimumRateStream << static_cast<unsigned int>(minimumRate.toValue());
+				
+				// Set maximum rate
+				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
+				//const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
+				//maximumRateStream << maximumRatePercentage;
+				maximumRateStream << static_cast<unsigned int>(maximumRate.toValue());
 			}
 #endif
 		}
@@ -168,6 +180,16 @@ namespace EnergyManager {
 				// Set maximum rate
 				std::ofstream maximumRateStream("/sys/devices/system/cpu/intel_pstate/max_perf_pct");
 				maximumRateStream << 100;
+			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				// Set minimum rate
+				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
+				//minimumRateStream << 0;
+				minimumRateStream << static_cast<unsigned int>(getMinimumCoreClockRate().toValue());
+				
+				// Set maximum rate
+				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
+				//maximumRateStream << 100;
+				maximumRateStream << static_cast<unsigned int>(getMaximumCoreClockRate().toValue());
 			}
 		}
 
@@ -389,17 +411,37 @@ namespace EnergyManager {
 		}
 
 		bool CPU::getTurboEnabled() const {
-			std::ifstream inputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
+			std::string s;
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				s = "/sys/devices/system/cpu/intel_pstate/no_turbo";
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				s = "/sys/devices/system/cpu/cpufreq/boost";
+			}
+			std::ifstream inputStream(s);
 			std::string turboEnabled((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
-
-			return std::stoi(turboEnabled);
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				return std::stoi(turboEnabled);
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				return !std::stoi(turboEnabled);
+			}
 		}
 
 		void CPU::setTurboEnabled(const bool& turbo) const {
+			std::string s;
 			logDebug("Setting turbo enabled to %d...", turbo);
 
-			std::ofstream outputStream("/sys/devices/system/cpu/intel_pstate/no_turbo");
-			outputStream << !turbo;
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				s = "/sys/devices/system/cpu/intel_pstate/no_turbo";
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				s = "/sys/devices/system/cpu/cpufreq/boost";
+			}
+			
+			std::ofstream outputStream(s);
+			if(getCores()[0]->getPowerScalingDriver() == "intel_pstate") {
+				outputStream << !turbo;
+			} else if (getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
+				outputStream << turbo;
+			}
 		}
 	}
 }

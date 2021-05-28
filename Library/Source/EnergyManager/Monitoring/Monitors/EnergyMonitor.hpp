@@ -4,7 +4,7 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 
-enum Policies {Minmax, System, RankedMinmax, ScalingMinmax};
+enum Policies {Minmax, System, RankedMinmax, ScalingMinmax, MaxFreq};
 
 namespace EnergyManager {
 	namespace Monitoring {
@@ -21,77 +21,77 @@ namespace EnergyManager {
 					 * In this state the CPU and GPU are not active enough to be managed by the monitor.
 					 */
 					IDLE,
-
+					
 					/**
 					 * In this state the CPU is waiting for the GPU.
 					 */
 					CPU_IDLE,
-
+					
 					/**
 					 * In this state the GPU is waiting for the CPU.
 					 */
 					GPU_IDLE,
-
+					
 					/**
 					 * In this state both the CPU and GPU are busy.
 					 */
 					BUSY,
-
+					
 					/**
 					 * In this state both the CPU and GPU are busy, but the CPU is waiting for the GPU in a busy loop.
 					 */
 					CPU_BUSY_WAIT,
-
+					
 					/**
 					 * The device is in an unknown state.
 					 */
 					UNKNOWN
 				};
-
+				
 				/**
 				 * The Core to monitor.
 				 */
 				std::shared_ptr<Hardware::Core> core_;
-
+				
 				/**
 				 * The GPU to monitor.
 				 */
 				std::shared_ptr<Hardware::GPU> gpu_;
-
+				
 				/**
 				 * Whether to run in active mode.
 				 */
 				bool activeMode_;
-
+				
 				/**
 				 * The last state.
 				 */
 				State lastState_;
-
+				
 				/**
 				 * Whether to use the smart policy.
 				 */
 				enum Policies policy_;
-
+				
 				/**
 				 * The amount of time between halfing the frequency.
 				 */
 				std::chrono::system_clock::duration halfingPeriod_;
-
+				
 				/**
 				 * The amount of time between doubling the frequency.
 				 */
 				std::chrono::system_clock::duration doublingPeriod_;
-
+				
 				/**
 				 * Determines the state that is currently active.
 				 * @return
 				 */
 				State determineState();
-
+			
 			protected:
 				std::map<std::string, std::string> onPoll() final;
-
+			
 			public:
 				/**
 				 * Creates a new EnergyMonitor.

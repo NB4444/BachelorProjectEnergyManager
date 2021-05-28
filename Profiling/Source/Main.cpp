@@ -30,17 +30,17 @@ int main(int argumentCount, char* argumentValues[]) {
 	switch(n) {
 		case 0:
 			//experiment<StreamclusterProfiler>(arguments, 10);
-			//experiment<EnergyManager::Profiling::Profilers::BFSProfiler>(arguments, 50);
+			experiment<EnergyManager::Profiling::Profilers::BFSProfiler>(arguments, 50);
 			//experiment<MyocyteProfiler>(arguments, 75);
 			//experiment<LavaMDProfiler>(arguments, 150);
-			experiment<SRAD_V1Profiler>(arguments, 350);
-			experiment<NWProfiler>(arguments, 400);
-			experiment<Particlefilter_floatProfiler>(arguments, 500);
+			//experiment<SRAD_V1Profiler>(arguments, 350);
+			//experiment<NWProfiler>(arguments, 400);
+			//experiment<Particlefilter_floatProfiler>(arguments, 500);
 			//experiment<EnergyManager::Profiling::Profilers::KMeansProfiler>(arguments, 75);
 			//experiment<BandwidthProfiler>(arguments, 50);
-			//experiment<UnifiedMemoryPerfProfiler>(arguments, 3);
-			//experiment<EnergyManager::Profiling::Profilers::MatrixMultiplyProfiler>(arguments, 10);
-			//experiment<JacobiNoMPIProfiler>(arguments, 3);
+			experiment<UnifiedMemoryPerfProfiler>(arguments, 3);
+			experiment<EnergyManager::Profiling::Profilers::MatrixMultiplyProfiler>(arguments, 10);
+			experiment<JacobiNoMPIProfiler>(arguments, 3);
 			break;
 		case 1:
 			experiment<StreamclusterProfiler>(arguments, 10);

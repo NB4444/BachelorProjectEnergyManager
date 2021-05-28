@@ -15,12 +15,12 @@ namespace EnergyManager {
 			EnergyMonitor::State EnergyMonitor::determineState() {
 				// Define the boundary above which values are considered "high" (inclusive)
 				const auto highBoundary = 10;
-
+				
 				// First determine the utilization rates
 				enum class Utilization { HIGH, LOW };
 				auto coreUtilizationRate = core_->getCoreUtilizationRate().getUnit() < highBoundary ? Utilization::LOW : Utilization::HIGH;
 				auto gpuUtilizationRate = gpu_->getCoreUtilizationRate().getUnit() < highBoundary ? Utilization::LOW : Utilization::HIGH;
-
+				
 				// Determine if there is a synchronize active between the CPU and GPU
 				bool cudaEventSynchronize = false;
 				bool cudaDeviceSynchronize = false;
@@ -29,12 +29,12 @@ namespace EnergyManager {
 				for(const auto& timestampEvents : gpu_->getEvents()) {
 					const auto& timestamp = timestampEvents.first;
 					const auto& events = timestampEvents.second;
-
+					
 					// Process the events
 					for(const auto& event : events) {
 						const auto& eventName = Utility::Text::trim(event.first);
 						const auto& eventSite = event.second;
-
+						
 						if(eventName == "cudaDeviceSynchronize") {
 							if(eventSite == Hardware::GPU::EventSite::ENTER) {
 								cudaDeviceSynchronize = true;
@@ -42,7 +42,7 @@ namespace EnergyManager {
 								cudaDeviceSynchronize = false;
 							}
 						}
-
+						
 						if(eventName == "cuDeviceSynchronize") {
 							if(eventSite == Hardware::GPU::EventSite::ENTER) {
 								cuDeviceSynchronize = true;
@@ -50,7 +50,7 @@ namespace EnergyManager {
 								cuDeviceSynchronize = false;
 							}
 						}
-
+						
 						if(eventName == "cudaEventSynchronize") {
 							if(eventSite == Hardware::GPU::EventSite::ENTER) {
 								cudaEventSynchronize = true;
@@ -58,7 +58,7 @@ namespace EnergyManager {
 								cudaEventSynchronize = false;
 							}
 						}
-
+						
 						if(eventName == "cuEventSynchronize") {
 							if(eventSite == Hardware::GPU::EventSite::ENTER) {
 								cuEventSynchronize = true;
@@ -69,7 +69,7 @@ namespace EnergyManager {
 					}
 				}
 				bool synchronizationActive = cudaDeviceSynchronize || cuDeviceSynchronize || cudaEventSynchronize || cuEventSynchronize;
-
+				
 				// Determine the active state
 				if(coreUtilizationRate == Utilization::LOW && gpuUtilizationRate == Utilization::LOW) {
 					return State::IDLE;
@@ -84,10 +84,10 @@ namespace EnergyManager {
 						return State::BUSY;
 					}
 				}
-
+				
 				return State::UNKNOWN;
 			}
-
+			
 			std::map<std::string, std::string> EnergyMonitor::onPoll() {
 				/**
 				 * To calculate the inactive scaling:
@@ -98,7 +98,7 @@ namespace EnergyManager {
 				 */
 				const auto halfingPeriodMonitorIntervals = halfingPeriod_ / getInterval();
 				const auto inactiveScaling = std::pow(2.0, -1.0 / halfingPeriodMonitorIntervals);
-
+				
 				/**
 				 * To calculate the busy scaling:
 				 * x=scaling factor
@@ -108,7 +108,7 @@ namespace EnergyManager {
 				 */
 				const auto doublingPeriodsMonitorIntervals = doublingPeriod_ / getInterval();
 				const auto busyScaling = std::pow(2.0, 1.0 / doublingPeriodsMonitorIntervals);
-
+				
 				// Functions responsible for scaling frequencies
 				const auto scaleCPUDown = [&] {
 					const auto clockRate = std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCoreClockRate().toValue());
@@ -176,12 +176,12 @@ namespace EnergyManager {
 					core_->setCoreClockRate(clockRate, clockRate);
 					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
 				};
-
+				
 				std::map<std::string, std::string> results = {};
-
+				
 				// Determine the state
 				auto currentState = determineState();
-
+				
 				// Store the state
 				std::string stateString;
 				switch(currentState) {
@@ -206,7 +206,7 @@ namespace EnergyManager {
 						break;
 				}
 				results["state"] = stateString;
-
+				
 				// Take action if the state changes
 				if(activeMode_ && currentState != lastState_) {
 					// Reset configured values to the defaults
@@ -244,10 +244,11 @@ namespace EnergyManager {
 							} else {
 								clockRateGPU = gpu_->getMaximumCoreClockRate().toValue();
 							}
-
+							
 							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
 							break;
 						case Minmax:
+						case MaxFreq:
 							core_->getCPU()->setTurboEnabled(true);
 							core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
 							core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
@@ -260,7 +261,7 @@ namespace EnergyManager {
 							gpu_->resetCoreClockRate();
 							break;
 					}
-
+					
 					// Apply the new configuration
 					switch(currentState) {
 						case State::CPU_IDLE:
@@ -279,6 +280,8 @@ namespace EnergyManager {
 									scaleCPUDown();
 									scaleGPUScaledUp();
 									break;
+								case MaxFreq:
+									break;
 							}
 							break;
 						case State::GPU_IDLE:
@@ -295,6 +298,8 @@ namespace EnergyManager {
 								case ScalingMinmax:
 									scaleGPUDown();
 									scaleGPUScaledUp();
+									break;
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -313,6 +318,7 @@ namespace EnergyManager {
 									scaleCPUScaledUp();
 									break;
 								case System:
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -325,6 +331,7 @@ namespace EnergyManager {
 									scaleGPUDown();
 									break;
 								case System:
+								case MaxFreq:
 									break;
 							}
 							break;
@@ -353,13 +360,13 @@ namespace EnergyManager {
 							break;
 					}
 				}
-
+				
 				// Store the current state for the next poll
 				lastState_ = currentState;
-
+				
 				return results;
 			}
-
+			
 			EnergyMonitor::EnergyMonitor(
 				std::shared_ptr<Hardware::Core> core,
 				std::shared_ptr<Hardware::GPU> gpu,
