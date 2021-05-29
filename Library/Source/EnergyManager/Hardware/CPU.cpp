@@ -150,16 +150,17 @@ namespace EnergyManager {
 				maximumRateStream << maximumRatePercentage;
 			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
 				// Set minimum rate
-				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
-				//const auto minimumRatePercentage = static_cast<unsigned int>((static_cast<double>(minimumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
-				//minimumRateStream << minimumRatePercentage;
-				minimumRateStream << static_cast<unsigned int>(minimumRate.toValue());
-				
-				// Set maximum rate
-				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
-				//const auto maximumRatePercentage = static_cast<unsigned int>((static_cast<double>(maximumRate.toValue()) / static_cast<double>(getMaximumCoreClockRate().toValue())) * 100);
-				//maximumRateStream << maximumRatePercentage;
-				maximumRateStream << static_cast<unsigned int>(maximumRate.toValue());
+				std::string s;
+				for(int i = 0; i < getCores().size(); ++i) {
+					Utility::Text::writeFile(
+						"/sys/devices/system/cpu/cpu" + Utility::Text::toString(i) + "/cpufreq/scaling_min_freq",
+						Utility::Text::toString(minimumRate.convertPrefix(Utility::Units::SIPrefix::KILO)));
+					
+					// Set maximum rate
+					Utility::Text::writeFile(
+						"/sys/devices/system/cpu/cpu" + Utility::Text::toString(i) + "/cpufreq/scaling_max_freq",
+						Utility::Text::toString(maximumRate.convertPrefix(Utility::Units::SIPrefix::KILO)));
+				}
 			}
 #endif
 		}
@@ -182,14 +183,16 @@ namespace EnergyManager {
 				maximumRateStream << 100;
 			} else if(getCores()[0]->getPowerScalingDriver() == "acpi-cpufreq") {
 				// Set minimum rate
-				std::ofstream minimumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_min_freq");
-				//minimumRateStream << 0;
-				minimumRateStream << static_cast<unsigned int>(getMinimumCoreClockRate().toValue());
-				
-				// Set maximum rate
-				std::ofstream maximumRateStream("/sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq");
-				//maximumRateStream << 100;
-				maximumRateStream << static_cast<unsigned int>(getMaximumCoreClockRate().toValue());
+				for(int i = 0; i < getCores().size(); ++i) {
+					Utility::Text::writeFile(
+						"/sys/devices/system/cpu/cpu" + Utility::Text::toString(i) + "/cpufreq/scaling_min_freq",
+						Utility::Text::toString(getMinimumCoreClockRate().convertPrefix(Utility::Units::SIPrefix::KILO)));
+					
+					// Set maximum rate
+					Utility::Text::writeFile(
+						"/sys/devices/system/cpu/cpu" + Utility::Text::toString(i) + "/cpufreq/scaling_max_freq",
+						Utility::Text::toString(getMaximumCoreClockRate().convertPrefix(Utility::Units::SIPrefix::KILO)));
+				}
 			}
 		}
 		
