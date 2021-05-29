@@ -9,6 +9,12 @@
 
 #define SCALING_CLOCKRATE(device, scale) \
 	((device->getMaximumCoreClockRate().toValue() - device->getMinimumCoreClockRate().toValue()) * scale + device->getMinimumCoreClockRate().toValue())
+
+#define SETCPUCLOCKRATE(turbo, clockrate) \
+	core_->setCoreClockRate(clockrate, clockrate);\
+	core_->getCPU()->setTurboEnabled(turbo);\
+	core_->getCPU()->setCoreClockRate(clockrate, clockrate);\
+
 namespace EnergyManager {
 	namespace Monitoring {
 		namespace Monitors {
@@ -112,15 +118,11 @@ namespace EnergyManager {
 				// Functions responsible for scaling frequencies
 				const auto scaleCPUDown = [&] {
 					const auto clockRate = std::max(core_->getMinimumCoreClockRate().toValue(), inactiveScaling * core_->getCoreClockRate().toValue());
-					core_->getCPU()->setTurboEnabled(false);
-					core_->setCoreClockRate(clockRate, clockRate);
-					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+					SETCPUCLOCKRATE(false, clockRate)
 				};
 				const auto scaleCPUUp = [&] {
 					const auto clockRate = std::min(core_->getMaximumCoreClockRate().toValue(), busyScaling * core_->getCoreClockRate().toValue());
-					core_->getCPU()->setTurboEnabled(false);
-					core_->setCoreClockRate(clockRate, clockRate);
-					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+					SETCPUCLOCKRATE(false, clockRate)
 				};
 				const auto scaleGPUDown = [&] {
 					const auto clockRate = std::max(gpu_->getMinimumCoreClockRate().toValue(), inactiveScaling * gpu_->getCoreClockRate().toValue());
@@ -158,9 +160,7 @@ namespace EnergyManager {
 						clockRate = std::min(core_->getMaximumCoreClockRate().toValue(), busyScaling * core_->getCoreClockRate().toValue());
 					}
 					
-					core_->getCPU()->setTurboEnabled(false);
-					core_->setCoreClockRate(clockRate, clockRate);
-					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+					SETCPUCLOCKRATE(false, clockRate)
 				};
 				
 				const auto scaleGPUScaledUp = [&] {
@@ -172,9 +172,7 @@ namespace EnergyManager {
 				const auto scaleCPUScaledUp = [&] {
 					auto clockRate = std::min(SCALING_CLOCKRATE(core_, core_->getCoreUtilizationRate().getUnit() * 0.01), busyScaling * core_->getCoreClockRate().toValue());
 					
-					core_->getCPU()->setTurboEnabled(false);
-					core_->setCoreClockRate(clockRate, clockRate);
-					core_->getCPU()->setCoreClockRate(clockRate, clockRate);
+					SETCPUCLOCKRATE(false, clockRate)
 				};
 				
 				std::map<std::string, std::string> results = {};
@@ -214,9 +212,7 @@ namespace EnergyManager {
 					switch(policy_) {
 						case ScalingMinmax:
 							clockRateCPU = SCALING_CLOCKRATE(core_, core_->getCoreUtilizationRate().getUnit() * 0.01);
-							core_->getCPU()->setTurboEnabled(true);
-							core_->setCoreClockRate(clockRateCPU, clockRateCPU);
-							core_->getCPU()->setCoreClockRate(clockRateCPU, clockRateCPU);
+							SETCPUCLOCKRATE(true, clockRateCPU)
 							
 							clockRateCPU = SCALING_CLOCKRATE(gpu_, gpu_->getCoreUtilizationRate().getUnit() * 0.01);
 							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
@@ -231,9 +227,7 @@ namespace EnergyManager {
 							} else {
 								clockRateCPU = core_->getMaximumCoreClockRate().toValue();
 							}
-							core_->getCPU()->setTurboEnabled(true);
-							core_->setCoreClockRate(clockRateCPU, clockRateCPU);
-							core_->getCPU()->setCoreClockRate(clockRateCPU, clockRateCPU);
+							SETCPUCLOCKRATE(true, clockRateCPU)
 							
 							if (gpu_->getCoreUtilizationRate() <= 25) {
 								clockRateGPU = SCALING_CLOCKRATE(gpu_, 0.25);
@@ -250,8 +244,7 @@ namespace EnergyManager {
 						case Minmax:
 						case MaxFreq:
 							core_->getCPU()->setTurboEnabled(true);
-							core_->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getMaximumCoreClockRate());
-							core_->getCPU()->setCoreClockRate(core_->getMaximumCoreClockRate(), core_->getCPU()->getMaximumCoreClockRate());
+							SETCPUCLOCKRATE(true, core_->getMaximumCoreClockRate())
 							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
 							break;
 						case System:
