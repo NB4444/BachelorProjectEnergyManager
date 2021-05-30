@@ -33,7 +33,7 @@ int main(int argumentCount, char* argumentValues[]) {
 			experiment<EnergyManager::Profiling::Profilers::BFSProfiler>(arguments, 50);
 			//experiment<MyocyteProfiler>(arguments, 75);
 			experiment<LavaMDProfiler>(arguments, 150);
-			experiment<SRAD_V1Profiler>(arguments, 350);
+			//experiment<SRAD_V1Profiler>(arguments, 350);
 			experiment<NWProfiler>(arguments, 400);
 			experiment<Particlefilter_floatProfiler>(arguments, 500);
 			experiment<EnergyManager::Profiling::Profilers::KMeansProfiler>(arguments, 75);
