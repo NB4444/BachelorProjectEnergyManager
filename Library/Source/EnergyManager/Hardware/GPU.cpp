@@ -905,66 +905,61 @@ namespace EnergyManager {
 
 			return temperature;
 		}
-
+		
 		std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, GPU::EventSite>>> GPU::getEvents(const bool& clear) const {
-			static std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events;
-
-			logTrace("Looking for GPU events...");
-
-			// Define the file names
-			const auto eventsFile = "reporter.events.csv.tmp";
-			const auto lockFile = "reporter.events.csv.tmp.lock";
-
-			if(Utility::Environment::fileExists(eventsFile)) {
-				logTrace("Found event data, loading...");
-				
-				// Try to obtain an atomic file lock
-				while(open(lockFile, O_CREAT | O_EXCL) < 0) {
-					usleep(10);
-				}
-				
-				// Contact the EAR accounting tool and store the data in CSV format
-				const auto reporterData = Utility::Text::readFile(eventsFile);
-				logTrace("Found reporter data:\n%s", reporterData.c_str());
-
-				// Make sure that the file ends with a newline to prevent reading incomplete data
-				auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
-
-				// Ensure that it is possible to do a complete read
-				// TODO: Check why the reporter reports more events than are being received by the framework
-				if(reporterDataLines.back().empty()) {
-					const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
-
-					// Process the events
-					for(const auto& event : data) {
-						const auto timestamp = Utility::Text::timestampFromString(event.at("Timestamp"));
-						const auto eventName = event.at("Event");
-
-						logTrace("Processing event that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), eventName.c_str());
-
-						// Add the current data
-						events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
+			static std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> allEvents;
+			Utility::Exceptions::Exception::retry(
+				[&] {
+					logInformation("BEGIN");
+					std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events = allEvents;
+					logInformation("END");
+					logTrace("Looking for GPU events...");
+					// Define the file names
+					const auto eventsFile = "reporter.events.csv.tmp";
+					const auto lockFile = "reporter.events.csv.tmp.lock";
+					if(Utility::Environment::fileExists(eventsFile)) {
+						logTrace("Found event data, loading...");
+						// Try to obtain an atomic file lock
+						while(open(lockFile, O_CREAT | O_EXCL) < 0) {
+							usleep(10);
+						}
+						// Contact the EAR accounting tool and store the data in CSV format
+						const auto reporterData = Utility::Text::readFile(eventsFile);
+						logTrace("Found reporter data:\n%s", reporterData.c_str());
+						// Make sure that the file ends with a newline to prevent reading incomplete data
+						auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
+						// Ensure that it is possible to do a complete read
+						if(reporterDataLines.back().empty()) {
+							const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
+							// Process the events
+							for(const auto& event : data) {
+								const auto timestamp = Utility::Text::timestampFromString(event.at("Timestamp"));
+								const auto eventName = event.at("Event");
+								logTrace("Processing event that occurred at %s with name %s", Utility::Text::formatTimestamp(timestamp).c_str(), eventName.c_str());
+								// Add the current data
+								events[timestamp].push_back({ eventName, event.at("Site") == "ENTER" ? EventSite::ENTER : EventSite::EXIT });
+							}
+							// Remove the processed events
+							remove(eventsFile);
+						} else {
+							logTrace("Reporter events file is incomplete");
+						}
+						// Remove the lock
+						remove(lockFile);
+					} else {
+						logTrace("Reporter events file does not exist");
 					}
-
-					// Remove the processed events
-					remove(eventsFile);
-				} else {
-					logTrace("Reporter events file is incomplete");
-				}
-
-				// Remove the lock
-				remove(lockFile);
-			} else {
-				logTrace("Reporter events file does not exist");
-			}
-
+					allEvents = events;
+				},
+				10,
+				std::chrono::milliseconds(20));
 			// Clear events if necessary
 			if(clear) {
-				auto eventsCopy = events;
-				events.clear();
+				auto eventsCopy = allEvents;
+				allEvents.clear();
 				return eventsCopy;
 			} else {
-				return events;
+				return allEvents;
 			}
 		}
 
