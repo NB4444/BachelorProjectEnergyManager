@@ -243,8 +243,7 @@ namespace EnergyManager {
 							break;
 						case Minmax:
 						case MaxFreq:
-							core_->getCPU()->setTurboEnabled(true);
-							SETCPUCLOCKRATE(true, core_->getMaximumCoreClockRate())
+						SETCPUCLOCKRATE(true, core_->getMaximumCoreClockRate())
 							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
 							break;
 						case System:
