@@ -908,11 +908,11 @@ namespace EnergyManager {
 		
 		std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, GPU::EventSite>>> GPU::getEvents(const bool& clear) const {
 			static std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> allEvents;
+
 			Utility::Exceptions::Exception::retry(
 				[&] {
-					logInformation("BEGIN");
+					// A std:bad_alloc happens here sometimes
 					std::map<std::chrono::system_clock::time_point, std::vector<std::pair<std::string, EventSite>>> events = allEvents;
-					logInformation("END");
 					logTrace("Looking for GPU events...");
 					// Define the file names
 					const auto eventsFile = "reporter.events.csv.tmp";
@@ -920,15 +920,20 @@ namespace EnergyManager {
 					if(Utility::Environment::fileExists(eventsFile)) {
 						logTrace("Found event data, loading...");
 						// Try to obtain an atomic file lock
+
 						while(open(lockFile, O_CREAT | O_EXCL) < 0) {
 							usleep(10);
 						}
+
 						// Contact the EAR accounting tool and store the data in CSV format
+
 						const auto reporterData = Utility::Text::readFile(eventsFile);
 						logTrace("Found reporter data:\n%s", reporterData.c_str());
+
 						// Make sure that the file ends with a newline to prevent reading incomplete data
 						auto reporterDataLines = Utility::Text::splitToVector(reporterData, "\n");
 						// Ensure that it is possible to do a complete read
+
 						if(reporterDataLines.back().empty()) {
 							const auto data = Utility::Text::parseTable(Utility::Text::join(reporterDataLines, "\n"), "\n", ";");
 							// Process the events
@@ -944,6 +949,7 @@ namespace EnergyManager {
 						} else {
 							logTrace("Reporter events file is incomplete");
 						}
+
 						// Remove the lock
 						remove(lockFile);
 					} else {
@@ -953,6 +959,7 @@ namespace EnergyManager {
 				},
 				10,
 				std::chrono::milliseconds(20));
+
 			// Clear events if necessary
 			if(clear) {
 				auto eventsCopy = allEvents;

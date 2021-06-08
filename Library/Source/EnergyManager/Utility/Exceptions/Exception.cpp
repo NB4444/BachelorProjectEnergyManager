@@ -44,6 +44,7 @@ namespace EnergyManager {
 
 			void Exception::retry(const std::function<void()>& operation, const unsigned int& attempts, const std::chrono::system_clock::duration& attemptInterval) {
 				for(unsigned int attempt = 1; attempts == 0 || attempt <= attempts; ++attempt) {
+					Logging::logInformation("FOR START");
 					// Wait before retrying
 					if(attempt > 1) {
 						Runnable::sleep(attemptInterval);
@@ -56,7 +57,7 @@ namespace EnergyManager {
 					try {
 						Logging::logTrace("Attempting to perform operation (attempt %d" + (attempts > 0 ? "/" + Text::toString(attempts) : "") + ")", attempt);
 						operation();
-
+						Logging::logInformation("FOR END");
 						return;
 					} catch(const EnergyManager::Utility::Exceptions::Exception& exception) {
 						exception.log();
@@ -67,6 +68,7 @@ namespace EnergyManager {
 					} catch(...) {
 						logAttemptFailure();
 					}
+
 				}
 
 				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION("Failed to perform operation");
