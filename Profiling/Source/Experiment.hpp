@@ -18,13 +18,14 @@ void experimentControl(const std::map<std::string, std::string>& arguments,  con
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 	
 	profiler.run();
 }
 
 template <class T>
-void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const enum Policies& policy) {
+void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments, const unsigned int& iterations, const enum Policies& policy, const bool singleCore = true, const int percentage = 100) {
 	auto profiler = T(arguments);
 	
 	EnergyManager::Utility::Logging::logInformation("Profiling " + profiler.getProfileName() + " energy monitor (%d iterations, smart %d)...", iterations, system);
@@ -45,6 +46,9 @@ void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments
 		case Policies::MaxFreq:
 			profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor Max frequency)");
 			break;
+		case Policies::StaticFreq:
+			profiler.setProfileName(profiler.getProfileName() + " (EnergyMonitor Static frequency " + std::to_string(percentage) + "%)");
+			break;
 	}
 	
 	std::vector<std::map<std::string, std::string>> profiles = profiler.getProfiles();
@@ -59,6 +63,8 @@ void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments
 		true,
 		halfingPeriod,
 		doublingPeriod,
+		singleCore,
+		percentage,
 		policy));
 	
 	profiler.run();
@@ -67,19 +73,28 @@ void experimentEnergyMonitor(const std::map<std::string, std::string>& arguments
 template <class T>
 void experiment(const std::map<std::string, std::string>& arguments, unsigned int iterations) {
 	auto i_max = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "-i", 1);
+	bool singleCore = EnergyManager::Utility::Text::getArgument<bool>(arguments, "-s", true);
 	auto policies = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--policies", 0);
+	auto staticFreq = EnergyManager::Utility::Text::getArgument<unsigned int>(arguments, "--staticFreq", 1);
 	
 	for(int i = 0; i < i_max; ++i) {
 		// Control data
 		ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentControl<T>(arguments, iterations));
-		
-		if(policies == 0) {
-			// Energy monitor data
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::Minmax));
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::System));
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::MaxFreq));
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::RankedMinmax));
-			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::ScalingMinmax));
+		if (staticFreq != 0) {
+			if(policies == 0) {
+				// Energy monitor data
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::Minmax, singleCore));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::System, singleCore));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::MaxFreq, singleCore));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::RankedMinmax, singleCore));
+				ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::ScalingMinmax, singleCore));
+			}
+		} else {
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::StaticFreq, singleCore, 10));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::StaticFreq, singleCore, 25));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::StaticFreq, singleCore, 50));
+			ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::StaticFreq, singleCore, 75));
+			//ENERGY_MANAGER_UTILITY_EXCEPTIONS_EXCEPTION_IGNORE(experimentEnergyMonitor<T>(arguments, iterations, Policies::StaticFreq, singleCore, 100));
 		}
 	}
 }

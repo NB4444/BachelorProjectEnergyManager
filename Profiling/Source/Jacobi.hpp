@@ -28,7 +28,8 @@ void jacobiControl(const std::map<std::string, std::string>& arguments, const un
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -60,7 +61,8 @@ void jacobiFixedFrequencies(std::map<std::string, std::string> arguments, const 
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -94,6 +96,7 @@ void jacobiEnergyMonitor(const std::map<std::string, std::string>& arguments, co
 		true,
 		halfingPeriod,
 		doublingPeriod,
+		true,
 		system));
 
 	profiler.run();

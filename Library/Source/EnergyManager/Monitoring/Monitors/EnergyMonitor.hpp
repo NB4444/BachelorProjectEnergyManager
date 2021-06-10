@@ -4,7 +4,7 @@
 #include "EnergyManager/Hardware/GPU.hpp"
 #include "EnergyManager/Monitoring/Monitors/Monitor.hpp"
 
-enum Policies {Minmax, System, RankedMinmax, ScalingMinmax, MaxFreq};
+enum Policies {Minmax, System, RankedMinmax, ScalingMinmax, MaxFreq, StaticFreq};
 
 namespace EnergyManager {
 	namespace Monitoring {
@@ -69,6 +69,16 @@ namespace EnergyManager {
 				State lastState_;
 				
 				/**
+				 * Whether to change the single core or all cores
+				 */
+				bool singleCore_;
+				
+				/**
+				 * Percentage of frequency for staticFreq policy
+				 */
+				int perc_;
+				
+				/**
 				 * Whether to use the smart policy.
 				 */
 				enum Policies policy_;
@@ -110,6 +120,8 @@ namespace EnergyManager {
 					const bool& activeMode = false,
 					const std::chrono::system_clock::duration& halfingPeriod = std::chrono::system_clock::duration(0),
 					const std::chrono::system_clock::duration& doublingPeriod = std::chrono::system_clock::duration(0),
+					bool singleCore = true,
+					int perc = 100,
 					const enum Policies& policy = Minmax);
 			};
 		}

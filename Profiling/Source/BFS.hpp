@@ -28,7 +28,8 @@ void bfsControl(const std::map<std::string, std::string>& arguments, const unsig
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -60,7 +61,8 @@ void bfsFixedFrequencies(std::map<std::string, std::string> arguments, const uns
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -94,6 +96,7 @@ void bfsEnergyMonitor(const std::map<std::string, std::string>& arguments, const
 		true,
 		halfingPeriod,
 		doublingPeriod,
+		true,
 		system));
 
 	profiler.run();

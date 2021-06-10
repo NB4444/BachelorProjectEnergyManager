@@ -28,7 +28,8 @@ void matrixMultiplyControl(const std::map<std::string, std::string>& arguments, 
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -60,7 +61,8 @@ void matrixMultiplyFixedFrequencies(std::map<std::string, std::string> arguments
 		energySavingInterval,
 		false,
 		halfingPeriod,
-		doublingPeriod));
+		doublingPeriod,
+		true));
 
 	profiler.run();
 }
@@ -94,6 +96,7 @@ void matrixMultiplyEnergyMonitor(const std::map<std::string, std::string>& argum
 		true,
 		halfingPeriod,
 		doublingPeriod,
+		true,
 		system));
 
 	profiler.run();
