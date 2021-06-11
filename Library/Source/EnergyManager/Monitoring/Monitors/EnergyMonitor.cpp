@@ -11,9 +11,11 @@
 	((device->getMaximumCoreClockRate().toValue() - device->getMinimumCoreClockRate().toValue()) * scale + device->getMinimumCoreClockRate().toValue())
 
 #define SETCPUCLOCKRATE(turbo, clockrate) \
-	core_->setCoreClockRate(clockrate, clockrate);\
-	core_->getCPU()->setTurboEnabled(turbo);\
-	core_->getCPU()->setCoreClockRate(clockrate, clockrate);\
+	core_->setCoreClockRate(clockrate, clockrate); \
+	if(!singleCore_) {\
+		core_->getCPU()->setTurboEnabled(turbo);\
+		core_->getCPU()->setCoreClockRate(clockrate, clockrate); \
+	}
 
 namespace EnergyManager {
 	namespace Monitoring {
@@ -243,14 +245,22 @@ namespace EnergyManager {
 							break;
 						case Minmax:
 						case MaxFreq:
-							SETCPUCLOCKRATE(true, core_->getMaximumCoreClockRate())
+						SETCPUCLOCKRATE(true, core_->getMaximumCoreClockRate())
 							gpu_->setCoreClockRate(gpu_->getMaximumCoreClockRate(), gpu_->getMaximumCoreClockRate());
 							break;
 						case System:
-							core_->getCPU()->setTurboEnabled(true);
 							core_->resetCoreClockRate();
-							core_->getCPU()->resetCoreClockRate();
+							if (!singleCore_) {
+								core_->getCPU()->setTurboEnabled(true);
+								core_->getCPU()->resetCoreClockRate();
+							}
 							gpu_->resetCoreClockRate();
+							break;
+						case StaticFreq:
+							clockRateCPU = core_->getMaximumCoreClockRate() * (((float) perc_) / 100);
+							SETCPUCLOCKRATE(true, clockRateCPU)
+							clockRateGPU = gpu_->getMaximumCoreClockRate() * (((float) perc_) / 100);
+							gpu_->setCoreClockRate(clockRateGPU, clockRateGPU);
 							break;
 					}
 					
@@ -273,6 +283,7 @@ namespace EnergyManager {
 									scaleGPUScaledUp();
 									break;
 								case MaxFreq:
+								case StaticFreq:
 									break;
 							}
 							break;
@@ -292,6 +303,7 @@ namespace EnergyManager {
 									scaleGPUScaledUp();
 									break;
 								case MaxFreq:
+								case StaticFreq:
 									break;
 							}
 							break;
@@ -311,6 +323,7 @@ namespace EnergyManager {
 									break;
 								case System:
 								case MaxFreq:
+								case StaticFreq:
 									break;
 							}
 							break;
@@ -324,6 +337,7 @@ namespace EnergyManager {
 									break;
 								case System:
 								case MaxFreq:
+								case StaticFreq:
 									break;
 							}
 							break;
@@ -366,6 +380,8 @@ namespace EnergyManager {
 				const bool& activeMode,
 				const std::chrono::system_clock::duration& halfingPeriod,
 				const std::chrono::system_clock::duration& doublingPeriod,
+				const bool singleCore,
+				const int perc,
 				const enum Policies& policy)
 				: Monitor("EnergyMonitor", interval)
 				, halfingPeriod_(halfingPeriod)
@@ -373,6 +389,8 @@ namespace EnergyManager {
 				, core_(std::move(core))
 				, gpu_(std::move(gpu))
 				, activeMode_(activeMode)
+				, singleCore_(singleCore)
+				, perc_(perc)
 				, policy_(policy) {
 			}
 		}
